@@ -1,0 +1,307 @@
+{
+  "title": "Red Team Attack Simulation Report",
+  "timestamp": "2026-07-10T22:16:36Z",
+  "summary": {
+    "total_attacks": 12,
+    "detected": 12,
+    "missed": 0,
+    "detection_rate_percent": 100.0,
+    "total_time_ms": 115.8
+  },
+  "attacks": [
+    {
+      "name": "May 2026 Open-OSS/privacy-filter",
+      "technique": "SSL bypass + base64 PowerShell + jsonkeeper C2",
+      "cve": null,
+      "detected": true,
+      "findings_count": 9,
+      "detection_time_ms": 22.4,
+      "findings": [
+        {
+          "rule_id": "HFS-001",
+          "severity": "critical",
+          "message": "powershell-subprocess (decoded layer 0)",
+          "evidence": "[decoded] matches powershell"
+        },
+        {
+          "rule_id": "HFS-004",
+          "severity": "critical",
+          "message": "paste-service-c2 (decoded layer 0)",
+          "evidence": "[decoded] matches jsonkeeper"
+        },
+        {
+          "rule_id": "HFS-014",
+          "severity": "high",
+          "message": "hidden-window-execution (decoded layer 0)",
+          "evidence": "[decoded] matches WindowStyle Hidden"
+        },
+        {
+          "rule_id": "HFS-012",
+          "severity": "high",
+          "message": "except: or except Exception: pass wrapping suspicious loader behavior",
+          "evidence": "except: pass"
+        },
+        {
+          "rule_id": "HFS-014",
+          "severity": "high",
+          "message": "CREATE_NO_WINDOW, WindowStyle Hidden, creationflags=0x08000000, or SW_HIDE in Python or shell",
+          "evidence": "subprocess.Popen creationflags=134217728"
+        },
+        {
+          "rule_id": "HFS-003",
+          "severity": "critical",
+          "message": "base64 string decoded and result passed to exec, eval, subprocess, or os.system",
+          "evidence": "Base64 decoded payload executes PowerShell"
+        },
+        {
+          "rule_id": "HFS-001",
+          "severity": "critical",
+          "message": "powershell-subprocess (decoded layer 1)",
+          "evidence": "[decoded] matches powershell"
+        },
+        {
+          "rule_id": "HFS-014",
+          "severity": "high",
+          "message": "hidden-window-execution (decoded layer 1)",
+          "evidence": "[decoded] matches WindowStyle Hidden"
+        },
+        {
+          "rule_id": "HFS-071",
+          "severity": "critical",
+          "message": "Symbolically resolved obfuscated string contains dangerous content",
+          "evidence": "Resolved argument: 'https://jsonkeeper.com/b/PAYLOAD'"
+        }
+      ]
+    },
+    {
+      "name": "CVE-2026-4372 HF Transformers RCE",
+      "technique": "trust_remote_code=True arbitrary execution",
+      "cve": "CVE-2026-4372",
+      "detected": true,
+      "findings_count": 4,
+      "detection_time_ms": 18.2,
+      "findings": [
+        {
+          "rule_id": "HFS-031",
+          "severity": "low",
+          "message": "trust_remote_code=True present in calling code or config",
+          "evidence": "trust_remote_code=True"
+        },
+        {
+          "rule_id": "HFS-030",
+          "severity": "low",
+          "message": "from_pretrained('org/model') without revision= pointing to a full 40-char SHA",
+          "evidence": "from_pretrained revision=None"
+        },
+        {
+          "rule_id": "HFS-031",
+          "severity": "low",
+          "message": "trust_remote_code=True present in calling code or config",
+          "evidence": "trust_remote_code=True"
+        },
+        {
+          "rule_id": "HFS-030",
+          "severity": "low",
+          "message": "from_pretrained('org/model') without revision= pointing to a full 40-char SHA",
+          "evidence": "from_pretrained revision=None"
+        }
+      ]
+    },
+    {
+      "name": "LiteLLM Supply Chain Attack (March 2026)",
+      "technique": "API key exfiltration via webhook.site",
+      "cve": null,
+      "detected": true,
+      "findings_count": 1,
+      "detection_time_ms": 18.3,
+      "findings": [
+        {
+          "rule_id": "HFS-012",
+          "severity": "high",
+          "message": "except: or except Exception: pass wrapping suspicious loader behavior",
+          "evidence": "except: pass"
+        }
+      ]
+    },
+    {
+      "name": "CVE-2026-46517 LMDeploy RCE",
+      "technique": "Hardcoded trust_remote_code enables RCE",
+      "cve": "CVE-2026-46517",
+      "detected": true,
+      "findings_count": 2,
+      "detection_time_ms": 17.7,
+      "findings": [
+        {
+          "rule_id": "HFS-031",
+          "severity": "low",
+          "message": "trust_remote_code=True present in calling code or config",
+          "evidence": "trust_remote_code=True"
+        },
+        {
+          "rule_id": "HFS-030",
+          "severity": "low",
+          "message": "from_pretrained('org/model') without revision= pointing to a full 40-char SHA",
+          "evidence": "from_pretrained revision=None"
+        }
+      ]
+    },
+    {
+      "name": "Acronis TRU Credential Stealer",
+      "technique": "Browser cookie theft + requestbin exfil",
+      "cve": null,
+      "detected": true,
+      "findings_count": 4,
+      "detection_time_ms": 20.9,
+      "findings": [
+        {
+          "rule_id": "HFS-012",
+          "severity": "high",
+          "message": "except: or except Exception: pass wrapping suspicious loader behavior",
+          "evidence": "except: pass"
+        },
+        {
+          "rule_id": "HFS-072",
+          "severity": "critical",
+          "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
+          "evidence": "Sandbox: blocked import 'os'"
+        },
+        {
+          "rule_id": "HFS-072",
+          "severity": "critical",
+          "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
+          "evidence": "Sandbox: exec() with: <code object <module> at 0x7ff08f347020, file \"/root/.pyenv/versions/3.11.15/lib/python3.11/sqlite3/__init__.py\", line 1>"
+        },
+        {
+          "rule_id": "HFS-072",
+          "severity": "critical",
+          "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
+          "evidence": "Sandbox: exec() with: <code object <module> at 0x2dfd5d00, file \"/root/.pyenv/versions/3.11.15/lib/python3.11/base64.py\", line 1>"
+        }
+      ]
+    },
+    {
+      "name": "Multi-layer chr() obfuscation",
+      "technique": "reversed() + chr() list + exec(f-string)",
+      "cve": null,
+      "detected": true,
+      "findings_count": 1,
+      "detection_time_ms": 17.9,
+      "findings": [
+        {
+          "rule_id": "HFS-072",
+          "severity": "critical",
+          "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
+          "evidence": "Sandbox: exec() with: import os; os.system( 'whoname')"
+        }
+      ]
+    },
+    {
+      "name": "JFrog Bypass: Corrupted pickle (no STOP)",
+      "technique": "Truncated pickle executes before deserialization completes",
+      "cve": null,
+      "detected": true,
+      "findings_count": 1,
+      "detection_time_ms": 0.0,
+      "findings": [
+        {
+          "rule_id": "HFS-050",
+          "severity": "critical",
+          "message": "Pickle file contains opcode invoking dangerous callable (os.system, subprocess, exec, eval, etc.)",
+          "evidence": "CRITICAL callable in pickle: os.system"
+        }
+      ]
+    },
+    {
+      "name": "JFrog Bypass: builtins.eval in pickle",
+      "technique": "Direct eval() call via GLOBAL opcode",
+      "cve": null,
+      "detected": true,
+      "findings_count": 1,
+      "detection_time_ms": 0.0,
+      "findings": [
+        {
+          "rule_id": "HFS-050",
+          "severity": "critical",
+          "message": "Pickle file contains opcode invoking dangerous callable (os.system, subprocess, exec, eval, etc.)",
+          "evidence": "CRITICAL callable in pickle: builtins.eval"
+        }
+      ]
+    },
+    {
+      "name": "Sonatype Bypass: copyreg gadget chain",
+      "technique": "getattr(__import__('os'), 'system') chain",
+      "cve": null,
+      "detected": true,
+      "findings_count": 2,
+      "detection_time_ms": 0.0,
+      "findings": [
+        {
+          "rule_id": "HFS-050",
+          "severity": "critical",
+          "message": "Pickle file contains opcode invoking dangerous callable (os.system, subprocess, exec, eval, etc.)",
+          "evidence": "Dangerous module access in pickle: builtins.getattr"
+        },
+        {
+          "rule_id": "HFS-050",
+          "severity": "critical",
+          "message": "Pickle file contains opcode invoking dangerous callable (os.system, subprocess, exec, eval, etc.)",
+          "evidence": "CRITICAL callable in pickle: builtins.__import__"
+        }
+      ]
+    },
+    {
+      "name": "Pickle protocol 4 STACK_GLOBAL + eval",
+      "technique": "Protocol 4 builtins.eval with __import__",
+      "cve": null,
+      "detected": true,
+      "findings_count": 1,
+      "detection_time_ms": 0.0,
+      "findings": [
+        {
+          "rule_id": "HFS-050",
+          "severity": "critical",
+          "message": "Pickle file contains opcode invoking dangerous callable (os.system, subprocess, exec, eval, etc.)",
+          "evidence": "CRITICAL callable in pickle: builtins.eval"
+        }
+      ]
+    },
+    {
+      "name": "SafeTensors metadata C2 injection",
+      "technique": "eval() + ngrok + eth-fastscan URLs in metadata",
+      "cve": null,
+      "detected": true,
+      "findings_count": 2,
+      "detection_time_ms": 0.1,
+      "findings": [
+        {
+          "rule_id": "HFS-053",
+          "severity": "high",
+          "message": "SafeTensors metadata contains suspicious content (URLs, scripts, encoded payloads)",
+          "evidence": "Suspicious content in __metadata__.post_load_hook: pattern='https?://[^\\s\\\"']+' match='https://ngrok-free.app/payload'"
+        },
+        {
+          "rule_id": "HFS-053",
+          "severity": "high",
+          "message": "SafeTensors metadata contains suspicious content (URLs, scripts, encoded payloads)",
+          "evidence": "Suspicious content in __metadata__.callback_url: pattern='https?://[^\\s\\\"']+' match='https://eth-fastscan.org/api/v1/beacon'"
+        }
+      ]
+    },
+    {
+      "name": "GGUF metadata shell injection",
+      "technique": "PowerShell encoded command in custom metadata key",
+      "cve": null,
+      "detected": true,
+      "findings_count": 1,
+      "detection_time_ms": 0.0,
+      "findings": [
+        {
+          "rule_id": "HFS-056",
+          "severity": "high",
+          "message": "GGUF metadata key-value contains suspicious content (URLs, scripts, shell commands)",
+          "evidence": "Suspicious metadata in key 'custom.on_load': matched 'powershell'"
+        }
+      ]
+    }
+  ]
+}
