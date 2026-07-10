@@ -1,1 +1,0 @@
-# hf-model-provenance-scanner
