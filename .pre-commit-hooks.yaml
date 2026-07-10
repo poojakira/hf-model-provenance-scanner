@@ -1,0 +1,9 @@
+- id: hf-scanner
+  name: HF Model Provenance Scanner
+  description: Scan model files for supply chain attacks and malicious code
+  entry: python -m scanner.cli
+  args: ['.', '--mode', 'local', '--fail-on', 'high', '-q']
+  language: python
+  types_or: [python, json, yaml, toml]
+  pass_filenames: false
+  always_run: true
