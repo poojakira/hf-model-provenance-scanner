@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hf-scanner"
-version = "0.1.0"
+version = "0.2.0"
 description = "Zero-dependency ML supply chain provenance scanner for Hugging Face repositories"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 license = {text = "Apache-2.0"}
 dependencies = []  # intentionally empty — zero runtime dependencies
 
@@ -21,4 +21,4 @@ where = ["."]
 include = ["scanner*"]
 
 [tool.setuptools.package-data]
-"scanner.data" = ["protected_orgs.json"]
+"scanner.data" = ["*.json"]
