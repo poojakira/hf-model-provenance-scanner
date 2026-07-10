@@ -1,12 +1,12 @@
 {
   "title": "Red Team Attack Simulation Report",
-  "timestamp": "2026-07-10T23:43:28Z",
+  "timestamp": "2026-07-10T23:53:03Z",
   "summary": {
     "total_attacks": 12,
     "detected": 12,
     "missed": 0,
     "detection_rate_percent": 100.0,
-    "total_time_ms": 177.7
+    "total_time_ms": 189.2
   },
   "attacks": [
     {
@@ -15,7 +15,7 @@
       "cve": null,
       "detected": true,
       "findings_count": 10,
-      "detection_time_ms": 19.5,
+      "detection_time_ms": 20.9,
       "findings": [
         {
           "rule_id": "HFS-001",
@@ -75,7 +75,7 @@
           "rule_id": "HFS-072",
           "severity": "critical",
           "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
-          "evidence": "Sandbox: code crashed accessing blocked module 'urllib': Traceback (most recent call last):\n  File \"/tmp/tmp_4zuju39.py\", line 39, in <module>\n    import urllib.request\n  File \"<frozen importlib._boot"
+          "evidence": "Sandbox: code crashed accessing blocked module 'urllib': Traceback (most recent call last):\n  File \"/tmp/tmplypt0hia.py\", line 39, in <module>\n    import urllib.request\n  File \"<frozen importlib._boot"
         }
       ]
     },
@@ -85,7 +85,7 @@
       "cve": "CVE-2026-4372",
       "detected": true,
       "findings_count": 4,
-      "detection_time_ms": 52.3,
+      "detection_time_ms": 54.3,
       "findings": [
         {
           "rule_id": "HFS-031",
@@ -119,7 +119,7 @@
       "cve": null,
       "detected": true,
       "findings_count": 2,
-      "detection_time_ms": 17.7,
+      "detection_time_ms": 19.7,
       "findings": [
         {
           "rule_id": "HFS-012",
@@ -131,7 +131,7 @@
           "rule_id": "HFS-072",
           "severity": "critical",
           "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
-          "evidence": "Sandbox: code crashed accessing blocked module 'urllib': Traceback (most recent call last):\n  File \"/tmp/tmppci8dtq0.py\", line 38, in <module>\n    import urllib.request\n  File \"<frozen importlib._boot"
+          "evidence": "Sandbox: code crashed accessing blocked module 'urllib': Traceback (most recent call last):\n  File \"/tmp/tmpixaydw8d.py\", line 38, in <module>\n    import urllib.request\n  File \"<frozen importlib._boot"
         }
       ]
     },
@@ -141,7 +141,7 @@
       "cve": "CVE-2026-46517",
       "detected": true,
       "findings_count": 2,
-      "detection_time_ms": 51.4,
+      "detection_time_ms": 55.4,
       "findings": [
         {
           "rule_id": "HFS-031",
@@ -163,7 +163,7 @@
       "cve": null,
       "detected": true,
       "findings_count": 3,
-      "detection_time_ms": 18.8,
+      "detection_time_ms": 19.8,
       "findings": [
         {
           "rule_id": "HFS-012",
@@ -175,13 +175,13 @@
           "rule_id": "HFS-072",
           "severity": "critical",
           "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
-          "evidence": "Sandbox: exec() with: <code object <module> at 0x7f3603117290, file \"/root/.pyenv/versions/3.11.15/lib/python3.11/sqlite3/__init__.py\", line 1>"
+          "evidence": "Sandbox: exec() with: <code object <module> at 0x7fed04077290, file \"/root/.pyenv/versions/3.11.15/lib/python3.11/sqlite3/__init__.py\", line 1>"
         },
         {
           "rule_id": "HFS-072",
           "severity": "critical",
           "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
-          "evidence": "Sandbox: exec() with: <code object <module> at 0x14a40e80, file \"/root/.pyenv/versions/3.11.15/lib/python3.11/base64.py\", line 1>"
+          "evidence": "Sandbox: exec() with: <code object <module> at 0x2298ee80, file \"/root/.pyenv/versions/3.11.15/lib/python3.11/base64.py\", line 1>"
         }
       ]
     },
@@ -191,7 +191,7 @@
       "cve": null,
       "detected": true,
       "findings_count": 1,
-      "detection_time_ms": 17.6,
+      "detection_time_ms": 18.9,
       "findings": [
         {
           "rule_id": "HFS-072",
@@ -207,7 +207,7 @@
       "cve": null,
       "detected": true,
       "findings_count": 1,
-      "detection_time_ms": 0.0,
+      "detection_time_ms": 0.1,
       "findings": [
         {
           "rule_id": "HFS-050",
