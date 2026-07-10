@@ -17,6 +17,18 @@ from scanner.rules.definitions import get_rule
 SANDBOX_TIMEOUT = int(os.environ.get("HF_SCANNER_SANDBOX_TIMEOUT", "30"))
 MAX_OUTPUT = 65536
 
+# Environment configurations to test against (catches gated payloads)
+SANDBOX_ENV_CONFIGS = [
+    # Default: minimal environment
+    {"PATH": "", "HOME": "/tmp", "PYTHONDONTWRITEBYTECODE": "1"},
+    # Windows-like: triggers platform.system() == "Windows" gates
+    {"PATH": "", "HOME": "/tmp", "PYTHONDONTWRITEBYTECODE": "1",
+     "OS": "Windows_NT", "SYSTEMROOT": "C:\\Windows", "COMSPEC": "cmd.exe"},
+    # CI environment: triggers CI-detection gates
+    {"PATH": "", "HOME": "/tmp", "PYTHONDONTWRITEBYTECODE": "1",
+     "CI": "true", "GITHUB_ACTIONS": "true", "GITLAB_CI": "true"},
+]
+
 
 def _make_finding(rule_id: str, file_path: str, line: int, evidence: str) -> Finding:
     rule = get_rule(rule_id)
@@ -62,7 +74,27 @@ FOOTER = '\nimport sys,json\nsys.stdout.write(json.dumps(_F))\n'
 
 
 def sandbox_execute(file_path: str, source: str) -> list[Finding]:
-    """Execute code in sandboxed subprocess, return findings for dangerous ops."""
+    """Execute code in sandboxed subprocess with multiple env configs, return findings."""
+    findings: list[Finding] = []
+    seen_evidence = set()
+
+    for env_config in SANDBOX_ENV_CONFIGS:
+        env_findings = _sandbox_single_run(file_path, source, env_config)
+        # Deduplicate across env runs
+        for f in env_findings:
+            key = (f.rule_id, f.evidence[:100])
+            if key not in seen_evidence:
+                seen_evidence.add(key)
+                findings.append(f)
+        # Stop after first env that finds something (optimization)
+        if findings:
+            break
+
+    return findings
+
+
+def _sandbox_single_run(file_path: str, source: str, env: dict) -> list[Finding]:
+    """Single sandbox execution with a specific environment."""
     findings: list[Finding] = []
     instrumented = HARNESS + "\n" + source + "\n" + FOOTER
 
@@ -74,7 +106,7 @@ def sandbox_execute(file_path: str, source: str) -> list[Finding]:
         result = subprocess.run(
             [sys.executable, "-S", "-u", tmp],
             capture_output=True, text=True, timeout=SANDBOX_TIMEOUT,
-            env={"PATH": "", "HOME": "/tmp", "PYTHONDONTWRITEBYTECODE": "1"})
+            env=env)
         stdout = result.stdout[:MAX_OUTPUT]
         if stdout:
             try:
