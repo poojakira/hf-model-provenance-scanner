@@ -1,0 +1,27 @@
+# Azure Pipelines template
+trigger:
+  branches:
+    include: [main, master]
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.11'
+
+  - script: |
+      git clone --depth 1 https://github.com/poojakira/hf-model-provenance-scanner.git /tmp/hf-scanner
+      pip install -e /tmp/hf-scanner
+    displayName: 'Install HF Scanner'
+
+  - script: |
+      hf-scanner $(Build.SourcesDirectory) --mode local --format sarif --output $(Build.ArtifactStagingDirectory)/results.sarif --fail-on high
+    displayName: 'Scan Model Repository'
+
+  - task: PublishBuildArtifacts@1
+    condition: always()
+    inputs:
+      pathToPublish: '$(Build.ArtifactStagingDirectory)/results.sarif'
+      artifactName: 'SecurityScanResults'

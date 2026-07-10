@@ -1,0 +1,15 @@
+# GitLab CI template — copy to your .gitlab-ci.yml
+model-security-scan:
+  stage: test
+  image: python:3.11-slim
+  script:
+    - git clone --depth 1 https://github.com/poojakira/hf-model-provenance-scanner.git /tmp/hf-scanner
+    - pip install -e /tmp/hf-scanner
+    - hf-scanner . --mode local --format json --output report.json --fail-on high --sandbox
+  artifacts:
+    reports:
+      sast: report.json
+    when: always
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

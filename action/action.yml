@@ -1,0 +1,119 @@
+name: 'HF Model Provenance Scanner'
+description: 'Scan Hugging Face model repositories for supply chain attacks, malicious code, and provenance issues'
+author: 'poojakira'
+
+branding:
+  icon: 'shield'
+  color: 'red'
+
+inputs:
+  target:
+    description: 'HuggingFace repo ID (org/model) or local path to scan'
+    required: true
+    default: '.'
+  mode:
+    description: 'Scan mode: local, remote, or both'
+    required: false
+    default: 'local'
+  fail-on:
+    description: 'Minimum severity to fail the build: critical, high, medium, low, info, never'
+    required: false
+    default: 'high'
+  format:
+    description: 'Output format: text, json, sarif, html'
+    required: false
+    default: 'sarif'
+  output:
+    description: 'Path to write the report file'
+    required: false
+    default: 'hf-scanner-results.sarif'
+  sandbox:
+    description: 'Enable sandbox execution for Python files (slower but catches all obfuscation)'
+    required: false
+    default: 'false'
+  token:
+    description: 'HuggingFace API token for private repos'
+    required: false
+    default: ''
+  baseline:
+    description: 'Path to baseline JSON for rug-pull detection'
+    required: false
+    default: ''
+  save-baseline:
+    description: 'Path to save scan baseline for future comparison'
+    required: false
+    default: ''
+
+outputs:
+  risk-score:
+    description: 'Numerical risk score (0-100)'
+  risk-level:
+    description: 'Risk level: LOW, MEDIUM, HIGH, CRITICAL'
+  findings-count:
+    description: 'Total number of findings'
+  exit-code:
+    description: 'Scanner exit code (0=pass, 1=findings above threshold)'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install hf-scanner
+      shell: bash
+      run: pip install -e ${{ github.action_path }}/..
+
+    - name: Run scan
+      id: scan
+      shell: bash
+      run: |
+        ARGS="${{ inputs.target }} --mode ${{ inputs.mode }} --fail-on ${{ inputs.fail-on }}"
+        ARGS="$ARGS --format ${{ inputs.format }}"
+        
+        if [ -n "${{ inputs.output }}" ]; then
+          ARGS="$ARGS --output ${{ inputs.output }}"
+        fi
+        
+        if [ "${{ inputs.sandbox }}" = "true" ]; then
+          ARGS="$ARGS --sandbox"
+        fi
+        
+        if [ -n "${{ inputs.token }}" ]; then
+          ARGS="$ARGS --token ${{ inputs.token }}"
+        fi
+        
+        if [ -n "${{ inputs.baseline }}" ]; then
+          ARGS="$ARGS --baseline ${{ inputs.baseline }}"
+        fi
+        
+        if [ -n "${{ inputs.save-baseline }}" ]; then
+          ARGS="$ARGS --save-baseline ${{ inputs.save-baseline }}"
+        fi
+        
+        # Run scanner and capture exit code
+        set +e
+        hf-scanner $ARGS
+        EXIT_CODE=$?
+        set -e
+        
+        echo "exit-code=$EXIT_CODE" >> $GITHUB_OUTPUT
+        
+        # Also run JSON format to extract metadata
+        JSON_OUT=$(hf-scanner ${{ inputs.target }} --mode ${{ inputs.mode }} --format json --fail-on never 2>/dev/null || true)
+        if [ -n "$JSON_OUT" ]; then
+          echo "risk-score=$(echo "$JSON_OUT" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(d["risk"]["score"])')" >> $GITHUB_OUTPUT
+          echo "risk-level=$(echo "$JSON_OUT" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(d["risk"]["level"])')" >> $GITHUB_OUTPUT
+          echo "findings-count=$(echo "$JSON_OUT" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(len(d["findings"]))')" >> $GITHUB_OUTPUT
+        fi
+        
+        exit $EXIT_CODE
+
+    - name: Upload SARIF (if applicable)
+      if: always() && inputs.format == 'sarif' && inputs.output != ''
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: ${{ inputs.output }}
+      continue-on-error: true
