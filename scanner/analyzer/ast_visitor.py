@@ -8,7 +8,7 @@ from scanner.models import Finding, Severity
 from scanner.rules.definitions import get_rule
 from scanner.utils.entropy import shannon_entropy
 
-FULL_SHA_RE = re.compile(r"^[0-9a-f]{40}$", re.IGNORECASE)
+FULL_SHA_RE = re.compile(r"^[0-9a-f]{7,40}$", re.IGNORECASE)
 LOADER_NAMES = {"loader.py", "setup.py", "install.py", "start.py", "run.py", "inference.py"}
 NETWORK_PREFIXES = ("urllib", "urllib.request", "requests", "http.client", "socket")
 EXECUTION_CALLS = {"subprocess.run", "subprocess.Popen", "subprocess.call", "subprocess.check_call", "subprocess.check_output", "os.system", "eval", "exec"}
@@ -211,6 +211,37 @@ class ScannerASTVisitor(ast.NodeVisitor):
                     revision = self.literal_string(kw.value)
             if revision is None or not FULL_SHA_RE.match(revision):
                 self.report("HFS-030", node, f"from_pretrained revision={revision!r}")
+
+        # Bypass-hardened: getattr on dangerous modules
+        if call_name in ("getattr", "builtins.getattr") and len(node.args) >= 2:
+            obj = dotted_name(node.args[0]) if isinstance(node.args[0], (ast.Name, ast.Attribute)) else ""
+            if obj in ("os", "subprocess", "builtins", "__builtins__", "shutil", "ctypes"):
+                self.report("HFS-011", node, f"getattr({obj}, ...) on dangerous module")
+
+        # Bypass-hardened: compile() + exec
+        if call_name == "compile":
+            self.report("HFS-011", node, "compile() generates code objects for exec")
+
+        # Bypass-hardened: ctypes FFI
+        if "ctypes" in call_name or "CDLL" in call_name or "cdll" in call_lower:
+            self.report("HFS-011", node, f"ctypes FFI: {call_name}")
+
+        # Bypass-hardened: codecs.decode with rot_13
+        if call_name in ("codecs.decode", "codecs.encode"):
+            if any(enc in call_lower for enc in ("rot_13", "rot13")):
+                self.report("HFS-011", node, f"codecs obfuscation: {call_text[:80]}")
+
+        # Bypass-hardened: __import__ with non-literal arg
+        if call_name in ("__import__", "builtins.__import__"):
+            if node.args and not isinstance(node.args[0], ast.Constant):
+                self.report("HFS-011", node, "__import__ with dynamic argument")
+
+        # Bypass-hardened: exec/eval with any call as argument
+        if call_name in ("exec", "eval") and node.args:
+            if isinstance(node.args[0], ast.Call):
+                self.report("HFS-003", node, f"{call_name}(func_call()) — dynamic execution")
+            elif isinstance(node.args[0], ast.Name):
+                self.report("HFS-003", node, f"{call_name}(variable) — executing variable content")
 
         self.generic_visit(node)
 
