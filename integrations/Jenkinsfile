@@ -1,0 +1,32 @@
+// Jenkins Pipeline template
+pipeline {
+    agent any
+    
+    stages {
+        stage('Install Scanner') {
+            steps {
+                sh '''
+                    git clone --depth 1 https://github.com/poojakira/hf-model-provenance-scanner.git /tmp/hf-scanner
+                    pip install -e /tmp/hf-scanner
+                '''
+            }
+        }
+        
+        stage('Scan Model') {
+            steps {
+                sh 'hf-scanner . --mode local --format json --output report.json --fail-on high --sandbox'
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'report.json', allowEmptyArchive: true
+                }
+            }
+        }
+    }
+    
+    post {
+        failure {
+            echo 'Model security scan found critical/high findings. Deployment blocked.'
+        }
+    }
+}

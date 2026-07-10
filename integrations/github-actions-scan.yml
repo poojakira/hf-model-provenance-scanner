@@ -1,0 +1,35 @@
+# Ready-to-use GitHub Actions workflow — copy to your repo's .github/workflows/
+name: Model Security Scan
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write  # For SARIF upload
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install HF Scanner
+        run: |
+          git clone --depth 1 https://github.com/poojakira/hf-model-provenance-scanner.git /tmp/hf-scanner
+          pip install -e /tmp/hf-scanner
+
+      - name: Scan repository
+        run: |
+          hf-scanner . --mode local --format sarif --output results.sarif --fail-on high --sandbox
+
+      - name: Upload SARIF results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
