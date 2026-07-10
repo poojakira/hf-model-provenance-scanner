@@ -1,0 +1,165 @@
+{
+  "suite": "extended_red_team",
+  "timestamp": "2026-07-10T22:48:51Z",
+  "total_attacks": 18,
+  "detected": 18,
+  "missed": 0,
+  "false_positives": 0,
+  "detection_rate": 100.0,
+  "results": [
+    {
+      "name": "Gated: platform.system() == 'Windows'",
+      "expected_malicious": true,
+      "detected": true,
+      "findings_count": 1,
+      "time_ms": 18.7
+    },
+    {
+      "name": "Gated: os.environ check",
+      "expected_malicious": true,
+      "detected": true,
+      "findings_count": 1,
+      "time_ms": 18.7
+    },
+    {
+      "name": "Gated: hasattr check on module",
+      "expected_malicious": true,
+      "detected": true,
+      "findings_count": 1,
+      "time_ms": 19.5
+    },
+    {
+      "name": "Multi-stage: define class then call",
+      "expected_malicious": true,
+      "detected": true,
+      "findings_count": 1,
+      "time_ms": 20.7
+    },
+    {
+      "name": "Multi-stage: decorator-based execution",
+      "expected_malicious": true,
+      "detected": true,
+      "findings_count": 1,
+      "time_ms": 19.1
+    },
+    {
+      "name": "Multi-stage: generator-based lazy eval",
+      "expected_malicious": true,
+      "detected": true,
+      "findings_count": 1,
+      "time_ms": 19.7
+    },
+    {
+      "name": "Encoding: hex string decode",
+      "expected_malicious": true,
+      "detected": true,
+      "findings_count": 2,
+      "time_ms": 17.8
+    },
+    {
+      "name": "Encoding: list(map(ord,...)) reversed",
+      "expected_malicious": true,
+      "detected": true,
+      "findings_count": 1,
+      "time_ms": 17.8
+    },
+    {
+      "name": "Encoding: unicode_escape",
+      "expected_malicious": true,
+      "detected": true,
+      "findings_count": 2,
+      "time_ms": 17.8
+    },
+    {
+      "name": "Framework: torch.load with map_location exec",
+      "expected_malicious": true,
+      "detected": true,
+      "findings_count": 1,
+      "time_ms": 17.7
+    },
+    {
+      "name": "Framework: custom Dataset __getitem__ backdoor",
+      "expected_malicious": true,
+      "detected": true,
+      "findings_count": 1,
+      "time_ms": 17.6
+    },
+    {
+      "name": "Exfil: DNS-based exfiltration",
+      "expected_malicious": true,
+      "detected": true,
+      "findings_count": 1,
+      "time_ms": 17.7
+    },
+    {
+      "name": "Exfil: ICMP/raw socket attempt",
+      "expected_malicious": true,
+      "detected": true,
+      "findings_count": 1,
+      "time_ms": 17.8
+    },
+    {
+      "name": "Persistence: crontab modification",
+      "expected_malicious": true,
+      "detected": true,
+      "findings_count": 1,
+      "time_ms": 18.3
+    },
+    {
+      "name": "Persistence: systemd service creation",
+      "expected_malicious": true,
+      "detected": true,
+      "findings_count": 1,
+      "time_ms": 19.2
+    },
+    {
+      "name": "Evasion: time.sleep delay before payload",
+      "expected_malicious": true,
+      "detected": true,
+      "findings_count": 2,
+      "time_ms": 118.6
+    },
+    {
+      "name": "Evasion: type() to construct class dynamically",
+      "expected_malicious": true,
+      "detected": true,
+      "findings_count": 1,
+      "time_ms": 20.2
+    },
+    {
+      "name": "Evasion: globals()/locals() manipulation",
+      "expected_malicious": true,
+      "detected": true,
+      "findings_count": 1,
+      "time_ms": 19.2
+    },
+    {
+      "name": "LEGIT: Standard PyTorch model definition",
+      "expected_malicious": false,
+      "detected": false,
+      "findings_count": 0,
+      "time_ms": 19.1
+    },
+    {
+      "name": "LEGIT: Data preprocessing pipeline",
+      "expected_malicious": false,
+      "detected": false,
+      "findings_count": 0,
+      "time_ms": 18.4
+    },
+    {
+      "name": "LEGIT: Configuration loading",
+      "expected_malicious": false,
+      "detected": false,
+      "findings_count": 0,
+      "time_ms": 18.0
+    },
+    {
+      "name": "LEGIT: Logging and metrics",
+      "expected_malicious": false,
+      "detected": false,
+      "findings_count": 0,
+      "time_ms": 21.3
+    }
+  ]
+}

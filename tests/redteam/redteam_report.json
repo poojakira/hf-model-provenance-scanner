@@ -1,12 +1,12 @@
 {
   "title": "Red Team Attack Simulation Report",
-  "timestamp": "2026-07-10T22:16:36Z",
+  "timestamp": "2026-07-10T22:48:50Z",
   "summary": {
     "total_attacks": 12,
     "detected": 12,
     "missed": 0,
     "detection_rate_percent": 100.0,
-    "total_time_ms": 115.8
+    "total_time_ms": 127.3
   },
   "attacks": [
     {
@@ -14,8 +14,8 @@
       "technique": "SSL bypass + base64 PowerShell + jsonkeeper C2",
       "cve": null,
       "detected": true,
-      "findings_count": 9,
-      "detection_time_ms": 22.4,
+      "findings_count": 10,
+      "detection_time_ms": 20.3,
       "findings": [
         {
           "rule_id": "HFS-001",
@@ -70,6 +70,12 @@
           "severity": "critical",
           "message": "Symbolically resolved obfuscated string contains dangerous content",
           "evidence": "Resolved argument: 'https://jsonkeeper.com/b/PAYLOAD'"
+        },
+        {
+          "rule_id": "HFS-072",
+          "severity": "critical",
+          "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
+          "evidence": "Sandbox: code crashed accessing blocked module 'urllib': Traceback (most recent call last):\n  File \"/tmp/tmpz24pnu1_.py\", line 39, in <module>\n    import urllib.request\n  File \"<frozen importlib._boot"
         }
       ]
     },
@@ -79,7 +85,7 @@
       "cve": "CVE-2026-4372",
       "detected": true,
       "findings_count": 4,
-      "detection_time_ms": 18.2,
+      "detection_time_ms": 22.8,
       "findings": [
         {
           "rule_id": "HFS-031",
@@ -112,14 +118,20 @@
       "technique": "API key exfiltration via webhook.site",
       "cve": null,
       "detected": true,
-      "findings_count": 1,
-      "detection_time_ms": 18.3,
+      "findings_count": 2,
+      "detection_time_ms": 18.9,
       "findings": [
         {
           "rule_id": "HFS-012",
           "severity": "high",
           "message": "except: or except Exception: pass wrapping suspicious loader behavior",
           "evidence": "except: pass"
+        },
+        {
+          "rule_id": "HFS-072",
+          "severity": "critical",
+          "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
+          "evidence": "Sandbox: code crashed accessing blocked module 'urllib': Traceback (most recent call last):\n  File \"/tmp/tmpj6brn878.py\", line 38, in <module>\n    import urllib.request\n  File \"<frozen importlib._boot"
         }
       ]
     },
@@ -129,7 +141,7 @@
       "cve": "CVE-2026-46517",
       "detected": true,
       "findings_count": 2,
-      "detection_time_ms": 17.7,
+      "detection_time_ms": 23.1,
       "findings": [
         {
           "rule_id": "HFS-031",
@@ -150,8 +162,8 @@
       "technique": "Browser cookie theft + requestbin exfil",
       "cve": null,
       "detected": true,
-      "findings_count": 4,
-      "detection_time_ms": 20.9,
+      "findings_count": 3,
+      "detection_time_ms": 23.1,
       "findings": [
         {
           "rule_id": "HFS-012",
@@ -163,19 +175,13 @@
           "rule_id": "HFS-072",
           "severity": "critical",
           "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
-          "evidence": "Sandbox: blocked import 'os'"
+          "evidence": "Sandbox: exec() with: <code object <module> at 0x7f76c52af290, file \"/root/.pyenv/versions/3.11.15/lib/python3.11/sqlite3/__init__.py\", line 1>"
         },
         {
           "rule_id": "HFS-072",
           "severity": "critical",
           "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
-          "evidence": "Sandbox: exec() with: <code object <module> at 0x7ff08f347020, file \"/root/.pyenv/versions/3.11.15/lib/python3.11/sqlite3/__init__.py\", line 1>"
-        },
-        {
-          "rule_id": "HFS-072",
-          "severity": "critical",
-          "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
-          "evidence": "Sandbox: exec() with: <code object <module> at 0x2dfd5d00, file \"/root/.pyenv/versions/3.11.15/lib/python3.11/base64.py\", line 1>"
+          "evidence": "Sandbox: exec() with: <code object <module> at 0x29c7ee80, file \"/root/.pyenv/versions/3.11.15/lib/python3.11/base64.py\", line 1>"
         }
       ]
     },
@@ -185,7 +191,7 @@
       "cve": null,
       "detected": true,
       "findings_count": 1,
-      "detection_time_ms": 17.9,
+      "detection_time_ms": 18.8,
       "findings": [
         {
           "rule_id": "HFS-072",

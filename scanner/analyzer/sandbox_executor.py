@@ -14,7 +14,7 @@ from typing import Optional
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
 
-SANDBOX_TIMEOUT = 5
+SANDBOX_TIMEOUT = int(os.environ.get("HF_SCANNER_SANDBOX_TIMEOUT", "30"))
 MAX_OUTPUT = 65536
 
 
@@ -27,10 +27,18 @@ def _make_finding(rule_id: str, file_path: str, line: int, evidence: str) -> Fin
 HARNESS = textwrap.dedent('''
 import sys, json
 _F = []
+import os as _safe_os
+import os.path as _safe_path
 _BM = {"os","subprocess","shutil","ctypes","socket","webbrowser","urllib","http"}
 class _M:
     def __init__(s,n): s._n=n
     def __getattr__(s,a):
+        if s._n == "os" and a in ("environ", "path", "getcwd", "sep", "linesep",
+                                   "name", "devnull", "getpid", "getenv"):
+            if a == "environ": return _safe_os.environ
+            if a == "path": return _safe_path
+            if a == "getenv": return _safe_os.getenv
+            return getattr(_safe_os, a, None)
         _F.append({"op":"attr","module":s._n,"attr":a})
         return lambda *a,**k: None
     def __call__(s,*a,**k): return None
@@ -74,6 +82,21 @@ def sandbox_execute(file_path: str, source: str) -> list[Finding]:
                 findings.extend(_interpret(file_path, ops))
             except json.JSONDecodeError:
                 pass
+
+        # Check stderr for blocked module access (sandbox crashed before output)
+        stderr = result.stderr[:MAX_OUTPUT] if result.stderr else ""
+        if not stdout and stderr:
+            # Only flag if network/execution modules caused the crash
+            # (os alone is too common in legitimate code)
+            dangerous_crash_modules = ["subprocess", "socket", "ctypes",
+                                       "webbrowser", "urllib", "http"]
+            blocked_indicators = ["AttributeError", "PermissionError", "OSError"]
+            for module in dangerous_crash_modules:
+                if module in stderr and any(ind in stderr for ind in blocked_indicators):
+                    findings.append(_make_finding("HFS-072", file_path, 0,
+                        f"Sandbox: code crashed accessing blocked module '{module}': "
+                        f"{stderr[:150]}"))
+                    break
         if result.returncode < 0:
             findings.append(_make_finding("HFS-072", file_path, 0,
                                           f"Process killed by signal {-result.returncode}"))
@@ -93,6 +116,29 @@ def sandbox_execute(file_path: str, source: str) -> list[Finding]:
 def _interpret(file_path: str, ops: list) -> list[Finding]:
     findings: list[Finding] = []
     seen = set()
+    # Track which modules were imported (to distinguish bare import from usage)
+    imported_modules = set()
+    dangerous_ops = []
+
+    for entry in ops:
+        if not isinstance(entry, dict):
+            continue
+        op = entry.get("op", "")
+        if op == "import":
+            imported_modules.add(entry.get("module", ""))
+        elif op in ("exec", "eval", "compile"):
+            dangerous_ops.append(entry)
+        elif op == "attr":
+            attr = entry.get("attr", "")
+            if attr in ("system", "popen", "Popen", "run", "call", "check_output",
+                        "getaddrinfo", "connect", "socket", "urlopen",
+                        "create_connection", "AF_INET", "SOCK_RAW"):
+                dangerous_ops.append(entry)
+
+    # Only report import findings if the module was ALSO used dangerously
+    # (i.e., there are exec/eval/attr findings that reference it)
+    has_dangerous_usage = len(dangerous_ops) > 0
+
     for entry in ops:
         if not isinstance(entry, dict):
             continue
@@ -101,18 +147,26 @@ def _interpret(file_path: str, ops: list) -> list[Finding]:
         if key in seen:
             continue
         seen.add(key)
+
         if op == "exec":
             findings.append(_make_finding("HFS-072", file_path, 0,
                                           f"Sandbox: exec() with: {entry.get('code','')}"))
         elif op == "eval":
             findings.append(_make_finding("HFS-072", file_path, 0,
                                           f"Sandbox: eval() with: {entry.get('code','')}"))
-        elif op == "import":
+        elif op == "compile":
             findings.append(_make_finding("HFS-072", file_path, 0,
-                                          f"Sandbox: blocked import '{entry.get('module','')}'"))
+                                          f"Sandbox: compile() with: {entry.get('source','')}"))
+        elif op == "import":
+            # Only flag blocked imports if there's also dangerous usage
+            # (bare "import os" in a data loading script is legitimate)
+            if has_dangerous_usage:
+                findings.append(_make_finding("HFS-072", file_path, 0,
+                                              f"Sandbox: blocked import '{entry.get('module','')}'"))
         elif op == "attr":
             attr = entry.get("attr", "")
-            if attr in ("system", "popen", "Popen", "run", "call"):
+            if attr in ("system", "popen", "Popen", "run", "call", "check_output",
+                       "getaddrinfo", "connect", "socket", "urlopen"):
                 findings.append(_make_finding("HFS-072", file_path, 0,
                                               f"Sandbox: {entry.get('module','')}.{attr}()"))
     return findings

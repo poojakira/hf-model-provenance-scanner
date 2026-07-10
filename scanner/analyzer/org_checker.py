@@ -32,7 +32,7 @@ def _parse_created_at(value: str):
         return None
 
 
-def check_organization(repo_id: str, client: HFApiClient, distance_threshold: int = 2, card_sim_threshold: float = 0.90) -> tuple:
+def check_organization(repo_id: str, client: HFApiClient, distance_threshold: int = 4, card_sim_threshold: float = 0.90) -> tuple:
     findings: list[Finding] = []
     protected_orgs = load_protected_orgs()
 
@@ -56,6 +56,26 @@ def check_organization(repo_id: str, client: HFApiClient, distance_threshold: in
             dist = levenshtein(org_lower, protected)
             if dist <= distance_threshold:
                 levenshtein_matches.append((protected, dist))
+
+        # Semantic substring check: catches "Open-OSS" trying to evoke "openai"
+        # by detecting protected org names embedded as substrings or prefixes
+        org_normalized = org_lower.replace("-", "").replace("_", "").replace(".", "")
+        for protected in protected_orgs:
+            prot_normalized = protected.replace("-", "").replace("_", "").replace(".", "")
+            # Check if protected org name is a substring of the target org
+            if prot_normalized in org_normalized and len(prot_normalized) >= 4:
+                if (protected, 0) not in levenshtein_matches:
+                    levenshtein_matches.append((protected, 1))
+            # Check if target shares a significant prefix (>=4 chars)
+            shared_prefix_len = 0
+            for i in range(min(len(org_normalized), len(prot_normalized))):
+                if org_normalized[i] == prot_normalized[i]:
+                    shared_prefix_len += 1
+                else:
+                    break
+            if shared_prefix_len >= 4 and (protected, 0) not in [(p, d) for p, d in levenshtein_matches]:
+                levenshtein_matches.append((protected, 2))
+
         if levenshtein_matches:
             findings.append(_emit("HFS-020", f"Org '{org_name}' is distance {min(d for _, d in levenshtein_matches)} from protected orgs: {[o for o, _ in levenshtein_matches]}"))
 
