@@ -1,0 +1,25 @@
+# CircleCI template — copy to .circleci/config.yml
+version: 2.1
+
+jobs:
+  model-scan:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - run:
+          name: Install HF Scanner
+          command: |
+            git clone --depth 1 https://github.com/poojakira/hf-model-provenance-scanner.git /tmp/hf-scanner
+            pip install -e /tmp/hf-scanner
+      - run:
+          name: Scan Model Repository
+          command: hf-scanner . --mode local --format json --output results.json --fail-on high
+      - store_artifacts:
+          path: results.json
+          destination: security-scan
+
+workflows:
+  security:
+    jobs:
+      - model-scan
