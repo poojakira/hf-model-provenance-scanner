@@ -1,0 +1,42 @@
+{
+  "domains": [
+    "jsonkeeper.com",
+    "pastebin.com",
+    "gist.githubusercontent.com",
+    "ngrok.io",
+    "ngrok-free.app",
+    "trycloudflare.com",
+    "webhook.site",
+    "requestbin.net",
+    "transfer.sh",
+    "anonfiles.com",
+    "eth-fastscan.org"
+  ],
+  "suspicious_tlds": [
+    ".top",
+    ".xyz",
+    ".click",
+    ".monster",
+    ".quest",
+    ".cyou"
+  ],
+  "dangerous_packages": [
+    "pickle5",
+    "pycrypto",
+    "crypto",
+    "python-miner",
+    "pynput",
+    "browser-cookie3",
+    "pyinstaller"
+  ],
+  "vulnerable_versions": {
+    "transformers": "5.3.0",
+    "torch": "2.2.0",
+    "tensorflow": "2.13.0",
+    "pillow": "10.0.0",
+    "pyyaml": "6.0.1",
+    "cryptography": "41.0.0",
+    "requests": "2.31.0",
+    "urllib3": "2.0.7"
+  }
+}
