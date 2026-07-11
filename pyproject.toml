@@ -12,6 +12,7 @@ dependencies = []  # intentionally empty — zero runtime dependencies
 
 [project.scripts]
 hf-scanner = "scanner.cli:main"
+hf-scan-monitor = "scanner.monitor_cli:main"
 
 [project.optional-dependencies]
 dev = []  # all test tooling is stdlib
