@@ -82,7 +82,36 @@ def verify_local_signatures(root: str) -> list:
 
         try:
             if verifier == "cosign":
-                cmd = ["cosign", "verify-blob", "--signature", sf, artifact_path]
+                # A bare `cosign verify-blob --signature ...` (keyless) only
+                # proves the signature exists in Rekor — NOT that a trusted
+                # party signed it. An attacker can sign their own model and
+                # register it. Require a pinned key or certificate identity;
+                # otherwise report HFS-041 instead of a meaningless "verified".
+                key = os.environ.get("HFS_COSIGN_KEY")
+                identity = os.environ.get("HFS_COSIGN_CERT_IDENTITY")
+                identity_re = os.environ.get("HFS_COSIGN_CERT_IDENTITY_REGEXP")
+                issuer = os.environ.get("HFS_COSIGN_OIDC_ISSUER")
+                if key:
+                    cmd = ["cosign", "verify-blob", "--key", key,
+                           "--signature", sf, artifact_path]
+                elif (identity or identity_re) and issuer:
+                    id_flag = (
+                        ["--certificate-identity-regexp", identity_re]
+                        if identity_re
+                        else ["--certificate-identity", identity]
+                    )
+                    cmd = ["cosign", "verify-blob", *id_flag,
+                           "--certificate-oidc-issuer", issuer,
+                           "--signature", sf, artifact_path]
+                else:
+                    rule = get_rule("HFS-041")
+                    findings.append(Finding(
+                        "HFS-041", rule.severity, sf, 0, 0,
+                        rule.description,
+                        "cosign present but no trusted key/identity configured; "
+                        "refusing to treat a bare verify-blob as trust.",
+                        rule.remediation, rule.cwe))
+                    continue
             elif verifier == "gpg":
                 cmd = ["gpg", "--verify", sf, artifact_path]
             else:

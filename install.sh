@@ -26,6 +26,10 @@ echo "Installing HF Model Provenance Scanner..."
 # Pin to a specific, reviewable ref instead of a moving branch. Override with
 # HF_SCANNER_REF=<tag|commit>. Using "main" is allowed but warned against.
 HF_SCANNER_REF="${HF_SCANNER_REF:-v0.2.0}"
+# Strongest integrity: pin to an exact commit SHA. If set, the checked-out
+# HEAD must match this hash or the install aborts (defends against a
+# compromised/moved tag).
+HF_SCANNER_COMMIT="${HF_SCANNER_COMMIT:-}"
 REPO_URL="https://github.com/poojakira/hf-model-provenance-scanner.git"
 
 # Detect Python
@@ -52,21 +56,58 @@ fi
 INSTALL_DIR="${HF_SCANNER_DIR:-$HOME/.hf-scanner}"
 if [ -d "$INSTALL_DIR/.git" ]; then
     echo "Updating existing installation (ref: $HF_SCANNER_REF)..."
-    git -C "$INSTALL_DIR" fetch --quiet --tags origin
-    git -C "$INSTALL_DIR" checkout --quiet "$HF_SCANNER_REF"
+    # No --quiet: surface git errors (auth, network, bad ref) to the user.
+    git -C "$INSTALL_DIR" fetch --tags origin
+    git -C "$INSTALL_DIR" checkout "$HF_SCANNER_REF"
 else
-    git clone --quiet "$REPO_URL" "$INSTALL_DIR"
-    git -C "$INSTALL_DIR" checkout --quiet "$HF_SCANNER_REF" || {
+    git clone "$REPO_URL" "$INSTALL_DIR"
+    git -C "$INSTALL_DIR" checkout "$HF_SCANNER_REF" || {
         echo "WARNING: ref '$HF_SCANNER_REF' not found; staying on default branch."
         echo "         Pin a released tag via HF_SCANNER_REF for a verifiable install."
     }
 fi
 
-# Optional: verify the checked-out commit is GPG-signed by a trusted key.
+# Strongest integrity: verify the checked-out HEAD matches a pinned commit SHA.
+if [ -n "$HF_SCANNER_COMMIT" ]; then
+    actual_commit="$(git -C "$INSTALL_DIR" rev-parse HEAD)"
+    if [ "$actual_commit" != "$HF_SCANNER_COMMIT" ]; then
+        echo "ERROR: checked-out commit $actual_commit != pinned $HF_SCANNER_COMMIT. Aborting."
+        exit 1
+    fi
+    echo "Verified pinned commit $HF_SCANNER_COMMIT"
+fi
+
+# Optional: verify the checked-out commit/tag is GPG-signed by a trusted key.
 if [ "${HF_SCANNER_VERIFY_GPG:-0}" = "1" ]; then
-    echo "Verifying commit signature..."
-    if ! git -C "$INSTALL_DIR" verify-commit HEAD; then
+    echo "Verifying GPG signature..."
+    if ! git -C "$INSTALL_DIR" verify-commit HEAD 2>/dev/null \
+        && ! git -C "$INSTALL_DIR" verify-tag "$HF_SCANNER_REF" 2>/dev/null; then
         echo "ERROR: GPG signature verification failed. Aborting."
+        exit 1
+    fi
+fi
+
+# Optional: verify install scripts against a cosign (keyless/Sigstore) signature
+# published with the release. Requires the cosign CLI and the release's
+# <file>.sig / <file>.pem alongside the checkout.
+if [ "${HF_SCANNER_VERIFY_COSIGN:-0}" = "1" ]; then
+    if ! command -v cosign &>/dev/null; then
+        echo "ERROR: HF_SCANNER_VERIFY_COSIGN=1 but 'cosign' is not installed."
+        exit 1
+    fi
+    sig="$INSTALL_DIR/install.sh.sig"
+    cert="$INSTALL_DIR/install.sh.pem"
+    if [ -f "$sig" ] && [ -f "$cert" ]; then
+        echo "Verifying install.sh cosign signature..."
+        cosign verify-blob \
+            --certificate "$cert" \
+            --signature "$sig" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            --certificate-identity-regexp "^https://github.com/poojakira/hf-model-provenance-scanner" \
+            "$INSTALL_DIR/install.sh" \
+            || { echo "ERROR: cosign verification failed. Aborting."; exit 1; }
+    else
+        echo "ERROR: cosign signature/cert not found next to install.sh. Aborting."
         exit 1
     fi
 fi

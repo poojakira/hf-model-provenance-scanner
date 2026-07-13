@@ -16,10 +16,40 @@ Tested against real GPT-2 and Llama-3-8B model structures. Validated against eve
 ### pip (recommended, pinned)
 
 ```bash
-# Pinned to a release tag; add --require-hashes once a hashed requirements file
-# is published.
+# Primary method. From PyPI once published (signed wheels), pinned + hashed:
+#   pip install --require-hashes -r requirements.txt
+# Meanwhile, from a tagged release:
 pip install "git+https://github.com/poojakira/hf-model-provenance-scanner.git@v0.2.0"
 hf-scanner ./my-model --mode local --fail-on high
+```
+
+### Verify install integrity (recommended before running any script)
+
+Every tagged release publishes `SHA256SUMS` plus keyless **cosign** signatures
+(`.sig` + `.pem`) for `install.sh`, `install.ps1`, and the build artifacts
+(see `.github/workflows/release-sign.yml`).
+
+```bash
+# 1) Checksums
+curl -fsSLO https://github.com/poojakira/hf-model-provenance-scanner/releases/download/v0.2.0/SHA256SUMS
+curl -fsSLO https://github.com/poojakira/hf-model-provenance-scanner/releases/download/v0.2.0/install.sh
+sha256sum -c SHA256SUMS      # must print: install.sh: OK
+
+# 2) Signature (Sigstore/cosign — no shared secret)
+curl -fsSLO https://github.com/poojakira/hf-model-provenance-scanner/releases/download/v0.2.0/install.sh.sig
+curl -fsSLO https://github.com/poojakira/hf-model-provenance-scanner/releases/download/v0.2.0/install.sh.pem
+cosign verify-blob \
+  --certificate install.sh.pem --signature install.sh.sig \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  --certificate-identity-regexp '^https://github.com/poojakira/hf-model-provenance-scanner' \
+  install.sh
+```
+
+The installer can also enforce this itself:
+
+```bash
+# Pin to an exact commit (strongest), verify GPG tag + cosign signature:
+HF_SCANNER_COMMIT=<full-sha> HF_SCANNER_VERIFY_GPG=1 HF_SCANNER_VERIFY_COSIGN=1 bash install.sh
 ```
 
 ### Linux / macOS (download, review, then run)

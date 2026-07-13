@@ -25,6 +25,8 @@ Write-Host "Installing HF Model Provenance Scanner..." -ForegroundColor Cyan
 
 # Pin to a reviewable ref; override with $env:HF_SCANNER_REF
 $ref = if ($env:HF_SCANNER_REF) { $env:HF_SCANNER_REF } else { "v0.2.0" }
+# Strongest integrity: pin to an exact commit SHA via $env:HF_SCANNER_COMMIT.
+$commit = $env:HF_SCANNER_COMMIT
 $repoUrl = "https://github.com/poojakira/hf-model-provenance-scanner.git"
 
 # Check Python
@@ -58,6 +60,16 @@ if (Test-Path "$installDir\.git") {
     if ($LASTEXITCODE -ne 0) {
         Write-Host "WARNING: ref '$ref' not found; staying on default branch. Pin a tag via HF_SCANNER_REF." -ForegroundColor Yellow
     }
+}
+
+# Strongest integrity: verify checked-out HEAD matches a pinned commit SHA.
+if ($commit) {
+    $actual = (git -C $installDir rev-parse HEAD).Trim()
+    if ($actual -ne $commit) {
+        Write-Host "ERROR: checked-out commit $actual != pinned $commit. Aborting." -ForegroundColor Red
+        exit 1
+    }
+    Write-Host "Verified pinned commit $commit"
 }
 
 # Optional GPG commit verification
