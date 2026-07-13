@@ -10,6 +10,24 @@ MAX_DOWNLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 MAX_RETRIES = 3
 RETRY_DELAY = 1.0
 
+# HTTP status codes that are deterministic access denials/misses: retrying them
+# only wastes time and the failure will never resolve on its own.
+ACCESS_ERROR_CODES = (401, 403, 404)
+
+
+class HFAccessError(Exception):
+    """Raised when a repository/file cannot be accessed.
+
+    Covers gated models (401), forbidden/private repos (403), and missing
+    repos or files (404). Callers can catch this to emit a clear, actionable
+    finding instead of crashing with a cryptic retry-exhaustion message.
+    """
+
+    def __init__(self, code: int, url: str):
+        self.code = code
+        self.url = url
+        super().__init__(f"HTTP {code} for {url}")
+
 
 class HFApiClient:
     """Lightweight Hugging Face Hub API client."""
@@ -46,8 +64,9 @@ class HFApiClient:
                 self._cache[url] = data
                 return data
             except urllib.error.HTTPError as e:
-                if e.code == 404:
-                    raise
+                if e.code in ACCESS_ERROR_CODES:
+                    # Gated / private / missing — deterministic, do not retry.
+                    raise HFAccessError(e.code, url) from e
                 last_error = e
                 if attempt < MAX_RETRIES - 1:
                     time.sleep(RETRY_DELAY * (attempt + 1))

@@ -42,7 +42,7 @@ from scanner.risk import compute_risk
 from scanner.rules.definitions import get_rule
 from scanner.runtime_policy import format_runtime_policy
 from scanner.utils.file_filter import walk_files
-from scanner.utils.hf_api import HFApiClient
+from scanner.utils.hf_api import HFApiClient, HFAccessError
 
 SCANNER_VERSION = "0.2.0"
 SCRIPT_EXTENSIONS = (".sh", ".bat", ".ps1", ".cmd")
@@ -249,7 +249,23 @@ def scan_local(result: ScanResult, target: str, config: dict,
 def scan_remote_files(result: ScanResult, repo_id: str, client: HFApiClient,
                       config: dict) -> tuple[dict[str, bytes], dict[str, bytes], dict[str, tuple[str, int]]]:
     """Scan remote files including binary model scanning."""
-    files = client.list_repo_files(repo_id)
+    try:
+        files = client.list_repo_files(repo_id)
+    except HFAccessError as exc:
+        # Gated (401), private/forbidden (403), or non-existent (404) repo.
+        # This is not a scanner crash — emit a clear, actionable finding and
+        # let the scan finish gracefully with an empty artifact set. The
+        # `error` field marks the assessment as incomplete (SKIPPED) rather
+        # than falsely reporting the repo as clean.
+        reason = {401: "gated (requires authentication)",
+                  403: "private or forbidden",
+                  404: "not found"}.get(exc.code, f"unavailable (HTTP {exc.code})")
+        result.findings.append(make_finding(
+            "HFS-096", file_path=repo_id,
+            evidence=f"Repository file list is {reason} — HTTP {exc.code}. "
+                     f"Provide --token/HF_TOKEN for gated/private repos."))
+        result.error = f"remote file list unavailable: {reason} (HTTP {exc.code})"
+        return {}, {}, {}
     add_remote_policy_findings(result, repo_id, files, config)
     artifacts: dict[str, bytes] = {}
     sboms: dict[str, bytes] = {}
