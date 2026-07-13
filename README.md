@@ -8,14 +8,32 @@ Tested against real GPT-2 and Llama-3-8B model structures. Validated against eve
 
 ## Quick Start
 
-### Linux / macOS
+> **Install securely.** This is a supply-chain security tool, so we do **not**
+> recommend piping a remote script straight into your shell
+> (`curl ... | bash` / `iex (...)`) — that runs unreviewed code. Prefer `pip`
+> with a pinned ref, or download-review-run.
+
+### pip (recommended, pinned)
 
 ```bash
-# One-line install
-curl -sSL https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/main/install.sh | bash
+# Pinned to a release tag; add --require-hashes once a hashed requirements file
+# is published.
+pip install "git+https://github.com/poojakira/hf-model-provenance-scanner.git@v0.2.0"
+hf-scanner ./my-model --mode local --fail-on high
+```
 
-# Or clone and run directly (no install needed)
-git clone https://github.com/poojakira/hf-model-provenance-scanner.git
+### Linux / macOS (download, review, then run)
+
+```bash
+# Pin to a release tag, review the script, then execute it — never blind-pipe.
+curl -fsSLO https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/v0.2.0/install.sh
+less install.sh                 # review before running
+bash install.sh                 # prompts before touching your shell rc
+# Optional: verify the git commit signature during install
+#   HF_SCANNER_VERIFY_GPG=1 bash install.sh
+
+# Or clone a pinned tag and run directly (no install needed)
+git clone --branch v0.2.0 https://github.com/poojakira/hf-model-provenance-scanner.git
 cd hf-model-provenance-scanner
 python3 -m scanner.cli ./my-model --mode local --fail-on high
 ```
@@ -23,11 +41,16 @@ python3 -m scanner.cli ./my-model --mode local --fail-on high
 ### Windows (PowerShell)
 
 ```powershell
-# One-line install
-iex ((New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/main/install.ps1'))
+# Download, review, then run — never blind-iex.
+Invoke-WebRequest -UseBasicParsing `
+  'https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/v0.2.0/install.ps1' `
+  -OutFile install.ps1
+Get-Content install.ps1                          # review before running
+Get-AuthenticodeSignature .\install.ps1          # if using a signed release
+.\install.ps1                                    # prompts before touching PATH
 
-# Or clone and run directly
-git clone https://github.com/poojakira/hf-model-provenance-scanner.git
+# Or clone a pinned tag and run directly
+git clone --branch v0.2.0 https://github.com/poojakira/hf-model-provenance-scanner.git
 cd hf-model-provenance-scanner
 py -m scanner.cli .\my-model --mode local --fail-on high
 ```
