@@ -91,14 +91,23 @@ def check_organization(repo_id: str, client: HFApiClient, distance_threshold: in
         if age_hours < 72 and downloads > 10000:
             findings.append(_emit("HFS-022", f"Age: {age_hours:.1f} hours, Downloads: {downloads}"))
 
-    target_card = client.get_model_card(repo_id)
+    try:
+        target_card = client.get_model_card(repo_id)
+    except Exception:
+        # Missing/gated card on the target itself is not fatal to the org check.
+        target_card = ""
     max_sim = 0.0
     if target_card:
         candidates = [org for org, _ in levenshtein_matches] or [org for org in protected_orgs if org != org_lower]
         comparison_available = False
         for candidate_org in candidates:
             protected_repo = f"{candidate_org}/{model_name}"
-            protected_card = client.get_model_card(protected_repo)
+            try:
+                protected_card = client.get_model_card(protected_repo)
+            except Exception:
+                # A gated/private/missing comparison repo must not crash the
+                # scan of a legitimate target. Skip it and keep comparing.
+                continue
             if not protected_card:
                 continue
             comparison_available = True
