@@ -50,7 +50,8 @@ CONFIG_EXTENSIONS = (".json",)
 PYTHON_EXTENSIONS = (".py",)
 DEPENDENCY_EXTENSIONS = (".txt", ".toml", ".yml", ".yaml")
 BINARY_MODEL_EXTENSIONS = (".pkl", ".pickle", ".pt", ".pth", ".bin", ".ckpt", ".joblib",
-                           ".safetensors", ".gguf", ".onnx", ".h5", ".hdf5", ".keras")
+                           ".safetensors", ".gguf", ".onnx", ".h5", ".hdf5", ".keras",
+                           ".zip", ".npy", ".npz", ".dill", ".model")
 REMOTE_SCAN_EXTENSIONS = (PYTHON_EXTENSIONS + SCRIPT_EXTENSIONS + CONFIG_EXTENSIONS +
                           DEPENDENCY_EXTENSIONS + BINARY_MODEL_EXTENSIONS)
 HIGH_RISK_NAMES = {"loader.py", "start.py", "start.bat", "start.ps1", "setup.py",
