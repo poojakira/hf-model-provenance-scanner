@@ -78,6 +78,7 @@ RULES: dict[str, Rule] = {
     "HFS-074": Rule("HFS-074", "onnx-suspicious-content", Severity.HIGH, "ONNX model contains suspicious strings (URLs, shell commands)", "Investigate embedded content. ONNX should not contain executable code.", "CWE-506", ["onnx", "injection"]),
     "HFS-075": Rule("HFS-075", "onnx-malformed-or-oversized", Severity.MEDIUM, "ONNX model has structural anomalies", "Verify model source and regenerate from trusted training.", "CWE-400", ["onnx", "integrity"]),
     "HFS-076": Rule("HFS-076", "keras-unsafe-layer", Severity.CRITICAL, "Keras model contains Lambda layer or embedded executable code", "Remove Lambda layers. They execute arbitrary Python on model load.", "CWE-94", ["keras", "lambda"]),
+    "HFS-096": Rule("HFS-096", "repository-access-restricted", Severity.LOW, "Remote scan could not read the repository file list because it is gated, private, or does not exist.", "Provide an authorized token via --token/HF_TOKEN for gated or private repos, or verify the repo ID is correct. The advertised examples should use a public, non-gated model.", None, ["remote", "access"]),
     "HFS-097": Rule("HFS-097", "card-comparison-unavailable", Severity.INFO, "Model card similarity requires the protected org's card to be downloadable.", "", None, ["internal"]),
     "HFS-098": Rule("HFS-098", "oversized-file-skipped", Severity.INFO, "File exceeded size limits and was skipped.", "", None, ["internal"]),
     "HFS-099": Rule("HFS-099", "unparseable-python", Severity.INFO, "File could not be parsed as valid Python.", "", None, ["internal"]),
