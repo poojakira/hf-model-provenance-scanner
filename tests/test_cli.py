@@ -7,6 +7,26 @@ from contextlib import redirect_stdout
 from unittest.mock import patch
 
 from scanner import cli
+from scanner.utils.hf_api import HFAccessError
+
+
+class GatedClient:
+    """Simulates a gated/private/nonexistent repo: the file listing 401s."""
+
+    def __init__(self, token=None):
+        self.token = token
+
+    def get_model_info(self, repo_id):
+        raise HFAccessError(401, f"https://huggingface.co/api/models/{repo_id}")
+
+    def get_model_card(self, repo_id):
+        raise HFAccessError(401, f"https://huggingface.co/{repo_id}/raw/main/README.md")
+
+    def list_repo_files(self, repo_id):
+        raise HFAccessError(401, f"https://huggingface.co/api/models/{repo_id}")
+
+    def download_file(self, repo_id, filename):
+        raise HFAccessError(401, f"https://huggingface.co/{repo_id}/resolve/main/{filename}")
 
 
 class FakeClient:
@@ -74,6 +94,41 @@ class TestCli(unittest.TestCase):
         finally:
             os.unlink(config_path)
 
+
+    @patch("scanner.cli.HFApiClient", GatedClient)
+    def test_gated_repo_does_not_crash_and_emits_finding(self):
+        """A gated/private/nonexistent remote repo must not crash the scanner.
+
+        Regression test: previously list_repo_files() raised, propagated to
+        main(), and exited with code 2 and a cryptic 'Request failed after 3
+        retries' message. Now the scanner emits a clear HFS-096 finding, marks
+        the assessment incomplete via the error field, and exits gracefully.
+        """
+        stdout = io.StringIO()
+        with redirect_stdout(stdout):
+            code = cli.main(["meta-llama/Llama-3-8B", "--mode", "remote",
+                             "--format", "json", "--fail-on", "high"])
+        # Non-crashing exit: LOW finding does not trip --fail-on high.
+        self.assertEqual(code, 0)
+        report = json.loads(stdout.getvalue())
+        rule_ids = {f["rule_id"] for f in report["findings"]}
+        self.assertIn("HFS-096", rule_ids)
+        # Assessment marked incomplete (so monitors classify SKIPPED, not CLEAN).
+        self.assertIsNotNone(report["error"])
+        self.assertEqual(report["files_scanned"], 0)
+
+    def test_hf_access_error_raised_without_retry(self):
+        """401/403/404 should raise HFAccessError immediately, not retry."""
+        import urllib.error
+        from unittest.mock import patch as _patch
+        from scanner.utils.hf_api import HFApiClient
+
+        client = HFApiClient()
+        err = urllib.error.HTTPError("http://x", 401, "Unauthorized", {}, None)
+        with _patch("urllib.request.urlopen", side_effect=err):
+            with self.assertRaises(HFAccessError) as ctx:
+                client.get_model_info("meta-llama/Llama-3-8B")
+        self.assertEqual(ctx.exception.code, 401)
 
     def test_runtime_policy_output(self):
         with tempfile.NamedTemporaryFile("r", encoding="utf-8", suffix=".json", delete=False) as f:
