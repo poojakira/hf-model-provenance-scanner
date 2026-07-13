@@ -113,9 +113,139 @@ SAFE_ALLOWLIST = {
     "torch._C.HalfStorageBase", "torch._C.FloatStorageBase",
     "collections.OrderedDict",
     "numpy.core.multiarray._reconstruct",
+    "numpy._core.multiarray._reconstruct",
     "numpy.ndarray", "numpy.dtype",
     "_codecs.encode",
 }
+
+# ---------------------------------------------------------------------------
+# Expanded RCE-gadget coverage (added after real-data benchmark showed the
+# original finite blocklist missed the long tail of import-based gadgets that
+# picklescan / the CVE (GHSA) corpus flag). These are stdlib / third-party
+# callables that provide arbitrary code, command, or file/network primitives
+# on deserialization. None of them legitimately appear in a model *weight*
+# pickle, so exact/prefix matching keeps false positives at zero on real
+# clean models (verified against gpt2 / bert-base-uncased).
+# ---------------------------------------------------------------------------
+
+# Exact-match dangerous callables beyond CRITICAL_CALLABLES.
+DANGEROUS_CALLABLES = {
+    # runpy / timeit / debuggers / profilers (all execute arbitrary code)
+    "runpy._run_code", "runpy._run_module_code",
+    "timeit.timeit", "timeit.repeat", "timeit.Timer",
+    "trace.Trace.run", "trace.Trace.runctx", "trace.Trace.runfunc",
+    "profile.run", "profile.runctx", "profile.Profile.run", "profile.Profile.runctx",
+    "cProfile.run", "cProfile.runctx", "cProfile.Profile.run", "cProfile.Profile.runctx",
+    "pstats.Stats",
+    "bdb.Bdb", "bdb.Bdb.run", "bdb.Bdb.runctx", "bdb.Bdb.runcall", "bdb.Bdb.runeval",
+    "pdb.run", "pdb.runeval", "pdb.runcall", "pdb.Pdb.run", "pdb.Pdb.runcall",
+    "doctest.debug_script", "doctest.debug", "doctest.testsource", "doctest.DebugRunner",
+    "code.InteractiveInterpreter.runcode", "code.InteractiveInterpreter.runsource",
+    "code.InteractiveConsole.interact", "code.interact",
+    "codeop.compile_command", "codeop.CommandCompiler",
+    # package / environment execution
+    "ensurepip._run_pip", "ensurepip.bootstrap", "pip.main", "pip._internal.main",
+    "venv.create", "venv.EnvBuilder.create",
+    "pkgutil.resolve_name",
+    # pydoc gadgets (locate -> import arbitrary; pagers -> shell)
+    "pydoc.locate", "pydoc.pipepager", "pydoc.tempfilepager", "pydoc.pager",
+    "pydoc.ttypager", "pydoc.render_doc", "pydoc.safeimport",
+    "_pyrepl.pager.pipe_pager",
+    # 2to3 grammar loaders execute
+    "lib2to3.pgen2.grammar.Grammar.loads", "lib2to3.pgen2.pgen.ParserGenerator.make_label",
+    # pty / tty shells
+    "pty.spawn", "pty.fork",
+    # stdlib command-output helpers
+    "uuid._get_command_stdout", "_osx_support._read_output",
+    "_osx_support.compiler_fixup", "_aix_support._read_cmd_output",
+    "platform._syscmd_ver", "platform.popen", "getpass.getpass",
+    # operators used to chain gadgets
+    "operator.methodcaller", "operator.attrgetter", "operator.itemgetter",
+    "_operator.methodcaller", "_operator.attrgetter", "_operator.itemgetter",
+    "functools.partial", "functools.reduce",
+    # dynamic code objects
+    "types.CodeType", "types.FunctionType", "marshal.loads", "marshal.load",
+    # file / library / network primitives
+    "_io.FileIO", "io.FileIO", "io.open_code",
+    "logging.FileHandler", "logging.config.fileConfig", "logging.config.listen",
+    "ctypes.WinDLL", "ctypes.PyDLL", "ctypes.util.find_library",
+    "ctypes.cdll", "ctypes.windll", "ctypes.CDLL",
+    "ssl.get_server_certificate",
+    "socket.create_connection",
+    "asyncio.unix_events._UnixSubprocessTransport._start",
+    "distutils.file_util.write_file", "distutils.spawn.spawn",
+    "numpy.f2py.crackfortran.getlincoef", "numpy.testing._private.utils.runstring",
+    "numpy.distutils.exec_command.exec_command",
+    # deserialization re-entry
+    "dill.loads", "dill.load", "joblib.load", "shelve.open",
+    # torch gadgets (specific — the torch namespace is otherwise allowlisted)
+    "torch.utils.bottleneck.__main__.run_cprofile",
+    "torch.utils.bottleneck.__main__.run_autograd_prof",
+    "torch.utils.collect_env.run", "torch.utils.collect_env.run_and_read_all",
+    "torch.jit.unsupported_tensor_ops.execWrapper",
+    "torch._inductor.codecache.compile_file",
+    "torch.serialization.load",
+    "torch.utils._config_module.ConfigModule.load_config",
+    "torch.utils.data.datapipes.utils.decoder.basichandlers",
+    "torch.fx.experimental.symbolic_shapes.ShapeEnv.evaluate_guards_expression",
+    "test.support.script_helper.assert_python_ok",
+    # cloudpickle reconstruction primitives
+    "cloudpickle.cloudpickle._make_function", "cloudpickle.cloudpickle._builtin_type",
+    "cloudpickle.cloudpickle._function_setstate", "cloudpickle.cloudpickle.subimport",
+    "cloudpickle.cloudpickle._make_cell", "cloudpickle.cloudpickle._make_empty_cell",
+    "cloudpickle.cloudpickle._make_skeleton_class",
+}
+
+# Modules where ANY imported name is dangerous in a model artifact. These
+# modules never legitimately appear in serialized model weights, so a whole-
+# module prefix match is safe (no FP on real models).
+DANGEROUS_MODULE_PREFIXES = (
+    "idlelib.", "lib2to3.", "pty.", "pdb.", "bdb.", "profile.", "cProfile.",
+    "pstats.", "trace.", "timeit.", "doctest.", "code.", "codeop.",
+    "ensurepip.", "pip.", "venv.", "pydoc.", "_pyrepl.",
+    "imaplib.", "ftplib.", "telnetlib.", "smtplib.", "poplib.", "nntplib.",
+    "socket.", "socketserver.", "asyncio.", "multiprocessing.", "concurrent.futures.",
+    "xmlrpc.", "http.", "httplib.", "urllib.", "urllib2.", "requests.", "aiohttp.",
+    "ssl.", "cloudpickle.", "distutils.", "setuptools.", "_distutils_hack.",
+    "_osx_support.", "_aix_support.", "getpass.", "test.support.", "dill.",
+    "smtpd.", "wsgiref.", "cgi.", "cgitb.",
+)
+
+# Dangerous *method/attribute* names — matched on the final component of a
+# global's qualified name. Catches gadget classes in otherwise-allowlisted
+# namespaces (e.g. torch.*) without prefix-flagging the whole namespace.
+DANGEROUS_METHOD_NAMES = {
+    "system", "popen", "spawn", "spawnl", "spawnle", "spawnlp", "spawnv",
+    "spawnve", "spawnvp", "fork", "forkpty",
+    "exec", "execv", "execve", "execl", "execle", "execlp", "execvp", "execWrapper",
+    "run", "runctx", "runcode", "runsource", "runcall", "runeval", "runfunc",
+    "_run_code", "_run_module_code", "run_cprofile", "run_autograd_prof",
+    "run_and_read_all", "runstring", "_run_pip",
+    "compile_file", "compile_command", "load_config", "evaluate_guards_expression",
+    "locate", "pipepager", "pipe_pager", "resolve_name", "safeimport",
+    "_get_command_stdout", "_read_output", "_read_cmd_output",
+    "get_server_certificate", "basichandlers", "assert_python_ok",
+    "make_label", "debug_script", "getlincoef", "exec_command",
+}
+
+
+def _is_dangerous_global(normalized: str) -> tuple[bool, str]:
+    """Return (is_dangerous, reason) for a discovered global, honoring the
+    safe allowlist first so legitimate torch/numpy reconstruction is never
+    flagged."""
+    if normalized in SAFE_ALLOWLIST:
+        return False, ""
+    if normalized in CRITICAL_CALLABLES or normalized in DANGEROUS_CALLABLES:
+        return True, f"dangerous callable: {normalized}"
+    if any(normalized.startswith(p) for p in (
+        "os.", "subprocess.", "builtins.", "__builtin__.", "nt.", "posix.",
+        "ctypes.", "shutil.", "webbrowser.", "runpy.", "importlib.",
+    )) or any(normalized.startswith(p) for p in DANGEROUS_MODULE_PREFIXES):
+        return True, f"dangerous module access: {normalized}"
+    last = normalized.rsplit(".", 1)[-1]
+    if last in DANGEROUS_METHOD_NAMES:
+        return True, f"dangerous gadget method: {normalized}"
+    return False, ""
 
 
 def _make_finding(rule_id: str, file_path: str, evidence: str) -> Finding:
@@ -134,9 +264,18 @@ def _make_finding(rule_id: str, file_path: str, evidence: str) -> Finding:
 
 
 def _read_string_nl(data: bytes, pos: int) -> tuple[str, int]:
-    """Read a newline-terminated string (protocol 0 GLOBAL/INST)."""
+    """Read a newline-terminated string (protocol 0 GLOBAL/INST).
+
+    Strips a trailing carriage return so that CRLF-terminated pickles do not
+    evade detection: without this, ``builtins\\r\\neval\\r\\n`` parses as the
+    global ``builtins\\r.eval\\r`` and matches no callable rule. CRLF line
+    endings were a real scanner-evasion vector.
+    """
     end = data.index(b"\n", pos)
-    return data[pos:end].decode("ascii", errors="replace"), end + 1
+    raw = data[pos:end]
+    if raw.endswith(b"\r"):
+        raw = raw[:-1]
+    return raw.decode("ascii", errors="replace"), end + 1
 
 
 def _read_uint1(data: bytes, pos: int) -> tuple[int, int]:
@@ -380,26 +519,19 @@ class PickleScanner:
 
     def _analyze_globals(self):
         """Classify discovered globals into critical/suspicious/safe."""
+        seen: set[str] = set()
         for global_name in self.globals_found:
             normalized = global_name.strip()
+            if normalized in seen:
+                continue
+            seen.add(normalized)
 
-            # Check critical callables
-            if normalized in CRITICAL_CALLABLES:
+            is_danger, reason = _is_dangerous_global(normalized)
+            if is_danger:
                 self.findings.append(_make_finding(
                     "HFS-050", self.file_path,
-                    f"CRITICAL callable in pickle: {normalized}"
+                    f"CRITICAL callable in pickle: {reason}"
                 ))
-            elif any(normalized.startswith(prefix) for prefix in (
-                "os.", "subprocess.", "builtins.", "__builtin__.",
-                "nt.", "posix.", "ctypes.", "shutil.", "webbrowser.",
-                "runpy.", "importlib.",
-            )):
-                # Broader check — anything in these modules is suspicious
-                if normalized not in SAFE_ALLOWLIST:
-                    self.findings.append(_make_finding(
-                        "HFS-050", self.file_path,
-                        f"Dangerous module access in pickle: {normalized}"
-                    ))
             elif normalized in SUSPICIOUS_CALLABLES and normalized not in SAFE_ALLOWLIST:
                 self.findings.append(_make_finding(
                     "HFS-051", self.file_path,
@@ -430,9 +562,15 @@ class PickleScanner:
 
 
 def is_pickle_file(file_path: str) -> bool:
-    """Check if file extension indicates a pickle-serialized model."""
+    """Check if file extension indicates a pickle-serialized model.
+
+    ``.zip`` is included because PyTorch/joblib checkpoints and many malicious
+    payloads wrap pickle streams inside a ZIP container; without this the ZIP
+    unpacking path below was dead code for plain ``.zip`` files.
+    """
     lower = file_path.lower()
-    return lower.endswith((".pkl", ".pickle", ".pt", ".pth", ".bin", ".ckpt", ".joblib"))
+    return lower.endswith((".pkl", ".pickle", ".pt", ".pth", ".bin", ".ckpt",
+                           ".joblib", ".zip", ".npy", ".npz", ".dill", ".model"))
 
 
 def scan_pickle_bytes(file_path: str, data: bytes) -> list[Finding]:
@@ -474,7 +612,13 @@ def _looks_like_pickle(data: bytes) -> bool:
 
 
 def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
-    """Extract and scan pickle entries from PyTorch ZIP archives."""
+    """Extract and scan pickle entries from ZIP archives (PyTorch .pt/.bin,
+    joblib, or malicious .zip payloads).
+
+    Scans every archive member that either has a pickle-like extension OR whose
+    leading bytes look like a pickle stream — malicious archives frequently
+    store the payload under an innocuous name (e.g. ``archive/data.pkl`` or a
+    bare name with no extension)."""
     import zipfile
     findings: list[Finding] = []
 
@@ -482,22 +626,31 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
         with zipfile.ZipFile(io.BytesIO(data), "r") as zf:
             for name in zf.namelist():
                 lower_name = name.lower()
-                # PyTorch stores pickled data in data.pkl or similar
-                if lower_name.endswith((".pkl", ".pickle")) or "data.pkl" in lower_name:
-                    try:
-                        pkl_data = zf.read(name)
-                        inner_path = f"{file_path}!{name}"
-                        scanner = PickleScanner(inner_path, pkl_data)
-                        inner_findings = scanner.scan()
-                        # Re-attribute findings to the outer file
-                        for f in inner_findings:
-                            f.file_path = file_path
-                            f.evidence = f"[ZIP:{name}] {f.evidence}"
-                        findings.extend(inner_findings)
-                    except Exception:
-                        pass
-    except (zipfile.BadZipFile, Exception):
-        # Not a valid ZIP — might be raw pickle with PK in content
+                try:
+                    pkl_data = zf.read(name)
+                except Exception:
+                    continue
+                looks_pickle = (
+                    lower_name.endswith((".pkl", ".pickle", ".data", ".dat"))
+                    or "data.pkl" in lower_name
+                    or (pkl_data[:1] == PICKLE_MAGIC)
+                    or _looks_like_pickle(pkl_data)
+                )
+                if not looks_pickle:
+                    continue
+                try:
+                    inner_path = f"{file_path}!{name}"
+                    scanner = PickleScanner(inner_path, pkl_data)
+                    inner_findings = scanner.scan()
+                    for f in inner_findings:
+                        f.file_path = file_path
+                        f.evidence = f"[ZIP:{name}] {f.evidence}"
+                    findings.extend(inner_findings)
+                except Exception:
+                    continue
+    except zipfile.BadZipFile:
+        # Not a valid ZIP — might be a raw pickle whose content happens to
+        # start with "PK"; fall back to direct scan.
         scanner = PickleScanner(file_path, data)
         findings.extend(scanner.scan())
 
