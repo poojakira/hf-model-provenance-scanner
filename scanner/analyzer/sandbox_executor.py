@@ -5,6 +5,7 @@ Instruments code to capture dangerous operations without allowing them.
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -54,12 +55,21 @@ class _M:
         _F.append({"op":"attr","module":s._n,"attr":a})
         return lambda *a,**k: None
     def __call__(s,*a,**k): return None
+# NOTE: Python 3.12 removed the legacy find_module()/load_module() finder
+# protocol. The hook MUST implement the modern MetaPathFinder.find_spec() +
+# Loader.create_module()/exec_module() API, otherwise dangerous imports are
+# neither instrumented nor contained and the untrusted code runs for real.
+import importlib.util as _ilu
 class _IH:
-    def find_module(s,n,p=None):
-        if n.split(".")[0] in _BM: return s
-    def load_module(s,n):
-        _F.append({"op":"import","module":n})
-        m=_M(n); sys.modules[n]=m; return m
+    def find_spec(s,n,path=None,target=None):
+        if n.split(".")[0] in _BM:
+            return _ilu.spec_from_loader(n, s)
+        return None
+    def create_module(s,spec):
+        _F.append({"op":"import","module":spec.name})
+        m=_M(spec.name); sys.modules[spec.name]=m; return m
+    def exec_module(s,module):
+        pass
 sys.meta_path.insert(0,_IH())
 import builtins as _b
 _re,_rv,_rc=exec,eval,compile
@@ -98,13 +108,19 @@ def _sandbox_single_run(file_path: str, source: str, env: dict) -> list[Finding]
     findings: list[Finding] = []
     instrumented = HARNESS + "\n" + source + "\n" + FOOTER
 
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
+    # Write into a dedicated, empty temp directory. The child interpreter puts
+    # the script's directory on sys.path[0]; a shared temp dir may contain stray
+    # or attacker-planted modules (e.g. enum.py) that would shadow stdlib imports
+    # and silently break instrumentation. A private dir + -I (isolated mode)
+    # eliminates that path-injection surface.
+    tmp_dir = tempfile.mkdtemp(prefix="hfscan_sbx_")
+    tmp = os.path.join(tmp_dir, "sandbox_target.py")
+    with open(tmp, "w", encoding="utf-8") as f:
         f.write(instrumented)
-        tmp = f.name
 
     try:
         result = subprocess.run(
-            [sys.executable, "-S", "-u", tmp],
+            [sys.executable, "-I", "-S", "-u", tmp],
             capture_output=True, text=True, timeout=SANDBOX_TIMEOUT,
             env=env)
         stdout = result.stdout[:MAX_OUTPUT]
@@ -139,7 +155,7 @@ def _sandbox_single_run(file_path: str, source: str, env: dict) -> list[Finding]
         pass
     finally:
         try:
-            os.unlink(tmp)
+            shutil.rmtree(tmp_dir, ignore_errors=True)
         except OSError:
             pass
     return findings
