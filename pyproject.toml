@@ -15,7 +15,7 @@ hf-scanner = "scanner.cli:main"
 hf-scan-monitor = "scanner.monitor_cli:main"
 
 [project.optional-dependencies]
-dev = []  # all test tooling is stdlib
+dev = ["pytest>=8"]  ## optional test runner; unittest remains stdlib-compatible
 
 [tool.setuptools.packages.find]
 where = ["."]

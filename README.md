@@ -1,10 +1,10 @@
 # HF Model Provenance Scanner
 
-Zero-dependency ML supply chain security scanner for Hugging Face model repositories.
+Stdlib-only ML supply chain security scanner for Hugging Face model repositories.
 
-**30/30 real-world attacks detected | 0 false positives | 0 dependencies | Python 3.9+**
+**30/30 included attack reproductions detected | 0 false positives in the included proof suite | stdlib-only runtime | Python 3.9+**
 
-Tested against real GPT-2 and Llama-3-8B model structures. Validated against every documented HuggingFace supply chain attack from 2025-2026 including the May 2026 fake OpenAI incident (244K downloads).
+Tested against GPT-2 and Llama-3-8B-style repository structures. Validated against selected documented Hugging Face supply-chain attack reproductions from 2025-2026, including the May 2026 fake OpenAI incident (reported 244K downloads).
 
 ## Quick Start
 
@@ -53,7 +53,7 @@ Untrusted Code → [AST Patterns] → [Taint Tracking] → [Symbolic Resolver] �
                  Known patterns    Dataflow to sinks    Resolve obfuscation    Run & observe        Parse opcodes
 ```
 
-An attacker must bypass ALL FIVE engines simultaneously. The sandbox is the backstop — it actually runs the code and captures every exec/eval/import attempt.
+The engines provide overlapping coverage, so an attacker may need to evade multiple checks. The sandbox can execute selected code paths and capture observed exec/eval/import attempts, subject to timeout and environment coverage.
 
 ## Usage
 
@@ -61,7 +61,7 @@ An attacker must bypass ALL FIVE engines simultaneously. The sandbox is the back
 # Scan local model directory
 hf-scanner ./model --mode local --fail-on high
 
-# Scan with sandbox (catches ALL obfuscation, slightly slower)
+# Scan with sandbox (adds runtime coverage for some obfuscation, slightly slower)
 hf-scanner ./model --mode local --sandbox --fail-on critical
 
 # Scan HuggingFace repo remotely (checks org identity too)
@@ -151,9 +151,9 @@ python3 tests/redteam/test_large_scale.py      # Multi-MB files pass
 
 ## Documentation
 
-- [INTEGRATION.md](INTEGRATION.md) — CI/CD setup for all platforms
+- [INTEGRATION.md](INTEGRATION.md) — CI/CD setup examples
 - [LIMITATIONS.md](LIMITATIONS.md) — Honest capabilities and known gaps
-- [RESEARCH_ASSESSMENT.md](RESEARCH_ASSESSMENT.md) — Independent security review
+- [RESEARCH_ASSESSMENT.md](RESEARCH_ASSESSMENT.md) — Skeptical security assessment
 - [evidence/](evidence/) — Incident report and detection proof
 
 ## License

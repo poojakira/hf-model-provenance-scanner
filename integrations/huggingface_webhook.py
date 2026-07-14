@@ -34,6 +34,9 @@ import urllib.request
 # Add scanner to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+## 1 MiB is ample for HuggingFace webhook JSON.
+MAX_CONTENT_LENGTH = 1024 * 1024
+
 
 def verify_signature(payload: bytes, signature: str, secret: str) -> bool:
     """Verify HuggingFace webhook HMAC-SHA256 signature."""
@@ -41,6 +44,43 @@ def verify_signature(payload: bytes, signature: str, secret: str) -> bool:
         secret.encode(), payload, hashlib.sha256
     ).hexdigest()
     return hmac.compare_digest(f"sha256={expected}", signature)
+
+
+## Validate and process one HTTP webhook request.
+def process_webhook_request(headers, body_reader, handler=None):
+    if handler is None:
+        handler = handle_webhook
+
+    secret = os.environ.get("WEBHOOK_SECRET")
+    if not secret:
+        return 500, {"error": "server misconfigured"}
+
+    raw_length = headers.get("Content-Length")
+    if raw_length is None:
+        return 411, {"error": "content length required"}
+    try:
+        content_length = int(raw_length)
+    except (TypeError, ValueError):
+        return 400, {"error": "invalid content length"}
+    if content_length < 0:
+        return 400, {"error": "invalid content length"}
+    if content_length > MAX_CONTENT_LENGTH:
+        return 413, {"error": "payload too large"}
+
+    body = body_reader.read(content_length)
+    signature = headers.get("X-Webhook-Secret", "")
+    if not verify_signature(body, signature, secret):
+        return 401, {"error": "invalid signature"}
+
+    try:
+        event = json.loads(body)
+    except json.JSONDecodeError:
+        return 400, {"error": "invalid json"}
+
+    try:
+        return 200, handler(event)
+    except Exception:
+        return 500, {"error": "internal server error"}
 
 
 def scan_repo(repo_id: str) -> dict:
@@ -147,30 +187,11 @@ def run_server(host: str = "0.0.0.0", port: int = 8080):
 
     class Handler(BaseHTTPRequestHandler):
         def do_POST(self):
-            content_length = int(self.headers.get("Content-Length", 0))
-            body = self.rfile.read(content_length)
-
-            # Verify signature if secret is set
-            secret = os.environ.get("WEBHOOK_SECRET")
-            if secret:
-                signature = self.headers.get("X-Webhook-Secret", "")
-                if not verify_signature(body, signature, secret):
-                    self.send_response(401)
-                    self.end_headers()
-                    self.wfile.write(b'{"error": "invalid signature"}')
-                    return
-
-            try:
-                event = json.loads(body)
-                result = handle_webhook(event)
-                self.send_response(200)
-                self.send_header("Content-Type", "application/json")
-                self.end_headers()
-                self.wfile.write(json.dumps(result).encode())
-            except Exception as e:
-                self.send_response(500)
-                self.end_headers()
-                self.wfile.write(json.dumps({"error": str(e)}).encode())
+            status, result = process_webhook_request(self.headers, self.rfile)
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(result).encode())
 
         def log_message(self, format, *args):
             print(f"[webhook] {args[0]}")
