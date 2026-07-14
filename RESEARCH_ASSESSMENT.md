@@ -1,6 +1,6 @@
 # Research Assessment: HF Model Provenance Scanner
 
-**Author perspective:** Senior Research Engineer, 30 years in software security, applied ML systems, and supply-chain integrity at organizations including CERT/CC, Google Project Zero, and MITRE.
+**Author perspective:** Skeptical security review of the repository design, tests, documentation, and stated threat model. This is not an independent third-party audit and does not claim affiliation with any named organization.
 
 **Date:** July 2026
 
@@ -10,7 +10,7 @@
 
 ## 1. What Is This?
 
-A zero-dependency Python tool (stdlib only, 3.9+) that scans Hugging Face model repositories for supply-chain attacks. It examines source code, binary model files, configuration, and provenance artifacts before a user loads or deploys a model.
+A stdlib-only Python tool (3.9+) that scans Hugging Face model repositories for supply-chain attacks. It examines source code, binary model files, configuration, and provenance artifacts before a user loads or deploys a model.
 
 **In plain terms:** It's a malware scanner specifically designed for ML model repositories — the same way antivirus scans executables, this scans model packages.
 
@@ -52,13 +52,13 @@ HuggingFace uses **PickleScan** as its primary defense. PickleScan:
 | Objective | Metric | Status |
 |-----------|--------|--------|
 | Detect the May 2026 attack pattern | Detection at multiple kill chain stages | ✅ Achieved (9 findings, 20ms) |
-| Catch all known PickleScan bypasses | 7 documented bypass techniques | ✅ Achieved (7/7) |
-| Cover all major model binary formats | Pickle, SafeTensors, GGUF, ONNX, Keras | ✅ Achieved (6 formats) |
-| Catch obfuscated source code attacks | Novel chr()/rot13/ctypes/getattr evasion | ✅ Achieved (sandbox catches all) |
+| Catch included PickleScan bypass reproductions | 7 documented bypass techniques | ✅ Achieved in included tests (7/7) |
+| Cover common model binary formats | Pickle, SafeTensors, GGUF, ONNX, Keras | ✅ Achieved for implemented parsers (6 formats) |
+| Catch selected obfuscated source code attacks | Novel chr()/rot13/ctypes/getattr evasion | ✅ Achieved in included tests; not universal |
 | Zero runtime dependencies | Deployable anywhere without install conflicts | ✅ Achieved (stdlib only) |
 | CI/CD integration | GitHub Actions, GitLab, Azure, Jenkins, Docker | ✅ Achieved (7 platforms) |
 | EU AI Act compliance output | CycloneDX AIBOM generation | ✅ Achieved |
-| Zero false positives on legitimate code | Test against real ML codebases | ✅ Achieved |
+| Low false positives on sampled legitimate code | Test against selected ML codebases | ✅ Achieved for sampled fixtures |
 | Rug-pull detection | Detect malicious updates after trust establishment | ✅ Achieved (temporal baseline) |
 
 ---
@@ -67,14 +67,14 @@ HuggingFace uses **PickleScan** as its primary defense. PickleScan:
 
 ### 4.1 Five-Engine Architecture
 
-The scanner uses five independent detection engines in parallel. An attacker must evade ALL FIVE to succeed:
+The scanner uses five detection engines in parallel. Depending on the payload path, an attacker may need to evade multiple engines to succeed:
 
 | Engine | What It Does | What It Catches | Limitation |
 |--------|-------------|-----------------|------------|
 | **AST Pattern Matching** | Parses Python source into Abstract Syntax Trees, matches known dangerous patterns (exec, eval, subprocess, SSL bypass) | Known malware patterns, base64 decode chains, recursive multi-layer encoding | Only catches patterns we've written rules for |
 | **Taint Tracking** | Tracks data flow from untrusted sources (decode functions, __import__, module access) through variable assignments to dangerous sinks (exec, eval, os.system) | Indirect flows: variable indirection, container lookups, return value propagation, lambda+map chains | Intra-procedural only (doesn't follow across function calls deeply) |
 | **Symbolic String Resolution** | Statically evaluates constant expressions: chr(111)+chr(115) → "os", ''.join([chr(x) for x in [...]]) | String-building obfuscation that hides dangerous module/function names | Only resolves expressions composed entirely of constants |
-| **Sandbox Execution** | Instruments untrusted code with hooks (replaces exec/eval/import/open with logging stubs), runs in restricted subprocess, captures attempted operations | ANYTHING that eventually calls exec/eval/import at runtime, regardless of obfuscation technique | 5-second timeout; complex initialization code may not reach the payload in time |
+| **Sandbox Execution** | Instruments untrusted code with hooks (replaces exec/eval/import/open with logging stubs), runs in restricted subprocess, captures observed attempted operations | Runtime paths that reach exec/eval/import during sandbox execution | 5-second timeout; complex initialization code may not reach the payload in time |
 | **Binary Format Parsers** | Zero-execution parsing of pickle opcodes, SafeTensors headers, GGUF metadata, ONNX protobuf, Keras H5 | Pickle RCE payloads, metadata injection, format abuse, malformed files designed to bypass other scanners | Cannot detect semantic backdoors in weight values |
 
 ### 4.2 Provenance & Identity Verification
@@ -207,13 +207,13 @@ The integration infrastructure (GitHub Actions, webhooks, etc.) exists but:
 
 Despite the criticisms above:
 
-1. **Novel architecture**: No other tool combines 5 analysis engines (AST + taint + symbolic + sandbox + binary). This is genuinely new in the ML security space.
+1. **Multi-engine architecture**: Combines AST, taint, symbolic, sandbox, and binary parsing approaches.
 
 2. **Zero-dependency design**: Real engineering advantage. No supply chain risk in the scanner itself. Deploys anywhere Python runs.
 
-3. **Catches what competitors miss**: Source code analysis of model loaders is a blind spot for PickleScan/ModelScan/Guardian. This tool fills that gap conclusively.
+3. **Covers a common blind spot**: Source code analysis of model loaders is a known gap for binary-focused scanners. This tool adds coverage for that class of risk, within its documented limits.
 
-4. **Provenance layer**: SBOM verification + signature checking + org impersonation detection is not available in any competitor tool.
+4. **Provenance layer**: SBOM verification, signature checking, and org impersonation detection broaden coverage beyond binary scanning.
 
 5. **The sandbox is architecturally sound**: Hooking exec/eval/import at the Python level is the correct approach for catching arbitrary obfuscation. The implementation is simple but the design is right.
 
@@ -229,7 +229,7 @@ Despite the criticisms above:
 
 ### Would this stop a BETTER attacker?
 
-**Mostly yes, with caveats.** The sandbox is the backstop — any code that eventually calls exec/eval/subprocess/import(dangerous) will be caught regardless of obfuscation. The exception is:
+**Unknown without testing against that attacker.** The sandbox is a useful backstop for code paths it reaches, but it is not a guarantee. Important exceptions include:
 - Code that takes >5 seconds to reach the payload
 - Code gated behind environmental conditions not present in the sandbox
 - Pure social engineering without code execution
@@ -241,7 +241,7 @@ Despite the criticisms above:
 
 ### Is this tool worth deploying?
 
-**Unambiguously yes.** Even with its limitations, it provides defense-in-depth that no competitor offers. The zero-dependency design means there is essentially no cost or risk to deploying it. The question is not "is it perfect?" but "is it better than nothing?" — and the answer is it's dramatically better than the status quo.
+**Reasonable as defense-in-depth, with caveats.** Even with its limitations, it provides useful checks. The stdlib-only runtime reduces dependency risk, but deployment still needs validation, operational ownership, and false-positive/false-negative monitoring.
 
 ### What should be done next?
 
@@ -275,14 +275,14 @@ Despite the criticisms above:
 
 ## 10. Conclusion
 
-This is a **genuinely novel** and **practically useful** tool that addresses a real and growing threat. It would have prevented the May 2026 incident. It catches attacks that no competitor detects. Its zero-dependency design eliminates deployment friction.
+This is a **practically useful** tool that addresses a real and growing threat. Based on the reproduced May 2026 incident payload, it would have raised blocking-severity findings. It covers source-code and provenance risks that binary-focused scanners may miss. Its stdlib-only runtime reduces deployment friction.
 
 It is NOT a silver bullet. No tool is. The remaining gaps (adoption, real-world scale testing, environmental gating, social engineering) are real. The "100% detection" claim is true but should be qualified.
 
-**Recommendation:** Deploy immediately in CI/CD pipelines. Pursue HuggingFace platform integration. Fix the packaging bugs. Test on real models. Publish the architecture.
+**Recommendation:** Pilot in CI/CD pipelines with monitored fail gates. Pursue HuggingFace platform integration. Fix the packaging bugs. Test on real models. Publish the architecture after independent validation.
 
 **Score:** 8.5/10 as a security tool. 9.5/10 for the specific problem it targets.
 
 ---
 
-*Assessment conducted independently. No conflicts of interest.*
+*Assessment prepared from repository evidence. Independence and conflict-of-interest status have not been externally verified.*
