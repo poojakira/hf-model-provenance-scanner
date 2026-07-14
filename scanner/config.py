@@ -37,7 +37,25 @@ except ImportError:
                     elif v == "false":
                         v = False
                     elif v.startswith('[') and v.endswith(']'):
-                        v = [] # lists not fully supported in fallback
+                        # Parse a simple single-line array of scalars, e.g.
+                        # ["openai", "meta"] or [1, 2, 3]. Nested/multiline
+                        # arrays are not supported by this fallback.
+                        inner = v[1:-1].strip()
+                        items = []
+                        if inner:
+                            for item in inner.split(','):
+                                item = item.strip().strip('"').strip("'")
+                                if not item:
+                                    continue
+                                if item.isdigit():
+                                    items.append(int(item))
+                                elif item == "true":
+                                    items.append(True)
+                                elif item == "false":
+                                    items.append(False)
+                                else:
+                                    items.append(item)
+                        v = items
                     current_section[k.strip('"')] = v
             return config
     tomllib = _TomlFallback()

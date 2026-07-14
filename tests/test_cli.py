@@ -9,6 +9,13 @@ from unittest.mock import patch
 from scanner import cli
 from scanner.utils.hf_api import HFAccessError
 
+# Build fixture paths portably so tests pass on Windows and POSIX (CI) alike.
+# Hardcoded backslash paths ("tests\\fixtures\\...") are literal filenames on
+# Linux and cause the scanner to report "not a local directory".
+_FIXTURES_DIR = os.path.join(os.path.dirname(__file__), "fixtures")
+MALICIOUS_DIR = os.path.join(_FIXTURES_DIR, "malicious")
+BENIGN_DIR = os.path.join(_FIXTURES_DIR, "benign")
+
 
 class GatedClient:
     """Simulates a gated/private/nonexistent repo: the file listing 401s."""
@@ -56,11 +63,11 @@ class FakeClient:
 
 class TestCli(unittest.TestCase):
     def test_local_fail_on_high_returns_1(self):
-        code = cli.main(["tests\\fixtures\\malicious", "--mode", "local", "--quiet", "--fail-on", "high"])
+        code = cli.main([MALICIOUS_DIR, "--mode", "local", "--quiet", "--fail-on", "high"])
         self.assertEqual(code, 1)
 
     def test_local_fail_on_never_returns_0(self):
-        code = cli.main(["tests\\fixtures\\malicious", "--mode", "local", "--quiet", "--fail-on", "never"])
+        code = cli.main([MALICIOUS_DIR, "--mode", "local", "--quiet", "--fail-on", "never"])
         self.assertEqual(code, 0)
 
     @patch("scanner.cli.HFApiClient", FakeClient)
@@ -134,7 +141,7 @@ class TestCli(unittest.TestCase):
         with tempfile.NamedTemporaryFile("r", encoding="utf-8", suffix=".json", delete=False) as f:
             policy_path = f.name
         try:
-            code = cli.main(["tests\\fixtures\\benign", "--mode", "local", "--quiet", "--fail-on", "never", "--runtime-policy", policy_path])
+            code = cli.main([BENIGN_DIR, "--mode", "local", "--quiet", "--fail-on", "never", "--runtime-policy", policy_path])
             self.assertEqual(code, 0)
             with open(policy_path, "r", encoding="utf-8") as f:
                 policy = json.load(f)
@@ -151,7 +158,7 @@ class TestCli(unittest.TestCase):
         with tempfile.NamedTemporaryFile("r", encoding="utf-8", suffix=".html", delete=False) as f:
             report_path = f.name
         try:
-            code = cli.main(["tests\\fixtures\\malicious", "--mode", "local", "--format", "html", "--output", report_path, "--fail-on", "never"])
+            code = cli.main([MALICIOUS_DIR, "--mode", "local", "--format", "html", "--output", report_path, "--fail-on", "never"])
             self.assertEqual(code, 0)
             with open(report_path, "r", encoding="utf-8") as f:
                 report = f.read()
