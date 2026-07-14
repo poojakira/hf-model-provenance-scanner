@@ -23,3 +23,7 @@ include = ["scanner*"]
 
 [tool.setuptools.package-data]
 "scanner.data" = ["*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ""
