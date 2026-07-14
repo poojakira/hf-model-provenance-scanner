@@ -28,7 +28,7 @@ inputs:
     required: false
     default: 'hf-scanner-results.sarif'
   sandbox:
-    description: 'Enable sandbox execution for Python files (slower but catches all obfuscation)'
+    description: 'Enable sandbox execution for Python files (slower; adds runtime coverage for some obfuscation)'
     required: false
     default: 'false'
   token:
@@ -64,51 +64,57 @@ runs:
 
     - name: Install hf-scanner
       shell: bash
-      run: pip install -e ${{ github.action_path }}/..
+      run: pip install -e "${GITHUB_ACTION_PATH}/.."
 
     - name: Run scan
       id: scan
       shell: bash
+      env:
+        INPUT_TARGET: ${{ inputs.target }}
+        INPUT_MODE: ${{ inputs.mode }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_FORMAT: ${{ inputs.format }}
+        INPUT_OUTPUT: ${{ inputs.output }}
+        INPUT_SANDBOX: ${{ inputs.sandbox }}
+        HF_TOKEN: ${{ inputs.token }}
+        INPUT_BASELINE: ${{ inputs.baseline }}
+        INPUT_SAVE_BASELINE: ${{ inputs.save-baseline }}
       run: |
-        ARGS="${{ inputs.target }} --mode ${{ inputs.mode }} --fail-on ${{ inputs.fail-on }}"
-        ARGS="$ARGS --format ${{ inputs.format }}"
-        
-        if [ -n "${{ inputs.output }}" ]; then
-          ARGS="$ARGS --output ${{ inputs.output }}"
+        args=("$INPUT_TARGET" --mode "$INPUT_MODE" --fail-on "$INPUT_FAIL_ON" --format "$INPUT_FORMAT")
+
+        if [ -n "$INPUT_OUTPUT" ]; then
+          args+=(--output "$INPUT_OUTPUT")
         fi
-        
-        if [ "${{ inputs.sandbox }}" = "true" ]; then
-          ARGS="$ARGS --sandbox"
+
+        if [ "$INPUT_SANDBOX" = "true" ]; then
+          args+=(--sandbox)
         fi
-        
-        if [ -n "${{ inputs.token }}" ]; then
-          ARGS="$ARGS --token ${{ inputs.token }}"
+
+        if [ -n "$INPUT_BASELINE" ]; then
+          args+=(--baseline "$INPUT_BASELINE")
         fi
-        
-        if [ -n "${{ inputs.baseline }}" ]; then
-          ARGS="$ARGS --baseline ${{ inputs.baseline }}"
+
+        if [ -n "$INPUT_SAVE_BASELINE" ]; then
+          args+=(--save-baseline "$INPUT_SAVE_BASELINE")
         fi
-        
-        if [ -n "${{ inputs.save-baseline }}" ]; then
-          ARGS="$ARGS --save-baseline ${{ inputs.save-baseline }}"
-        fi
-        
+
         # Run scanner and capture exit code
         set +e
-        hf-scanner $ARGS
+        hf-scanner "${args[@]}"
         EXIT_CODE=$?
         set -e
-        
-        echo "exit-code=$EXIT_CODE" >> $GITHUB_OUTPUT
-        
+
+        echo "exit-code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+
         # Also run JSON format to extract metadata
-        JSON_OUT=$(hf-scanner ${{ inputs.target }} --mode ${{ inputs.mode }} --format json --fail-on never 2>/dev/null || true)
+        json_args=("$INPUT_TARGET" --mode "$INPUT_MODE" --format json --fail-on never)
+        JSON_OUT=$(hf-scanner "${json_args[@]}" 2>/dev/null || true)
         if [ -n "$JSON_OUT" ]; then
-          echo "risk-score=$(echo "$JSON_OUT" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(d["risk"]["score"])')" >> $GITHUB_OUTPUT
-          echo "risk-level=$(echo "$JSON_OUT" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(d["risk"]["level"])')" >> $GITHUB_OUTPUT
-          echo "findings-count=$(echo "$JSON_OUT" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(len(d["findings"]))')" >> $GITHUB_OUTPUT
+          echo "risk-score=$(echo "$JSON_OUT" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(d["risk"]["score"])')" >> "$GITHUB_OUTPUT"
+          echo "risk-level=$(echo "$JSON_OUT" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(d["risk"]["level"])')" >> "$GITHUB_OUTPUT"
+          echo "findings-count=$(echo "$JSON_OUT" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(len(d["findings"]))')" >> "$GITHUB_OUTPUT"
         fi
-        
+
         exit $EXIT_CODE
 
     - name: Upload SARIF (if applicable)
