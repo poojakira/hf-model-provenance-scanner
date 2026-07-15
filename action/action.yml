@@ -47,12 +47,16 @@ inputs:
 outputs:
   risk-score:
     description: 'Numerical risk score (0-100)'
+    value: ${{ steps.scan.outputs.risk-score }}
   risk-level:
     description: 'Risk level: LOW, MEDIUM, HIGH, CRITICAL'
+    value: ${{ steps.scan.outputs.risk-level }}
   findings-count:
     description: 'Total number of findings'
+    value: ${{ steps.scan.outputs.findings-count }}
   exit-code:
     description: 'Scanner exit code (0=pass, 1=findings above threshold)'
+    value: ${{ steps.scan.outputs.exit-code }}
 
 runs:
   using: 'composite'
