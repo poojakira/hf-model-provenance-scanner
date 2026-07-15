@@ -27,8 +27,8 @@ jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7.0.0
+      - uses: actions/setup-python@v6.3.0
         with:
           python-version: '3.11'
       - run: pip install git+https://github.com/poojakira/hf-model-provenance-scanner.git
@@ -176,7 +176,7 @@ jobs:
   monitor:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.0
       - run: pip install git+https://github.com/poojakira/hf-model-provenance-scanner.git
       - run: hf-scanner your-org/your-model --mode remote --baseline baseline.json --fail-on high
 ```
