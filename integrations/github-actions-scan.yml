@@ -11,6 +11,7 @@ jobs:
   scan:
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       security-events: write  # For SARIF upload
     steps:
       - uses: actions/checkout@v4

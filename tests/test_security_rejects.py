@@ -59,6 +59,23 @@ class TestWebhookSecurityRejects(unittest.TestCase):
         self.assertEqual(result, {"repo": "org/model"})
 
 
+    def test_webhook_rejects_invalid_repo_id_without_scan(self):
+        invalid_repo_ids = [
+            "../etc/passwd",
+            "org/model?revision=main",
+            "https://huggingface.co/org/model",
+            "org/model/extra",
+            "org/evil..model",
+            123,
+        ]
+        for repo_id in invalid_repo_ids:
+            with self.subTest(repo_id=repo_id), patch.object(
+                webhook, "scan_repo", side_effect=AssertionError("scan_repo called")
+            ):
+                result = webhook.handle_webhook({"repo": {"name": repo_id, "type": "model"}})
+            self.assertEqual(result, {"status": "ignored", "reason": "invalid repo_id"})
+
+
 class TestMaliciousFixtureSafety(unittest.TestCase):
     def test_privacy_filter_fixture_is_inert_when_called(self):
         fixture = Path(__file__).parent / "fixtures" / "malicious" / "privacy_filter_loader.py"

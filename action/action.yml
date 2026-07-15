@@ -98,7 +98,7 @@ runs:
           args+=(--save-baseline "$INPUT_SAVE_BASELINE")
         fi
 
-        # Run scanner and capture exit code
+        ## Run scanner and capture exit code.
         set +e
         hf-scanner "${args[@]}"
         EXIT_CODE=$?
@@ -106,8 +106,17 @@ runs:
 
         echo "exit-code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
 
-        # Also run JSON format to extract metadata
+        ## Run the same scan inputs in JSON mode to extract metadata.
         json_args=("$INPUT_TARGET" --mode "$INPUT_MODE" --format json --fail-on never)
+        if [ "$INPUT_SANDBOX" = "true" ]; then
+          json_args+=(--sandbox)
+        fi
+        if [ -n "$INPUT_BASELINE" ]; then
+          json_args+=(--baseline "$INPUT_BASELINE")
+        fi
+        if [ -n "$INPUT_SAVE_BASELINE" ]; then
+          json_args+=(--save-baseline "$INPUT_SAVE_BASELINE")
+        fi
         JSON_OUT=$(hf-scanner "${json_args[@]}" 2>/dev/null || true)
         if [ -n "$JSON_OUT" ]; then
           echo "risk-score=$(echo "$JSON_OUT" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(d["risk"]["score"])')" >> "$GITHUB_OUTPUT"
@@ -122,4 +131,3 @@ runs:
       uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: ${{ inputs.output }}
-      continue-on-error: true
