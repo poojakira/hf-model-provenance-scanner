@@ -35,10 +35,13 @@ if (Test-Path $installDir) {
     git clone --depth 1 https://github.com/poojakira/hf-model-provenance-scanner.git $installDir
 }
 
-# Create wrapper batch file
-$wrapperContent = "@echo off`r`n$python -m scanner.cli %*"
+# Install editable package and create wrapper batch file
+Push-Location $installDir
+& $python -m pip install -e .
+Pop-Location
+$pythonCmd = (Get-Command $python).Source
+$wrapperContent = "@echo off`r`n`"$pythonCmd`" `"$installDir\scanner\cli.py`" %*"
 Set-Content -Path "$installDir\hf-scanner.cmd" -Value $wrapperContent
-
 # Add to user PATH if not present
 $userPath = [Environment]::GetEnvironmentVariable("PATH", "User")
 if ($userPath -notlike "*$installDir*") {
@@ -57,4 +60,4 @@ Write-Host "Or restart PowerShell and use:"
 Write-Host "  hf-scanner --help"
 Write-Host ""
 Write-Host "Quick test:" -ForegroundColor Cyan
-Write-Host "  cd $installDir; $python -m scanner.cli tests\fixtures\binary --mode local --fail-on never"
+Write-Host "  hf-scanner `"$installDir\tests\fixtures\binary`" --mode local --fail-on never"

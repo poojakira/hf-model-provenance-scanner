@@ -76,7 +76,7 @@
 
 | Limitation | Reason | Workaround |
 |---|---|---|
-| Pure social engineering | No scanner can stop humans voluntarily running commands | Use runtime sandbox policy |
+| Pure social engineering | No scanner can stop humans voluntarily running commands | Use runtime isolation policy |
 | Neural backdoors in weights | Requires inference-time behavioral testing | Different tool class needed |
 | Attacks gated on specific GPU/hardware | Sandbox can't emulate all hardware configs | Accept as residual risk |
 | Cross-file taint (malicious import from another package) | Would require whole-program analysis | Scan all files in repo together |

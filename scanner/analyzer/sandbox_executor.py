@@ -1,6 +1,6 @@
 """
-Sandbox Execution Engine — Run untrusted code in a restricted subprocess.
-Instruments code to capture dangerous operations without allowing them.
+Runtime Instrumentation Engine — observe selected untrusted code paths in a subprocess.
+Instruments imports and dangerous builtins to capture operations without claiming OS-level containment.
 """
 
 import json
@@ -55,10 +55,6 @@ class _M:
         _F.append({"op":"attr","module":s._n,"attr":a})
         return lambda *a,**k: None
     def __call__(s,*a,**k): return None
-# NOTE: Python 3.12 removed the legacy find_module()/load_module() finder
-# protocol. The hook MUST implement the modern MetaPathFinder.find_spec() +
-# Loader.create_module()/exec_module() API, otherwise dangerous imports are
-# neither instrumented nor contained and the untrusted code runs for real.
 import importlib.util as _ilu
 class _IH:
     def find_spec(s,n,path=None,target=None):
@@ -72,6 +68,14 @@ class _IH:
         pass
 sys.meta_path.insert(0,_IH())
 import builtins as _b
+_real_import = _b.__import__
+def _hi(n, globals=None, locals=None, fromlist=(), level=0):
+    top = n.split(".")[0]
+    if top in _BM:
+        _F.append({"op":"import","module":n})
+        return _M(n)
+    return _real_import(n, globals, locals, fromlist, level)
+_b.__import__ = _hi
 _re,_rv,_rc=exec,eval,compile
 def _he(c,*a,**k): _F.append({"op":"exec","code":str(c)[:500]})
 def _hv(c,*a,**k): _F.append({"op":"eval","code":str(c)[:500]}); return None
@@ -84,7 +88,7 @@ FOOTER = '\nimport sys,json\nsys.stdout.write(json.dumps(_F))\n'
 
 
 def sandbox_execute(file_path: str, source: str) -> list[Finding]:
-    """Execute code in sandboxed subprocess with multiple env configs, return findings."""
+    """Execute code with runtime instrumentation across multiple env configs."""
     findings: list[Finding] = []
     seen_evidence = set()
 
@@ -104,7 +108,7 @@ def sandbox_execute(file_path: str, source: str) -> list[Finding]:
 
 
 def _sandbox_single_run(file_path: str, source: str, env: dict) -> list[Finding]:
-    """Single sandbox execution with a specific environment."""
+    """Single instrumented execution with a specific environment."""
     findings: list[Finding] = []
     instrumented = HARNESS + "\n" + source + "\n" + FOOTER
 
@@ -122,15 +126,21 @@ def _sandbox_single_run(file_path: str, source: str, env: dict) -> list[Finding]
         result = subprocess.run(
             [sys.executable, "-I", "-S", "-u", tmp],
             capture_output=True, text=True, timeout=SANDBOX_TIMEOUT,
-            env=env)
+            env=env, cwd=tmp_dir)
         stdout = result.stdout[:MAX_OUTPUT]
         if stdout:
             try:
                 ops = json.loads(stdout)
-                findings.extend(_interpret(file_path, ops))
             except json.JSONDecodeError:
-                pass
-
+                json_start = stdout.rfind("[")
+                if json_start == -1:
+                    ops = []
+                else:
+                    try:
+                        ops = json.loads(stdout[json_start:])
+                    except json.JSONDecodeError:
+                        ops = []
+            findings.extend(_interpret(file_path, ops))
         # Check stderr for blocked module access (sandbox crashed before output)
         stderr = result.stderr[:MAX_OUTPUT] if result.stderr else ""
         if not stdout and stderr:
@@ -180,7 +190,8 @@ def _interpret(file_path: str, ops: list) -> list[Finding]:
             attr = entry.get("attr", "")
             if attr in ("system", "popen", "Popen", "run", "call", "check_output",
                         "getaddrinfo", "connect", "socket", "urlopen",
-                        "create_connection", "AF_INET", "SOCK_RAW"):
+                        "create_connection", "AF_INET", "SOCK_RAW", "remove",
+                        "unlink", "rmdir", "listdir", "scandir", "walk"):
                 dangerous_ops.append(entry)
 
     # Only report import findings if the module was ALSO used dangerously
@@ -191,7 +202,7 @@ def _interpret(file_path: str, ops: list) -> list[Finding]:
         if not isinstance(entry, dict):
             continue
         op = entry.get("op", "")
-        key = (op, entry.get("module", ""), entry.get("code", "")[:30])
+        key = (op, entry.get("module", ""), entry.get("attr", ""), entry.get("code", "")[:30])
         if key in seen:
             continue
         seen.add(key)
@@ -214,7 +225,8 @@ def _interpret(file_path: str, ops: list) -> list[Finding]:
         elif op == "attr":
             attr = entry.get("attr", "")
             if attr in ("system", "popen", "Popen", "run", "call", "check_output",
-                       "getaddrinfo", "connect", "socket", "urlopen"):
+                       "getaddrinfo", "connect", "socket", "urlopen", "remove",
+                       "unlink", "rmdir", "listdir", "scandir", "walk"):
                 findings.append(_make_finding("HFS-072", file_path, 0,
                                               f"Sandbox: {entry.get('module','')}.{attr}()"))
     return findings
