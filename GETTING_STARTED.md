@@ -147,7 +147,7 @@ python3 -m scanner.cli meta-llama/Llama-3-8B --mode remote --fail-on high
 
 ### Scenario 3: Quick check with maximum detection
 
-Use `--sandbox` for the strongest scanning (catches even heavily obfuscated attacks):
+Use `--sandbox` for instrumented runtime coverage of selected Python code paths. This is not an OS isolation boundary:
 
 **Windows:**
 ```powershell
@@ -258,7 +258,7 @@ Make sure you're inside the `hf-model-provenance-scanner` directory when running
 Use `pip install --user -e .` instead of `pip install -e .`
 
 ### Scanner seems slow with --sandbox
-The sandbox runs each Python file in a subprocess (default 30s timeout). For faster scans, omit `--sandbox` — the other 4 engines still catch most attacks.
+The instrumented runtime engine runs each Python file in a subprocess (default 30s timeout). For faster scans, omit `--sandbox` — the other 4 engines still catch most attacks.
 
 ---
 

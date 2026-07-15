@@ -353,7 +353,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--skip-binary", action="store_true",
                         help="Skip binary model scanning (pickle, safetensors, GGUF)")
     parser.add_argument("--sandbox", action="store_true",
-                        help="Enable sandbox execution (instruments and runs code in restricted subprocess)")
+                        help="Enable instrumented runtime execution in a subprocess (not an OS security sandbox)")
     parser.add_argument("--aibom", metavar="FILE",
                         help="Generate CycloneDX AI Bill of Materials to FILE")
     return parser
@@ -421,7 +421,7 @@ def main(argv=None):
                     baseline, result, all_file_hashes)
                 result.findings.extend(temporal_findings)
 
-        # Sandbox execution (optional — runs Python files in restricted subprocess)
+        ## Instrumented runtime execution (optional, not an OS isolation boundary)
         if getattr(args, 'sandbox', False):
             for path, data in artifacts.items():
                 if path.lower().endswith(PYTHON_EXTENSIONS):

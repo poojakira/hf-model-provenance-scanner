@@ -27,6 +27,7 @@ import hashlib
 import hmac
 import json
 import os
+import re
 import sys
 import tempfile
 import urllib.request
@@ -36,6 +37,20 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 ## 1 MiB is ample for HuggingFace webhook JSON.
 MAX_CONTENT_LENGTH = 1024 * 1024
+## HuggingFace model repo IDs are namespace/name. Reject URLs, paths, queries, and traversal before remote scan.
+HF_REPO_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,95}/[A-Za-z0-9][A-Za-z0-9._-]{0,95}$")
+
+
+def is_valid_repo_id(repo_id: object) -> bool:
+    if not isinstance(repo_id, str):
+        return False
+    if ".." in repo_id or "--" in repo_id:
+        return False
+    if repo_id.startswith(("/", "http://", "https://")):
+        return False
+    if not HF_REPO_ID_RE.fullmatch(repo_id):
+        return False
+    return all(part[-1] not in ".-" for part in repo_id.split("/"))
 
 
 def verify_signature(payload: bytes, signature: str, secret: str) -> bool:
@@ -160,6 +175,8 @@ def handle_webhook(event: dict) -> dict:
     if not repo_id:
         return {"status": "ignored", "reason": "no repo_id"}
 
+    if not is_valid_repo_id(repo_id):
+        return {"status": "ignored", "reason": "invalid repo_id"}
     if repo_type != "model":
         return {"status": "ignored", "reason": f"not a model repo (type={repo_type})"}
 

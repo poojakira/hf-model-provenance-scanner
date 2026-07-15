@@ -23,7 +23,7 @@ def json_to_sarif(result: ScanResult) -> dict:
             "id": rule.id,
             "name": rule.name,
             "shortDescription": {"text": rule.description},
-            "helpUri": f"https://github.com/hf-scanner/rules#{rule.id}",
+            "helpUri": f"https://github.com/poojakira/hf-model-provenance-scanner#{rule.id}",
             "properties": {
                 "tags": rule.tags,
             },
@@ -68,7 +68,7 @@ def json_to_sarif(result: ScanResult) -> dict:
                     "driver": {
                         "name": "hf-scanner",
                         "version": result.scanner_version,
-                        "informationUri": "https://github.com/hf-scanner",
+                        "informationUri": "https://github.com/poojakira/hf-model-provenance-scanner",
                         "rules": rules,
                     }
                 },

@@ -2,7 +2,7 @@
 
 Stdlib-only ML supply chain security scanner for Hugging Face model repositories.
 
-**30/30 included attack reproductions detected | 0 false positives in the included proof suite | stdlib-only runtime | Python 3.9+**
+**Included proof suite: 30 red-team attack reproductions detected plus 3 large-scale checks passing locally | 0 false positives in the included proof suite | stdlib-only runtime | Python 3.9+**
 
 Tested against GPT-2 and Llama-3-8B-style repository structures. Validated against selected documented Hugging Face supply-chain attack reproductions from 2025-2026, including the May 2026 fake OpenAI incident (reported 244K downloads).
 
@@ -53,7 +53,7 @@ Untrusted Code → [AST Patterns] → [Taint Tracking] → [Symbolic Resolver] �
                  Known patterns    Dataflow to sinks    Resolve obfuscation    Run & observe        Parse opcodes
 ```
 
-The engines provide overlapping coverage, so an attacker may need to evade multiple checks. The sandbox can execute selected code paths and capture observed exec/eval/import attempts, subject to timeout and environment coverage.
+The engines provide overlapping coverage, so an attacker may need to evade multiple checks. The runtime instrumentation can execute selected code paths in a subprocess and capture observed exec/eval/import/file/network attempts, subject to timeout and environment coverage. It is not a replacement for container, VM, or kernel sandboxing.
 
 ## Usage
 
@@ -61,7 +61,7 @@ The engines provide overlapping coverage, so an attacker may need to evade multi
 # Scan local model directory
 hf-scanner ./model --mode local --fail-on high
 
-# Scan with sandbox (adds runtime coverage for some obfuscation, slightly slower)
+# Scan with instrumented runtime execution (adds coverage for some obfuscation, slightly slower)
 hf-scanner ./model --mode local --sandbox --fail-on critical
 
 # Scan HuggingFace repo remotely (checks org identity too)
@@ -74,7 +74,7 @@ hf-scanner . --mode local --format sarif --output results.sarif
 hf-scanner ./model --save-baseline baseline.json    # First scan
 hf-scanner ./model --baseline baseline.json         # Later: detect changes
 
-# Generate runtime sandbox policy
+# Generate runtime isolation policy
 hf-scanner ./model --runtime-policy policy.json
 ```
 
@@ -138,9 +138,9 @@ See [INTEGRATION.md](INTEGRATION.md) for Jenkins, Azure Pipelines, CircleCI, and
 
 Run the proof yourself:
 ```bash
-python3 tests/redteam/simulate_attacks.py      # 12/12 detected
-python3 tests/redteam/extended_attacks.py      # 18/18 detected
-python3 tests/redteam/test_large_scale.py      # Multi-MB files pass
+python3 tests/redteam/simulate_attacks.py      # regenerates 12-check redteam_report.json
+python3 tests/redteam/extended_attacks.py      # regenerates 18-check extended_report.json
+python3 -m pytest tests/redteam/test_large_scale.py -q  # runs 3 large-scale checks
 ```
 
 ## Requirements
