@@ -26,4 +26,4 @@ include = ["scanner*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = ""
+addopts = "-p no:asyncio"
