@@ -15,8 +15,6 @@ References:
 
 import io
 import struct
-import os
-from typing import Optional
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
@@ -26,18 +24,18 @@ from scanner.rules.definitions import get_rule
 PICKLE_MAGIC = b"\x80"  # Protocol header (protocol 2+)
 
 # Opcodes that can invoke arbitrary callables
-OP_REDUCE = b"R"        # Apply callable to args tuple on stack
-OP_INST = b"i"          # Instantiate class (protocol 0)
-OP_OBJ = b"o"           # Build object (protocol 1)
-OP_NEWOBJ = b"\x81"     # type.__new__(type, *args) (protocol 2)
+OP_REDUCE = b"R"  # Apply callable to args tuple on stack
+OP_INST = b"i"  # Instantiate class (protocol 0)
+OP_OBJ = b"o"  # Build object (protocol 1)
+OP_NEWOBJ = b"\x81"  # type.__new__(type, *args) (protocol 2)
 OP_NEWOBJ_EX = b"\x92"  # type.__new__(type, *args, **kwargs) (protocol 4)
 OP_STACK_GLOBAL = b"\x93"  # Push global from stack-based module.name (protocol 4)
-OP_BUILD = b"b"         # obj.__setstate__(state) - can trigger code via __reduce__
+OP_BUILD = b"b"  # obj.__setstate__(state) - can trigger code via __reduce__
 
 # Opcodes that load globals (modules/functions) by name
-OP_GLOBAL = b"c"        # Push module.name global (protocol 0)
+OP_GLOBAL = b"c"  # Push module.name global (protocol 0)
 OP_SHORT_BINUNICODE = b"\x8c"  # Short binary unicode string
-OP_BINUNICODE = b"X"    # Binary unicode string
+OP_BINUNICODE = b"X"  # Binary unicode string
 
 # Stop opcode
 OP_STOP = b"."
@@ -45,35 +43,72 @@ OP_STOP = b"."
 # Dangerous modules/functions that should NEVER appear in model files
 CRITICAL_CALLABLES = {
     # Direct code execution
-    "os.system", "os.popen", "os.exec", "os.execl", "os.execle",
-    "os.execlp", "os.execv", "os.execve", "os.execvp", "os.execvpe",
-    "os.spawn", "os.spawnl", "os.spawnle", "os.spawnlp",
-    "posix.system", "nt.system",
-    "subprocess.call", "subprocess.check_call", "subprocess.check_output",
-    "subprocess.Popen", "subprocess.run",
-    "builtins.exec", "builtins.eval", "builtins.compile",
-    "__builtin__.exec", "__builtin__.eval",
-    "runpy.run_module", "runpy.run_path",
+    "os.system",
+    "os.popen",
+    "os.exec",
+    "os.execl",
+    "os.execle",
+    "os.execlp",
+    "os.execv",
+    "os.execve",
+    "os.execvp",
+    "os.execvpe",
+    "os.spawn",
+    "os.spawnl",
+    "os.spawnle",
+    "os.spawnlp",
+    "posix.system",
+    "nt.system",
+    "subprocess.call",
+    "subprocess.check_call",
+    "subprocess.check_output",
+    "subprocess.Popen",
+    "subprocess.run",
+    "builtins.exec",
+    "builtins.eval",
+    "builtins.compile",
+    "__builtin__.exec",
+    "__builtin__.eval",
+    "runpy.run_module",
+    "runpy.run_path",
     # Import manipulation
-    "builtins.__import__", "__builtin__.__import__",
-    "importlib.import_module", "importlib.__import__",
+    "builtins.__import__",
+    "__builtin__.__import__",
+    "importlib.import_module",
+    "importlib.__import__",
     # Pickle-specific exploitation gadgets
-    "pickle.loads", "pickle.load",
-    "_pickle.loads", "_pickle.load",
+    "pickle.loads",
+    "pickle.load",
+    "_pickle.loads",
+    "_pickle.load",
     "copyreg._reconstructor",
     # Network access
-    "urllib.request.urlopen", "urllib.request.urlretrieve",
-    "http.client.HTTPConnection", "http.client.HTTPSConnection",
-    "socket.socket", "socket.create_connection",
+    "urllib.request.urlopen",
+    "urllib.request.urlretrieve",
+    "http.client.HTTPConnection",
+    "http.client.HTTPSConnection",
+    "socket.socket",
+    "socket.create_connection",
     "webbrowser.open",
     # File system manipulation
-    "shutil.rmtree", "shutil.move", "shutil.copy",
-    "os.remove", "os.unlink", "os.rmdir", "os.makedirs",
-    "os.rename", "os.chmod", "os.chown",
-    "io.open", "builtins.open", "__builtin__.open",
+    "shutil.rmtree",
+    "shutil.move",
+    "shutil.copy",
+    "os.remove",
+    "os.unlink",
+    "os.rmdir",
+    "os.makedirs",
+    "os.rename",
+    "os.chmod",
+    "os.chown",
+    "io.open",
+    "builtins.open",
+    "__builtin__.open",
     # ctypes / code loading
-    "ctypes.cdll.LoadLibrary", "ctypes.CDLL",
-    "ctypes.WinDLL", "ctypes.windll",
+    "ctypes.cdll.LoadLibrary",
+    "ctypes.CDLL",
+    "ctypes.WinDLL",
+    "ctypes.windll",
 }
 
 # Suspicious but not immediately critical — require context
@@ -105,16 +140,27 @@ SAFE_ALLOWLIST = {
     "torch._utils._rebuild_parameter",
     "torch._utils._rebuild_parameter_with_state",
     "torch.storage._load_from_bytes",
-    "torch.FloatStorage", "torch.LongStorage", "torch.IntStorage",
-    "torch.DoubleStorage", "torch.HalfStorage", "torch.BFloat16Storage",
-    "torch.ShortStorage", "torch.CharStorage", "torch.ByteStorage",
-    "torch.BoolStorage", "torch.ComplexFloatStorage", "torch.ComplexDoubleStorage",
-    "torch.storage.TypedStorage", "torch.storage.UntypedStorage",
-    "torch._C.HalfStorageBase", "torch._C.FloatStorageBase",
+    "torch.FloatStorage",
+    "torch.LongStorage",
+    "torch.IntStorage",
+    "torch.DoubleStorage",
+    "torch.HalfStorage",
+    "torch.BFloat16Storage",
+    "torch.ShortStorage",
+    "torch.CharStorage",
+    "torch.ByteStorage",
+    "torch.BoolStorage",
+    "torch.ComplexFloatStorage",
+    "torch.ComplexDoubleStorage",
+    "torch.storage.TypedStorage",
+    "torch.storage.UntypedStorage",
+    "torch._C.HalfStorageBase",
+    "torch._C.FloatStorageBase",
     "collections.OrderedDict",
     "numpy.core.multiarray._reconstruct",
     "numpy._core.multiarray._reconstruct",
-    "numpy.ndarray", "numpy.dtype",
+    "numpy.ndarray",
+    "numpy.dtype",
     "_codecs.encode",
 }
 
@@ -131,57 +177,119 @@ SAFE_ALLOWLIST = {
 # Exact-match dangerous callables beyond CRITICAL_CALLABLES.
 DANGEROUS_CALLABLES = {
     # runpy / timeit / debuggers / profilers (all execute arbitrary code)
-    "runpy._run_code", "runpy._run_module_code",
-    "timeit.timeit", "timeit.repeat", "timeit.Timer",
-    "trace.Trace.run", "trace.Trace.runctx", "trace.Trace.runfunc",
-    "profile.run", "profile.runctx", "profile.Profile.run", "profile.Profile.runctx",
-    "cProfile.run", "cProfile.runctx", "cProfile.Profile.run", "cProfile.Profile.runctx",
+    "runpy._run_code",
+    "runpy._run_module_code",
+    "timeit.timeit",
+    "timeit.repeat",
+    "timeit.Timer",
+    "trace.Trace.run",
+    "trace.Trace.runctx",
+    "trace.Trace.runfunc",
+    "profile.run",
+    "profile.runctx",
+    "profile.Profile.run",
+    "profile.Profile.runctx",
+    "cProfile.run",
+    "cProfile.runctx",
+    "cProfile.Profile.run",
+    "cProfile.Profile.runctx",
     "pstats.Stats",
-    "bdb.Bdb", "bdb.Bdb.run", "bdb.Bdb.runctx", "bdb.Bdb.runcall", "bdb.Bdb.runeval",
-    "pdb.run", "pdb.runeval", "pdb.runcall", "pdb.Pdb.run", "pdb.Pdb.runcall",
-    "doctest.debug_script", "doctest.debug", "doctest.testsource", "doctest.DebugRunner",
-    "code.InteractiveInterpreter.runcode", "code.InteractiveInterpreter.runsource",
-    "code.InteractiveConsole.interact", "code.interact",
-    "codeop.compile_command", "codeop.CommandCompiler",
+    "bdb.Bdb",
+    "bdb.Bdb.run",
+    "bdb.Bdb.runctx",
+    "bdb.Bdb.runcall",
+    "bdb.Bdb.runeval",
+    "pdb.run",
+    "pdb.runeval",
+    "pdb.runcall",
+    "pdb.Pdb.run",
+    "pdb.Pdb.runcall",
+    "doctest.debug_script",
+    "doctest.debug",
+    "doctest.testsource",
+    "doctest.DebugRunner",
+    "code.InteractiveInterpreter.runcode",
+    "code.InteractiveInterpreter.runsource",
+    "code.InteractiveConsole.interact",
+    "code.interact",
+    "codeop.compile_command",
+    "codeop.CommandCompiler",
     # package / environment execution
-    "ensurepip._run_pip", "ensurepip.bootstrap", "pip.main", "pip._internal.main",
-    "venv.create", "venv.EnvBuilder.create",
+    "ensurepip._run_pip",
+    "ensurepip.bootstrap",
+    "pip.main",
+    "pip._internal.main",
+    "venv.create",
+    "venv.EnvBuilder.create",
     "pkgutil.resolve_name",
     # pydoc gadgets (locate -> import arbitrary; pagers -> shell)
-    "pydoc.locate", "pydoc.pipepager", "pydoc.tempfilepager", "pydoc.pager",
-    "pydoc.ttypager", "pydoc.render_doc", "pydoc.safeimport",
+    "pydoc.locate",
+    "pydoc.pipepager",
+    "pydoc.tempfilepager",
+    "pydoc.pager",
+    "pydoc.ttypager",
+    "pydoc.render_doc",
+    "pydoc.safeimport",
     "_pyrepl.pager.pipe_pager",
     # 2to3 grammar loaders execute
-    "lib2to3.pgen2.grammar.Grammar.loads", "lib2to3.pgen2.pgen.ParserGenerator.make_label",
+    "lib2to3.pgen2.grammar.Grammar.loads",
+    "lib2to3.pgen2.pgen.ParserGenerator.make_label",
     # pty / tty shells
-    "pty.spawn", "pty.fork",
+    "pty.spawn",
+    "pty.fork",
     # stdlib command-output helpers
-    "uuid._get_command_stdout", "_osx_support._read_output",
-    "_osx_support.compiler_fixup", "_aix_support._read_cmd_output",
-    "platform._syscmd_ver", "platform.popen", "getpass.getpass",
+    "uuid._get_command_stdout",
+    "_osx_support._read_output",
+    "_osx_support.compiler_fixup",
+    "_aix_support._read_cmd_output",
+    "platform._syscmd_ver",
+    "platform.popen",
+    "getpass.getpass",
     # operators used to chain gadgets
-    "operator.methodcaller", "operator.attrgetter", "operator.itemgetter",
-    "_operator.methodcaller", "_operator.attrgetter", "_operator.itemgetter",
-    "functools.partial", "functools.reduce",
+    "operator.methodcaller",
+    "operator.attrgetter",
+    "operator.itemgetter",
+    "_operator.methodcaller",
+    "_operator.attrgetter",
+    "_operator.itemgetter",
+    "functools.partial",
+    "functools.reduce",
     # dynamic code objects
-    "types.CodeType", "types.FunctionType", "marshal.loads", "marshal.load",
+    "types.CodeType",
+    "types.FunctionType",
+    "marshal.loads",
+    "marshal.load",
     # file / library / network primitives
-    "_io.FileIO", "io.FileIO", "io.open_code",
-    "logging.FileHandler", "logging.config.fileConfig", "logging.config.listen",
-    "ctypes.WinDLL", "ctypes.PyDLL", "ctypes.util.find_library",
-    "ctypes.cdll", "ctypes.windll", "ctypes.CDLL",
+    "_io.FileIO",
+    "io.FileIO",
+    "io.open_code",
+    "logging.FileHandler",
+    "logging.config.fileConfig",
+    "logging.config.listen",
+    "ctypes.WinDLL",
+    "ctypes.PyDLL",
+    "ctypes.util.find_library",
+    "ctypes.cdll",
+    "ctypes.windll",
+    "ctypes.CDLL",
     "ssl.get_server_certificate",
     "socket.create_connection",
     "asyncio.unix_events._UnixSubprocessTransport._start",
-    "distutils.file_util.write_file", "distutils.spawn.spawn",
-    "numpy.f2py.crackfortran.getlincoef", "numpy.testing._private.utils.runstring",
+    "distutils.file_util.write_file",
+    "distutils.spawn.spawn",
+    "numpy.f2py.crackfortran.getlincoef",
+    "numpy.testing._private.utils.runstring",
     "numpy.distutils.exec_command.exec_command",
     # deserialization re-entry
-    "dill.loads", "dill.load", "joblib.load", "shelve.open",
+    "dill.loads",
+    "dill.load",
+    "joblib.load",
+    "shelve.open",
     # torch gadgets (specific — the torch namespace is otherwise allowlisted)
     "torch.utils.bottleneck.__main__.run_cprofile",
     "torch.utils.bottleneck.__main__.run_autograd_prof",
-    "torch.utils.collect_env.run", "torch.utils.collect_env.run_and_read_all",
+    "torch.utils.collect_env.run",
+    "torch.utils.collect_env.run_and_read_all",
     "torch.jit.unsupported_tensor_ops.execWrapper",
     "torch._inductor.codecache.compile_file",
     "torch.serialization.load",
@@ -190,9 +298,12 @@ DANGEROUS_CALLABLES = {
     "torch.fx.experimental.symbolic_shapes.ShapeEnv.evaluate_guards_expression",
     "test.support.script_helper.assert_python_ok",
     # cloudpickle reconstruction primitives
-    "cloudpickle.cloudpickle._make_function", "cloudpickle.cloudpickle._builtin_type",
-    "cloudpickle.cloudpickle._function_setstate", "cloudpickle.cloudpickle.subimport",
-    "cloudpickle.cloudpickle._make_cell", "cloudpickle.cloudpickle._make_empty_cell",
+    "cloudpickle.cloudpickle._make_function",
+    "cloudpickle.cloudpickle._builtin_type",
+    "cloudpickle.cloudpickle._function_setstate",
+    "cloudpickle.cloudpickle.subimport",
+    "cloudpickle.cloudpickle._make_cell",
+    "cloudpickle.cloudpickle._make_empty_cell",
     "cloudpickle.cloudpickle._make_skeleton_class",
 }
 
@@ -200,32 +311,114 @@ DANGEROUS_CALLABLES = {
 # modules never legitimately appear in serialized model weights, so a whole-
 # module prefix match is safe (no FP on real models).
 DANGEROUS_MODULE_PREFIXES = (
-    "idlelib.", "lib2to3.", "pty.", "pdb.", "bdb.", "profile.", "cProfile.",
-    "pstats.", "trace.", "timeit.", "doctest.", "code.", "codeop.",
-    "ensurepip.", "pip.", "venv.", "pydoc.", "_pyrepl.",
-    "imaplib.", "ftplib.", "telnetlib.", "smtplib.", "poplib.", "nntplib.",
-    "socket.", "socketserver.", "asyncio.", "multiprocessing.", "concurrent.futures.",
-    "xmlrpc.", "http.", "httplib.", "urllib.", "urllib2.", "requests.", "aiohttp.",
-    "ssl.", "cloudpickle.", "distutils.", "setuptools.", "_distutils_hack.",
-    "_osx_support.", "_aix_support.", "getpass.", "test.support.", "dill.",
-    "smtpd.", "wsgiref.", "cgi.", "cgitb.",
+    "idlelib.",
+    "lib2to3.",
+    "pty.",
+    "pdb.",
+    "bdb.",
+    "profile.",
+    "cProfile.",
+    "pstats.",
+    "trace.",
+    "timeit.",
+    "doctest.",
+    "code.",
+    "codeop.",
+    "ensurepip.",
+    "pip.",
+    "venv.",
+    "pydoc.",
+    "_pyrepl.",
+    "imaplib.",
+    "ftplib.",
+    "telnetlib.",
+    "smtplib.",
+    "poplib.",
+    "nntplib.",
+    "socket.",
+    "socketserver.",
+    "asyncio.",
+    "multiprocessing.",
+    "concurrent.futures.",
+    "xmlrpc.",
+    "http.",
+    "httplib.",
+    "urllib.",
+    "urllib2.",
+    "requests.",
+    "aiohttp.",
+    "ssl.",
+    "cloudpickle.",
+    "distutils.",
+    "setuptools.",
+    "_distutils_hack.",
+    "_osx_support.",
+    "_aix_support.",
+    "getpass.",
+    "test.support.",
+    "dill.",
+    "smtpd.",
+    "wsgiref.",
+    "cgi.",
+    "cgitb.",
 )
 
 # Dangerous *method/attribute* names — matched on the final component of a
 # global's qualified name. Catches gadget classes in otherwise-allowlisted
 # namespaces (e.g. torch.*) without prefix-flagging the whole namespace.
 DANGEROUS_METHOD_NAMES = {
-    "system", "popen", "spawn", "spawnl", "spawnle", "spawnlp", "spawnv",
-    "spawnve", "spawnvp", "fork", "forkpty",
-    "exec", "execv", "execve", "execl", "execle", "execlp", "execvp", "execWrapper",
-    "run", "runctx", "runcode", "runsource", "runcall", "runeval", "runfunc",
-    "_run_code", "_run_module_code", "run_cprofile", "run_autograd_prof",
-    "run_and_read_all", "runstring", "_run_pip",
-    "compile_file", "compile_command", "load_config", "evaluate_guards_expression",
-    "locate", "pipepager", "pipe_pager", "resolve_name", "safeimport",
-    "_get_command_stdout", "_read_output", "_read_cmd_output",
-    "get_server_certificate", "basichandlers", "assert_python_ok",
-    "make_label", "debug_script", "getlincoef", "exec_command",
+    "system",
+    "popen",
+    "spawn",
+    "spawnl",
+    "spawnle",
+    "spawnlp",
+    "spawnv",
+    "spawnve",
+    "spawnvp",
+    "fork",
+    "forkpty",
+    "exec",
+    "execv",
+    "execve",
+    "execl",
+    "execle",
+    "execlp",
+    "execvp",
+    "execWrapper",
+    "run",
+    "runctx",
+    "runcode",
+    "runsource",
+    "runcall",
+    "runeval",
+    "runfunc",
+    "_run_code",
+    "_run_module_code",
+    "run_cprofile",
+    "run_autograd_prof",
+    "run_and_read_all",
+    "runstring",
+    "_run_pip",
+    "compile_file",
+    "compile_command",
+    "load_config",
+    "evaluate_guards_expression",
+    "locate",
+    "pipepager",
+    "pipe_pager",
+    "resolve_name",
+    "safeimport",
+    "_get_command_stdout",
+    "_read_output",
+    "_read_cmd_output",
+    "get_server_certificate",
+    "basichandlers",
+    "assert_python_ok",
+    "make_label",
+    "debug_script",
+    "getlincoef",
+    "exec_command",
 }
 
 
@@ -237,10 +430,22 @@ def _is_dangerous_global(normalized: str) -> tuple[bool, str]:
         return False, ""
     if normalized in CRITICAL_CALLABLES or normalized in DANGEROUS_CALLABLES:
         return True, f"dangerous callable: {normalized}"
-    if any(normalized.startswith(p) for p in (
-        "os.", "subprocess.", "builtins.", "__builtin__.", "nt.", "posix.",
-        "ctypes.", "shutil.", "webbrowser.", "runpy.", "importlib.",
-    )) or any(normalized.startswith(p) for p in DANGEROUS_MODULE_PREFIXES):
+    if any(
+        normalized.startswith(p)
+        for p in (
+            "os.",
+            "subprocess.",
+            "builtins.",
+            "__builtin__.",
+            "nt.",
+            "posix.",
+            "ctypes.",
+            "shutil.",
+            "webbrowser.",
+            "runpy.",
+            "importlib.",
+        )
+    ) or any(normalized.startswith(p) for p in DANGEROUS_MODULE_PREFIXES):
         return True, f"dangerous module access: {normalized}"
     last = normalized.rsplit(".", 1)[-1]
     if last in DANGEROUS_METHOD_NAMES:
@@ -301,7 +506,7 @@ def _read_uint8(data: bytes, pos: int) -> tuple[int, int]:
 class PickleScanner:
     """
     Zero-execution pickle bytecode scanner.
-    
+
     Parses opcodes sequentially, tracking the string stack to identify
     what functions are being called via REDUCE/INST/OBJ/NEWOBJ.
     """
@@ -335,10 +540,13 @@ class PickleScanner:
             # Intentionally corrupted pickle — this itself is suspicious
             # (PickleScan bypass: malware executes before full deserialization)
             if self.globals_found:
-                self.findings.append(_make_finding(
-                    "HFS-052", self.file_path,
-                    f"Corrupted pickle with {len(self.globals_found)} globals parsed before error: {self.globals_found[:5]}"
-                ))
+                self.findings.append(
+                    _make_finding(
+                        "HFS-052",
+                        self.file_path,
+                        f"Corrupted pickle with {len(self.globals_found)} globals parsed before error: {self.globals_found[:5]}",
+                    )
+                )
 
         # Post-scan analysis
         self._analyze_globals()
@@ -355,10 +563,13 @@ class PickleScanner:
             if self.pos >= length:
                 break
 
-            op = data[self.pos:self.pos + 1]
+            op = data[self.pos : self.pos + 1]
             self.pos += 1
 
             if op == OP_STOP:
+                self.string_stack.clear()
+                if self.pos < length:
+                    continue
                 break
             elif op == OP_GLOBAL:
                 # "c" opcode: read module\nname\n
@@ -390,7 +601,9 @@ class PickleScanner:
             elif op == OP_SHORT_BINUNICODE:
                 # "\x8c" opcode: 1-byte length + string
                 str_len, self.pos = _read_uint1(data, self.pos)
-                s = data[self.pos:self.pos + str_len].decode("utf-8", errors="replace")
+                s = data[self.pos : self.pos + str_len].decode(
+                    "utf-8", errors="replace"
+                )
                 self.pos += str_len
                 self.string_stack.append(s)
             elif op == OP_BINUNICODE:
@@ -398,7 +611,9 @@ class PickleScanner:
                 str_len, self.pos = _read_uint4(data, self.pos)
                 if str_len > 10_000_000:  # Safety limit
                     break
-                s = data[self.pos:self.pos + str_len].decode("utf-8", errors="replace")
+                s = data[self.pos : self.pos + str_len].decode(
+                    "utf-8", errors="replace"
+                )
                 self.pos += str_len
                 self.string_stack.append(s)
             elif op == b"S":
@@ -488,9 +703,27 @@ class PickleScanner:
             elif op == b"j":
                 # LONG_BINGET (4-byte index)
                 self.pos += 4
-            elif op in (b"(", b")", b"l", b"d", b"t", b"}", b"]",
-                        b"\x85", b"\x86", b"\x87", b"\x90", b"\x91",
-                        b"0", b"1", b"2", b"a", b"e", b"s", b"u"):
+            elif op in (
+                b"(",
+                b")",
+                b"l",
+                b"d",
+                b"t",
+                b"}",
+                b"]",
+                b"\x85",
+                b"\x86",
+                b"\x87",
+                b"\x90",
+                b"\x91",
+                b"0",
+                b"1",
+                b"2",
+                b"a",
+                b"e",
+                b"s",
+                b"u",
+            ):
                 # Stack manipulation and collection opcodes — no payload
                 pass
             elif op == b"I":
@@ -528,22 +761,33 @@ class PickleScanner:
 
             is_danger, reason = _is_dangerous_global(normalized)
             if is_danger:
-                self.findings.append(_make_finding(
-                    "HFS-050", self.file_path,
-                    f"CRITICAL callable in pickle: {reason}"
-                ))
-            elif normalized in SUSPICIOUS_CALLABLES and normalized not in SAFE_ALLOWLIST:
-                self.findings.append(_make_finding(
-                    "HFS-051", self.file_path,
-                    f"Suspicious callable in pickle: {normalized}"
-                ))
+                self.findings.append(
+                    _make_finding(
+                        "HFS-050",
+                        self.file_path,
+                        f"CRITICAL callable in pickle: {reason}",
+                    )
+                )
+            elif (
+                normalized in SUSPICIOUS_CALLABLES and normalized not in SAFE_ALLOWLIST
+            ):
+                self.findings.append(
+                    _make_finding(
+                        "HFS-051",
+                        self.file_path,
+                        f"Suspicious callable in pickle: {normalized}",
+                    )
+                )
             # Check for bypass patterns in global names
             for pattern in BYPASS_PATTERNS:
                 if pattern in normalized:
-                    self.findings.append(_make_finding(
-                        "HFS-052", self.file_path,
-                        f"Known PickleScan bypass pattern: {pattern} in {normalized}"
-                    ))
+                    self.findings.append(
+                        _make_finding(
+                            "HFS-052",
+                            self.file_path,
+                            f"Known PickleScan bypass pattern: {pattern} in {normalized}",
+                        )
+                    )
 
     def _check_reduce_count(self):
         """Flag excessive REDUCE operations (indicator of gadget chains)."""
@@ -555,10 +799,13 @@ class PickleScanner:
             pass
         elif self.reduces_found > 100 and not self.globals_found:
             # Many REDUCEs but no parseable globals — possibly obfuscated
-            self.findings.append(_make_finding(
-                "HFS-051", self.file_path,
-                f"{self.reduces_found} REDUCE ops with no recognizable globals — possible obfuscation"
-            ))
+            self.findings.append(
+                _make_finding(
+                    "HFS-051",
+                    self.file_path,
+                    f"{self.reduces_found} REDUCE ops with no recognizable globals — possible obfuscation",
+                )
+            )
 
 
 def is_pickle_file(file_path: str) -> bool:
@@ -569,14 +816,28 @@ def is_pickle_file(file_path: str) -> bool:
     unpacking path below was dead code for plain ``.zip`` files.
     """
     lower = file_path.lower()
-    return lower.endswith((".pkl", ".pickle", ".pt", ".pth", ".bin", ".ckpt",
-                           ".joblib", ".zip", ".npy", ".npz", ".dill", ".model"))
+    return lower.endswith(
+        (
+            ".pkl",
+            ".pickle",
+            ".pt",
+            ".pth",
+            ".bin",
+            ".ckpt",
+            ".joblib",
+            ".zip",
+            ".npy",
+            ".npz",
+            ".dill",
+            ".model",
+        )
+    )
 
 
 def scan_pickle_bytes(file_path: str, data: bytes) -> list[Finding]:
     """
     Scan raw bytes of a pickle file for malicious opcodes.
-    
+
     Handles:
     - Standard pickle files
     - PyTorch files (ZIP containing data.pkl)
@@ -620,6 +881,7 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
     store the payload under an innocuous name (e.g. ``archive/data.pkl`` or a
     bare name with no extension)."""
     import zipfile
+
     findings: list[Finding] = []
 
     try:
