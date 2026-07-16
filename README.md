@@ -7,41 +7,57 @@ Stdlib-only ML supply chain security scanner for Hugging Face model repositories
 Tested against GPT-2 and Llama-3-8B-style repository structures. Validated against selected documented Hugging Face supply-chain attack reproductions from 2025-2026, including the May 2026 fake OpenAI incident (reported 244K downloads).
 
 ## Quick Start
-## NOTE: To scan gated models, provide a Hugging Face token:
-# Option 1: Pass token directly
-hf-scanner meta-llama/Llama-3-8B --mode remote --format json --token hf_xxxxxxxxxxxx
-
-# Option 2: Set env var (recommended)
-$env:HF_TOKEN = "hf_xxxxxxxxxxxx"
-hf-scanner meta-llama/Llama-3-8B --mode remote --format json
-To test without auth, use a public model:
-hf-scanner gpt2 --mode remote --format json
-
-# or scan a local folder
-hf-scanner .\scanner\tests\fixtures\safe_model --mode local --fail-on high
 
 ### Linux / macOS
 
 ```bash
-# One-line install
-curl -sSL https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/main/install.sh | bash
+cd ~/github-repos/hf-model-provenance-scanner
+./install.sh
 
-# Or clone and run directly (no install needed)
-git clone https://github.com/poojakira/hf-model-provenance-scanner.git
-cd hf-model-provenance-scanner
-python3 -m scanner.cli ./my-model --mode local --fail-on high
+# Remote scan (public model)
+hf-scanner gpt2 --mode remote --format json
+
+# Remote scan (gated model - needs token)
+export HF_TOKEN="hf_xxxxxxxxxxxx"
+hf-scanner meta-llama/Llama-3-8B --mode remote --format json
+
+# Local scan (benign fixture)
+hf-scanner ./scanner/tests/fixtures/safe_model --mode local --fail-on high
+
+# Local scan (malicious fixture - CRITICAL findings)
+hf-scanner ./scanner/tests/fixtures/malicious --mode local --fail-on high
+
+# Local scan (binary pickle/gguf/safetensors fixtures)
+hf-scanner ./scanner/tests/fixtures/binary --mode local --fail-on high
+
+# Run test suite (116 tests)
+python -m pytest tests/ -q
 ```
 
 ### Windows (PowerShell)
 
 ```powershell
-# One-line install
-iex ((New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/main/install.ps1'))
+cd ~\github-repos\hf-model-provenance-scanner
+.\install.ps1
 
-# Or clone and run directly
-git clone https://github.com/poojakira/hf-model-provenance-scanner.git
-cd hf-model-provenance-scanner
-py -m scanner.cli .\my-model --mode local --fail-on high
+# Remote scan (public model)
+hf-scanner gpt2 --mode remote --format json
+
+# Remote scan (gated model - needs token)
+$env:HF_TOKEN = "hf_xxxxxxxxxxxx"
+hf-scanner meta-llama/Llama-3-8B --mode remote --format json
+
+# Local scan (benign fixture)
+hf-scanner .\scanner\tests\fixtures\safe_model --mode local --fail-on high
+
+# Local scan (malicious fixture - CRITICAL findings)
+hf-scanner .\scanner\tests\fixtures\malicious --mode local --fail-on high
+
+# Local scan (binary pickle/gguf/safetensors fixtures)
+hf-scanner .\scanner\tests\fixtures\binary --mode local --fail-on high
+
+# Run test suite (116 tests)
+py -m pytest tests/ -q
 ```
 
 ## What It Detects
