@@ -7,6 +7,18 @@ Stdlib-only ML supply chain security scanner for Hugging Face model repositories
 Tested against GPT-2 and Llama-3-8B-style repository structures. Validated against selected documented Hugging Face supply-chain attack reproductions from 2025-2026, including the May 2026 fake OpenAI incident (reported 244K downloads).
 
 ## Quick Start
+## NOTE: To scan gated models, provide a Hugging Face token:
+# Option 1: Pass token directly
+hf-scanner meta-llama/Llama-3-8B --mode remote --format json --token hf_xxxxxxxxxxxx
+
+# Option 2: Set env var (recommended)
+$env:HF_TOKEN = "hf_xxxxxxxxxxxx"
+hf-scanner meta-llama/Llama-3-8B --mode remote --format json
+To test without auth, use a public model:
+hf-scanner gpt2 --mode remote --format json
+
+# or scan a local folder
+hf-scanner .\scanner\tests\fixtures\safe_model --mode local --fail-on high
 
 ### Linux / macOS
 
