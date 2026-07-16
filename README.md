@@ -86,24 +86,16 @@ The engines provide overlapping coverage, so an attacker may need to evade multi
 ## Usage
 
 ```bash
-# Scan local model directory
-hf-scanner ./model --mode local --fail-on high
+cd C:\Users\pooja\github-repos\hf-model-provenance-scanner
 
-# Scan with instrumented runtime execution (adds coverage for some obfuscation, slightly slower)
-hf-scanner ./model --mode local --sandbox --fail-on critical
+# Benign (clean) - passes
+hf-scanner .\tests\fixtures\benign --mode local --fail-on high
 
-# Scan HuggingFace repo remotely (checks org identity too)
-hf-scanner meta-llama/Llama-3-8B --mode remote --format json
+# Malicious source code - catches PowerShell subprocess (CRITICAL)
+hf-scanner .\tests\fixtures\malicious --mode local --fail-on critical
 
-# Generate SARIF for GitHub Code Scanning
-hf-scanner . --mode local --format sarif --output results.sarif
-
-# Temporal rug-pull detection
-hf-scanner ./model --save-baseline baseline.json    # First scan
-hf-scanner ./model --baseline baseline.json         # Later: detect changes
-
-# Generate runtime isolation policy
-hf-scanner ./model --runtime-policy policy.json
+# Binary models - catches pickle RCE, bad metadata, malformed files
+hf-scanner .\tests\fixtures\binary --mode local --fail-on critical
 ```
 
 ## Output Formats
