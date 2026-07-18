@@ -1,26 +1,41 @@
-FROM python:3.11-slim
+# HF Model Provenance Scanner - Production Dockerfile
+FROM python:3.12-slim as builder
 
-LABEL org.opencontainers.image.title="HF Model Provenance Scanner"
-LABEL org.opencontainers.image.description="Zero-dependency ML supply chain security scanner"
-LABEL org.opencontainers.image.source="https://github.com/poojakira/hf-model-provenance-scanner"
-LABEL org.opencontainers.image.authors="Pooja Kiran <poojakira>"
+WORKDIR /app
 
-WORKDIR /scanner
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc g++ libffi-dev libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy scanner source (zero dependencies, no pip install needed)
-COPY scanner/ /scanner/scanner/
-COPY pyproject.toml /scanner/
+COPY requirements.txt .
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
-# Install for entry point
-RUN pip install --no-cache-dir -e . && \
-    # Verify installation
-    hf-scanner --version
+# Production stage
+FROM python:3.12-slim
 
-# Non-root user for security
-RUN useradd -m -s /bin/bash scanner
-USER scanner
+WORKDIR /app
 
-WORKDIR /workspace
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libffi8 libssl3 curl \
+    && rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT ["hf-scanner"]
-CMD ["--help"]
+COPY --from=builder /install /usr/local
+
+# Copy scanner source
+COPY scanner ./scanner
+COPY pyproject.toml .
+COPY README.md .
+
+RUN pip install --no-cache-dir -e .
+
+# Non-root user
+RUN groupadd -r mlsec && useradd -r -g mlsec mlsec
+RUN chown -R mlsec:mlsec /app
+USER mlsec
+
+EXPOSE 8001
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8001/health || exit 1
+
+CMD ["hf-scanner", "--help"]
