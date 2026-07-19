@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.14-slim
 
 LABEL org.opencontainers.image.title="HF Model Provenance Scanner"
 LABEL org.opencontainers.image.description="Zero-dependency ML supply chain security scanner"
