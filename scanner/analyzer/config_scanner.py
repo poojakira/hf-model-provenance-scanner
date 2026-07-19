@@ -4,7 +4,7 @@ import json
 import re
 from typing import List
 
-from scanner.models import Finding, Severity
+from scanner.models import Finding
 from scanner.rules.definitions import get_rule
 
 # Fields where URLs are expected/normal in HF config files

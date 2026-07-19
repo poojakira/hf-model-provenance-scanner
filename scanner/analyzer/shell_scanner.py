@@ -3,9 +3,8 @@
 import re
 from typing import List
 
-from scanner.models import Finding, Severity
+from scanner.models import Finding
 from scanner.rules.definitions import get_rule
-
 
 # Pattern definitions: (compiled_regex, rule_id, evidence_description)
 _PATTERNS = [

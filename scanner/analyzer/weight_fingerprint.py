@@ -13,7 +13,6 @@ Supports: SafeTensors, GGUF, PyTorch (ZIP-based .pt files)
 import hashlib
 import json
 import struct
-import io
 from dataclasses import dataclass, field
 from typing import Optional
 

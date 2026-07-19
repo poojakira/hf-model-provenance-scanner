@@ -12,14 +12,12 @@ Output format: CycloneDX JSON (compatible with OWASP Dependency-Track,
 CISA SBOM tools, and EU AI Act Article 53 requirements).
 """
 
-import hashlib
 import json
 import os
 import time
 import uuid
-from typing import Optional
 
-from scanner.models import Finding, ScanResult
+from scanner.models import ScanResult
 
 
 def generate_aibom(

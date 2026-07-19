@@ -5,7 +5,7 @@ import os
 import re
 from typing import List
 
-from scanner.models import Finding, Severity
+from scanner.models import Finding
 from scanner.rules.definitions import get_rule
 
 # Load IOC data at module level

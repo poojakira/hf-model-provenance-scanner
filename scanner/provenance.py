@@ -7,7 +7,7 @@ import shutil
 import subprocess
 from typing import Optional
 
-from scanner.models import Finding, Severity
+from scanner.models import Finding
 from scanner.rules.definitions import get_rule
 
 SIGNATURE_EXTENSIONS = (".sig", ".asc", ".minisig", ".cosign", ".bundle")

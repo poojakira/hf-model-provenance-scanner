@@ -11,9 +11,8 @@ This scanner validates SafeTensors structural integrity without loading tensors.
 """
 
 import json
-import struct
 import re
-from typing import Optional
+import struct
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
