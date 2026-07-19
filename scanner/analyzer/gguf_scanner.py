@@ -11,9 +11,8 @@ Attack surfaces:
 Format specification: https://github.com/ggerganov/ggml/blob/master/docs/gguf.md
 """
 
-import struct
 import re
-from typing import Optional
+import struct
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule

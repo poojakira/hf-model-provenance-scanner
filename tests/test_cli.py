@@ -83,8 +83,9 @@ class TestCli(unittest.TestCase):
             self.assertEqual(code, 0)
             with open(policy_path, "r", encoding="utf-8") as f:
                 policy = json.load(f)
-            self.assertFalse(policy["policy"]["execute_untrusted_model_code"])
-            self.assertEqual(policy["policy"]["network"], "disabled_by_default")
+            self.assertEqual(policy["kind"], "RuntimePolicy")
+            self.assertFalse(policy["spec"]["process"]["noNewPrivileges"] is False)
+            self.assertEqual(policy["spec"]["network"]["egressPolicy"], "deny")
         finally:
             os.unlink(policy_path)
 
@@ -96,8 +97,8 @@ class TestCli(unittest.TestCase):
             self.assertEqual(code, 0)
             with open(report_path, "r", encoding="utf-8") as f:
                 report = f.read()
-            self.assertIn("hf-scanner report", report)
-            self.assertIn("Risk:", report)
+            self.assertIn("HF Model Provenance Scanner Report", report)
+            self.assertIn("Risk Assessment", report)
             self.assertIn("HFS-001", report)
         finally:
             os.unlink(report_path)

@@ -1,7 +1,6 @@
 import json
 import os
 from datetime import datetime, timezone
-from typing import Optional
 
 from scanner.models import Finding, OrgCheckResult
 from scanner.rules.definitions import get_rule

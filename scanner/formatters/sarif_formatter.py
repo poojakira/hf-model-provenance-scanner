@@ -3,7 +3,6 @@
 from scanner.models import ScanResult, Severity
 from scanner.rules.definitions import RULES
 
-
 _SARIF_SEVERITY_MAP = {
     Severity.CRITICAL: "error",
     Severity.HIGH: "error",

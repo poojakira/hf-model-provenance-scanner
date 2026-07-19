@@ -18,8 +18,7 @@ Architecture:
 """
 
 import ast
-import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Optional
 
@@ -243,7 +242,7 @@ class TaintAnalyzer(ast.NodeVisitor):
                     return TaintInfo(
                         {TaintLabel.EXEC_CALLABLE, TaintLabel.DANGEROUS_MODULE},
                         getattr(node, "lineno", 0),
-                        f"getattr() on dangerous module")
+                        "getattr() on dangerous module")
 
         # Check if calling a tainted callable itself
         func_taint = self._get_taint(node.func)

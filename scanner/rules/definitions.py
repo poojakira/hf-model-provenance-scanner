@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
+
 from scanner.models import Severity
+
 
 @dataclass
 class Rule:
