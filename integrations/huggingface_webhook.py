@@ -8,7 +8,7 @@ When configured as a HuggingFace webhook, it will:
 1. Receive push events for model repositories
 2. Automatically scan the pushed model
 3. Post results back as a comment/discussion on the repo
-4. Optionally block downloads if CRITICAL findings detected
+11. Optionally block downloads if CRITICAL findings detected
 
 Setup:
 1. Go to https://huggingface.co/settings/webhooks
@@ -33,6 +33,50 @@ import urllib.request
 
 # Add scanner to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Webhook configuration
+MAX_CONTENT_LENGTH = 10 * 1024 * 1024  # 10 MB
+
+
+def process_webhook_request(headers: dict, body_stream, handler):
+    """
+    Process a webhook request with signature verification.
+
+    Args:
+        headers: HTTP headers dict
+        body_stream: Stream object with .read() method
+        handler: Callable that takes parsed event and returns response
+
+    Returns:
+        Tuple of (status_code, response_dict)
+    """
+    secret = os.environ.get("WEBHOOK_SECRET")
+    if not secret:
+        return 500, {"error": "server misconfigured"}
+
+    # Check content length
+    content_length = headers.get("Content-Length")
+    if content_length:
+        try:
+            if int(content_length) > MAX_CONTENT_LENGTH:
+                return 413, {"error": "payload too large"}
+        except ValueError:
+            pass
+
+    # Read body
+    body = body_stream.read()
+
+    # Verify signature
+    signature = headers.get("X-Webhook-Secret", "")
+    if not verify_signature(body, signature, secret):
+        return 401, {"error": "invalid signature"}
+
+    try:
+        event = json.loads(body)
+        result = handler(event)
+        return 200, result
+    except Exception as e:
+        return 500, {"error": "internal server error"}
 
 
 def verify_signature(payload: bytes, signature: str, secret: str) -> bool:
@@ -122,6 +166,16 @@ def handle_webhook(event: dict) -> dict:
 
     if repo_type != "model":
         return {"status": "ignored", "reason": f"not a model repo (type={repo_type})"}
+
+    # Validate repo_id format (basic sanitization)
+    if not isinstance(repo_id, str):
+        return {"status": "ignored", "reason": "invalid repo_id"}
+    if ".." in repo_id or repo_id.startswith("/") or "://" in repo_id:
+        return {"status": "ignored", "reason": "invalid repo_id"}
+    if "?" in repo_id or "#" in repo_id:
+        return {"status": "ignored", "reason": "invalid repo_id"}
+    if repo_id.count("/") != 1:
+        return {"status": "ignored", "reason": "invalid repo_id"}
 
     # Run scan
     result = scan_repo(repo_id)

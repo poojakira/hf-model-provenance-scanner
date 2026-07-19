@@ -71,6 +71,8 @@ CRITICAL_CALLABLES = {
     "http.client.HTTPConnection", "http.client.HTTPSConnection",
     "socket.socket", "socket.create_connection",
     "webbrowser.open",
+    "requests.api.get", "requests.api.post", "requests.get", "requests.post",
+    "requests.put", "requests.delete", "requests.request",
     # File system manipulation
     "shutil.rmtree", "shutil.move", "shutil.copy",
     "os.remove", "os.unlink", "os.rmdir", "os.makedirs",
@@ -79,13 +81,22 @@ CRITICAL_CALLABLES = {
     # ctypes / code loading
     "ctypes.cdll.LoadLibrary", "ctypes.CDLL",
     "ctypes.WinDLL", "ctypes.windll",
-    # Expanded long-tail gadgets (added after benchmarking)
+# Expanded long-tail gadgets (added after benchmarking)
     "runpy._run_code", "timeit.timeit", "pydoc.locate",
     "lib2to3.pgen2.grammar.Grammar.loads", "pty.spawn",
     "operator.methodcaller",
     "functools.partial", "types.CodeType", "marshal.loads",
     "dill.loads", "joblib.load", "cloudpickle.loads",
     "torch.utils.collect_env.run", "torch.jit.unsupported_tensor_ops.execWrapper",
+    "torch.utils.bottleneck.__main__.run_cprofile",
+    # Profile/cProfile - can be used for code execution
+    "profile.Profile.run", "cProfile.Profile.run",
+    "profile.Profile.runcall", "cProfile.Profile.runcall",
+    "profile.run", "cProfile.run",
+    # trace module - can execute code
+    "trace.Trace.run", "trace.Trace.runctx",
+    # Idlelib (Python shell) - CVE-2024-34064 fix
+    "idlelib.pyshell.ModifiedInterpreter.runcode",
 }
 
 # Suspicious but not immediately critical — require context
@@ -476,7 +487,7 @@ class PickleScanner:
 def is_pickle_file(file_path: str) -> bool:
     """Check if file extension indicates a pickle-serialized model."""
     lower = file_path.lower()
-    return lower.endswith((".pkl", ".pickle", ".pt", ".pth", ".bin", ".ckpt", ".joblib"))
+    return lower.endswith((".pkl", ".pickle", ".pt", ".pth", ".bin", ".ckpt", ".joblib", ".zip"))
 
 
 def scan_pickle_bytes(file_path: str, data: bytes) -> list[Finding]:
@@ -495,7 +506,7 @@ def scan_pickle_bytes(file_path: str, data: bytes) -> list[Finding]:
 
     # CVE-2025-10155: File extension mismatch - pickle content with non-pickle extension
     lower_path = file_path.lower()
-    if not (lower_path.endswith((".pkl", ".pickle", ".pt", ".pth", ".bin", ".ckpt", ".joblib"))):
+    if not (lower_path.endswith((".pkl", ".pickle", ".pt", ".pth", ".bin", ".ckpt", ".joblib", ".zip"))):
         # Check if it's actually a pickle file despite the extension
         if data[:1] == PICKLE_MAGIC or _looks_like_pickle(data):
             findings.append(_make_finding(

@@ -1,3 +1,9 @@
+import sys
+import pytest
+
+if sys.platform == "win32":
+    pytest.skip("Windows: skops import triggers torch DLL issue", allow_module_level=True)
+
 from types import SimpleNamespace
 
 from scanner.analyzer import sandbox_executor
