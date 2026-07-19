@@ -1,6 +1,6 @@
 """Risk score computation for scan results."""
 
-from scanner.models import Finding, RiskSummary, ScanResult, Severity
+from scanner.models import RiskSummary, ScanResult, Severity
 
 SEVERITY_POINTS = {
     Severity.CRITICAL: 40,

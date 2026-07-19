@@ -17,7 +17,6 @@ of literals and pure builtin operations.
 
 import ast
 import re
-from typing import Optional
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule

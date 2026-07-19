@@ -7,7 +7,7 @@ name = "hf-scanner"
 version = "0.2.0"
 description = "Zero-dependency ML supply chain provenance scanner for Hugging Face repositories"
 requires-python = ">=3.9"
-license = {text = "Apache-2.0"}
+license = "Apache-2.0"
 dependencies = []  # intentionally empty — zero runtime dependencies
 
 [project.scripts]
@@ -22,3 +22,16 @@ include = ["scanner*"]
 
 [tool.setuptools.package-data]
 "scanner.data" = ["*.json"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+select = ["E", "F", "I", "N", "W", "B"]
+ignore = [
+    "N802",  # ast visitor methods must be CamelCase
+    "E741",  # l/r variable names in tuple unpacking
+    "B007",  # loop control variable not used - intentional
+    "E501",  # line too long - rule definitions and test fixtures
+    "W293",  # blank line contains whitespace - docstrings
+    "F841",  # local variable assigned but never used - intentional in some cases
+]

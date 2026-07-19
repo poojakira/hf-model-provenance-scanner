@@ -231,7 +231,7 @@ def compare_with_baseline(
             if any(f.severity in (Severity.CRITICAL, Severity.HIGH) for f in path_findings):
                 findings.append(_make_finding(
                     "HFS-061", path,
-                    f"New file with critical/high findings added after baseline"
+                    "New file with critical/high findings added after baseline"
                 ))
         elif baseline_file.sha256 != current_hash:
             # File changed — possible rug pull
@@ -267,7 +267,7 @@ def compare_with_baseline(
         if not current_result.org_check.is_verified:
             findings.append(_make_finding(
                 "HFS-062", target,
-                f"Organization lost verified status since baseline"
+                "Organization lost verified status since baseline"
             ))
 
     return findings

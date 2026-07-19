@@ -12,9 +12,7 @@ ONNX uses protobuf serialization. We parse the minimal structures
 needed without importing the onnx package (zero dependencies).
 """
 
-import struct
 import re
-from typing import Optional
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule

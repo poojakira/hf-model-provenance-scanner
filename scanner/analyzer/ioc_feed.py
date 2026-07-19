@@ -20,14 +20,15 @@ Feed format (each source returns JSON with optional fields):
 }
 """
 
+import hashlib
 import json
 import os
 import time
-import hashlib
-import urllib.request
 import urllib.error
-from typing import Optional
+import urllib.request
 from dataclasses import dataclass, field
+from typing import Optional
+
 
 # Cache directory — use platform-appropriate user cache
 def _get_cache_dir() -> str:

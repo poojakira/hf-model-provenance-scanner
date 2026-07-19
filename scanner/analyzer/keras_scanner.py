@@ -13,9 +13,7 @@ Since we can't import h5py (zero deps), we scan the raw bytes for:
 - custom_objects declarations
 """
 
-import json
 import re
-from typing import Optional
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule

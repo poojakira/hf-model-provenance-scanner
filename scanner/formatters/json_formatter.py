@@ -1,7 +1,8 @@
 """JSON output formatter for scan results."""
 
 import json
-from scanner.models import ScanResult, Severity
+
+from scanner.models import ScanResult
 
 
 def format_json(result: ScanResult) -> str:

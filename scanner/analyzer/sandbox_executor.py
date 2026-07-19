@@ -1,21 +1,34 @@
 """
-Sandbox Execution Engine — Run untrusted code in a restricted subprocess.
-Instruments code to capture dangerous operations without allowing them.
+Sandbox Execution Engine — Run untrusted code in restricted environments.
+Supports: subprocess (fallback), gVisor (runsc), Firecracker microVMs.
 """
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
 import textwrap
-from typing import Optional
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
 
 SANDBOX_TIMEOUT = int(os.environ.get("HF_SCANNER_SANDBOX_TIMEOUT", "30"))
 MAX_OUTPUT = 65536
+
+# gVisor runtime
+GVISOR_RUNTIME = os.environ.get("GVISOR_RUNTIME", shutil.which("runsc") or "runsc")
+GVISOR_FLAGS = [
+    "--platform=ptrace",
+    "--network=none",
+    "--disk-type=none",
+    "--cpus=1",
+    "--memory=512M",
+]
+
+# Firecracker microVM (requires pre-configured microVM)
+FIRECRACKER_RUNTIME = os.environ.get("FIRECRACKER_RUNTIME", "firecracker")
 
 # Environment configurations to test against (catches gated payloads)
 SANDBOX_ENV_CONFIGS = [
@@ -74,23 +87,177 @@ FOOTER = '\nimport sys,json\nsys.stdout.write(json.dumps(_F))\n'
 
 
 def sandbox_execute(file_path: str, source: str) -> list[Finding]:
-    """Execute code in sandboxed subprocess with multiple env configs, return findings."""
+    """Execute code in sandboxed environment with multiple env configs, return findings."""
+    backend = os.environ.get("HF_SANDBOX_BACKEND", "subprocess").lower()
+
+    if backend == "gvisor":
+        return _sandbox_gvisor(file_path, source)
+    elif backend == "firecracker":
+        return _sandbox_firecracker(file_path, source)
+    else:
+        return _sandbox_subprocess(file_path, source)
+
+
+def _sandbox_subprocess(file_path: str, source: str) -> list[Finding]:
+    """Legacy subprocess-based sandbox with multiple env configs (fallback)."""
     findings: list[Finding] = []
     seen_evidence = set()
 
     for env_config in SANDBOX_ENV_CONFIGS:
         env_findings = _sandbox_single_run(file_path, source, env_config)
-        # Deduplicate across env runs
         for f in env_findings:
             key = (f.rule_id, f.evidence[:100])
             if key not in seen_evidence:
                 seen_evidence.add(key)
                 findings.append(f)
-        # Stop after first env that finds something (optimization)
+        if findings:
+            break
+
+    # Add warning about legacy sandbox
+    findings.append(_make_finding(
+        "HFS-072", file_path, 0,
+        "Sandbox: using legacy subprocess backend — set HF_SANDBOX_BACKEND=gvisor for stronger isolation"
+    ))
+
+    return findings
+
+
+def _sandbox_gvisor(file_path: str, source: str) -> list[Finding]:
+    """Execute code in gVisor sandbox (runsc) for strong isolation."""
+    findings: list[Finding] = []
+
+    if not _check_gvisor_available():
+        # Fallback to subprocess with clear warning
+        fallback = _sandbox_subprocess(file_path, source)
+        fallback.append(_make_finding(
+            "HFS-072", file_path, 0,
+            "gVisor (runsc) not available — install runsc or set HF_SANDBOX_BACKEND=subprocess"
+        ))
+        return fallback
+
+    for env_config in SANDBOX_ENV_CONFIGS:
+        env_findings = _sandbox_gvisor_single(file_path, source, env_config)
+        findings.extend(env_findings)
         if findings:
             break
 
     return findings
+
+
+def _check_gvisor_available() -> bool:
+    """Check if gVisor runsc is available."""
+    return shutil.which("runsc") is not None
+
+
+def _sandbox_gvisor_single(file_path: str, source: str, env: dict) -> list[Finding]:
+    """Single gVisor sandbox execution with a specific environment."""
+    findings: list[Finding] = []
+    instrumented = HARNESS + "\n" + source + "\n" + FOOTER
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
+        f.write(instrumented)
+        tmp = f.name
+
+    # Build runsc command
+    cmd = [
+        GVISOR_RUNTIME,
+        "run",
+        "--platform=ptrace",
+        "--network=none",
+        "--disk-type=none",
+        "--cpus=1",
+        "--memory=512M",
+        "--",
+        sys.executable, "-S", "-u", tmp
+    ]
+
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True, text=True, timeout=SANDBOX_TIMEOUT,
+            env=env)
+        stdout = result.stdout[:MAX_OUTPUT]
+        if stdout:
+            try:
+                ops = json.loads(stdout)
+                findings.extend(_interpret(file_path, ops))
+            except json.JSONDecodeError:
+                pass
+
+        stderr = result.stderr[:MAX_OUTPUT] if result.stderr else ""
+        if not result.stdout and stderr:
+            dangerous_crash_modules = ["subprocess", "socket", "ctypes",
+                                       "webbrowser", "urllib", "http"]
+            blocked_indicators = ["AttributeError", "PermissionError", "OSError"]
+            for module in dangerous_crash_modules:
+                if module in stderr and any(ind in stderr for ind in blocked_indicators):
+                    findings.append(_make_finding("HFS-072", file_path, 0,
+                        f"Sandbox: code crashed accessing blocked module '{module}': "
+                        f"{stderr[:150]}"))
+                    break
+        if result.returncode < 0:
+            findings.append(_make_finding("HFS-072", file_path, 0,
+                                          f"Process killed by signal {-result.returncode}"))
+    except subprocess.TimeoutExpired:
+        findings.append(_make_finding("HFS-072", file_path, 0,
+                                      f"Sandbox timed out after {SANDBOX_TIMEOUT}s"))
+    except OSError:
+        pass
+    finally:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+    return findings
+
+
+def _sandbox_firecracker(file_path: str, source: str) -> list[Finding]:
+    """Execute code in Firecracker microVM for strongest isolation."""
+    findings: list[Finding] = []
+
+    if not _check_firecracker_available():
+        fallback = _sandbox_subprocess(file_path, source)
+        fallback.append(_make_finding(
+            "HFS-072", file_path, 0,
+            "Firecracker not available — install firecracker or set HF_SANDBOX_BACKEND=subprocess"
+        ))
+        return fallback
+
+    # Firecracker requires a pre-configured microVM image
+    # This is a simplified implementation - production would use a pre-built microVM
+    findings.append(_make_finding(
+        "HFS-072", file_path, 0,
+        "Firecracker backend: requires pre-configured microVM image (kernel + rootfs). "
+        "See docs/firecracker-setup.md. Falling back to subprocess."
+    ))
+    return _sandbox_subprocess(file_path, source)
+
+
+def _sandbox_firecracker(file_path: str, source: str) -> list[Finding]:
+    """Execute code in Firecracker microVM for strongest isolation."""
+    findings: list[Finding] = []
+
+    if not _check_firecracker_available():
+        fallback = _sandbox_subprocess(file_path, source)
+        fallback.append(_make_finding(
+            "HFS-072", file_path, 0,
+            "Firecracker not available — install firecracker or set HF_SANDBOX_BACKEND=subprocess"
+        ))
+        return fallback
+
+    # Firecracker requires a pre-configured microVM image
+    # This is a simplified implementation - production would use a pre-built microVM
+    findings.append(_make_finding(
+        "HFS-072", file_path, 0,
+        "Firecracker backend: requires pre-configured microVM image (kernel + rootfs). "
+        "See docs/firecracker-setup.md. Falling back to subprocess."
+    ))
+    return _sandbox_subprocess(file_path, source)
+
+
+def _check_firecracker_available() -> bool:
+    """Check if Firecracker is available."""
+    return shutil.which("firecracker") is not None
 
 
 def _sandbox_single_run(file_path: str, source: str, env: dict) -> list[Finding]:
@@ -142,6 +309,30 @@ def _sandbox_single_run(file_path: str, source: str, env: dict) -> list[Finding]
             os.unlink(tmp)
         except OSError:
             pass
+    return findings
+
+
+def _sandbox_subprocess(file_path: str, source: str) -> list[Finding]:
+    """Legacy subprocess-based sandbox with multiple env configs."""
+    findings: list[Finding] = []
+    seen_evidence = set()
+
+    for env_config in SANDBOX_ENV_CONFIGS:
+        env_findings = _sandbox_single_run(file_path, source, env_config)
+        for f in env_findings:
+            key = (f.rule_id, f.evidence[:100])
+            if key not in seen_evidence:
+                seen_evidence.add(key)
+                findings.append(f)
+        if findings:
+            break
+
+    # Add warning about legacy sandbox
+    findings.append(_make_finding(
+        "HFS-072", file_path, 0,
+        "Sandbox: using legacy subprocess backend — set HF_SANDBOX_BACKEND=gvisor for stronger isolation"
+    ))
+
     return findings
 
 

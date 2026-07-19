@@ -26,7 +26,6 @@ from scanner.analyzer.temporal_scanner import (
     save_baseline,
 )
 from scanner.analyzer.weight_fingerprint import fingerprint_file
-from scanner.aibom_generator import format_aibom
 from scanner.config import load_config
 from scanner.formatters.html_formatter import format_html
 from scanner.formatters.json_formatter import format_json
