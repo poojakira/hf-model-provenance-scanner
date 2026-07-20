@@ -159,3 +159,24 @@ python3 tests/redteam/test_large_scale.py      # Multi-MB files pass
 ## License
 
 Apache-2.0
+
+## Component Status
+
+| Component | Status | Details |
+|-----------|--------|---------|
+| eBPF kernel module | Requires root + Linux kernel 4.14+ | Skeleton in `scanner/analyzer/runtime_monitor.py` |
+| gVisor/Firecracker sandbox | Optional backend | Configured via `HF_SANDBOX_BACKEND` env var |
+| SIEM integration | Webhook/fluentd forwarder | Stub in `_log_to_siem` in `runtime_monitor.py` |
+| Model server integration | FastAPI/Triton wrapper | See `deploy_protection.py` |
+
+## Advanced Detection Rules (v0.3+)
+
+| Rule Range | Category | Count | Key Capabilities |
+|------------|----------|-------|------------------|
+| HFS-100 to HFS-119 | Runtime/Behavioral | 20 | Process injection, DLL hijack, container escape, GPU exploits, egress exfiltration, side-channels, memory dump, privilege escalation, anti-debug, self-modifying code, ROP chains, cryptominers, firmware access, syscall anomalies, supply-chain webhooks, model extraction, adversarial inputs, backdoor triggers, gradient leakage, speculative execution |
+| HFS-120 to HFS-139 | ML Supply Chain | 20 | Dependency confusion, ML package typosquat, CI/CD compromise, registry poisoning, dataset poisoning, MLOps tampering, feature store injection, secret leakage, unverified base models, license violations, SLSA compliance, HF token compromise, model card XSS, framework CVEs, hardware trojans, ONNX/TensorRT/CoreML/TFLite/MLIR exploits |
+| HFS-140 to HFS-159 | Zero-Day/Unknown | 20 | Unknown pickle opcodes, weight entropy anomalies, custom activation abuse, gradient masking, FL poisoning, model inversion, quantization backdoors, distillation extraction, prompt injection, jailbreak patterns, RAG poisoning, tool hijacking, multimodal steganography, constitutional AI bypass, watermark removal, speculative decoding hijack, KV cache poisoning, prefix tuning injection, LoRA adapter malicious, RLHF reward hacking |
+| HFS-160 to HFS-170 | Hardware/Firmware | 11 | Rowhammer weight flips, GPU side-channels, TPU glitching, secure enclave bypass, firmware rootkits, DMA interposer attacks, power analysis, EM emanation, acoustic side-channels, thermal side-channels, quantum readiness |
+| HFS-171 to HFS-189 | Compliance/Governance | 19 | EU AI Act, NIST AI RMF, GDPR Art.22, HIPAA PHI, export controls, copyright training data, bias discrimination, carbon footprint, insurance gaps, audit trails, incident response, shadow ML, model drift, explainability gaps, red-team gaps, SBOM completeness, attestation verification |
+
+**Total: 151 rules** (was 61 in v0.2)

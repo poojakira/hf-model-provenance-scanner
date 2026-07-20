@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>HF Scanner Report - tests\fixtures\benign</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 2em; }
+table { border-collapse: collapse; width: 100%; margin-top: 1em; }
+th, td { border: 1px solid #dee2e6; padding: 0.5em; text-align: left; }
+th { background: #f8f9fa; }
+.summary { display: flex; gap: 2em; margin: 1em 0; }
+.summary-card { padding: 1em; border-radius: 8px; background: #f8f9fa; }
+code { background: #e9ecef; padding: 0.1em 0.3em; border-radius: 3px; }
+</style>
+</head>
+<body>
+<h1>HF Model Provenance Scanner Report</h1>
+<p><strong>Target:</strong> tests\fixtures\benign | <strong>Mode:</strong> local | <strong>Version:</strong> 0.2.0</p>
+<p><strong>Duration:</strong> 0.01s | <strong>Files scanned:</strong> 3 | <strong>Skipped:</strong> 0</p>
+
+<h2>Risk Assessment</h2>
+<div class="summary">
+<div class="summary-card">
+<strong style="color:#28a745;font-size:1.5em">LOW</strong>
+<p>Score: 7/100</p>
+<ul><li>1 medium finding</li></ul>
+</div>
+<div class="summary-card">
+<p><strong>Critical:</strong> 0</p>
+<p><strong>High:</strong> 0</p>
+<p><strong>Medium:</strong> 1</p>
+<p><strong>Low:</strong> 0</p>
+<p><strong>Info:</strong> 0</p>
+</div>
+</div>
+
+<h2>Findings (1)</h2>
+<table>
+<thead><tr><th>Severity</th><th>Rule</th><th>Location</th><th>Message</th><th>Evidence</th></tr></thead>
+<tbody>
+<tr><td><span style="color:#ffc107;font-weight:bold">MEDIUM</span></td><td><code>HFS-025</code></td><td>tests\fixtures\benign\loader.py:0</td><td>Repository contains executable loader/startup files that require manual review</td><td><small>Executable model entrypoint present</small></td></tr>
+</tbody>
+</table>
+
+
+</body>
+</html>

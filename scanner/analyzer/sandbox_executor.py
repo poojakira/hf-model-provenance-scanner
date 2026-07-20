@@ -10,6 +10,11 @@ import subprocess
 import sys
 import tempfile
 import textwrap
+import time
+import psutil
+import threading
+from collections import defaultdict
+from typing import Optional
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
