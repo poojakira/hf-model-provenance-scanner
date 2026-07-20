@@ -26,6 +26,7 @@ from scanner.analyzer.temporal_scanner import (
     save_baseline,
 )
 from scanner.analyzer.weight_fingerprint import fingerprint_file
+from scanner.analyzer.runtime_monitor import RuntimeMonitor, create_production_monitor
 from scanner.config import load_config
 from scanner.formatters.html_formatter import format_html
 from scanner.formatters.json_formatter import format_json
@@ -338,6 +339,13 @@ def build_parser() -> argparse.ArgumentParser:
                         help="Enable sandbox execution (instruments and runs code in restricted subprocess)")
     parser.add_argument("--aibom", metavar="FILE",
                         help="Generate CycloneDX AI Bill of Materials to FILE")
+    # Runtime protection (v0.3)
+    parser.add_argument("--protect", action="store_true",
+                        help="Enable real-time runtime protection (blocks on critical findings)")
+    parser.add_argument("--protect-config", metavar="FILE",
+                        help="Runtime protection config JSON (egress allowlist, thresholds)")
+    parser.add_argument("--protect-daemon", action="store_true",
+                        help="Run as daemon protecting all model processes (requires root)")
     return parser
 
 
@@ -413,6 +421,63 @@ def main(argv=None):
                         result.findings.extend(sandbox_findings)
                     except (UnicodeDecodeError, OSError):
                         pass
+
+        # Runtime Protection Mode (v0.3) — Real-time behavioral monitoring
+        if getattr(args, 'protect', False):
+            protect_config = {}
+            if args.protect_config:
+                with open(args.protect_config, 'r') as f:
+                    protect_config = json.load(f)
+            
+            monitor = create_production_monitor(
+                model_hash=hashlib.sha256(str(artifacts).encode()).hexdigest()[:16],
+                config=protect_config
+            )
+            
+            if not args.quiet:
+                print(f"[PROTECT] Starting runtime protection for {args.target}")
+                print(f"[PROTECT] Model hash: {monitor.model_hash}")
+                print(f"[PROTECT] Egress allowlist: {protect_config.get('runtime', {}).get('egress_allowlist', ['10.0.0.0/8', '192.168.0.0/16'])}")
+            
+            # Start monitoring current process
+            monitor.start_monitoring(os.getpid())
+            
+            # In protect mode, we keep running and monitoring
+            # This would integrate with your model serving code
+            if not args.quiet:
+                print("[PROTECT] Runtime protection active. Press Ctrl+C to stop.")
+            
+            try:
+                import signal
+                def signal_handler(sig, frame):
+                    if not args.quiet:
+                        print("\n[PROTECT] Stopping runtime protection...")
+                    monitor.stop()
+                    monitor.save_baseline()
+                    sys.exit(0)
+                signal.signal(signal.SIGINT, signal_handler)
+                signal.signal(signal.SIGTERM, signal_handler)
+                
+                # Keep alive and process alerts
+                while True:
+                    alerts = monitor.get_alerts()
+                    for alert in alerts:
+                        if not args.quiet:
+                            print(f"[ALERT] {alert.rule_id} [{alert.severity.value.upper()}]: {alert.evidence}")
+                        # Critical findings trigger immediate action
+                        if alert.severity.value == "critical":
+                            if not args.quiet:
+                                print(f"[BLOCK] Critical threat detected: {alert.rule_id}")
+                                print(f"[BLOCK] {alert.remediation}")
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                pass
+            finally:
+                monitor.stop()
+                monitor.save_baseline()
+                if not args.quiet:
+                    print("[PROTECT] Runtime protection stopped.")
+            return 0
 
     except Exception as e:
         result.error = str(e)

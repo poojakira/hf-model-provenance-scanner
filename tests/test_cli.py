@@ -5,6 +5,7 @@ import tempfile
 import unittest
 from contextlib import redirect_stdout
 from unittest.mock import patch
+from pathlib import Path
 
 from scanner import cli
 
@@ -34,13 +35,18 @@ class FakeClient:
         return self.card.encode("utf-8")
 
 
+FIXTURES_DIR = Path(__file__).parent / "fixtures"
+MALICIOUS_FIXTURE = FIXTURES_DIR / "malicious"
+BENIGN_FIXTURE = FIXTURES_DIR / "benign"
+
+
 class TestCli(unittest.TestCase):
     def test_local_fail_on_high_returns_1(self):
-        code = cli.main(["tests\\fixtures\\malicious", "--mode", "local", "--quiet", "--fail-on", "high"])
+        code = cli.main([str(MALICIOUS_FIXTURE), "--mode", "local", "--quiet", "--fail-on", "high"])
         self.assertEqual(code, 1)
 
     def test_local_fail_on_never_returns_0(self):
-        code = cli.main(["tests\\fixtures\\malicious", "--mode", "local", "--quiet", "--fail-on", "never"])
+        code = cli.main([str(MALICIOUS_FIXTURE), "--mode", "local", "--quiet", "--fail-on", "never"])
         self.assertEqual(code, 0)
 
     @patch("scanner.cli.HFApiClient", FakeClient)
@@ -79,7 +85,7 @@ class TestCli(unittest.TestCase):
         with tempfile.NamedTemporaryFile("r", encoding="utf-8", suffix=".json", delete=False) as f:
             policy_path = f.name
         try:
-            code = cli.main(["tests\\fixtures\\benign", "--mode", "local", "--quiet", "--fail-on", "never", "--runtime-policy", policy_path])
+            code = cli.main([str(BENIGN_FIXTURE), "--mode", "local", "--quiet", "--fail-on", "never", "--runtime-policy", policy_path])
             self.assertEqual(code, 0)
             with open(policy_path, "r", encoding="utf-8") as f:
                 policy = json.load(f)
@@ -93,7 +99,7 @@ class TestCli(unittest.TestCase):
         with tempfile.NamedTemporaryFile("r", encoding="utf-8", suffix=".html", delete=False) as f:
             report_path = f.name
         try:
-            code = cli.main(["tests\\fixtures\\malicious", "--mode", "local", "--format", "html", "--output", report_path, "--fail-on", "never"])
+            code = cli.main([str(MALICIOUS_FIXTURE), "--mode", "local", "--format", "html", "--output", report_path, "--fail-on", "never"])
             self.assertEqual(code, 0)
             with open(report_path, "r", encoding="utf-8") as f:
                 report = f.read()
