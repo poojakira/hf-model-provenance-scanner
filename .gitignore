@@ -2,3 +2,48 @@ __pycache__/
 *.pyc
 *.egg-info/
 .eggs/
+
+# Build artifacts
+dist/
+build/
+*.whl
+*.tar.gz
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Agent/task directories
+.agents/
+
+# Model artifacts (use DVC/LFS instead)
+*.skops
+*.joblib
+*.pkl
+*.pt
+*.pth
+*.bin
+*.onnx
+*.safetensors
+*.gguf
+
+# Logs
+*.log
+logs/
+
+# Temp
+tmp/
+temp/
+*.tmp
