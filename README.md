@@ -180,3 +180,7 @@ Apache-2.0
 | HFS-171 to HFS-189 | Compliance/Governance | 19 | EU AI Act, NIST AI RMF, GDPR Art.22, HIPAA PHI, export controls, copyright training data, bias discrimination, carbon footprint, insurance gaps, audit trails, incident response, shadow ML, model drift, explainability gaps, red-team gaps, SBOM completeness, attestation verification |
 
 **Total: 151 rules** (was 61 in v0.2)
+
+## Attacker and User Runbook
+
+See [ATTACKER_AND_USER_RUNBOOK.md](ATTACKER_AND_USER_RUNBOOK.md) for normal user/operator commands and safe [TEST-ONLY] adversarial regression commands.
