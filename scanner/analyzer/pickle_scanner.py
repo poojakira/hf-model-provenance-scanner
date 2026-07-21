@@ -15,6 +15,7 @@ References:
 
 import io
 import struct
+from pathlib import Path
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
@@ -484,10 +485,22 @@ class PickleScanner:
             ))
 
 
-def is_pickle_file(file_path: str) -> bool:
-    """Check if file extension indicates a pickle-serialized model."""
-    lower = file_path.lower()
-    return lower.endswith((".pkl", ".pickle", ".pt", ".pth", ".bin", ".ckpt", ".joblib", ".zip"))
+def is_pickle_file(file_path: str | Path) -> bool:
+    """Return True when the file starts with pickle bytes, regardless of extension."""
+    pickle_magic = (
+        b"\x80\x02",
+        b"\x80\x03",
+        b"\x80\x04",
+        b"\x80\x05",
+        b"(",
+        b"c",
+    )
+    try:
+        with open(file_path, "rb") as f:
+            header = f.read(2)
+    except (OSError, PermissionError):
+        return False
+    return any(header == magic or header[:1] == magic for magic in pickle_magic)
 
 
 def scan_pickle_bytes(file_path: str, data: bytes) -> list[Finding]:
@@ -605,6 +618,6 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
 
 def analyze_pickle_file(file_path: str, data: bytes) -> list[Finding]:
     """Public API: scan a binary file for pickle deserialization attacks."""
-    if not is_pickle_file(file_path):
+    if not (is_pickle_file(file_path) or data[:1] == PICKLE_MAGIC or _looks_like_pickle(data) or data[:2] == b"PK"):
         return []
     return scan_pickle_bytes(file_path, data)
