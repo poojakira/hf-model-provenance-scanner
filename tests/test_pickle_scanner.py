@@ -23,16 +23,24 @@ def _load_fixture(name: str) -> bytes:
 
 
 class TestPickleFileDetection(unittest.TestCase):
-    def test_pickle_extensions(self):
-        self.assertTrue(is_pickle_file("model.pkl"))
-        self.assertTrue(is_pickle_file("weights.pt"))
-        self.assertTrue(is_pickle_file("model.pth"))
-        self.assertTrue(is_pickle_file("data.bin"))
-        self.assertTrue(is_pickle_file("checkpoint.ckpt"))
-        self.assertTrue(is_pickle_file("model.joblib"))
-        self.assertFalse(is_pickle_file("model.safetensors"))
-        self.assertFalse(is_pickle_file("config.json"))
-        self.assertFalse(is_pickle_file("model.gguf"))
+    def test_pickle_magic_bytes_ignore_extension(self):
+        path = os.path.join(FIXTURES_DIR, "renamed_model.gguf")
+        data = _load_fixture("malicious_os_system.pkl")
+        with open(path, "wb") as f:
+            f.write(data)
+        try:
+            self.assertTrue(is_pickle_file(path))
+        finally:
+            os.remove(path)
+
+    def test_non_pickle_magic_not_flagged(self):
+        path = os.path.join(FIXTURES_DIR, "config.json")
+        with open(path, "wb") as f:
+            f.write(b'{"model": "safe"}')
+        try:
+            self.assertFalse(is_pickle_file(path))
+        finally:
+            os.remove(path)
 
 
 class TestPickleMaliciousDetection(unittest.TestCase):
@@ -105,6 +113,12 @@ class TestPickleAnalyzeAPI(unittest.TestCase):
         data = _load_fixture("malicious_os_system.pkl")
         findings = analyze_pickle_file("evil.pkl", data)
         self.assertTrue(len(findings) > 0)
+    def test_renamed_pickle_extension_still_scanned(self):
+        """Pickle bytes renamed to .gguf must not bypass analysis."""
+        data = _load_fixture("malicious_os_system.pkl")
+        findings = analyze_pickle_file("model.gguf", data)
+        rule_ids = [f.rule_id for f in findings]
+        self.assertIn("HFS-050", rule_ids)
 
 
 class TestPickleProtocol2Opcodes(unittest.TestCase):
