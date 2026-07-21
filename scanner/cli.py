@@ -13,7 +13,7 @@ from scanner.analyzer.keras_scanner import analyze_keras_file, is_keras_file
 from scanner.analyzer.obfuscation_scanner import analyze_obfuscation
 from scanner.analyzer.onnx_scanner import analyze_onnx_file, is_onnx_file
 from scanner.analyzer.org_checker import check_organization
-from scanner.analyzer.pickle_scanner import analyze_pickle_file, is_pickle_file
+from scanner.analyzer.pickle_scanner import analyze_pickle_file, is_pickle_file, _looks_like_pickle
 from scanner.analyzer.safetensors_scanner import analyze_safetensors_file, is_safetensors_file
 from scanner.analyzer.sandbox_executor import sandbox_execute
 from scanner.analyzer.shell_scanner import analyze_shell_script
@@ -96,7 +96,7 @@ def analyze_source_file(file_path: str, source: str, raw_data: bytes = b"") -> l
 def analyze_binary_file(file_path: str, data: bytes) -> list[Finding]:
     """Analyze a binary model file (pickle, safetensors, GGUF, ONNX, Keras)."""
     findings: list[Finding] = []
-    if is_pickle_file(file_path):
+    if is_pickle_file(file_path) or data[:1] == b"\\x80" or _looks_like_pickle(data):
         findings.extend(analyze_pickle_file(file_path, data))
     if is_safetensors_file(file_path):
         findings.extend(analyze_safetensors_file(file_path, data))
@@ -170,6 +170,8 @@ def scan_local(result: ScanResult, target: str, config: dict,
                 fpath = os.path.join(root, fname)
                 if _is_binary_model(fpath):
                     binary_files.append(fpath)
+    elif os.path.exists(target) and _is_binary_model(target):
+        binary_files.append(target)
 
     for file_path, is_oversized in files_to_scan:
         base = os.path.basename(file_path).lower()

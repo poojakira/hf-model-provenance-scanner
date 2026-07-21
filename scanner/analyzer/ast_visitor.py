@@ -11,7 +11,7 @@ from scanner.utils.entropy import shannon_entropy
 FULL_SHA_RE = re.compile(r"^[0-9a-f]{7,40}$", re.IGNORECASE)
 LOADER_NAMES = {"loader.py", "setup.py", "install.py", "start.py", "run.py", "inference.py"}
 NETWORK_PREFIXES = ("urllib", "urllib.request", "requests", "http.client", "socket")
-EXECUTION_CALLS = {"subprocess.run", "subprocess.Popen", "subprocess.call", "subprocess.check_call", "subprocess.check_output", "os.system", "eval", "exec"}
+EXECUTION_CALLS = {"subprocess.run", "subprocess.Popen", "subprocess.call", "subprocess.check_call", "subprocess.check_output", "os.system", "pickle.loads", "marshal.loads", "eval", "exec", "compile", "__import__"}
 
 HIGH_ENTROPY_ALLOWLIST_PATTERNS = [
     re.compile(r"^[0-9a-f]{40,}$", re.IGNORECASE),
@@ -191,6 +191,8 @@ class ScannerASTVisitor(ast.NodeVisitor):
             self.report("HFS-002", node, "ssl._create_unverified_context()")
 
         if call_name in EXECUTION_CALLS:
+            if self.basename == "__init__.py" or call_name in {"eval", "exec", "compile", "__import__", "os.system", "subprocess.run", "subprocess.Popen", "pickle.loads", "marshal.loads"}:
+                self.report("HFS-001", node, call_text)
             if any(term in call_lower for term in ("powershell", "cmd.exe", "pwsh")):
                 self.report("HFS-001", node, call_text)
             if any(term in call_lower for term in ("windowstyle hidden", "create_no_window", "sw_hide")):
