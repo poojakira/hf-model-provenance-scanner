@@ -13,7 +13,7 @@ py -3.12 -m venv .venv
 Install the scanner locally:
 
 ```powershell
-.\.venv\Scripts\python.exe -m pip install -e .
+.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
 ```
 
 Scan the current repository as a local target without failing on intentionally committed security fixtures:
@@ -49,4 +49,5 @@ All selected tests exit `0`; renamed pickle payloads and Python source gadgets m
 ## Honest Limit
 
 These commands prove local static-scanner regressions only. They do not prove full Hugging Face Hub-scale malware coverage, sandbox safety, or commercial supply-chain parity.
+
 
