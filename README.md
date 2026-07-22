@@ -184,3 +184,16 @@ Apache-2.0
 ## Attacker and User Runbook
 
 See [ATTACKER_AND_USER_RUNBOOK.md](ATTACKER_AND_USER_RUNBOOK.md) for normal user/operator commands and safe [TEST-ONLY] adversarial regression commands.
+
+## Operational Runbook
+
+Verified local operator path uses [ATTACKER_AND_USER_RUNBOOK.md](ATTACKER_AND_USER_RUNBOOK.md). Minimal validation:
+
+```powershell
+py -3.12 -m pip install -e ".[dev]"
+py -3.12 -m scanner.cli . --mode local --fail-on never
+py -3.12 -m pytest tests/test_pickle_scanner.py tests/test_gguf_scanner.py tests/test_safetensors_scanner.py tests/test_security_rejects.py tests/test_dashboard_static.py -q
+```
+
+The browser-only executive SOC dashboard is available at `dashboard/realtime/index.html`. It is simulated telemetry, not a backend-connected SOC.
+
