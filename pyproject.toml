@@ -5,16 +5,16 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "hf-scanner"
 version = "0.2.0"
-description = "Zero-dependency ML supply chain provenance scanner for Hugging Face repositories"
+description = "ML supply chain provenance scanner for Hugging Face repositories"
 requires-python = ">=3.9"
 license = "Apache-2.0"
-dependencies = []  # intentionally empty — zero runtime dependencies
+dependencies = ["psutil>=5.9"]
 
 [project.scripts]
 hf-scanner = "scanner.cli:main"
 
 [project.optional-dependencies]
-dev = []  # all test tooling is stdlib
+dev = ["pytest>=8.0"]
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -41,4 +41,5 @@ asyncio_default_fixture_loop_scope = "function"
 filterwarnings = [
     'ignore:The configuration option "asyncio_default_fixture_loop_scope" is unset:pytest.PytestDeprecationWarning',
 ]
+
 
