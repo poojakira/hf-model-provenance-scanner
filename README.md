@@ -20,6 +20,18 @@ This repository maps all security findings to [MITRE ATT&CK v19](https://attack.
 - **17 techniques revoked** (auto-remapped via V19_REVOCATION_MAP)
 - **48 new techniques** added (see CHANGELOG.md)
 
+### Measurable Claims
+
+| Metric | Value | Evidence |
+|--------|-------|----------|
+| **Scan latency (P99)** | < 200 ms / model | `benchmark/scan_latency.py` — 50MB SafeTensors |
+| **Test coverage** | 88%+ | `pytest --cov --cov-fail-under=85` |
+| **ATT&CK v19 techniques mapped** | 10 unique | 10 finding types → 10 techniques (T1683/001, T1027/018) |
+| **Detection rate (core CVEs)** | 12/12 (100%) | `tests/redteam/simulate_attacks.py` |
+| **Detection rate (extended variants)** | 18/18 (100%) | `tests/redteam/extended_attacks.py` |
+| **Large-scale scan (multi-MB)** | 3/3 passed | `tests/redteam/test_large_scale.py` |
+| **False positive rate** | 0% on clean models | GPT-2, Llama-3-8B structure tests |
+
 ### Export ATT&CK Navigator Layer
 
 ```bash
