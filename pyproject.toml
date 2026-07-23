@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "hf-scanner"
 version = "0.2.0"
 description = "ML supply chain provenance scanner for Hugging Face repositories"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = "Apache-2.0"
 dependencies = ["psutil>=5.9"]
 
