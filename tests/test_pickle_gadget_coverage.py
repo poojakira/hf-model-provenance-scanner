@@ -65,7 +65,17 @@ class TestZipWrappedPayload(unittest.TestCase):
                       "ZIP-wrapped malicious pickle must be detected")
 
     def test_zip_extension_scanned(self):
-        self.assertTrue(is_pickle_file("payload.zip"))
+        import tempfile
+        import os
+        # Create a temporary ZIP file to test the extension detection
+        with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp:
+            with zipfile.ZipFile(tmp, "w") as zf:
+                zf.writestr("data.pkl", _pickle_with_global("os", "system"))
+            tmp_path = tmp.name
+        try:
+            self.assertTrue(is_pickle_file(tmp_path))
+        finally:
+            os.unlink(tmp_path)
 
 
 class TestNoFalsePositiveOnSafeGlobals(unittest.TestCase):
