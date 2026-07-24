@@ -486,7 +486,10 @@ class PickleScanner:
 
 
 def is_pickle_file(file_path: str | Path) -> bool:
-    """Return True when the file starts with pickle bytes, regardless of extension."""
+    """Return True when the file starts with pickle bytes, regardless of extension.
+
+    Also returns True for ZIP files that may contain pickle data (e.g., PyTorch .pt files).
+    """
     pickle_magic = (
         b"\x80\x02",
         b"\x80\x03",
@@ -500,7 +503,17 @@ def is_pickle_file(file_path: str | Path) -> bool:
             header = f.read(2)
     except (OSError, PermissionError):
         return False
-    return any(header == magic or header[:1] == magic for magic in pickle_magic)
+    
+    # Check for pickle magic bytes
+    if any(header == magic or header[:1] == magic for magic in pickle_magic):
+        return True
+    
+    # Check for ZIP files that may contain pickle data (e.g., PyTorch .pt files)
+    # ZIP files start with PK (0x50 0x4B)
+    if header == b"PK":
+        return True
+    
+    return False
 
 
 def scan_pickle_bytes(file_path: str, data: bytes) -> list[Finding]:
