@@ -3,6 +3,7 @@
 Pure, side-effect-free model construction — no shell, no network, no eval.
 Used to verify the scanner does not raise false positives on clean loaders.
 """
+
 import json
 import os
 

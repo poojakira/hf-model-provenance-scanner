@@ -2,17 +2,17 @@
 Generate binary test fixtures for pickle, safetensors, and GGUF scanners.
 Run once to create fixture files in tests/fixtures/binary/.
 """
+
 import json
 import os
-import pickle
 import struct
-import sys
 
 FIXTURES_DIR = os.path.join(os.path.dirname(__file__), "fixtures", "binary")
 os.makedirs(FIXTURES_DIR, exist_ok=True)
 
 
 # === PICKLE FIXTURES ===
+
 
 def create_malicious_pickle_os_system():
     """
@@ -21,10 +21,10 @@ def create_malicious_pickle_os_system():
     """
     # Protocol 0 pickle calling os.system("whoami")
     payload = (
-        b"cos\nsystem\n"       # GLOBAL: push os.system
-        b"(S'whoami'\n"        # MARK + STRING "whoami"
-        b"tR"                  # TUPLE + REDUCE (call os.system("whoami"))
-        b"."                   # STOP
+        b"cos\nsystem\n"  # GLOBAL: push os.system
+        b"(S'whoami'\n"  # MARK + STRING "whoami"
+        b"tR"  # TUPLE + REDUCE (call os.system("whoami"))
+        b"."  # STOP
     )
     path = os.path.join(FIXTURES_DIR, "malicious_os_system.pkl")
     with open(path, "wb") as f:
@@ -36,10 +36,10 @@ def create_malicious_pickle_subprocess():
     """Pickle calling subprocess.check_output."""
     payload = (
         b"csubprocess\ncheck_output\n"  # GLOBAL: subprocess.check_output
-        b"((S'powershell'\n"             # args
+        b"((S'powershell'\n"  # args
         b"S'-enc'\n"
         b"S'ZWNobyBoYWNrZWQ='\n"
-        b"ltR"                            # LIST + TUPLE + REDUCE
+        b"ltR"  # LIST + TUPLE + REDUCE
         b"."
     )
     path = os.path.join(FIXTURES_DIR, "malicious_subprocess.pkl")
@@ -50,11 +50,7 @@ def create_malicious_pickle_subprocess():
 
 def create_malicious_pickle_eval():
     """Pickle calling builtins.eval."""
-    payload = (
-        b"cbuiltins\neval\n"
-        b"(S'__import__(\"os\").system(\"id\")'\n"
-        b"tR."
-    )
+    payload = b"cbuiltins\neval\n" b'(S\'__import__("os").system("id")\'\n' b"tR."
     path = os.path.join(FIXTURES_DIR, "malicious_eval.pkl")
     with open(path, "wb") as f:
         f.write(payload)
@@ -119,6 +115,7 @@ def create_safe_torch_pickle():
 
 
 # === SAFETENSORS FIXTURES ===
+
 
 def create_safe_safetensors():
     """Valid SafeTensors file with clean metadata."""
@@ -200,6 +197,7 @@ def create_malformed_safetensors():
 
 
 # === GGUF FIXTURES ===
+
 
 def _write_gguf_string(f, s: str):
     """Write a GGUF string (uint64 len + utf8 bytes)."""

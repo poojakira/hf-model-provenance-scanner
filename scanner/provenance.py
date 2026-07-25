@@ -23,7 +23,7 @@ def is_sbom_file(path: str) -> bool:
 def is_signature_file(path: str) -> bool:
     """Check if a file path looks like a detached signature artifact."""
     lower = path.lower()
-    return (lower.endswith(SIGNATURE_EXTENSIONS) or "sigstore" in lower)
+    return lower.endswith(SIGNATURE_EXTENSIONS) or "sigstore" in lower
 
 
 def sha256_bytes(data: bytes) -> str:
@@ -62,11 +62,19 @@ def verify_local_signatures(root: str) -> list:
     if not verifier:
         for sf in sig_files:
             rule = get_rule("HFS-039")
-            findings.append(Finding(
-                "HFS-039", rule.severity, sf, 0, 0,
-                rule.description,
-                f"Signature file found but no verifier ({', '.join(['cosign','gpg','minisign'])}) available",
-                rule.remediation, rule.cwe))
+            findings.append(
+                Finding(
+                    "HFS-039",
+                    rule.severity,
+                    sf,
+                    0,
+                    0,
+                    rule.description,
+                    f"Signature file found but no verifier ({', '.join(['cosign','gpg','minisign'])}) available",
+                    rule.remediation,
+                    rule.cwe,
+                )
+            )
         return findings
 
     for sf in sig_files:
@@ -88,21 +96,37 @@ def verify_local_signatures(root: str) -> list:
             else:
                 cmd = ["minisign", "-Vm", artifact_path, "-x", sf]
 
-            result = subprocess.run(
-                cmd, capture_output=True, timeout=30)
+            result = subprocess.run(cmd, capture_output=True, timeout=30)
             if result.returncode != 0:
                 rule = get_rule("HFS-038")
-                findings.append(Finding(
-                    "HFS-038", rule.severity, sf, 0, 0,
-                    rule.description,
-                    f"Verification failed: {result.stderr.decode('utf-8', errors='replace')[:200]}",
-                    rule.remediation, rule.cwe))
+                findings.append(
+                    Finding(
+                        "HFS-038",
+                        rule.severity,
+                        sf,
+                        0,
+                        0,
+                        rule.description,
+                        f"Verification failed: {result.stderr.decode('utf-8', errors='replace')[:200]}",
+                        rule.remediation,
+                        rule.cwe,
+                    )
+                )
         except (subprocess.TimeoutExpired, OSError) as exc:
             rule = get_rule("HFS-038")
-            findings.append(Finding(
-                "HFS-038", rule.severity, sf, 0, 0,
-                rule.description, str(exc)[:200],
-                rule.remediation, rule.cwe))
+            findings.append(
+                Finding(
+                    "HFS-038",
+                    rule.severity,
+                    sf,
+                    0,
+                    0,
+                    rule.description,
+                    str(exc)[:200],
+                    rule.remediation,
+                    rule.cwe,
+                )
+            )
 
     return findings
 
@@ -155,21 +179,37 @@ def verify_sbom_artifacts(sboms: dict, artifacts: dict) -> list:
             actual = sha256_bytes(artifact_data)
             if expected and actual != expected:
                 rule = get_rule("HFS-036")
-                findings.append(Finding(
-                    "HFS-036", rule.severity, artifact_path, 0, 0,
-                    rule.description,
-                    f"Expected SHA-256={expected[:16]}... got {actual[:16]}...",
-                    rule.remediation, rule.cwe))
+                findings.append(
+                    Finding(
+                        "HFS-036",
+                        rule.severity,
+                        artifact_path,
+                        0,
+                        0,
+                        rule.description,
+                        f"Expected SHA-256={expected[:16]}... got {actual[:16]}...",
+                        rule.remediation,
+                        rule.cwe,
+                    )
+                )
 
     # Report artifacts not covered by any SBOM
     for artifact_path in artifacts:
         basename = os.path.basename(artifact_path)
         if basename not in all_sbom_hashes:
             rule = get_rule("HFS-037")
-            findings.append(Finding(
-                "HFS-037", rule.severity, artifact_path, 0, 0,
-                rule.description,
-                f"Artifact '{basename}' not listed in any SBOM",
-                rule.remediation, rule.cwe))
+            findings.append(
+                Finding(
+                    "HFS-037",
+                    rule.severity,
+                    artifact_path,
+                    0,
+                    0,
+                    rule.description,
+                    f"Artifact '{basename}' not listed in any SBOM",
+                    rule.remediation,
+                    rule.cwe,
+                )
+            )
 
     return findings

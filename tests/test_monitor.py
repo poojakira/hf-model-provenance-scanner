@@ -22,8 +22,11 @@ class TestClassify(unittest.TestCase):
     a real hit gets buried or a clean repo pages someone at 3am."""
 
     def test_hit_when_exit_code_1(self):
-        report = {"exit_code": 1, "risk": {"level": "CRITICAL", "score": 100},
-                  "findings": [{"severity": "critical"}]}
+        report = {
+            "exit_code": 1,
+            "risk": {"level": "CRITICAL", "score": 100},
+            "findings": [{"severity": "critical"}],
+        }
         self.assertEqual(classify(report), "HIT")
 
     def test_clean_when_exit_0_and_has_risk(self):
@@ -42,8 +45,12 @@ class TestClassify(unittest.TestCase):
     def test_hit_takes_priority_even_if_error_present(self):
         # If the scan tripped the threshold, that's a hit regardless of any
         # partial error noise in the report.
-        report = {"exit_code": 1, "risk": {"level": "HIGH", "score": 60},
-                  "findings": [{"severity": "high"}], "error": ""}
+        report = {
+            "exit_code": 1,
+            "risk": {"level": "HIGH", "score": 60},
+            "findings": [{"severity": "high"}],
+            "error": "",
+        }
         self.assertEqual(classify(report), "HIT")
 
 
@@ -55,7 +62,8 @@ class TestWatchLoop(unittest.TestCase):
         # real ~/.cache dedupe file.
         self._tmp = tempfile.mkdtemp()
         self._state_patch = mock.patch.object(
-            monitor, "STATE_FILE", os.path.join(self._tmp, "seen.json"))
+            monitor, "STATE_FILE", os.path.join(self._tmp, "seen.json")
+        )
         self._state_patch.start()
 
     def tearDown(self):
@@ -70,9 +78,10 @@ class TestWatchLoop(unittest.TestCase):
         }
         fired = []
 
-        with mock.patch.object(monitor, "fetch_newest",
-                               return_value=["evil-org/fake-openai-model"]), \
-             mock.patch.object(monitor, "scan_one", return_value=malicious_report):
+        with (
+            mock.patch.object(monitor, "fetch_newest", return_value=["evil-org/fake-openai-model"]),
+            mock.patch.object(monitor, "scan_one", return_value=malicious_report),
+        ):
             cfg = MonitorConfig(poll_interval_sec=0)
             watch(cfg, on_hit=fired.append, max_iterations=1)
 
@@ -81,12 +90,12 @@ class TestWatchLoop(unittest.TestCase):
         self.assertEqual(fired[0]["risk"]["level"], "CRITICAL")
 
     def test_clean_repo_does_not_escalate(self):
-        clean_report = {"exit_code": 0, "risk": {"level": "LOW", "score": 0},
-                        "findings": []}
+        clean_report = {"exit_code": 0, "risk": {"level": "LOW", "score": 0}, "findings": []}
         fired = []
-        with mock.patch.object(monitor, "fetch_newest",
-                               return_value=["good-org/legit-model"]), \
-             mock.patch.object(monitor, "scan_one", return_value=clean_report):
+        with (
+            mock.patch.object(monitor, "fetch_newest", return_value=["good-org/legit-model"]),
+            mock.patch.object(monitor, "scan_one", return_value=clean_report),
+        ):
             cfg = MonitorConfig(poll_interval_sec=0)
             watch(cfg, on_hit=lambda r: fired.append(r), max_iterations=1)
         self.assertEqual(len(fired), 0)
@@ -101,9 +110,10 @@ class TestWatchLoop(unittest.TestCase):
             return {"exit_code": 0, "risk": {"level": "LOW", "score": 0}, "findings": []}
 
         # Same repo returned on both polls.
-        with mock.patch.object(monitor, "fetch_newest",
-                               return_value=["org/same-model"]), \
-             mock.patch.object(monitor, "scan_one", side_effect=fake_scan):
+        with (
+            mock.patch.object(monitor, "fetch_newest", return_value=["org/same-model"]),
+            mock.patch.object(monitor, "scan_one", side_effect=fake_scan),
+        ):
             cfg = MonitorConfig(poll_interval_sec=0)
             watch(cfg, max_iterations=3)
 
@@ -119,14 +129,18 @@ class TestWatchLoop(unittest.TestCase):
             calls.append(repo_id)
             return clean
 
-        with mock.patch.object(monitor, "fetch_newest", return_value=["org/m1"]), \
-             mock.patch.object(monitor, "scan_one", side_effect=fake_scan):
+        with (
+            mock.patch.object(monitor, "fetch_newest", return_value=["org/m1"]),
+            mock.patch.object(monitor, "scan_one", side_effect=fake_scan),
+        ):
             watch(MonitorConfig(poll_interval_sec=0), max_iterations=1)
 
         # "Restart": fresh watch() call, same repo in feed. Should NOT rescan
         # because state was persisted to disk.
-        with mock.patch.object(monitor, "fetch_newest", return_value=["org/m1"]), \
-             mock.patch.object(monitor, "scan_one", side_effect=fake_scan):
+        with (
+            mock.patch.object(monitor, "fetch_newest", return_value=["org/m1"]),
+            mock.patch.object(monitor, "scan_one", side_effect=fake_scan),
+        ):
             watch(MonitorConfig(poll_interval_sec=0), max_iterations=1)
 
         self.assertEqual(calls, ["org/m1"])  # scanned once total, across both runs
@@ -142,9 +156,7 @@ class TestFetchNewest(unittest.TestCase):
     """fetch_newest parses the live API shape and degrades gracefully."""
 
     def test_parses_model_ids(self):
-        fake_payload = json.dumps([
-            {"id": "org/a"}, {"id": "org/b"}, {"not_id": "junk"}
-        ]).encode()
+        fake_payload = json.dumps([{"id": "org/a"}, {"id": "org/b"}, {"not_id": "junk"}]).encode()
         fake_resp = mock.MagicMock()
         fake_resp.read.return_value = fake_payload
         fake_resp.__enter__ = lambda s: fake_resp
@@ -156,8 +168,8 @@ class TestFetchNewest(unittest.TestCase):
 
     def test_network_error_returns_empty(self):
         import urllib.error
-        with mock.patch("urllib.request.urlopen",
-                        side_effect=urllib.error.URLError("boom")):
+
+        with mock.patch("urllib.request.urlopen", side_effect=urllib.error.URLError("boom")):
             self.assertEqual(monitor.fetch_newest(MonitorConfig()), [])
 
 

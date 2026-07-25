@@ -55,8 +55,12 @@ def build_runtime_policy(target: str) -> dict:
             "process": {
                 "noNewPrivileges": True,
                 "blockedSyscalls": [
-                    "ptrace", "mount", "umount2", "pivot_root",
-                    "kexec_load", "open_by_handle_at",
+                    "ptrace",
+                    "mount",
+                    "umount2",
+                    "pivot_root",
+                    "kexec_load",
+                    "open_by_handle_at",
                 ],
             },
         },

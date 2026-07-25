@@ -13,19 +13,19 @@ except ImportError:
             current_section = config
             for line in s.splitlines():
                 line = line.strip()
-                if not line or line.startswith('#'):
+                if not line or line.startswith("#"):
                     continue
-                if line.startswith('[') and line.endswith(']'):
+                if line.startswith("[") and line.endswith("]"):
                     section_name = line[1:-1]
-                    parts = section_name.split('.')
+                    parts = section_name.split(".")
                     curr = config
                     for p in parts:
                         if p not in curr:
                             curr[p] = {}
                         curr = curr[p]
                     current_section = curr
-                elif '=' in line:
-                    k, v = line.split('=', 1)
+                elif "=" in line:
+                    k, v = line.split("=", 1)
                     k = k.strip()
                     v = v.strip().strip('"').strip("'")
                     # simple type coercion
@@ -35,11 +35,13 @@ except ImportError:
                         v = True
                     elif v == "false":
                         v = False
-                    elif v.startswith('[') and v.endswith(']'):
-                        v = [] # lists not fully supported in fallback
+                    elif v.startswith("[") and v.endswith("]"):
+                        v = []  # lists not fully supported in fallback
                     current_section[k.strip('"')] = v
             return config
+
     tomllib = _TomlFallback()
+
 
 def load_config(path: str = ".hf-scanner.toml") -> dict:
     if os.path.exists(path):
