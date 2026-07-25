@@ -50,10 +50,16 @@ SUSPICIOUS_METADATA_PATTERNS = [
 
 # Known legitimate metadata keys
 LEGITIMATE_KEYS = {
-    "general.architecture", "general.name", "general.author",
-    "general.description", "general.url", "general.license",
-    "general.file_type", "general.quantization_version",
-    "general.source.url", "general.source.huggingface.repository",
+    "general.architecture",
+    "general.name",
+    "general.author",
+    "general.description",
+    "general.url",
+    "general.license",
+    "general.file_type",
+    "general.quantization_version",
+    "general.source.url",
+    "general.source.huggingface.repository",
 }
 
 
@@ -87,7 +93,7 @@ def _read_gguf_string(data: bytes, pos: int) -> tuple[str, int]:
         raise ValueError(f"String too long: {str_len}")
     if pos + str_len > len(data):
         raise ValueError("Truncated string data")
-    value = data[pos:pos + str_len].decode("utf-8", errors="replace")
+    value = data[pos : pos + str_len].decode("utf-8", errors="replace")
     return value, pos + str_len
 
 
@@ -145,38 +151,42 @@ def analyze_gguf_file(file_path: str, data: bytes) -> list[Finding]:
     findings: list[Finding] = []
 
     if len(data) < 24:  # Minimum: magic(4) + version(4) + tensor_count(8) + kv_count(8)
-        findings.append(_make_finding(
-            "HFS-058", file_path,
-            "File too small to be valid GGUF"
-        ))
+        findings.append(_make_finding("HFS-058", file_path, "File too small to be valid GGUF"))
         return findings
 
     # Verify magic
     magic = struct.unpack_from("<I", data, 0)[0]
     if magic != GGUF_MAGIC_LE:
-        findings.append(_make_finding(
-            "HFS-058", file_path,
-            f"Invalid GGUF magic: 0x{magic:08X} (expected 0x{GGUF_MAGIC_LE:08X})"
-        ))
+        findings.append(
+            _make_finding(
+                "HFS-058",
+                file_path,
+                f"Invalid GGUF magic: 0x{magic:08X} (expected 0x{GGUF_MAGIC_LE:08X})",
+            )
+        )
         return findings
 
     # Parse header
     version = struct.unpack_from("<I", data, 4)[0]
     if version < 2 or version > 3:
-        findings.append(_make_finding(
-            "HFS-058", file_path,
-            f"Unsupported GGUF version: {version} (expected 2 or 3)"
-        ))
+        findings.append(
+            _make_finding(
+                "HFS-058", file_path, f"Unsupported GGUF version: {version} (expected 2 or 3)"
+            )
+        )
         return findings
 
     tensor_count = struct.unpack_from("<Q", data, 8)[0]
     kv_count = struct.unpack_from("<Q", data, 16)[0]
 
     if kv_count > 100_000:
-        findings.append(_make_finding(
-            "HFS-057", file_path,
-            f"Excessive metadata entries: {kv_count:,} (possible header abuse)"
-        ))
+        findings.append(
+            _make_finding(
+                "HFS-057",
+                file_path,
+                f"Excessive metadata entries: {kv_count:,} (possible header abuse)",
+            )
+        )
         return findings
 
     # Parse key-value metadata
@@ -218,18 +228,23 @@ def analyze_gguf_file(file_path: str, data: bytes) -> list[Finding]:
                 # URLs in general.url or general.source.url are expected
                 if key in LEGITIMATE_KEYS and pattern.pattern.startswith("http"):
                     continue
-                findings.append(_make_finding(
-                    "HFS-056", file_path,
-                    f"Suspicious metadata in key '{key}': "
-                    f"matched '{match.group()[:80]}'"
-                ))
+                findings.append(
+                    _make_finding(
+                        "HFS-056",
+                        file_path,
+                        f"Suspicious metadata in key '{key}': " f"matched '{match.group()[:80]}'",
+                    )
+                )
                 break
 
         # Check for excessively long values (potential payload staging)
         if len(value) > 50_000:
-            findings.append(_make_finding(
-                "HFS-057", file_path,
-                f"Oversized metadata value for '{key}': {len(value):,} chars"
-            ))
+            findings.append(
+                _make_finding(
+                    "HFS-057",
+                    file_path,
+                    f"Oversized metadata value for '{key}': {len(value):,} chars",
+                )
+            )
 
     return findings

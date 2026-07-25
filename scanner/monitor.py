@@ -27,7 +27,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Callable, Optional
 
 # We reuse the real scanner rather than reimplementing detection here.
@@ -46,19 +46,20 @@ STATE_FILE = os.environ.get(
 class MonitorConfig:
     """Knobs for the watchtower. Defaults are deliberately conservative so we
     don't hammer the HF API and get throttled."""
-    poll_interval_sec: int = 60          # how often we ask HF "what's new?"
-    page_size: int = 50                  # models per API page
+
+    poll_interval_sec: int = 60  # how often we ask HF "what's new?"
+    page_size: int = 50  # models per API page
     # Hub-wide watching defaults to 'critical' on purpose. At 'high' a single
     # `except: pass` on some stranger's legit training repo pages the operator,
     # and the Hub produces thousands of those an hour. A CI gate on YOUR OWN
     # repo should use 'high' (you want clean code); a firehose watchtower over
     # everyone else's repos should only fire on actual malware. Learned this the
     # noisy way — see LinuxAdi143/Yt_shorts, a legit repo that tripped 'high'.
-    fail_on: str = "critical"            # severity that counts as a real hit
-    only_flagged: bool = True            # print clean repos too, or just hits?
-    max_seen_memory: int = 5000          # cap the dedupe set so it can't grow forever
-    token: Optional[str] = None          # HF token for higher rate limits
-    sandbox: bool = False                # run the heavier sandbox engine per repo
+    fail_on: str = "critical"  # severity that counts as a real hit
+    only_flagged: bool = True  # print clean repos too, or just hits?
+    max_seen_memory: int = 5000  # cap the dedupe set so it can't grow forever
+    token: Optional[str] = None  # HF token for higher rate limits
+    sandbox: bool = False  # run the heavier sandbox engine per repo
 
 
 def _load_seen() -> set:
@@ -119,7 +120,7 @@ def scan_one(repo_id: str, cfg: MonitorConfig) -> dict:
     so the monitor can never drift out of sync with what a manual scan would report.
     stdout is captured because the CLI prints the JSON report there."""
     import io
-    from contextlib import redirect_stdout, redirect_stderr
+    from contextlib import redirect_stderr, redirect_stdout
 
     argv = [repo_id, "--mode", "remote", "--format", "json", "--fail-on", cfg.fail_on]
     if cfg.token:
@@ -190,8 +191,11 @@ def _format_line(report: dict) -> str:
     )
 
 
-def watch(cfg: MonitorConfig, on_hit: Optional[Callable[[dict], None]] = None,
-          max_iterations: Optional[int] = None) -> None:
+def watch(
+    cfg: MonitorConfig,
+    on_hit: Optional[Callable[[dict], None]] = None,
+    max_iterations: Optional[int] = None,
+) -> None:
     """Main loop: poll the Hub, scan new arrivals, alert on hits, repeat.
 
     `max_iterations` exists so tests (and demos) can run a bounded number of
@@ -201,9 +205,11 @@ def watch(cfg: MonitorConfig, on_hit: Optional[Callable[[dict], None]] = None,
     `on_hit` is the escalation hook — wire it to Slack, PagerDuty, an abuse
     report, whatever. If it's None we just print."""
     seen = _load_seen()
-    print(f"[monitor] watchtower up. {len(seen)} repos already known. "
-          f"polling every {cfg.poll_interval_sec}s, fail-on={cfg.fail_on}",
-          file=sys.stderr)
+    print(
+        f"[monitor] watchtower up. {len(seen)} repos already known. "
+        f"polling every {cfg.poll_interval_sec}s, fail-on={cfg.fail_on}",
+        file=sys.stderr,
+    )
 
     loops = 0
     while max_iterations is None or loops < max_iterations:

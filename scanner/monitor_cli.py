@@ -37,8 +37,8 @@ def _slack_escalation(webhook_url: str):
         )
         body = json.dumps({"text": text}).encode()
         req = urllib.request.Request(
-            webhook_url, data=body,
-            headers={"Content-Type": "application/json"}, method="POST")
+            webhook_url, data=body, headers={"Content-Type": "application/json"}, method="POST"
+        )
         try:
             urllib.request.urlopen(req, timeout=10)
         except Exception as err:  # noqa: BLE001 - never crash the daemon on notify
@@ -51,25 +51,41 @@ def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="hf-scan-monitor",
         description="Real-time watchtower: scan newly-published Hugging Face "
-                    "models as they appear.")
-    p.add_argument("--interval", type=int, default=60,
-                   help="seconds between polls of the Hub (default: 60)")
-    p.add_argument("--page-size", type=int, default=50,
-                   help="how many newest models to pull per poll (default: 50)")
-    p.add_argument("--fail-on", default="critical",
-                   choices=["critical", "high", "medium", "low"],
-                   help="severity that counts as a hit (default: critical — "
-                        "Hub-wide watching is noisy at 'high')")
-    p.add_argument("--show-all", action="store_true",
-                   help="print CLEAN and SKIPPED repos too, not just hits")
-    p.add_argument("--sandbox", action="store_true",
-                   help="run the sandbox engine on each repo (slower, deeper)")
-    p.add_argument("--once", action="store_true",
-                   help="run a single poll cycle then exit (for cron jobs)")
-    p.add_argument("--token", default=None,
-                   help="HF token for higher rate limits / gated repos")
-    p.add_argument("--slack-webhook", default=None,
-                   help="post hits to this Slack/Discord-compatible webhook URL")
+        "models as they appear.",
+    )
+    p.add_argument(
+        "--interval", type=int, default=60, help="seconds between polls of the Hub (default: 60)"
+    )
+    p.add_argument(
+        "--page-size",
+        type=int,
+        default=50,
+        help="how many newest models to pull per poll (default: 50)",
+    )
+    p.add_argument(
+        "--fail-on",
+        default="critical",
+        choices=["critical", "high", "medium", "low"],
+        help="severity that counts as a hit (default: critical — "
+        "Hub-wide watching is noisy at 'high')",
+    )
+    p.add_argument(
+        "--show-all", action="store_true", help="print CLEAN and SKIPPED repos too, not just hits"
+    )
+    p.add_argument(
+        "--sandbox",
+        action="store_true",
+        help="run the sandbox engine on each repo (slower, deeper)",
+    )
+    p.add_argument(
+        "--once", action="store_true", help="run a single poll cycle then exit (for cron jobs)"
+    )
+    p.add_argument("--token", default=None, help="HF token for higher rate limits / gated repos")
+    p.add_argument(
+        "--slack-webhook",
+        default=None,
+        help="post hits to this Slack/Discord-compatible webhook URL",
+    )
     return p
 
 

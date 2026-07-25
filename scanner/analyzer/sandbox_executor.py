@@ -10,11 +10,6 @@ import subprocess
 import sys
 import tempfile
 import textwrap
-import time
-import psutil
-import threading
-from collections import defaultdict
-from typing import Optional
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
@@ -40,21 +35,42 @@ SANDBOX_ENV_CONFIGS = [
     # Default: minimal environment
     {"PATH": "", "HOME": "/tmp", "PYTHONDONTWRITEBYTECODE": "1"},
     # Windows-like: triggers platform.system() == "Windows" gates
-    {"PATH": "", "HOME": "/tmp", "PYTHONDONTWRITEBYTECODE": "1",
-     "OS": "Windows_NT", "SYSTEMROOT": "C:\\Windows", "COMSPEC": "cmd.exe"},
+    {
+        "PATH": "",
+        "HOME": "/tmp",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "OS": "Windows_NT",
+        "SYSTEMROOT": "C:\\Windows",
+        "COMSPEC": "cmd.exe",
+    },
     # CI environment: triggers CI-detection gates
-    {"PATH": "", "HOME": "/tmp", "PYTHONDONTWRITEBYTECODE": "1",
-     "CI": "true", "GITHUB_ACTIONS": "true", "GITLAB_CI": "true"},
+    {
+        "PATH": "",
+        "HOME": "/tmp",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "CI": "true",
+        "GITHUB_ACTIONS": "true",
+        "GITLAB_CI": "true",
+    },
 ]
 
 
 def _make_finding(rule_id: str, file_path: str, line: int, evidence: str) -> Finding:
     rule = get_rule(rule_id)
-    return Finding(rule_id, rule.severity, file_path, line, 0,
-                   rule.description, evidence[:300], rule.remediation, rule.cwe)
+    return Finding(
+        rule_id,
+        rule.severity,
+        file_path,
+        line,
+        0,
+        rule.description,
+        evidence[:300],
+        rule.remediation,
+        rule.cwe,
+    )
 
 
-HARNESS = textwrap.dedent('''
+HARNESS = textwrap.dedent("""
 import sys, json
 _F = []
 import os as _safe_os
@@ -86,9 +102,9 @@ def _hv(c,*a,**k): _F.append({"op":"eval","code":str(c)[:500]}); return None
 def _hc(s,*a,**k): _F.append({"op":"compile","source":str(s)[:500]}); return _rc("pass","<s>","exec")
 _b.exec=_he; _b.eval=_hv; _b.compile=_hc
 _b.open=lambda *a,**k: (_ for _ in ()).throw(PermissionError("sandbox"))
-''')
+""")
 
-FOOTER = '\nimport sys,json\nsys.stdout.write(json.dumps(_F))\n'
+FOOTER = "\nimport sys,json\nsys.stdout.write(json.dumps(_F))\n"
 
 
 def sandbox_execute(file_path: str, source: str) -> list[Finding]:
@@ -119,10 +135,14 @@ def _sandbox_subprocess(file_path: str, source: str) -> list[Finding]:
             break
 
     # Add warning about legacy sandbox
-    findings.append(_make_finding(
-        "HFS-072", file_path, 0,
-        "Sandbox: using legacy subprocess backend — set HF_SANDBOX_BACKEND=gvisor for stronger isolation"
-    ))
+    findings.append(
+        _make_finding(
+            "HFS-072",
+            file_path,
+            0,
+            "Sandbox: using legacy subprocess backend — set HF_SANDBOX_BACKEND=gvisor for stronger isolation",
+        )
+    )
 
     return findings
 
@@ -134,10 +154,14 @@ def _sandbox_gvisor(file_path: str, source: str) -> list[Finding]:
     if not _check_gvisor_available():
         # Fallback to subprocess with clear warning
         fallback = _sandbox_subprocess(file_path, source)
-        fallback.append(_make_finding(
-            "HFS-072", file_path, 0,
-            "gVisor (runsc) not available — install runsc or set HF_SANDBOX_BACKEND=subprocess"
-        ))
+        fallback.append(
+            _make_finding(
+                "HFS-072",
+                file_path,
+                0,
+                "gVisor (runsc) not available — install runsc or set HF_SANDBOX_BACKEND=subprocess",
+            )
+        )
         return fallback
 
     for env_config in SANDBOX_ENV_CONFIGS:
@@ -173,14 +197,16 @@ def _sandbox_gvisor_single(file_path: str, source: str, env: dict) -> list[Findi
         "--cpus=1",
         "--memory=512M",
         "--",
-        sys.executable, "-S", "-u", tmp
+        sys.executable,
+        "-S",
+        "-u",
+        tmp,
     ]
 
     try:
         result = subprocess.run(
-            cmd,
-            capture_output=True, text=True, timeout=SANDBOX_TIMEOUT,
-            env=env)
+            cmd, capture_output=True, text=True, timeout=SANDBOX_TIMEOUT, env=env
+        )
         stdout = result.stdout[:MAX_OUTPUT]
         if stdout:
             try:
@@ -191,21 +217,37 @@ def _sandbox_gvisor_single(file_path: str, source: str, env: dict) -> list[Findi
 
         stderr = result.stderr[:MAX_OUTPUT] if result.stderr else ""
         if not result.stdout and stderr:
-            dangerous_crash_modules = ["subprocess", "socket", "ctypes",
-                                       "webbrowser", "urllib", "http"]
+            dangerous_crash_modules = [
+                "subprocess",
+                "socket",
+                "ctypes",
+                "webbrowser",
+                "urllib",
+                "http",
+            ]
             blocked_indicators = ["AttributeError", "PermissionError", "OSError"]
             for module in dangerous_crash_modules:
                 if module in stderr and any(ind in stderr for ind in blocked_indicators):
-                    findings.append(_make_finding("HFS-072", file_path, 0,
-                        f"Sandbox: code crashed accessing blocked module '{module}': "
-                        f"{stderr[:150]}"))
+                    findings.append(
+                        _make_finding(
+                            "HFS-072",
+                            file_path,
+                            0,
+                            f"Sandbox: code crashed accessing blocked module '{module}': "
+                            f"{stderr[:150]}",
+                        )
+                    )
                     break
         if result.returncode < 0:
-            findings.append(_make_finding("HFS-072", file_path, 0,
-                                          f"Process killed by signal {-result.returncode}"))
+            findings.append(
+                _make_finding(
+                    "HFS-072", file_path, 0, f"Process killed by signal {-result.returncode}"
+                )
+            )
     except subprocess.TimeoutExpired:
-        findings.append(_make_finding("HFS-072", file_path, 0,
-                                      f"Sandbox timed out after {SANDBOX_TIMEOUT}s"))
+        findings.append(
+            _make_finding("HFS-072", file_path, 0, f"Sandbox timed out after {SANDBOX_TIMEOUT}s")
+        )
     except OSError:
         pass
     finally:
@@ -222,19 +264,27 @@ def _sandbox_firecracker(file_path: str, source: str) -> list[Finding]:
 
     if not _check_firecracker_available():
         fallback = _sandbox_subprocess(file_path, source)
-        fallback.append(_make_finding(
-            "HFS-072", file_path, 0,
-            "Firecracker not available — install firecracker or set HF_SANDBOX_BACKEND=subprocess"
-        ))
+        fallback.append(
+            _make_finding(
+                "HFS-072",
+                file_path,
+                0,
+                "Firecracker not available — install firecracker or set HF_SANDBOX_BACKEND=subprocess",
+            )
+        )
         return fallback
 
     # Firecracker requires a pre-configured microVM image
     # This is a simplified implementation - production would use a pre-built microVM
-    findings.append(_make_finding(
-        "HFS-072", file_path, 0,
-        "Firecracker backend: requires pre-configured microVM image (kernel + rootfs). "
-        "See docs/firecracker-setup.md. Falling back to subprocess."
-    ))
+    findings.append(
+        _make_finding(
+            "HFS-072",
+            file_path,
+            0,
+            "Firecracker backend: requires pre-configured microVM image (kernel + rootfs). "
+            "See docs/firecracker-setup.md. Falling back to subprocess.",
+        )
+    )
     return _sandbox_subprocess(file_path, source)
 
 
@@ -244,19 +294,27 @@ def _sandbox_firecracker(file_path: str, source: str) -> list[Finding]:
 
     if not _check_firecracker_available():
         fallback = _sandbox_subprocess(file_path, source)
-        fallback.append(_make_finding(
-            "HFS-072", file_path, 0,
-            "Firecracker not available — install firecracker or set HF_SANDBOX_BACKEND=subprocess"
-        ))
+        fallback.append(
+            _make_finding(
+                "HFS-072",
+                file_path,
+                0,
+                "Firecracker not available — install firecracker or set HF_SANDBOX_BACKEND=subprocess",
+            )
+        )
         return fallback
 
     # Firecracker requires a pre-configured microVM image
     # This is a simplified implementation - production would use a pre-built microVM
-    findings.append(_make_finding(
-        "HFS-072", file_path, 0,
-        "Firecracker backend: requires pre-configured microVM image (kernel + rootfs). "
-        "See docs/firecracker-setup.md. Falling back to subprocess."
-    ))
+    findings.append(
+        _make_finding(
+            "HFS-072",
+            file_path,
+            0,
+            "Firecracker backend: requires pre-configured microVM image (kernel + rootfs). "
+            "See docs/firecracker-setup.md. Falling back to subprocess.",
+        )
+    )
     return _sandbox_subprocess(file_path, source)
 
 
@@ -277,8 +335,11 @@ def _sandbox_single_run(file_path: str, source: str, env: dict) -> list[Finding]
     try:
         result = subprocess.run(
             [sys.executable, "-S", "-u", tmp],
-            capture_output=True, text=True, timeout=SANDBOX_TIMEOUT,
-            env=env)
+            capture_output=True,
+            text=True,
+            timeout=SANDBOX_TIMEOUT,
+            env=env,
+        )
         stdout = result.stdout[:MAX_OUTPUT]
         if stdout:
             try:
@@ -292,21 +353,37 @@ def _sandbox_single_run(file_path: str, source: str, env: dict) -> list[Finding]
         if not stdout and stderr:
             # Only flag if network/execution modules caused the crash
             # (os alone is too common in legitimate code)
-            dangerous_crash_modules = ["subprocess", "socket", "ctypes",
-                                       "webbrowser", "urllib", "http"]
+            dangerous_crash_modules = [
+                "subprocess",
+                "socket",
+                "ctypes",
+                "webbrowser",
+                "urllib",
+                "http",
+            ]
             blocked_indicators = ["AttributeError", "PermissionError", "OSError"]
             for module in dangerous_crash_modules:
                 if module in stderr and any(ind in stderr for ind in blocked_indicators):
-                    findings.append(_make_finding("HFS-072", file_path, 0,
-                        f"Sandbox: code crashed accessing blocked module '{module}': "
-                        f"{stderr[:150]}"))
+                    findings.append(
+                        _make_finding(
+                            "HFS-072",
+                            file_path,
+                            0,
+                            f"Sandbox: code crashed accessing blocked module '{module}': "
+                            f"{stderr[:150]}",
+                        )
+                    )
                     break
         if result.returncode < 0:
-            findings.append(_make_finding("HFS-072", file_path, 0,
-                                          f"Process killed by signal {-result.returncode}"))
+            findings.append(
+                _make_finding(
+                    "HFS-072", file_path, 0, f"Process killed by signal {-result.returncode}"
+                )
+            )
     except subprocess.TimeoutExpired:
-        findings.append(_make_finding("HFS-072", file_path, 0,
-                                      f"Sandbox timed out after {SANDBOX_TIMEOUT}s"))
+        findings.append(
+            _make_finding("HFS-072", file_path, 0, f"Sandbox timed out after {SANDBOX_TIMEOUT}s")
+        )
     except OSError:
         pass
     finally:
@@ -333,10 +410,14 @@ def _sandbox_subprocess(file_path: str, source: str) -> list[Finding]:
             break
 
     # Add warning about legacy sandbox
-    findings.append(_make_finding(
-        "HFS-072", file_path, 0,
-        "Sandbox: using legacy subprocess backend — set HF_SANDBOX_BACKEND=gvisor for stronger isolation"
-    ))
+    findings.append(
+        _make_finding(
+            "HFS-072",
+            file_path,
+            0,
+            "Sandbox: using legacy subprocess backend — set HF_SANDBOX_BACKEND=gvisor for stronger isolation",
+        )
+    )
 
     return findings
 
@@ -358,9 +439,21 @@ def _interpret(file_path: str, ops: list) -> list[Finding]:
             dangerous_ops.append(entry)
         elif op == "attr":
             attr = entry.get("attr", "")
-            if attr in ("system", "popen", "Popen", "run", "call", "check_output",
-                        "getaddrinfo", "connect", "socket", "urlopen",
-                        "create_connection", "AF_INET", "SOCK_RAW"):
+            if attr in (
+                "system",
+                "popen",
+                "Popen",
+                "run",
+                "call",
+                "check_output",
+                "getaddrinfo",
+                "connect",
+                "socket",
+                "urlopen",
+                "create_connection",
+                "AF_INET",
+                "SOCK_RAW",
+            ):
                 dangerous_ops.append(entry)
 
     # Only report import findings if the module was ALSO used dangerously
@@ -377,24 +470,52 @@ def _interpret(file_path: str, ops: list) -> list[Finding]:
         seen.add(key)
 
         if op == "exec":
-            findings.append(_make_finding("HFS-072", file_path, 0,
-                                          f"Sandbox: exec() with: {entry.get('code','')}"))
+            findings.append(
+                _make_finding(
+                    "HFS-072", file_path, 0, f"Sandbox: exec() with: {entry.get('code','')}"
+                )
+            )
         elif op == "eval":
-            findings.append(_make_finding("HFS-072", file_path, 0,
-                                          f"Sandbox: eval() with: {entry.get('code','')}"))
+            findings.append(
+                _make_finding(
+                    "HFS-072", file_path, 0, f"Sandbox: eval() with: {entry.get('code','')}"
+                )
+            )
         elif op == "compile":
-            findings.append(_make_finding("HFS-072", file_path, 0,
-                                          f"Sandbox: compile() with: {entry.get('source','')}"))
+            findings.append(
+                _make_finding(
+                    "HFS-072", file_path, 0, f"Sandbox: compile() with: {entry.get('source','')}"
+                )
+            )
         elif op == "import":
             # Only flag blocked imports if there's also dangerous usage
             # (bare "import os" in a data loading script is legitimate)
             if has_dangerous_usage:
-                findings.append(_make_finding("HFS-072", file_path, 0,
-                                              f"Sandbox: blocked import '{entry.get('module','')}'"))
+                findings.append(
+                    _make_finding(
+                        "HFS-072",
+                        file_path,
+                        0,
+                        f"Sandbox: blocked import '{entry.get('module','')}'",
+                    )
+                )
         elif op == "attr":
             attr = entry.get("attr", "")
-            if attr in ("system", "popen", "Popen", "run", "call", "check_output",
-                       "getaddrinfo", "connect", "socket", "urlopen"):
-                findings.append(_make_finding("HFS-072", file_path, 0,
-                                              f"Sandbox: {entry.get('module','')}.{attr}()"))
+            if attr in (
+                "system",
+                "popen",
+                "Popen",
+                "run",
+                "call",
+                "check_output",
+                "getaddrinfo",
+                "connect",
+                "socket",
+                "urlopen",
+            ):
+                findings.append(
+                    _make_finding(
+                        "HFS-072", file_path, 0, f"Sandbox: {entry.get('module','')}.{attr}()"
+                    )
+                )
     return findings

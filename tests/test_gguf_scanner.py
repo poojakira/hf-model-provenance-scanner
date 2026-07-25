@@ -2,6 +2,7 @@
 Tests for the GGUF format inspector.
 Verifies detection of metadata anomalies, suspicious content, and malformed files.
 """
+
 import os
 import struct
 import unittest
@@ -39,9 +40,12 @@ class TestGGUFSafeFile(unittest.TestCase):
         data = _load_fixture("safe_model.gguf")
         findings = analyze_gguf_file("safe.gguf", data)
         suspicious = [f for f in findings if f.rule_id in ("HFS-056", "HFS-057")]
-        self.assertEqual(len(suspicious), 0,
-                         f"Clean GGUF should not trigger findings, got: "
-                         f"{[(f.rule_id, f.evidence) for f in suspicious]}")
+        self.assertEqual(
+            len(suspicious),
+            0,
+            f"Clean GGUF should not trigger findings, got: "
+            f"{[(f.rule_id, f.evidence) for f in suspicious]}",
+        )
 
 
 class TestGGUFMaliciousMetadata(unittest.TestCase):
@@ -50,8 +54,7 @@ class TestGGUFMaliciousMetadata(unittest.TestCase):
         data = _load_fixture("malicious_metadata.gguf")
         findings = analyze_gguf_file("evil.gguf", data)
         rule_ids = [f.rule_id for f in findings]
-        self.assertIn("HFS-056", rule_ids,
-                      "Should detect curl|bash pattern in metadata")
+        self.assertIn("HFS-056", rule_ids, "Should detect curl|bash pattern in metadata")
 
     def test_url_in_non_standard_key(self):
         """Detect URLs in custom metadata keys."""
@@ -77,8 +80,7 @@ class TestGGUFMalformed(unittest.TestCase):
         data = _load_fixture("malformed.gguf")
         findings = analyze_gguf_file("bad.gguf", data)
         rule_ids = [f.rule_id for f in findings]
-        self.assertIn("HFS-058", rule_ids,
-                      "Should detect invalid GGUF magic number")
+        self.assertIn("HFS-058", rule_ids, "Should detect invalid GGUF magic number")
 
     def test_too_small(self):
         """File smaller than minimum header should be invalid."""
@@ -110,8 +112,7 @@ class TestGGUFOversizedMetadata(unittest.TestCase):
 
         findings = analyze_gguf_file("big.gguf", bytes(buf))
         rule_ids = [f.rule_id for f in findings]
-        self.assertIn("HFS-057", rule_ids,
-                      "Should detect oversized metadata value")
+        self.assertIn("HFS-057", rule_ids, "Should detect oversized metadata value")
 
 
 if __name__ == "__main__":

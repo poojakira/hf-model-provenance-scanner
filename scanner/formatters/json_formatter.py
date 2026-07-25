@@ -9,18 +9,20 @@ def format_json(result: ScanResult) -> str:
     """Serialize scan results to a JSON string."""
     findings_list = []
     for f in result.findings:
-        findings_list.append({
-            "rule_id": f.rule_id,
-            "severity": f.severity.value,
-            "file_path": f.file_path,
-            "line_number": f.line_number,
-            "column": f.column,
-            "message": f.message,
-            "evidence": f.evidence,
-            "remediation": f.remediation,
-            "cwe": f.cwe,
-            "decoded_layer": f.decoded_layer,
-        })
+        findings_list.append(
+            {
+                "rule_id": f.rule_id,
+                "severity": f.severity.value,
+                "file_path": f.file_path,
+                "line_number": f.line_number,
+                "column": f.column,
+                "message": f.message,
+                "evidence": f.evidence,
+                "remediation": f.remediation,
+                "cwe": f.cwe,
+                "decoded_layer": f.decoded_layer,
+            }
+        )
 
     org_check = None
     if result.org_check:

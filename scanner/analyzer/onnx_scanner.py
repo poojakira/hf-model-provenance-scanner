@@ -44,43 +44,160 @@ WIRE_32BIT = 5
 
 # Known dangerous custom op domains
 SUSPICIOUS_DOMAINS = {
-    "", "custom", "com.microsoft", "ai.onnx.ml",
+    "",
+    "custom",
+    "com.microsoft",
+    "ai.onnx.ml",
 }
 
 # Standard ONNX ops that are always safe
 STANDARD_OPS = {
-    "Abs", "Acos", "Acosh", "Add", "And", "ArgMax", "ArgMin",
-    "Asin", "Asinh", "Atan", "Atanh", "AveragePool",
-    "BatchNormalization", "BitShift",
-    "Cast", "Ceil", "Clip", "Compress", "Concat", "ConcatFromSequence",
-    "Constant", "ConstantOfShape", "Conv", "ConvInteger", "ConvTranspose",
-    "Cos", "Cosh", "CumSum",
-    "DepthToSpace", "Det", "Div", "Dropout", "DynamicQuantizeLinear",
-    "Einsum", "Elu", "Equal", "Erf", "Exp", "Expand",
-    "Flatten", "Floor", "GRU", "Gather", "GatherElements", "GatherND",
-    "Gemm", "GlobalAveragePool", "GlobalLpPool", "GlobalMaxPool", "Greater",
-    "HardSigmoid", "Hardmax", "Identity", "If",
-    "InstanceNormalization", "IsInf", "IsNaN",
-    "LRN", "LSTM", "LeakyRelu", "Less", "Log", "LogSoftmax", "Loop",
-    "MatMul", "MatMulInteger", "Max", "MaxPool", "MaxUnpool", "Mean",
-    "Min", "Mod", "Mul", "Multinomial",
-    "Neg", "NonMaxSuppression", "NonZero", "Not",
-    "OneHot", "Or", "PRelu", "Pad", "Pow",
-    "QLinearConv", "QLinearMatMul", "QuantizeLinear",
-    "RNN", "RandomNormal", "RandomNormalLike", "RandomUniform",
-    "RandomUniformLike", "Reciprocal", "ReduceL1", "ReduceL2",
-    "ReduceLogSum", "ReduceLogSumExp", "ReduceMax", "ReduceMean",
-    "ReduceMin", "ReduceProd", "ReduceSum", "ReduceSumSquare",
-    "Relu", "Reshape", "Resize", "ReverseSequence", "RoiAlign", "Round",
-    "Scan", "Scatter", "ScatterElements", "ScatterND", "Selu",
-    "Shape", "Shrink", "Sigmoid", "Sign", "Sin", "Sinh", "Size",
-    "Slice", "Softmax", "Softplus", "Softsign", "SpaceToDepth",
-    "Split", "Sqrt", "Squeeze", "Sub", "Sum",
-    "Tan", "Tanh", "Tile", "TopK", "Transpose",
-    "Unique", "Unsqueeze", "Where", "Xor",
+    "Abs",
+    "Acos",
+    "Acosh",
+    "Add",
+    "And",
+    "ArgMax",
+    "ArgMin",
+    "Asin",
+    "Asinh",
+    "Atan",
+    "Atanh",
+    "AveragePool",
+    "BatchNormalization",
+    "BitShift",
+    "Cast",
+    "Ceil",
+    "Clip",
+    "Compress",
+    "Concat",
+    "ConcatFromSequence",
+    "Constant",
+    "ConstantOfShape",
+    "Conv",
+    "ConvInteger",
+    "ConvTranspose",
+    "Cos",
+    "Cosh",
+    "CumSum",
+    "DepthToSpace",
+    "Det",
+    "Div",
+    "Dropout",
+    "DynamicQuantizeLinear",
+    "Einsum",
+    "Elu",
+    "Equal",
+    "Erf",
+    "Exp",
+    "Expand",
+    "Flatten",
+    "Floor",
+    "GRU",
+    "Gather",
+    "GatherElements",
+    "GatherND",
+    "Gemm",
+    "GlobalAveragePool",
+    "GlobalLpPool",
+    "GlobalMaxPool",
+    "Greater",
+    "HardSigmoid",
+    "Hardmax",
+    "Identity",
+    "If",
+    "InstanceNormalization",
+    "IsInf",
+    "IsNaN",
+    "LRN",
+    "LSTM",
+    "LeakyRelu",
+    "Less",
+    "Log",
+    "LogSoftmax",
+    "Loop",
+    "MatMul",
+    "MatMulInteger",
+    "Max",
+    "MaxPool",
+    "MaxUnpool",
+    "Mean",
+    "Min",
+    "Mod",
+    "Mul",
+    "Multinomial",
+    "Neg",
+    "NonMaxSuppression",
+    "NonZero",
+    "Not",
+    "OneHot",
+    "Or",
+    "PRelu",
+    "Pad",
+    "Pow",
+    "QLinearConv",
+    "QLinearMatMul",
+    "QuantizeLinear",
+    "RNN",
+    "RandomNormal",
+    "RandomNormalLike",
+    "RandomUniform",
+    "RandomUniformLike",
+    "Reciprocal",
+    "ReduceL1",
+    "ReduceL2",
+    "ReduceLogSum",
+    "ReduceLogSumExp",
+    "ReduceMax",
+    "ReduceMean",
+    "ReduceMin",
+    "ReduceProd",
+    "ReduceSum",
+    "ReduceSumSquare",
+    "Relu",
+    "Reshape",
+    "Resize",
+    "ReverseSequence",
+    "RoiAlign",
+    "Round",
+    "Scan",
+    "Scatter",
+    "ScatterElements",
+    "ScatterND",
+    "Selu",
+    "Shape",
+    "Shrink",
+    "Sigmoid",
+    "Sign",
+    "Sin",
+    "Sinh",
+    "Size",
+    "Slice",
+    "Softmax",
+    "Softplus",
+    "Softsign",
+    "SpaceToDepth",
+    "Split",
+    "Sqrt",
+    "Squeeze",
+    "Sub",
+    "Sum",
+    "Tan",
+    "Tanh",
+    "Tile",
+    "TopK",
+    "Transpose",
+    "Unique",
+    "Unsqueeze",
+    "Where",
+    "Xor",
     # Common additional ops
-    "LayerNormalization", "GroupNormalization", "Attention",
-    "BiasGelu", "FastGelu", "SkipLayerNormalization",
+    "LayerNormalization",
+    "GroupNormalization",
+    "Attention",
+    "BiasGelu",
+    "FastGelu",
+    "SkipLayerNormalization",
 }
 
 URL_PATTERN = re.compile(r"https?://[^\s\"'<>]+", re.IGNORECASE)
@@ -91,13 +208,18 @@ SUSPICIOUS_STRING_PATTERNS = [
 ]
 
 
-
 def _make_finding(rule_id: str, file_path: str, evidence: str) -> Finding:
     rule = get_rule(rule_id)
     return Finding(
-        rule_id=rule_id, severity=rule.severity, file_path=file_path,
-        line_number=0, column=0, message=rule.description,
-        evidence=evidence[:300], remediation=rule.remediation, cwe=rule.cwe,
+        rule_id=rule_id,
+        severity=rule.severity,
+        file_path=file_path,
+        line_number=0,
+        column=0,
+        message=rule.description,
+        evidence=evidence[:300],
+        remediation=rule.remediation,
+        cwe=rule.cwe,
     )
 
 
@@ -127,7 +249,7 @@ def analyze_onnx_file(file_path: str, data: bytes) -> list[Finding]:
                 length = data[i + 1]
                 if 4 < length < 200 and i + 2 + length <= len(data):
                     try:
-                        s = data[i + 2:i + 2 + length].decode("utf-8")
+                        s = data[i + 2 : i + 2 + length].decode("utf-8")
                         if s.isprintable() and len(s) > 3:
                             strings_found.append(s)
                             # Check if it looks like an op name
@@ -140,23 +262,22 @@ def analyze_onnx_file(file_path: str, data: bytes) -> list[Finding]:
     # Check for custom operators
     for op in set(custom_ops):
         if op not in STANDARD_OPS and len(op) > 3:
-            findings.append(_make_finding(
-                "HFS-073", file_path,
-                f"Non-standard ONNX operator: '{op}'"
-            ))
+            findings.append(
+                _make_finding("HFS-073", file_path, f"Non-standard ONNX operator: '{op}'")
+            )
 
     # Check strings for suspicious content
     for s in strings_found:
         url_match = URL_PATTERN.search(s)
         if url_match:
-            findings.append(_make_finding(
-                "HFS-074", file_path, f"URL in ONNX: {url_match.group()[:100]}"
-            ))
+            findings.append(
+                _make_finding("HFS-074", file_path, f"URL in ONNX: {url_match.group()[:100]}")
+            )
         for pattern in SUSPICIOUS_STRING_PATTERNS:
             if pattern.search(s):
-                findings.append(_make_finding(
-                    "HFS-074", file_path, f"Suspicious string: '{s[:100]}'"
-                ))
+                findings.append(
+                    _make_finding("HFS-074", file_path, f"Suspicious string: '{s[:100]}'")
+                )
                 break
 
     return findings

@@ -43,22 +43,24 @@ LAMBDA_CODE_PATTERNS = [
 ]
 
 # custom_objects detection
-CUSTOM_OBJECTS_RE = re.compile(
-    rb'"custom_objects"\s*:\s*\{[^}]+\}', re.DOTALL
-)
+CUSTOM_OBJECTS_RE = re.compile(rb'"custom_objects"\s*:\s*\{[^}]+\}', re.DOTALL)
 
 # Keras config JSON extraction (find JSON blobs in binary)
-JSON_BLOB_RE = re.compile(
-    rb'\{[^{}]*"class_name"[^{}]*\}', re.DOTALL
-)
+JSON_BLOB_RE = re.compile(rb'\{[^{}]*"class_name"[^{}]*\}', re.DOTALL)
 
 
 def _make_finding(rule_id: str, file_path: str, evidence: str) -> Finding:
     rule = get_rule(rule_id)
     return Finding(
-        rule_id=rule_id, severity=rule.severity, file_path=file_path,
-        line_number=0, column=0, message=rule.description,
-        evidence=evidence[:300], remediation=rule.remediation, cwe=rule.cwe,
+        rule_id=rule_id,
+        severity=rule.severity,
+        file_path=file_path,
+        line_number=0,
+        column=0,
+        message=rule.description,
+        evidence=evidence[:300],
+        remediation=rule.remediation,
+        cwe=rule.cwe,
     )
 
 
@@ -87,12 +89,15 @@ def analyze_keras_file(file_path: str, data: bytes) -> list[Finding]:
     for pattern in KERAS_CONFIG_PATTERNS:
         matches = pattern.findall(data)
         if matches:
-            findings.append(_make_finding(
-                "HFS-076", file_path,
-                f"Keras Lambda layer detected. Lambda layers can execute "
-                f"arbitrary Python code on model load. Found {len(matches)} "
-                f"Lambda layer(s)."
-            ))
+            findings.append(
+                _make_finding(
+                    "HFS-076",
+                    file_path,
+                    f"Keras Lambda layer detected. Lambda layers can execute "
+                    f"arbitrary Python code on model load. Found {len(matches)} "
+                    f"Lambda layer(s).",
+                )
+            )
             break
 
     # Extract and analyze JSON config blobs
@@ -104,28 +109,32 @@ def analyze_keras_file(file_path: str, data: bytes) -> list[Finding]:
         for match in custom_obj_matches[:3]:
             try:
                 snippet = match.decode("utf-8", errors="replace")
-                findings.append(_make_finding(
-                    "HFS-076", file_path,
-                    f"custom_objects declaration found: {snippet[:200]}. "
-                    "Custom objects can load arbitrary classes on deserialization."
-                ))
+                findings.append(
+                    _make_finding(
+                        "HFS-076",
+                        file_path,
+                        f"custom_objects declaration found: {snippet[:200]}. "
+                        "Custom objects can load arbitrary classes on deserialization.",
+                    )
+                )
             except Exception:
                 pass
 
     # Check for pickle markers in the file
     if b"cos\nsystem\n" in data or b"csubprocess\n" in data:
-        findings.append(_make_finding(
-            "HFS-076", file_path,
-            "Pickle opcode patterns found in Keras model file. "
-            "This file may contain embedded pickle payloads."
-        ))
+        findings.append(
+            _make_finding(
+                "HFS-076",
+                file_path,
+                "Pickle opcode patterns found in Keras model file. "
+                "This file may contain embedded pickle payloads.",
+            )
+        )
 
     return findings
 
 
-def _scan_embedded_configs(
-    file_path: str, data: bytes, findings: list[Finding]
-):
+def _scan_embedded_configs(file_path: str, data: bytes, findings: list[Finding]):
     """Extract JSON configs from the binary and scan for dangerous code."""
     # Search for model_config or config JSON within the file
     # Keras stores config as a JSON string attribute in HDF5
@@ -149,9 +158,7 @@ def _scan_embedded_configs(
             continue
 
         # Look for Lambda function bodies
-        lambda_pattern = re.compile(
-            r'"function"\s*:\s*"([^"]+)"', re.DOTALL
-        )
+        lambda_pattern = re.compile(r'"function"\s*:\s*"([^"]+)"', re.DOTALL)
         for match in lambda_pattern.finditer(text):
             func_body = match.group(1)
             # Unescape
@@ -160,9 +167,11 @@ def _scan_embedded_configs(
             # Check if Lambda body contains dangerous patterns
             for danger_pattern in LAMBDA_CODE_PATTERNS:
                 if danger_pattern.search(func_body):
-                    findings.append(_make_finding(
-                        "HFS-076", file_path,
-                        f"Dangerous code in Keras Lambda layer: "
-                        f"'{func_body[:150]}'"
-                    ))
+                    findings.append(
+                        _make_finding(
+                            "HFS-076",
+                            file_path,
+                            f"Dangerous code in Keras Lambda layer: " f"'{func_body[:150]}'",
+                        )
+                    )
                     break

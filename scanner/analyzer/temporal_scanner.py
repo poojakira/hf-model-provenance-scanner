@@ -27,6 +27,7 @@ BASELINE_FILENAME = ".hf-scanner-baseline.json"
 @dataclass
 class FileBaseline:
     """Baseline record for a single file."""
+
     path: str
     sha256: str
     size: int
@@ -37,6 +38,7 @@ class FileBaseline:
 @dataclass
 class ScanBaseline:
     """Complete scan baseline for temporal comparison."""
+
     scan_target: str
     scanned_at: float
     scanner_version: str
@@ -123,7 +125,7 @@ def create_baseline(
 ) -> ScanBaseline:
     """
     Create a baseline from a completed scan result.
-    
+
     Args:
         result: The completed ScanResult
         file_hashes: Dict of {file_path: (sha256_hex, file_size)}
@@ -138,13 +140,15 @@ def create_baseline(
                 if any(f.severity == sev for f in path_findings):
                     highest = sev.value
                     break
-        files.append(FileBaseline(
-            path=norm_path,
-            sha256=hash_val,
-            size=size,
-            findings_count=len(path_findings),
-            highest_severity=highest,
-        ))
+        files.append(
+            FileBaseline(
+                path=norm_path,
+                sha256=hash_val,
+                size=size,
+                findings_count=len(path_findings),
+                highest_severity=highest,
+            )
+        )
 
     return ScanBaseline(
         scan_target=result.scan_target,
@@ -189,7 +193,7 @@ def compare_with_baseline(
 ) -> list[Finding]:
     """
     Compare current scan against a stored baseline to detect rug-pulls.
-    
+
     Detects:
     - New critical/high findings that weren't in the baseline
     - Files whose hashes changed (possible code injection)
@@ -203,11 +207,14 @@ def compare_with_baseline(
 
     # 1. Risk escalation
     if current_result.risk.score > baseline.risk_score + 20:
-        findings.append(_make_finding(
-            "HFS-062", target,
-            f"Risk score escalated: {baseline.risk_score} -> {current_result.risk.score} "
-            f"(+{current_result.risk.score - baseline.risk_score})"
-        ))
+        findings.append(
+            _make_finding(
+                "HFS-062",
+                target,
+                f"Risk score escalated: {baseline.risk_score} -> {current_result.risk.score} "
+                f"(+{current_result.risk.score - baseline.risk_score})",
+            )
+        )
 
     # 2. New critical rules
     current_rules = set(f.rule_id for f in current_result.findings)
@@ -215,10 +222,11 @@ def compare_with_baseline(
     new_rules = current_rules - baseline_rules
     critical_new = [r for r in new_rules if r.startswith("HFS-00")]  # Critical rules
     if critical_new:
-        findings.append(_make_finding(
-            "HFS-061", target,
-            f"New critical findings since baseline: {critical_new}"
-        ))
+        findings.append(
+            _make_finding(
+                "HFS-061", target, f"New critical findings since baseline: {critical_new}"
+            )
+        )
 
     # 3. File hash changes
     baseline_files = {f.path: f for f in baseline.files}
@@ -229,27 +237,34 @@ def compare_with_baseline(
             # New file — check if it has findings
             path_findings = [f for f in current_result.findings if f.file_path == path]
             if any(f.severity in (Severity.CRITICAL, Severity.HIGH) for f in path_findings):
-                findings.append(_make_finding(
-                    "HFS-061", path,
-                    "New file with critical/high findings added after baseline"
-                ))
+                findings.append(
+                    _make_finding(
+                        "HFS-061", path, "New file with critical/high findings added after baseline"
+                    )
+                )
         elif baseline_file.sha256 != current_hash:
             # File changed — possible rug pull
             path_findings = [f for f in current_result.findings if f.file_path == path]
             if path_findings:
-                findings.append(_make_finding(
-                    "HFS-061", path,
-                    f"File hash changed AND has findings. "
-                    f"Old: {baseline_file.sha256[:16]}... "
-                    f"New: {current_hash[:16]}..."
-                ))
+                findings.append(
+                    _make_finding(
+                        "HFS-061",
+                        path,
+                        f"File hash changed AND has findings. "
+                        f"Old: {baseline_file.sha256[:16]}... "
+                        f"New: {current_hash[:16]}...",
+                    )
+                )
             else:
-                findings.append(_make_finding(
-                    "HFS-063", path,
-                    f"File hash changed since baseline scan. "
-                    f"Old: {baseline_file.sha256[:16]}... "
-                    f"New: {current_hash[:16]}..."
-                ))
+                findings.append(
+                    _make_finding(
+                        "HFS-063",
+                        path,
+                        f"File hash changed since baseline scan. "
+                        f"Old: {baseline_file.sha256[:16]}... "
+                        f"New: {current_hash[:16]}...",
+                    )
+                )
 
     # 4. Removed files (potentially deleted signatures/SBOMs)
     current_paths = set(current_hashes.keys())
@@ -257,17 +272,19 @@ def compare_with_baseline(
         if baseline_file.path not in current_paths:
             lower = baseline_file.path.lower()
             if any(kw in lower for kw in ("sig", "sbom", "aibom", "cosign", "attestation")):
-                findings.append(_make_finding(
-                    "HFS-062", baseline_file.path,
-                    f"Security artifact removed since baseline: {baseline_file.path}"
-                ))
+                findings.append(
+                    _make_finding(
+                        "HFS-062",
+                        baseline_file.path,
+                        f"Security artifact removed since baseline: {baseline_file.path}",
+                    )
+                )
 
     # 5. Org verification loss
     if current_result.org_check and baseline.org_verified:
         if not current_result.org_check.is_verified:
-            findings.append(_make_finding(
-                "HFS-062", target,
-                "Organization lost verified status since baseline"
-            ))
+            findings.append(
+                _make_finding("HFS-062", target, "Organization lost verified status since baseline")
+            )
 
     return findings

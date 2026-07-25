@@ -2,15 +2,15 @@
 Tests for temporal analysis / rug-pull detection.
 Verifies baseline creation, comparison, and drift detection.
 """
-import json
+
 import os
 import tempfile
 import time
 import unittest
 
 from scanner.analyzer.temporal_scanner import (
-    ScanBaseline,
     FileBaseline,
+    ScanBaseline,
     compare_with_baseline,
     create_baseline,
     load_baseline,
@@ -19,14 +19,12 @@ from scanner.analyzer.temporal_scanner import (
 from scanner.models import Finding, OrgCheckResult, RiskSummary, ScanResult, Severity
 
 
-def _make_result(findings=None, risk_score=0, risk_level="LOW",
-                 org_verified=True) -> ScanResult:
+def _make_result(findings=None, risk_score=0, risk_level="LOW", org_verified=True) -> ScanResult:
     result = ScanResult("test/model", "local", "0.2.0")
     result.findings = findings or []
     result.risk = RiskSummary(score=risk_score, level=risk_level, reasons=[])
     if org_verified is not None:
-        result.org_check = OrgCheckResult(
-            "test/model", "test", org_verified, [], 0.0, 100.0, 10.0)
+        result.org_check = OrgCheckResult("test/model", "test", org_verified, [], 0.0, 100.0, 10.0)
     return result
 
 
@@ -50,8 +48,7 @@ class TestBaselineCreation(unittest.TestCase):
         hashes = {"file.py": ("a" * 64, 512)}
         baseline = create_baseline(result, hashes)
 
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".json",
-                                         delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             path = f.name
 
         try:
@@ -98,12 +95,12 @@ class TestBaselineComparison(unittest.TestCase):
         result = _make_result(risk_score=55, risk_level="HIGH")
         findings = compare_with_baseline(baseline, result, {})
         rule_ids = [f.rule_id for f in findings]
-        self.assertIn("HFS-062", rule_ids,
-                      "Should detect risk escalation")
+        self.assertIn("HFS-062", rule_ids, "Should detect risk escalation")
 
     def test_file_hash_change_with_findings(self):
         """File hash change combined with new findings = rug pull."""
         from scanner.rules.definitions import get_rule
+
         baseline = ScanBaseline(
             scan_target="test/model",
             scanned_at=time.time() - 3600,
@@ -116,18 +113,27 @@ class TestBaselineComparison(unittest.TestCase):
         )
         # New scan has findings in the changed file
         rule = get_rule("HFS-001")
-        finding = Finding("HFS-001", Severity.CRITICAL, "loader.py",
-                          5, 0, rule.description, "evidence", rule.remediation, rule.cwe)
+        finding = Finding(
+            "HFS-001",
+            Severity.CRITICAL,
+            "loader.py",
+            5,
+            0,
+            rule.description,
+            "evidence",
+            rule.remediation,
+            rule.cwe,
+        )
         result = _make_result(findings=[finding], risk_score=50)
         hashes = {"loader.py": ("b" * 64, 200)}  # Hash changed
         temporal_findings = compare_with_baseline(baseline, result, hashes)
         rule_ids = [f.rule_id for f in temporal_findings]
-        self.assertIn("HFS-061", rule_ids,
-                      "Changed file with critical finding = rug pull")
+        self.assertIn("HFS-061", rule_ids, "Changed file with critical finding = rug pull")
 
     def test_new_file_with_critical_finding(self):
         """New file appearing with critical findings = suspicious."""
         from scanner.rules.definitions import get_rule
+
         baseline = ScanBaseline(
             scan_target="test/model",
             scanned_at=time.time() - 3600,
@@ -139,8 +145,17 @@ class TestBaselineComparison(unittest.TestCase):
             finding_rule_ids=[],
         )
         rule = get_rule("HFS-050")
-        finding = Finding("HFS-050", Severity.CRITICAL, "evil.pkl",
-                          0, 0, rule.description, "os.system", rule.remediation, rule.cwe)
+        finding = Finding(
+            "HFS-050",
+            Severity.CRITICAL,
+            "evil.pkl",
+            0,
+            0,
+            rule.description,
+            "os.system",
+            rule.remediation,
+            rule.cwe,
+        )
         result = _make_result(findings=[finding], risk_score=50)
         hashes = {"evil.pkl": ("c" * 64, 5000)}
         temporal_findings = compare_with_baseline(baseline, result, hashes)
@@ -166,8 +181,7 @@ class TestBaselineComparison(unittest.TestCase):
         # No files present anymore
         findings = compare_with_baseline(baseline, result, {})
         rule_ids = [f.rule_id for f in findings]
-        self.assertIn("HFS-062", rule_ids,
-                      "Should detect removed security artifacts")
+        self.assertIn("HFS-062", rule_ids, "Should detect removed security artifacts")
 
     def test_org_verification_loss(self):
         """Loss of org verification status triggers finding."""
