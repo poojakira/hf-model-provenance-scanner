@@ -27,12 +27,12 @@ def generate_aibom(
 ) -> dict:
     """
     Generate a CycloneDX 1.6 AIBOM from scan results.
-    
+
     Args:
         result: Completed ScanResult
         file_hashes: Dict of {path: (sha256, size)}
         target_path: The scan target (repo ID or directory)
-    
+
     Returns:
         CycloneDX JSON dict ready for json.dumps()
     """
@@ -57,8 +57,8 @@ def generate_aibom(
         ]
         if result.org_check.age_hours is not None:
             bom["metadata"]["properties"].append(
-                {"name": "ai:repository_age_hours",
-                 "value": f"{result.org_check.age_hours:.1f}"})
+                {"name": "ai:repository_age_hours", "value": f"{result.org_check.age_hours:.1f}"}
+            )
 
     return bom
 
@@ -67,12 +67,14 @@ def _build_metadata(result: ScanResult, timestamp: str) -> dict:
     return {
         "timestamp": timestamp,
         "tools": {
-            "components": [{
-                "type": "application",
-                "name": "hf-scanner",
-                "version": result.scanner_version,
-                "description": "ML supply chain provenance scanner",
-            }]
+            "components": [
+                {
+                    "type": "application",
+                    "name": "hf-scanner",
+                    "version": result.scanner_version,
+                    "description": "ML supply chain provenance scanner",
+                }
+            ]
         },
         "component": {
             "type": "machine-learning-model",
@@ -82,9 +84,7 @@ def _build_metadata(result: ScanResult, timestamp: str) -> dict:
     }
 
 
-def _build_components(
-    file_hashes: dict, result: ScanResult
-) -> list:
+def _build_components(file_hashes: dict, result: ScanResult) -> list:
     components = []
     for path, (sha256, size) in file_hashes.items():
         comp_type = _classify_component(path)
@@ -106,8 +106,7 @@ def _classify_component(path: str) -> str:
     lower = path.lower()
     if lower.endswith((".py", ".sh", ".bat", ".ps1")):
         return "file"
-    if lower.endswith((".safetensors", ".pt", ".pth", ".pkl",
-                       ".bin", ".gguf", ".onnx", ".h5")):
+    if lower.endswith((".safetensors", ".pt", ".pth", ".pkl", ".bin", ".gguf", ".onnx", ".h5")):
         return "data"
     if lower.endswith((".json", ".toml", ".yaml", ".yml")):
         return "file"
@@ -125,13 +124,16 @@ def _build_vulnerabilities(result: ScanResult) -> list:
             "id": finding.rule_id,
             "description": finding.message,
             "source": {"name": "hf-scanner", "url": ""},
-            "ratings": [{
-                "severity": finding.severity.value,
-                "method": "other",
-            }],
+            "ratings": [
+                {
+                    "severity": finding.severity.value,
+                    "method": "other",
+                }
+            ],
             "analysis": {
-                "state": "exploitable" if finding.severity.value in (
-                    "critical", "high") else "in_triage",
+                "state": "exploitable"
+                if finding.severity.value in ("critical", "high")
+                else "in_triage",
             },
         }
         if finding.cwe:

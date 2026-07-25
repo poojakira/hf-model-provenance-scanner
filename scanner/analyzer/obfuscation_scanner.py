@@ -160,45 +160,55 @@ def scan_unicode_obfuscation(file_path: str, source: str) -> list[Finding]:
                     confusable_found.append((char, CONFUSABLES[char]))
             if has_ascii and confusable_found:
                 char, (latin, script) = confusable_found[0]
-                confusable_lines.append((
-                    line_num, token,
-                    f"{script} '{char}' looks like Latin '{latin}'"
-                ))
+                confusable_lines.append(
+                    (line_num, token, f"{script} '{char}' looks like Latin '{latin}'")
+                )
 
         # Check for long Unicode escape sequences (potential payload hiding)
         if UNICODE_ESCAPE_RE.search(line):
-            findings.append(_make_finding(
-                "HFS-066", file_path,
-                f"Long Unicode escape sequence at line {line_num}: may hide payload",
-                line_num,
-            ))
+            findings.append(
+                _make_finding(
+                    "HFS-066",
+                    file_path,
+                    f"Long Unicode escape sequence at line {line_num}: may hide payload",
+                    line_num,
+                )
+            )
 
     # Emit consolidated findings
     if zero_width_lines:
-        findings.append(_make_finding(
-            "HFS-065", file_path,
-            f"Zero-width/invisible characters on {len(zero_width_lines)} lines: "
-            f"{zero_width_lines[:10]}",
-            zero_width_lines[0],
-        ))
+        findings.append(
+            _make_finding(
+                "HFS-065",
+                file_path,
+                f"Zero-width/invisible characters on {len(zero_width_lines)} lines: "
+                f"{zero_width_lines[:10]}",
+                zero_width_lines[0],
+            )
+        )
 
     if bidi_lines:
-        findings.append(_make_finding(
-            "HFS-064", file_path,
-            f"Bidirectional override characters on {len(bidi_lines)} lines: "
-            f"{bidi_lines[:10]}. Text display may be reversed to hide malicious code.",
-            bidi_lines[0],
-        ))
+        findings.append(
+            _make_finding(
+                "HFS-064",
+                file_path,
+                f"Bidirectional override characters on {len(bidi_lines)} lines: "
+                f"{bidi_lines[:10]}. Text display may be reversed to hide malicious code.",
+                bidi_lines[0],
+            )
+        )
 
     if confusable_lines:
         examples = confusable_lines[:3]
         evidence_parts = [f"L{ln}: '{tok}' ({desc})" for ln, tok, desc in examples]
-        findings.append(_make_finding(
-            "HFS-064", file_path,
-            f"Unicode confusable characters in identifiers: "
-            f"{'; '.join(evidence_parts)}",
-            confusable_lines[0][0],
-        ))
+        findings.append(
+            _make_finding(
+                "HFS-064",
+                file_path,
+                f"Unicode confusable characters in identifiers: " f"{'; '.join(evidence_parts)}",
+                confusable_lines[0][0],
+            )
+        )
 
     return findings
 
@@ -214,24 +224,32 @@ def scan_polyglot_header(file_path: str, data: bytes) -> list[Finding]:
 
     for sig1, sig2, description in POLYGLOT_SIGNATURES:
         if header.startswith(sig1) and sig2 in header:
-            findings.append(_make_finding(
-                "HFS-067", file_path,
-                f"Polyglot file detected: {description}. "
-                f"File is valid as multiple formats simultaneously."
-            ))
+            findings.append(
+                _make_finding(
+                    "HFS-067",
+                    file_path,
+                    f"Polyglot file detected: {description}. "
+                    f"File is valid as multiple formats simultaneously.",
+                )
+            )
 
     # Check for null bytes followed by script-like content
     # (indicates binary/text polyglot)
     if b"\x00" in header[:16] and (b"<script" in data[:4096] or b"eval(" in data[:4096]):
-        findings.append(_make_finding(
-            "HFS-067", file_path,
-            "Binary header with embedded script content — possible polyglot attack"
-        ))
+        findings.append(
+            _make_finding(
+                "HFS-067",
+                file_path,
+                "Binary header with embedded script content — possible polyglot attack",
+            )
+        )
 
     return findings
 
 
-def analyze_obfuscation(file_path: str, source: str, raw_data: Optional[bytes] = None) -> list[Finding]:
+def analyze_obfuscation(
+    file_path: str, source: str, raw_data: Optional[bytes] = None
+) -> list[Finding]:
     """
     Main entry point: run all obfuscation detection checks.
     """

@@ -30,7 +30,9 @@ class TestWebhookSecurityRejects(unittest.TestCase):
     def test_webhook_rejects_oversized_content_length_before_reading(self):
         with patch.dict(os.environ, {"WEBHOOK_SECRET": "secret"}, clear=True):
             status, result = webhook.process_webhook_request(
-                {"Content-Length": str(webhook.MAX_CONTENT_LENGTH + 1)}, io.BytesIO(b""), handler=lambda event: event
+                {"Content-Length": str(webhook.MAX_CONTENT_LENGTH + 1)},
+                io.BytesIO(b""),
+                handler=lambda event: event,
             )
         self.assertEqual(status, 413)
         self.assertEqual(result, {"error": "payload too large"})
@@ -58,7 +60,6 @@ class TestWebhookSecurityRejects(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(result, {"repo": "org/model"})
 
-
     def test_webhook_rejects_invalid_repo_id_without_scan(self):
         invalid_repo_ids = [
             "../etc/passwd",
@@ -69,8 +70,9 @@ class TestWebhookSecurityRejects(unittest.TestCase):
             123,
         ]
         for repo_id in invalid_repo_ids:
-            with self.subTest(repo_id=repo_id), patch.object(
-                webhook, "scan_repo", side_effect=AssertionError("scan_repo called")
+            with (
+                self.subTest(repo_id=repo_id),
+                patch.object(webhook, "scan_repo", side_effect=AssertionError("scan_repo called")),
             ):
                 result = webhook.handle_webhook({"repo": {"name": repo_id, "type": "model"}})
             self.assertEqual(result, {"status": "ignored", "reason": "invalid repo_id"})

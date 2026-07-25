@@ -43,6 +43,7 @@ def _get_cache_dir() -> str:
     # Fallback: ~/.cache/hf-scanner/ioc_cache
     return os.path.join(os.path.expanduser("~"), ".cache", "hf-scanner", "ioc_cache")
 
+
 CACHE_DIR = _get_cache_dir()
 DEFAULT_TTL_SECONDS = 3600  # 1 hour cache TTL
 MAX_FEED_SIZE = 5_000_000  # 5MB max per feed download
@@ -57,6 +58,7 @@ DEFAULT_FEED_URLS: list[str] = [
 @dataclass
 class IOCDatabase:
     """Merged IOC database from all sources."""
+
     domains: set[str] = field(default_factory=set)
     suspicious_tlds: set[str] = field(default_factory=set)
     dangerous_packages: set[str] = field(default_factory=set)
@@ -151,10 +153,13 @@ def fetch_remote_feed(url: str, timeout: int = 10) -> Optional[dict]:
 
     # Fetch from network
     try:
-        req = urllib.request.Request(url, headers={
-            "User-Agent": "hf-scanner/0.1.0 IOC-feed-client",
-            "Accept": "application/json",
-        })
+        req = urllib.request.Request(
+            url,
+            headers={
+                "User-Agent": "hf-scanner/0.1.0 IOC-feed-client",
+                "Accept": "application/json",
+            },
+        )
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             if int(resp.headers.get("Content-Length", 0)) > MAX_FEED_SIZE:
                 return _read_cached_feed(url)  # Fallback to cache
@@ -174,12 +179,12 @@ def build_ioc_database(
 ) -> IOCDatabase:
     """
     Build merged IOC database from local + remote sources.
-    
+
     Args:
         feed_urls: Optional list of remote feed URLs
         no_network: If True, only use local/cached data
         ttl: Cache TTL in seconds
-    
+
     Returns:
         Merged and deduplicated IOCDatabase
     """

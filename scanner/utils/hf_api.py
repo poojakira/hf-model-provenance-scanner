@@ -19,12 +19,14 @@ MAX_DOWNLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 MAX_RETRIES = 3
 BASE_RETRY_DELAY = 1.0
 
+
 # Token bucket rate limiter (per-client)
 class _TokenBucket:
     """Thread-safe token bucket rate limiter."""
+
     def __init__(self, rate: float, burst: int):
-        self.rate = rate      # tokens per second
-        self.burst = burst    # max tokens
+        self.rate = rate  # tokens per second
+        self.burst = burst  # max tokens
         self.tokens = float(burst)
         self.last_refill = time.monotonic()
         self.lock = threading.Lock()
@@ -104,8 +106,7 @@ class HFApiClient:
                     if max_bytes:
                         data = resp.read(max_bytes + 1)
                         if len(data) > max_bytes:
-                            raise ValueError(
-                                f"File exceeds {max_bytes // (1024*1024)}MB limit")
+                            raise ValueError(f"File exceeds {max_bytes // (1024*1024)}MB limit")
                     else:
                         data = resp.read()
 
@@ -124,7 +125,7 @@ class HFApiClient:
                     raise
                 if attempt < MAX_RETRIES - 1:
                     # Exponential backoff with jitter
-                    delay = BASE_RETRY_DELAY * (2 ** attempt) + random.uniform(0, 0.5)
+                    delay = BASE_RETRY_DELAY * (2**attempt) + random.uniform(0, 0.5)
                     if e.code == 429:
                         # Respect Retry-After header if present
                         retry_after = e.headers.get("Retry-After")
@@ -135,7 +136,7 @@ class HFApiClient:
             except (urllib.error.URLError, OSError) as e:
                 last_error = e
                 if attempt < MAX_RETRIES - 1:
-                    delay = BASE_RETRY_DELAY * (2 ** attempt) + random.uniform(0, 0.5)
+                    delay = BASE_RETRY_DELAY * (2**attempt) + random.uniform(0, 0.5)
                     time.sleep(delay)
 
         raise RuntimeError(f"Request failed after {MAX_RETRIES} retries: {last_error}")

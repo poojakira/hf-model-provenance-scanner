@@ -19,9 +19,9 @@ def levenshtein(a: str, b: str) -> int:
         for j in range(1, n + 1):
             cost = 0 if a[i - 1] == b[j - 1] else 1
             curr[j] = min(
-                prev[j] + 1,       # deletion
-                curr[j - 1] + 1,   # insertion
-                prev[j - 1] + cost  # substitution
+                prev[j] + 1,  # deletion
+                curr[j - 1] + 1,  # insertion
+                prev[j - 1] + cost,  # substitution
             )
         prev, curr = curr, prev
     return prev[n]
@@ -32,8 +32,8 @@ def token_cosine_similarity(text_a: str, text_b: str) -> float:
 
     Tokenizes using lowercase alphanumeric sequences.
     """
-    tokens_a = re.findall(r'[a-z0-9]+', text_a.lower())
-    tokens_b = re.findall(r'[a-z0-9]+', text_b.lower())
+    tokens_a = re.findall(r"[a-z0-9]+", text_a.lower())
+    tokens_b = re.findall(r"[a-z0-9]+", text_b.lower())
     if not tokens_a or not tokens_b:
         return 0.0
     counter_a = Counter(tokens_a)

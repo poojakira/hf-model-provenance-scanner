@@ -20,23 +20,32 @@ def format_html(result: ScanResult) -> str:
     findings_rows = []
     for f in result.findings:
         color = _severity_color(f.severity)
-        evidence_escaped = (f.evidence or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        message_escaped = (f.message or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        file_escaped = (f.file_path or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        evidence_escaped = (
+            (f.evidence or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        )
+        message_escaped = (
+            (f.message or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        )
+        file_escaped = (
+            (f.file_path or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        )
         findings_rows.append(
-            f'<tr>'
+            f"<tr>"
             f'<td><span style="color:{color};font-weight:bold">{f.severity.value.upper()}</span></td>'
-            f'<td><code>{f.rule_id}</code></td>'
-            f'<td>{file_escaped}:{f.line_number}</td>'
-            f'<td>{message_escaped}</td>'
-            f'<td><small>{evidence_escaped}</small></td>'
-            f'</tr>'
+            f"<td><code>{f.rule_id}</code></td>"
+            f"<td>{file_escaped}:{f.line_number}</td>"
+            f"<td>{message_escaped}</td>"
+            f"<td><small>{evidence_escaped}</small></td>"
+            f"</tr>"
         )
 
     risk_color = _severity_color(
-        Severity.CRITICAL if result.risk.score >= 70
-        else Severity.HIGH if result.risk.score >= 40
-        else Severity.MEDIUM if result.risk.score >= 20
+        Severity.CRITICAL
+        if result.risk.score >= 70
+        else Severity.HIGH
+        if result.risk.score >= 40
+        else Severity.MEDIUM
+        if result.risk.score >= 20
         else Severity.LOW
     )
 
