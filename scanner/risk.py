@@ -12,8 +12,13 @@ SEVERITY_POINTS = {
 
 # Rules that indicate high-signal active threats get bonus points
 HIGH_SIGNAL_RULES = {
-    "HFS-001", "HFS-003", "HFS-004", "HFS-005", "HFS-006",
-    "HFS-036", "HFS-038",
+    "HFS-001",
+    "HFS-003",
+    "HFS-004",
+    "HFS-005",
+    "HFS-006",
+    "HFS-036",
+    "HFS-038",
 }
 HIGH_SIGNAL_BONUS = 10
 

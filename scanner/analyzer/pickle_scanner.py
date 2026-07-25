@@ -25,25 +25,25 @@ from scanner.rules.definitions import get_rule
 PICKLE_MAGIC = b"\x80"  # Protocol header (protocol 2+)
 
 # Opcodes that can invoke arbitrary callables
-OP_REDUCE = b"R"        # Apply callable to args tuple on stack
-OP_INST = b"i"          # Instantiate class (protocol 0)
-OP_OBJ = b"o"           # Build object (protocol 1)
-OP_NEWOBJ = b"\x81"     # type.__new__(type, *args) (protocol 2)
+OP_REDUCE = b"R"  # Apply callable to args tuple on stack
+OP_INST = b"i"  # Instantiate class (protocol 0)
+OP_OBJ = b"o"  # Build object (protocol 1)
+OP_NEWOBJ = b"\x81"  # type.__new__(type, *args) (protocol 2)
 OP_NEWOBJ_EX = b"\x92"  # type.__new__(type, *args, **kwargs) (protocol 4)
 OP_STACK_GLOBAL = b"\x93"  # Push global from stack-based module.name (protocol 4)
-OP_BUILD = b"b"         # obj.__setstate__(state) - can trigger code via __reduce__
+OP_BUILD = b"b"  # obj.__setstate__(state) - can trigger code via __reduce__
 
 # Additional dangerous opcodes for PickleScan bypasses
 OP_REDUCE_EX = b"\x9a"  # __reduce_ex__ protocol 5 (protocol 5+)
-OP_PERSID = b"P"        # PERSID - persistent ID (can invoke arbitrary code)
+OP_PERSID = b"P"  # PERSID - persistent ID (can invoke arbitrary code)
 
 # Opcodes that load globals (modules/functions) by name
-OP_GLOBAL = b"c"        # Push module.name global (protocol 0)
+OP_GLOBAL = b"c"  # Push module.name global (protocol 0)
 OP_SHORT_BINUNICODE = b"\x8c"  # Short binary unicode string
-OP_BINUNICODE = b"X"    # Binary unicode string
+OP_BINUNICODE = b"X"  # Binary unicode string
 
 # Copyreg opcodes
-OP_COPYREG = b"\x9c"    # EXT4 - used for copyreg dispatch table
+OP_COPYREG = b"\x9c"  # EXT4 - used for copyreg dispatch table
 
 # Stop opcode
 OP_STOP = b"."
@@ -51,51 +51,105 @@ OP_STOP = b"."
 # Dangerous modules/functions that should NEVER appear in model files
 CRITICAL_CALLABLES = {
     # Direct code execution
-    "os.system", "os.popen", "os.exec", "os.execl", "os.execle",
-    "os.execlp", "os.execv", "os.execve", "os.execvp", "os.execvpe",
-    "os.spawn", "os.spawnl", "os.spawnle", "os.spawnlp",
-    "posix.system", "nt.system",
-    "subprocess.call", "subprocess.check_call", "subprocess.check_output",
-    "subprocess.Popen", "subprocess.run",
-    "builtins.exec", "builtins.eval", "builtins.compile",
-    "__builtin__.exec", "__builtin__.eval",
-    "runpy.run_module", "runpy.run_path",
+    "os.system",
+    "os.popen",
+    "os.exec",
+    "os.execl",
+    "os.execle",
+    "os.execlp",
+    "os.execv",
+    "os.execve",
+    "os.execvp",
+    "os.execvpe",
+    "os.spawn",
+    "os.spawnl",
+    "os.spawnle",
+    "os.spawnlp",
+    "posix.system",
+    "nt.system",
+    "subprocess.call",
+    "subprocess.check_call",
+    "subprocess.check_output",
+    "subprocess.Popen",
+    "subprocess.run",
+    "builtins.exec",
+    "builtins.eval",
+    "builtins.compile",
+    "__builtin__.exec",
+    "__builtin__.eval",
+    "runpy.run_module",
+    "runpy.run_path",
     # Import manipulation
-    "builtins.__import__", "__builtin__.__import__",
-    "importlib.import_module", "importlib.__import__",
+    "builtins.__import__",
+    "__builtin__.__import__",
+    "importlib.import_module",
+    "importlib.__import__",
     # Pickle-specific exploitation gadgets
-    "pickle.loads", "pickle.load",
-    "_pickle.loads", "_pickle.load",
+    "pickle.loads",
+    "pickle.load",
+    "_pickle.loads",
+    "_pickle.load",
     "copyreg._reconstructor",
     # Network access
-    "urllib.request.urlopen", "urllib.request.urlretrieve",
-    "http.client.HTTPConnection", "http.client.HTTPSConnection",
-    "socket.socket", "socket.create_connection",
+    "urllib.request.urlopen",
+    "urllib.request.urlretrieve",
+    "http.client.HTTPConnection",
+    "http.client.HTTPSConnection",
+    "socket.socket",
+    "socket.create_connection",
     "webbrowser.open",
-    "requests.api.get", "requests.api.post", "requests.get", "requests.post",
-    "requests.put", "requests.delete", "requests.request",
+    "requests.api.get",
+    "requests.api.post",
+    "requests.get",
+    "requests.post",
+    "requests.put",
+    "requests.delete",
+    "requests.request",
     # File system manipulation
-    "shutil.rmtree", "shutil.move", "shutil.copy",
-    "os.remove", "os.unlink", "os.rmdir", "os.makedirs",
-    "os.rename", "os.chmod", "os.chown",
-    "io.open", "builtins.open", "__builtin__.open",
+    "shutil.rmtree",
+    "shutil.move",
+    "shutil.copy",
+    "os.remove",
+    "os.unlink",
+    "os.rmdir",
+    "os.makedirs",
+    "os.rename",
+    "os.chmod",
+    "os.chown",
+    "io.open",
+    "builtins.open",
+    "__builtin__.open",
     # ctypes / code loading
-    "ctypes.cdll.LoadLibrary", "ctypes.CDLL",
-    "ctypes.WinDLL", "ctypes.windll",
-# Expanded long-tail gadgets (added after benchmarking)
-    "runpy._run_code", "timeit.timeit", "pydoc.locate",
-    "lib2to3.pgen2.grammar.Grammar.loads", "pty.spawn",
+    "ctypes.cdll.LoadLibrary",
+    "ctypes.CDLL",
+    "ctypes.WinDLL",
+    "ctypes.windll",
+    # Expanded long-tail gadgets (added after benchmarking)
+    "runpy._run_code",
+    "timeit.timeit",
+    "pydoc.locate",
+    "lib2to3.pgen2.grammar.Grammar.loads",
+    "pty.spawn",
     "operator.methodcaller",
-    "functools.partial", "types.CodeType", "marshal.loads",
-    "dill.loads", "joblib.load", "cloudpickle.loads",
-    "torch.utils.collect_env.run", "torch.jit.unsupported_tensor_ops.execWrapper",
+    "functools.partial",
+    "types.CodeType",
+    "marshal.loads",
+    "dill.loads",
+    "joblib.load",
+    "cloudpickle.loads",
+    "torch.utils.collect_env.run",
+    "torch.jit.unsupported_tensor_ops.execWrapper",
     "torch.utils.bottleneck.__main__.run_cprofile",
     # Profile/cProfile - can be used for code execution
-    "profile.Profile.run", "cProfile.Profile.run",
-    "profile.Profile.runcall", "cProfile.Profile.runcall",
-    "profile.run", "cProfile.run",
+    "profile.Profile.run",
+    "cProfile.Profile.run",
+    "profile.Profile.runcall",
+    "cProfile.Profile.runcall",
+    "profile.run",
+    "cProfile.run",
     # trace module - can execute code
-    "trace.Trace.run", "trace.Trace.runctx",
+    "trace.Trace.run",
+    "trace.Trace.runctx",
     # Idlelib (Python shell) - CVE-2024-34064 fix
     "idlelib.pyshell.ModifiedInterpreter.runcode",
 }
@@ -131,15 +185,26 @@ SAFE_ALLOWLIST = {
     "torch._utils._rebuild_parameter",
     "torch._utils._rebuild_parameter_with_state",
     "torch.storage._load_from_bytes",
-    "torch.FloatStorage", "torch.LongStorage", "torch.IntStorage",
-    "torch.DoubleStorage", "torch.HalfStorage", "torch.BFloat16Storage",
-    "torch.ShortStorage", "torch.CharStorage", "torch.ByteStorage",
-    "torch.BoolStorage", "torch.ComplexFloatStorage", "torch.ComplexDoubleStorage",
-    "torch.storage.TypedStorage", "torch.storage.UntypedStorage",
-    "torch._C.HalfStorageBase", "torch._C.FloatStorageBase",
+    "torch.FloatStorage",
+    "torch.LongStorage",
+    "torch.IntStorage",
+    "torch.DoubleStorage",
+    "torch.HalfStorage",
+    "torch.BFloat16Storage",
+    "torch.ShortStorage",
+    "torch.CharStorage",
+    "torch.ByteStorage",
+    "torch.BoolStorage",
+    "torch.ComplexFloatStorage",
+    "torch.ComplexDoubleStorage",
+    "torch.storage.TypedStorage",
+    "torch.storage.UntypedStorage",
+    "torch._C.HalfStorageBase",
+    "torch._C.FloatStorageBase",
     "collections.OrderedDict",
     "numpy.core.multiarray._reconstruct",
-    "numpy.ndarray", "numpy.dtype",
+    "numpy.ndarray",
+    "numpy.dtype",
     "_codecs.encode",
 }
 
@@ -161,7 +226,7 @@ def _make_finding(rule_id: str, file_path: str, evidence: str) -> Finding:
 
 def _read_string_nl(data: bytes, pos: int) -> tuple[str, int]:
     """Read a newline-terminated string (protocol 0 GLOBAL/INST).
-    
+
     Handles both \n and \r\n line endings for CRLF evasion fix.
     """
     end = data.index(b"\n", pos)
@@ -195,7 +260,7 @@ def _read_uint8(data: bytes, pos: int) -> tuple[int, int]:
 class PickleScanner:
     """
     Zero-execution pickle bytecode scanner.
-    
+
     Parses opcodes sequentially, tracking the string stack to identify
     what functions are being called via REDUCE/INST/OBJ/NEWOBJ.
     """
@@ -229,10 +294,13 @@ class PickleScanner:
             # Intentionally corrupted pickle — this itself is suspicious
             # (PickleScan bypass: malware executes before full deserialization)
             if self.globals_found:
-                self.findings.append(_make_finding(
-                    "HFS-052", self.file_path,
-                    f"Corrupted pickle with {len(self.globals_found)} globals parsed before error: {self.globals_found[:5]}"
-                ))
+                self.findings.append(
+                    _make_finding(
+                        "HFS-052",
+                        self.file_path,
+                        f"Corrupted pickle with {len(self.globals_found)} globals parsed before error: {self.globals_found[:5]}",
+                    )
+                )
 
         # Post-scan analysis
         self._analyze_globals()
@@ -249,7 +317,7 @@ class PickleScanner:
             if self.pos >= length:
                 break
 
-            op = data[self.pos:self.pos + 1]
+            op = data[self.pos : self.pos + 1]
             self.pos += 1
 
             if op == OP_STOP:
@@ -282,25 +350,31 @@ class PickleScanner:
                 # "\x9a" opcode: protocol 5 __reduce_ex__ - calls __reduce_ex__(protocol)
                 # This is a PickleScan bypass - allows different reduction logic per protocol
                 self.reduces_found += 1
-                self.findings.append(_make_finding(
-                    "HFS-052", self.file_path,
-                    "Protocol 5 __reduce_ex__ opcode (OP_REDUCE_EX) detected — PickleScan bypass technique"
-                ))
+                self.findings.append(
+                    _make_finding(
+                        "HFS-052",
+                        self.file_path,
+                        "Protocol 5 __reduce_ex__ opcode (OP_REDUCE_EX) detected — PickleScan bypass technique",
+                    )
+                )
             elif op == OP_PERSID:
                 # "P" opcode: PERSID - persistent ID reference
                 # Can invoke arbitrary persistent_load function
                 self.reduces_found += 1
-                self.findings.append(_make_finding(
-                    "HFS-052", self.file_path,
-                    "PERSID opcode detected — persistent_load bypass technique"
-                ))
+                self.findings.append(
+                    _make_finding(
+                        "HFS-052",
+                        self.file_path,
+                        "PERSID opcode detected — persistent_load bypass technique",
+                    )
+                )
             elif op == OP_BUILD:
                 # BUILD can trigger __setstate__ which is exploitable
                 self.reduces_found += 1
             elif op == OP_SHORT_BINUNICODE:
                 # "\x8c" opcode: 1-byte length + string
                 str_len, self.pos = _read_uint1(data, self.pos)
-                s = data[self.pos:self.pos + str_len].decode("utf-8", errors="replace")
+                s = data[self.pos : self.pos + str_len].decode("utf-8", errors="replace")
                 self.pos += str_len
                 self.string_stack.append(s)
             elif op == OP_BINUNICODE:
@@ -308,7 +382,7 @@ class PickleScanner:
                 str_len, self.pos = _read_uint4(data, self.pos)
                 if str_len > 10_000_000:  # Safety limit
                     break
-                s = data[self.pos:self.pos + str_len].decode("utf-8", errors="replace")
+                s = data[self.pos : self.pos + str_len].decode("utf-8", errors="replace")
                 self.pos += str_len
                 self.string_stack.append(s)
             elif op == b"S":
@@ -383,10 +457,13 @@ class PickleScanner:
             elif op == b"\x9c":
                 # EXT4 - used for copyreg dispatch_table manipulation
                 # This is a PickleScan bypass technique
-                self.findings.append(_make_finding(
-                    "HFS-052", self.file_path,
-                    "EXT4/COPYREG opcode detected — copyreg dispatch_table manipulation bypass"
-                ))
+                self.findings.append(
+                    _make_finding(
+                        "HFS-052",
+                        self.file_path,
+                        "EXT4/COPYREG opcode detected — copyreg dispatch_table manipulation bypass",
+                    )
+                )
             elif op == b"p":
                 # PUT (protocol 0)
                 _, self.pos = _read_string_nl(data, self.pos)
@@ -405,9 +482,27 @@ class PickleScanner:
             elif op == b"j":
                 # LONG_BINGET (4-byte index)
                 self.pos += 4
-            elif op in (b"(", b")", b"l", b"d", b"t", b"}", b"]",
-                        b"\x85", b"\x86", b"\x87", b"\x90", b"\x91",
-                        b"0", b"1", b"2", b"a", b"e", b"s", b"u"):
+            elif op in (
+                b"(",
+                b")",
+                b"l",
+                b"d",
+                b"t",
+                b"}",
+                b"]",
+                b"\x85",
+                b"\x86",
+                b"\x87",
+                b"\x90",
+                b"\x91",
+                b"0",
+                b"1",
+                b"2",
+                b"a",
+                b"e",
+                b"s",
+                b"u",
+            ):
                 # Stack manipulation and collection opcodes — no payload
                 pass
             elif op == b"I":
@@ -441,33 +536,52 @@ class PickleScanner:
 
             # Check critical callables
             if normalized in CRITICAL_CALLABLES:
-                self.findings.append(_make_finding(
-                    "HFS-050", self.file_path,
-                    f"CRITICAL callable in pickle: {normalized}"
-                ))
-            elif any(normalized.startswith(prefix) for prefix in (
-                "os.", "subprocess.", "builtins.", "__builtin__.",
-                "nt.", "posix.", "ctypes.", "shutil.", "webbrowser.",
-                "runpy.", "importlib.",
-            )):
+                self.findings.append(
+                    _make_finding(
+                        "HFS-050", self.file_path, f"CRITICAL callable in pickle: {normalized}"
+                    )
+                )
+            elif any(
+                normalized.startswith(prefix)
+                for prefix in (
+                    "os.",
+                    "subprocess.",
+                    "builtins.",
+                    "__builtin__.",
+                    "nt.",
+                    "posix.",
+                    "ctypes.",
+                    "shutil.",
+                    "webbrowser.",
+                    "runpy.",
+                    "importlib.",
+                )
+            ):
                 # Broader check — anything in these modules is suspicious
                 if normalized not in SAFE_ALLOWLIST:
-                    self.findings.append(_make_finding(
-                        "HFS-050", self.file_path,
-                        f"Dangerous module access in pickle: {normalized}"
-                    ))
+                    self.findings.append(
+                        _make_finding(
+                            "HFS-050",
+                            self.file_path,
+                            f"Dangerous module access in pickle: {normalized}",
+                        )
+                    )
             elif normalized in SUSPICIOUS_CALLABLES and normalized not in SAFE_ALLOWLIST:
-                self.findings.append(_make_finding(
-                    "HFS-051", self.file_path,
-                    f"Suspicious callable in pickle: {normalized}"
-                ))
+                self.findings.append(
+                    _make_finding(
+                        "HFS-051", self.file_path, f"Suspicious callable in pickle: {normalized}"
+                    )
+                )
             # Check for bypass patterns in global names
             for pattern in BYPASS_PATTERNS:
                 if pattern in normalized:
-                    self.findings.append(_make_finding(
-                        "HFS-052", self.file_path,
-                        f"Known PickleScan bypass pattern: {pattern} in {normalized}"
-                    ))
+                    self.findings.append(
+                        _make_finding(
+                            "HFS-052",
+                            self.file_path,
+                            f"Known PickleScan bypass pattern: {pattern} in {normalized}",
+                        )
+                    )
 
     def _check_reduce_count(self):
         """Flag excessive REDUCE operations (indicator of gadget chains)."""
@@ -479,10 +593,13 @@ class PickleScanner:
             pass
         elif self.reduces_found > 100 and not self.globals_found:
             # Many REDUCEs but no parseable globals — possibly obfuscated
-            self.findings.append(_make_finding(
-                "HFS-051", self.file_path,
-                f"{self.reduces_found} REDUCE ops with no recognizable globals — possible obfuscation"
-            ))
+            self.findings.append(
+                _make_finding(
+                    "HFS-051",
+                    self.file_path,
+                    f"{self.reduces_found} REDUCE ops with no recognizable globals — possible obfuscation",
+                )
+            )
 
 
 def is_pickle_file(file_path: str | Path) -> bool:
@@ -503,28 +620,28 @@ def is_pickle_file(file_path: str | Path) -> bool:
             header = f.read(2)
     except (OSError, PermissionError):
         return False
-    
+
     # Check for pickle magic bytes
     if any(header == magic or header[:1] == magic for magic in pickle_magic):
         return True
-    
+
     # Check for ZIP files that may contain pickle data (e.g., PyTorch .pt files)
     # ZIP files start with PK (0x50 0x4B)
     if header == b"PK":
         return True
-    
+
     return False
 
 
 def scan_pickle_bytes(file_path: str, data: bytes) -> list[Finding]:
     """
     Scan raw bytes of a pickle file for malicious opcodes.
-    
+
     Handles:
     - Standard pickle files
     - PyTorch files (ZIP containing data.pkl)
     - Concatenated pickles (multiple STOP opcodes)
-    
+
     CVE-2025-10155: File extension mismatch detection
     CVE-2025-10156: ZIP CRC bypass detection
     """
@@ -532,13 +649,18 @@ def scan_pickle_bytes(file_path: str, data: bytes) -> list[Finding]:
 
     # CVE-2025-10155: File extension mismatch - pickle content with non-pickle extension
     lower_path = file_path.lower()
-    if not (lower_path.endswith((".pkl", ".pickle", ".pt", ".pth", ".bin", ".ckpt", ".joblib", ".zip"))):
+    if not (
+        lower_path.endswith((".pkl", ".pickle", ".pt", ".pth", ".bin", ".ckpt", ".joblib", ".zip"))
+    ):
         # Check if it's actually a pickle file despite the extension
         if data[:1] == PICKLE_MAGIC or _looks_like_pickle(data):
-            findings.append(_make_finding(
-                "HFS-052", file_path,
-                f"CVE-2025-10155: File extension mismatch - {file_path} has pickle content but non-pickle extension"
-            ))
+            findings.append(
+                _make_finding(
+                    "HFS-052",
+                    file_path,
+                    f"CVE-2025-10155: File extension mismatch - {file_path} has pickle content but non-pickle extension",
+                )
+            )
 
     # Check if it's a ZIP file (PyTorch .pt format)
     if data[:2] == b"PK":
@@ -570,6 +692,7 @@ def _looks_like_pickle(data: bytes) -> bool:
 def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
     """Extract and scan pickle entries from PyTorch ZIP archives."""
     import zipfile
+
     findings: list[Finding] = []
 
     try:
@@ -577,15 +700,22 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
             for name in zf.namelist():
                 lower_name = name.lower()
                 # CVE-2025-10155: File extension mismatch - .bin with pickle content
-                if lower_name.endswith(".bin") or lower_name.endswith(".pth") or lower_name.endswith(".pt"):
+                if (
+                    lower_name.endswith(".bin")
+                    or lower_name.endswith(".pth")
+                    or lower_name.endswith(".pt")
+                ):
                     # Check if it's actually a pickle file
                     try:
                         entry_data = zf.read(name)
                         if entry_data[:1] == PICKLE_MAGIC or _looks_like_pickle(entry_data):
-                            findings.append(_make_finding(
-                                "HFS-052", file_path,
-                                f"CVE-2025-10155: File extension mismatch - {name} has pickle content but non-pickle extension"
-                            ))
+                            findings.append(
+                                _make_finding(
+                                    "HFS-052",
+                                    file_path,
+                                    f"CVE-2025-10155: File extension mismatch - {name} has pickle content but non-pickle extension",
+                                )
+                            )
                     except Exception:
                         pass
 
@@ -595,15 +725,21 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
                     # Check if there's a CRC mismatch by trying to read
                     try:
                         entry_data = zf.read(name)
-                        findings.append(_make_finding(
-                            "HFS-052", file_path,
-                            f"CVE-2025-10156: ZIP entry {name} has CRC=0 but readable data ({len(entry_data)} bytes) — CRC bypass"
-                        ))
+                        findings.append(
+                            _make_finding(
+                                "HFS-052",
+                                file_path,
+                                f"CVE-2025-10156: ZIP entry {name} has CRC=0 but readable data ({len(entry_data)} bytes) — CRC bypass",
+                            )
+                        )
                     except zipfile.BadZipFile:
-                        findings.append(_make_finding(
-                            "HFS-052", file_path,
-                            f"CVE-2025-10156: ZIP entry {name} has CRC mismatch — PickleScan bypass"
-                        ))
+                        findings.append(
+                            _make_finding(
+                                "HFS-052",
+                                file_path,
+                                f"CVE-2025-10156: ZIP entry {name} has CRC mismatch — PickleScan bypass",
+                            )
+                        )
                     except Exception:
                         pass
 
@@ -631,6 +767,11 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
 
 def analyze_pickle_file(file_path: str, data: bytes) -> list[Finding]:
     """Public API: scan a binary file for pickle deserialization attacks."""
-    if not (is_pickle_file(file_path) or data[:1] == PICKLE_MAGIC or _looks_like_pickle(data) or data[:2] == b"PK"):
+    if not (
+        is_pickle_file(file_path)
+        or data[:1] == PICKLE_MAGIC
+        or _looks_like_pickle(data)
+        or data[:2] == b"PK"
+    ):
         return []
     return scan_pickle_bytes(file_path, data)

@@ -4,8 +4,8 @@ import os
 import tempfile
 import unittest
 from contextlib import redirect_stdout
-from unittest.mock import patch
 from pathlib import Path
+from unittest.mock import patch
 
 from scanner import cli
 
@@ -29,7 +29,9 @@ class FakeClient:
 
     def download_file(self, repo_id, filename):
         if filename == "loader.py":
-            path = os.path.join(os.path.dirname(__file__), "fixtures", "malicious", "privacy_filter_loader.py")
+            path = os.path.join(
+                os.path.dirname(__file__), "fixtures", "malicious", "privacy_filter_loader.py"
+            )
             with open(path, "rb") as f:
                 return f.read()
         return self.card.encode("utf-8")
@@ -46,14 +48,26 @@ class TestCli(unittest.TestCase):
         self.assertEqual(code, 1)
 
     def test_local_fail_on_never_returns_0(self):
-        code = cli.main([str(MALICIOUS_FIXTURE), "--mode", "local", "--quiet", "--fail-on", "never"])
+        code = cli.main(
+            [str(MALICIOUS_FIXTURE), "--mode", "local", "--quiet", "--fail-on", "never"]
+        )
         self.assertEqual(code, 0)
 
     @patch("scanner.cli.HFApiClient", FakeClient)
     def test_remote_privacy_filter_pattern_scans_files_and_policy(self):
         stdout = io.StringIO()
         with redirect_stdout(stdout):
-            code = cli.main(["Open-OSS/privacy-filter", "--mode", "remote", "--format", "json", "--fail-on", "never"])
+            code = cli.main(
+                [
+                    "Open-OSS/privacy-filter",
+                    "--mode",
+                    "remote",
+                    "--format",
+                    "json",
+                    "--fail-on",
+                    "never",
+                ]
+            )
         self.assertEqual(code, 0)
         report = json.loads(stdout.getvalue())
         rule_ids = {finding["rule_id"] for finding in report["findings"]}
@@ -73,19 +87,41 @@ class TestCli(unittest.TestCase):
         try:
             stdout = io.StringIO()
             with redirect_stdout(stdout):
-                code = cli.main(["Open-OSS/privacy-filter", "--mode", "remote", "--format", "json", "--fail-on", "never", "--config", config_path])
+                code = cli.main(
+                    [
+                        "Open-OSS/privacy-filter",
+                        "--mode",
+                        "remote",
+                        "--format",
+                        "json",
+                        "--fail-on",
+                        "never",
+                        "--config",
+                        config_path,
+                    ]
+                )
             self.assertEqual(code, 0)
             report = json.loads(stdout.getvalue())
             self.assertIn("HFS-034", {finding["rule_id"] for finding in report["findings"]})
         finally:
             os.unlink(config_path)
 
-
     def test_runtime_policy_output(self):
         with tempfile.NamedTemporaryFile("r", encoding="utf-8", suffix=".json", delete=False) as f:
             policy_path = f.name
         try:
-            code = cli.main([str(BENIGN_FIXTURE), "--mode", "local", "--quiet", "--fail-on", "never", "--runtime-policy", policy_path])
+            code = cli.main(
+                [
+                    str(BENIGN_FIXTURE),
+                    "--mode",
+                    "local",
+                    "--quiet",
+                    "--fail-on",
+                    "never",
+                    "--runtime-policy",
+                    policy_path,
+                ]
+            )
             self.assertEqual(code, 0)
             with open(policy_path, "r", encoding="utf-8") as f:
                 policy = json.load(f)
@@ -99,7 +135,19 @@ class TestCli(unittest.TestCase):
         with tempfile.NamedTemporaryFile("r", encoding="utf-8", suffix=".html", delete=False) as f:
             report_path = f.name
         try:
-            code = cli.main([str(MALICIOUS_FIXTURE), "--mode", "local", "--format", "html", "--output", report_path, "--fail-on", "never"])
+            code = cli.main(
+                [
+                    str(MALICIOUS_FIXTURE),
+                    "--mode",
+                    "local",
+                    "--format",
+                    "html",
+                    "--output",
+                    report_path,
+                    "--fail-on",
+                    "never",
+                ]
+            )
             self.assertEqual(code, 0)
             with open(report_path, "r", encoding="utf-8") as f:
                 report = f.read()
@@ -109,7 +157,6 @@ class TestCli(unittest.TestCase):
         finally:
             os.unlink(report_path)
 
+
 if __name__ == "__main__":
     unittest.main()
-
-

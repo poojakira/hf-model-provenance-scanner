@@ -2,6 +2,7 @@
 Tests for the SafeTensors format validator.
 Verifies detection of metadata injection, oversized headers, and malformed files.
 """
+
 import json
 import os
 import struct
@@ -35,10 +36,10 @@ class TestSafeTensorsSafe(unittest.TestCase):
         data = _load_fixture("safe_model.safetensors")
         findings = analyze_safetensors_file("safe.safetensors", data)
         # Should have zero critical/high findings
-        critical_high = [f for f in findings
-                         if f.rule_id in ("HFS-053", "HFS-054", "HFS-055")]
-        self.assertEqual(len(critical_high), 0,
-                         f"Clean file should not trigger findings, got: {critical_high}")
+        critical_high = [f for f in findings if f.rule_id in ("HFS-053", "HFS-054", "HFS-055")]
+        self.assertEqual(
+            len(critical_high), 0, f"Clean file should not trigger findings, got: {critical_high}"
+        )
 
 
 class TestSafeTensorsMaliciousMetadata(unittest.TestCase):
@@ -47,16 +48,14 @@ class TestSafeTensorsMaliciousMetadata(unittest.TestCase):
         data = _load_fixture("malicious_metadata.safetensors")
         findings = analyze_safetensors_file("evil.safetensors", data)
         rule_ids = [f.rule_id for f in findings]
-        self.assertIn("HFS-053", rule_ids,
-                      "Should detect URL injection in metadata")
+        self.assertIn("HFS-053", rule_ids, "Should detect URL injection in metadata")
 
     def test_eval_in_metadata(self):
         """Detect eval() patterns in metadata."""
         data = _load_fixture("malicious_metadata.safetensors")
         findings = analyze_safetensors_file("evil.safetensors", data)
         # The fixture has both URL and eval pattern
-        self.assertTrue(len(findings) >= 1,
-                        "Should detect at least one suspicious pattern")
+        self.assertTrue(len(findings) >= 1, "Should detect at least one suspicious pattern")
 
 
 class TestSafeTensorsOversizedHeader(unittest.TestCase):
@@ -65,8 +64,7 @@ class TestSafeTensorsOversizedHeader(unittest.TestCase):
         data = _load_fixture("oversized_header.safetensors")
         findings = analyze_safetensors_file("big.safetensors", data)
         rule_ids = [f.rule_id for f in findings]
-        self.assertIn("HFS-054", rule_ids,
-                      "Should detect oversized metadata value")
+        self.assertIn("HFS-054", rule_ids, "Should detect oversized metadata value")
 
 
 class TestSafeTensorsMalformed(unittest.TestCase):
@@ -75,8 +73,7 @@ class TestSafeTensorsMalformed(unittest.TestCase):
         data = _load_fixture("malformed.safetensors")
         findings = analyze_safetensors_file("bad.safetensors", data)
         rule_ids = [f.rule_id for f in findings]
-        self.assertIn("HFS-055", rule_ids,
-                      "Should detect header size exceeding file data")
+        self.assertIn("HFS-055", rule_ids, "Should detect header size exceeding file data")
 
     def test_too_small_file(self):
         """File smaller than 8 bytes is invalid."""

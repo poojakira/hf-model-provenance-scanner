@@ -27,9 +27,20 @@ MAX_RESOLVED_LENGTH = 10_000
 MAX_ITER = 1_000
 
 
-
-DANGEROUS_STRINGS = {"os", "subprocess", "system", "popen", "exec", "eval",
-    "compile", "__import__", "builtins", "ctypes", "powershell", "cmd.exe"}
+DANGEROUS_STRINGS = {
+    "os",
+    "subprocess",
+    "system",
+    "popen",
+    "exec",
+    "eval",
+    "compile",
+    "__import__",
+    "builtins",
+    "ctypes",
+    "powershell",
+    "cmd.exe",
+}
 
 DANGEROUS_PATTERNS = [
     re.compile(r"os\.system|subprocess\.\w+", re.IGNORECASE),
@@ -41,8 +52,17 @@ DANGEROUS_PATTERNS = [
 
 def _make_finding(rule_id, file_path, line, evidence):
     rule = get_rule(rule_id)
-    return Finding(rule_id, rule.severity, file_path, line, 0,
-                   rule.description, evidence[:300], rule.remediation, rule.cwe)
+    return Finding(
+        rule_id,
+        rule.severity,
+        file_path,
+        line,
+        0,
+        rule.description,
+        evidence[:300],
+        rule.remediation,
+        rule.cwe,
+    )
 
 
 def _resolve_node(node):
@@ -85,15 +105,25 @@ def resolve_strings_in_source(file_path, source):
         if isinstance(node, ast.Assign):
             resolved = _resolve_node(node.value)
             if resolved and _is_suspicious(resolved):
-                findings.append(_make_finding("HFS-071", file_path,
-                    getattr(node, "lineno", 0),
-                    f"Resolved obfuscated string: '{resolved[:100]}'"))
+                findings.append(
+                    _make_finding(
+                        "HFS-071",
+                        file_path,
+                        getattr(node, "lineno", 0),
+                        f"Resolved obfuscated string: '{resolved[:100]}'",
+                    )
+                )
         if isinstance(node, ast.Call):
             for arg in node.args:
                 resolved = _resolve_node(arg)
                 if resolved and _is_suspicious(resolved):
-                    findings.append(_make_finding("HFS-071", file_path,
-                        getattr(node, "lineno", 0),
-                        f"Resolved argument: '{resolved[:100]}'"))
+                    findings.append(
+                        _make_finding(
+                            "HFS-071",
+                            file_path,
+                            getattr(node, "lineno", 0),
+                            f"Resolved argument: '{resolved[:100]}'",
+                        )
+                    )
                     break
     return findings

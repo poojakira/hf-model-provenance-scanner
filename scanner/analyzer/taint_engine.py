@@ -28,18 +28,20 @@ from scanner.rules.definitions import get_rule
 
 class TaintLabel(Enum):
     """Classification of taint sources."""
-    EXEC_CALLABLE = auto()     # exec, eval, compile
+
+    EXEC_CALLABLE = auto()  # exec, eval, compile
     DANGEROUS_MODULE = auto()  # os, subprocess, shutil, ctypes
     NETWORK_CALLABLE = auto()  # urllib, requests, socket
-    DECODED_DATA = auto()      # base64.decode, codecs.decode output
-    IMPORT_RESULT = auto()     # __import__() return value
-    USER_CONTROLLED = auto()   # function parameters, external input
+    DECODED_DATA = auto()  # base64.decode, codecs.decode output
+    IMPORT_RESULT = auto()  # __import__() return value
+    USER_CONTROLLED = auto()  # function parameters, external input
     CONTAINER_LOOKUP = auto()  # dict/list lookup that resolved to tainted
 
 
 @dataclass
 class TaintInfo:
     """Track what a variable/expression is tainted with."""
+
     labels: set  # set of TaintLabel
     source_line: int = 0
     source_desc: str = ""
@@ -52,38 +54,76 @@ class TaintInfo:
 # These create initial taint labels when referenced
 
 DANGEROUS_MODULES = {
-    "os", "subprocess", "shutil", "ctypes", "webbrowser",
-    "runpy", "importlib", "nt", "posix", "signal",
+    "os",
+    "subprocess",
+    "shutil",
+    "ctypes",
+    "webbrowser",
+    "runpy",
+    "importlib",
+    "nt",
+    "posix",
+    "signal",
 }
 
 EXEC_FUNCTIONS = {
-    "exec", "eval", "compile", "execfile",
-    "os.system", "os.popen", "os.exec", "os.execl", "os.execle",
-    "os.execlp", "os.execv", "os.execve", "os.execvp", "os.execvpe",
-    "subprocess.run", "subprocess.Popen", "subprocess.call",
-    "subprocess.check_call", "subprocess.check_output",
-    "builtins.exec", "builtins.eval", "builtins.compile",
-    "__builtins__.exec", "__builtins__.eval",
+    "exec",
+    "eval",
+    "compile",
+    "execfile",
+    "os.system",
+    "os.popen",
+    "os.exec",
+    "os.execl",
+    "os.execle",
+    "os.execlp",
+    "os.execv",
+    "os.execve",
+    "os.execvp",
+    "os.execvpe",
+    "subprocess.run",
+    "subprocess.Popen",
+    "subprocess.call",
+    "subprocess.check_call",
+    "subprocess.check_output",
+    "builtins.exec",
+    "builtins.eval",
+    "builtins.compile",
+    "__builtins__.exec",
+    "__builtins__.eval",
 }
 
 NETWORK_FUNCTIONS = {
-    "urllib.request.urlopen", "urllib.request.urlretrieve",
-    "http.client.HTTPConnection", "http.client.HTTPSConnection",
-    "socket.socket", "socket.create_connection",
+    "urllib.request.urlopen",
+    "urllib.request.urlretrieve",
+    "http.client.HTTPConnection",
+    "http.client.HTTPSConnection",
+    "socket.socket",
+    "socket.create_connection",
 }
 
 DECODE_FUNCTIONS = {
-    "base64.b64decode", "base64.b85decode", "base64.b32decode",
-    "base64.b16decode", "base64.a85decode", "base64.decodebytes",
-    "codecs.decode", "binascii.unhexlify", "binascii.a2b_base64",
-    "zlib.decompress", "gzip.decompress", "bz2.decompress",
+    "base64.b64decode",
+    "base64.b85decode",
+    "base64.b32decode",
+    "base64.b16decode",
+    "base64.a85decode",
+    "base64.decodebytes",
+    "codecs.decode",
+    "binascii.unhexlify",
+    "binascii.a2b_base64",
+    "zlib.decompress",
+    "gzip.decompress",
+    "bz2.decompress",
     "lzma.decompress",
 }
 
 # Sink functions: if tainted data reaches these, it's a finding
 SINK_FUNCTIONS = EXEC_FUNCTIONS | {
-    "os.system", "os.popen",
-    "ctypes.CDLL", "ctypes.cdll.LoadLibrary",
+    "os.system",
+    "os.popen",
+    "ctypes.CDLL",
+    "ctypes.cdll.LoadLibrary",
 }
 
 
@@ -139,7 +179,9 @@ class TaintAnalyzer(ast.NodeVisitor):
         self.taint_map["exec"] = TaintInfo({TaintLabel.EXEC_CALLABLE}, 0, "builtin exec")
         self.taint_map["eval"] = TaintInfo({TaintLabel.EXEC_CALLABLE}, 0, "builtin eval")
         self.taint_map["compile"] = TaintInfo({TaintLabel.EXEC_CALLABLE}, 0, "builtin compile")
-        self.taint_map["__import__"] = TaintInfo({TaintLabel.IMPORT_RESULT}, 0, "builtin __import__")
+        self.taint_map["__import__"] = TaintInfo(
+            {TaintLabel.IMPORT_RESULT}, 0, "builtin __import__"
+        )
 
     def analyze(self, source: str) -> list[Finding]:
         """Run taint analysis on source code."""
@@ -168,7 +210,8 @@ class TaintAnalyzer(ast.NodeVisitor):
                         self.taint_map[name] = TaintInfo(
                             {TaintLabel.DANGEROUS_MODULE},
                             getattr(node, "lineno", 0),
-                            f"import {alias.name}")
+                            f"import {alias.name}",
+                        )
             elif isinstance(node, ast.ImportFrom):
                 module = node.module or ""
                 base_module = module.split(".")[0]
@@ -180,12 +223,14 @@ class TaintAnalyzer(ast.NodeVisitor):
                         self.taint_map[name] = TaintInfo(
                             {TaintLabel.DANGEROUS_MODULE},
                             getattr(node, "lineno", 0),
-                            f"from {module} import {alias.name}")
+                            f"from {module} import {alias.name}",
+                        )
                     elif full_name in EXEC_FUNCTIONS:
                         self.taint_map[name] = TaintInfo(
                             {TaintLabel.EXEC_CALLABLE},
                             getattr(node, "lineno", 0),
-                            f"from {module} import {alias.name}")
+                            f"from {module} import {alias.name}",
+                        )
 
     def _get_taint(self, node: ast.AST) -> Optional[TaintInfo]:
         """Resolve the taint status of an expression."""
@@ -213,7 +258,8 @@ class TaintAnalyzer(ast.NodeVisitor):
                 return TaintInfo(
                     base_taint.labels | {TaintLabel.CONTAINER_LOOKUP},
                     getattr(node, "lineno", 0),
-                    f"subscript on tainted {_dotted_name(node.value)}")
+                    f"subscript on tainted {_dotted_name(node.value)}",
+                )
 
         if isinstance(node, ast.Call):
             return self._get_call_taint(node)
@@ -226,13 +272,17 @@ class TaintAnalyzer(ast.NodeVisitor):
 
         # __import__ always returns a tainted module
         if call_name == "__import__":
-            return TaintInfo({TaintLabel.IMPORT_RESULT, TaintLabel.DANGEROUS_MODULE},
-                             getattr(node, "lineno", 0), "__import__() result")
+            return TaintInfo(
+                {TaintLabel.IMPORT_RESULT, TaintLabel.DANGEROUS_MODULE},
+                getattr(node, "lineno", 0),
+                "__import__() result",
+            )
 
         # Decode functions produce tainted (decoded) data
         if call_name in DECODE_FUNCTIONS:
-            return TaintInfo({TaintLabel.DECODED_DATA},
-                             getattr(node, "lineno", 0), f"{call_name}() output")
+            return TaintInfo(
+                {TaintLabel.DECODED_DATA}, getattr(node, "lineno", 0), f"{call_name}() output"
+            )
 
         # getattr on tainted module
         if call_name == "getattr":
@@ -242,7 +292,8 @@ class TaintAnalyzer(ast.NodeVisitor):
                     return TaintInfo(
                         {TaintLabel.EXEC_CALLABLE, TaintLabel.DANGEROUS_MODULE},
                         getattr(node, "lineno", 0),
-                        "getattr() on dangerous module")
+                        "getattr() on dangerous module",
+                    )
 
         # Check if calling a tainted callable itself
         func_taint = self._get_taint(node.func)
@@ -256,8 +307,9 @@ class TaintAnalyzer(ast.NodeVisitor):
 
         # chr() produces potentially tainted strings when part of a larger expr
         if call_name == "chr":
-            return TaintInfo({TaintLabel.USER_CONTROLLED},
-                             getattr(node, "lineno", 0), "chr() output")
+            return TaintInfo(
+                {TaintLabel.USER_CONTROLLED}, getattr(node, "lineno", 0), "chr() output"
+            )
 
         return None
 
@@ -277,7 +329,8 @@ class TaintAnalyzer(ast.NodeVisitor):
                         self.taint_map[target.id] = TaintInfo(
                             {TaintLabel.EXEC_CALLABLE, TaintLabel.CONTAINER_LOOKUP},
                             getattr(node, "lineno", 0),
-                            f"lookup from {base}")
+                            f"lookup from {base}",
+                        )
 
         self.generic_visit(node)
 
@@ -290,9 +343,8 @@ class TaintAnalyzer(ast.NodeVisitor):
         func_taint = self._get_taint(node.func)
 
         # Is the function itself a sink?
-        is_sink = (
-            call_name in SINK_FUNCTIONS or
-            (func_taint is not None and TaintLabel.EXEC_CALLABLE in func_taint.labels)
+        is_sink = call_name in SINK_FUNCTIONS or (
+            func_taint is not None and TaintLabel.EXEC_CALLABLE in func_taint.labels
         )
 
         if is_sink:
@@ -313,7 +365,9 @@ class TaintAnalyzer(ast.NodeVisitor):
             if node.args:
                 first_arg_taint = self._get_taint(node.args[0])
                 if first_arg_taint and TaintLabel.EXEC_CALLABLE in first_arg_taint.labels:
-                    self._report_taint_flow(line, f"map({_dotted_name(node.args[0])})", first_arg_taint)
+                    self._report_taint_flow(
+                        line, f"map({_dotted_name(node.args[0])})", first_arg_taint
+                    )
 
         # Track return value taint for function calls
         call_taint = self._get_call_taint(node)
@@ -347,7 +401,8 @@ class TaintAnalyzer(ast.NodeVisitor):
                 self._report_taint_flow(
                     getattr(node, "lineno", 0),
                     f"lambda→{call_name}",
-                    TaintInfo({TaintLabel.EXEC_CALLABLE}, 0, "lambda sink"))
+                    TaintInfo({TaintLabel.EXEC_CALLABLE}, 0, "lambda sink"),
+                )
         self.generic_visit(node)
 
     def _report_taint_flow(self, line: int, sink: str, taint: TaintInfo):
@@ -357,9 +412,7 @@ class TaintAnalyzer(ast.NodeVisitor):
             f"Source: {taint.source_desc} (line {taint.source_line}). "
             f"Labels: {[l.name for l in taint.labels]}"
         )
-        self.findings.append(_make_finding(
-            "HFS-070", self.file_path, line, evidence
-        ))
+        self.findings.append(_make_finding("HFS-070", self.file_path, line, evidence))
 
 
 def analyze_taint(file_path: str, source: str) -> list[Finding]:

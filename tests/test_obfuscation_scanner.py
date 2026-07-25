@@ -2,6 +2,7 @@
 Tests for advanced obfuscation detection.
 Verifies detection of Unicode confusables, zero-width chars, bidi overrides, polyglots.
 """
+
 import unittest
 
 from scanner.analyzer.obfuscation_scanner import (
@@ -61,7 +62,7 @@ class TestConfusableDetection(unittest.TestCase):
 
     def test_cyrillic_o_in_identifier(self):
         """Detect Cyrillic 'о' in identifier."""
-        source = 'imp\u043ert_m\u043edule = __import__  # fake import\n'
+        source = "imp\u043ert_m\u043edule = __import__  # fake import\n"
         findings = scan_unicode_obfuscation("test.py", source)
         rule_ids = [f.rule_id for f in findings]
         self.assertIn("HFS-064", rule_ids)
@@ -115,8 +116,7 @@ class TestAnalyzeObfuscationIntegration(unittest.TestCase):
         findings = analyze_obfuscation("test.py", source)
         rule_ids = set(f.rule_id for f in findings)
         # Should detect confusable, zero-width, and bidi
-        self.assertTrue(len(rule_ids) >= 2,
-                        f"Should detect multiple techniques, got: {rule_ids}")
+        self.assertTrue(len(rule_ids) >= 2, f"Should detect multiple techniques, got: {rule_ids}")
 
 
 if __name__ == "__main__":

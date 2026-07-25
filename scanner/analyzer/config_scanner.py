@@ -9,8 +9,12 @@ from scanner.rules.definitions import get_rule
 
 # Fields where URLs are expected/normal in HF config files
 STANDARD_URL_FIELDS = {
-    "model_type", "architectures", "tokenizer_class",
-    "auto_map", "transformers_version", "_name_or_path",
+    "model_type",
+    "architectures",
+    "tokenizer_class",
+    "auto_map",
+    "transformers_version",
+    "_name_or_path",
 }
 
 URL_PATTERN = re.compile(r'https?://[^\s"\']+')
@@ -38,12 +42,21 @@ def analyze_config_file(file_path: str, source: str) -> List[Finding]:
 
     # Check for trust_remote_code in raw source
     for match in TRUST_REMOTE_CODE_PATTERN.finditer(source):
-        line_num = source[:match.start()].count("\n") + 1
+        line_num = source[: match.start()].count("\n") + 1
         rule = get_rule("HFS-031")
-        findings.append(Finding(
-            "HFS-031", rule.severity, file_path, line_num, 0,
-            rule.description, match.group()[:100],
-            rule.remediation, rule.cwe))
+        findings.append(
+            Finding(
+                "HFS-031",
+                rule.severity,
+                file_path,
+                line_num,
+                0,
+                rule.description,
+                match.group()[:100],
+                rule.remediation,
+                rule.cwe,
+            )
+        )
 
     # Try to parse as JSON for deeper analysis
     try:
@@ -65,16 +78,25 @@ def analyze_config_file(file_path: str, source: str) -> List[Finding]:
             url_pos = source.find(url)
             line_num = source[:url_pos].count("\n") + 1 if url_pos >= 0 else 0
             rule = get_rule("HFS-024")
-            findings.append(Finding(
-                "HFS-024", rule.severity, file_path, line_num, 0,
-                rule.description, f"field={key}, url={url[:200]}",
-                rule.remediation, rule.cwe))
+            findings.append(
+                Finding(
+                    "HFS-024",
+                    rule.severity,
+                    file_path,
+                    line_num,
+                    0,
+                    rule.description,
+                    f"field={key}, url={url[:200]}",
+                    rule.remediation,
+                    rule.cwe,
+                )
+            )
 
     # HFS-030: Check for unpinned model references in auto_map or _name_or_path
     name_or_path = config.get("_name_or_path", "")
     if name_or_path and "/" in name_or_path:
         # Check if it looks like org/model without a pinned revision
-        if not re.search(r'[0-9a-f]{40}', name_or_path):
+        if not re.search(r"[0-9a-f]{40}", name_or_path):
             # This is informational; actual from_pretrained calls are more concerning
             pass
 

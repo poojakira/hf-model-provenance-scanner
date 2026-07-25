@@ -2,6 +2,7 @@
 Tests for weight fingerprinting module.
 Verifies SafeTensors fingerprinting, comparison, and modification detection.
 """
+
 import json
 import struct
 import unittest
@@ -57,11 +58,13 @@ class TestSafeTensorsFingerprint(unittest.TestCase):
 
     def test_multiple_tensors(self):
         """Fingerprint with multiple tensors."""
-        file_data = _create_safetensors({
-            "layer1.weight": b"\x00" * 64,
-            "layer1.bias": b"\x01" * 16,
-            "layer2.weight": b"\x02" * 64,
-        })
+        file_data = _create_safetensors(
+            {
+                "layer1.weight": b"\x00" * 64,
+                "layer1.bias": b"\x01" * 16,
+                "layer2.weight": b"\x02" * 64,
+            }
+        )
         fp, _ = fingerprint_safetensors("model.safetensors", file_data)
         self.assertEqual(fp.tensor_count, 3)
         self.assertEqual(fp.total_params, 16 + 4 + 16)  # 64/4 + 16/4 + 64/4
@@ -92,8 +95,7 @@ class TestFingerprintComparison(unittest.TestCase):
         fp2, _ = fingerprint_safetensors("model.safetensors", data2)
         findings = compare_fingerprints(fp1, fp2, "model.safetensors")
         rule_ids = [f.rule_id for f in findings]
-        self.assertIn("HFS-060", rule_ids,
-                      "Should detect tensor modification")
+        self.assertIn("HFS-060", rule_ids, "Should detect tensor modification")
 
     def test_added_tensor_detected(self):
         """New tensor in current version should be detected."""
@@ -103,8 +105,7 @@ class TestFingerprintComparison(unittest.TestCase):
         fp2, _ = fingerprint_safetensors("model.safetensors", data2)
         findings = compare_fingerprints(fp1, fp2, "model.safetensors")
         rule_ids = [f.rule_id for f in findings]
-        self.assertIn("HFS-060", rule_ids,
-                      "Should detect new tensor added")
+        self.assertIn("HFS-060", rule_ids, "Should detect new tensor added")
 
     def test_removed_tensor_detected(self):
         """Removed tensor should be detected."""
@@ -114,8 +115,7 @@ class TestFingerprintComparison(unittest.TestCase):
         fp2, _ = fingerprint_safetensors("model.safetensors", data2)
         findings = compare_fingerprints(fp1, fp2, "model.safetensors")
         rule_ids = [f.rule_id for f in findings]
-        self.assertIn("HFS-060", rule_ids,
-                      "Should detect tensor removal")
+        self.assertIn("HFS-060", rule_ids, "Should detect tensor removal")
 
     def test_tensor_count_change(self):
         """Different tensor counts should be flagged."""

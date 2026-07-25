@@ -23,6 +23,7 @@ from scanner.rules.definitions import get_rule
 @dataclass
 class TensorFingerprint:
     """Fingerprint of a single tensor."""
+
     name: str
     dtype: str
     shape: list[int]
@@ -33,6 +34,7 @@ class TensorFingerprint:
 @dataclass
 class ModelFingerprint:
     """Complete fingerprint of a model file."""
+
     file_path: str
     file_hash: str  # SHA-256 of entire file
     format: str  # safetensors, gguf, pytorch
@@ -92,13 +94,22 @@ def _compute_aggregate_hash(tensor_hashes: list[str]) -> str:
 # --- SafeTensors fingerprinting ---
 
 DTYPE_SIZES = {
-    "F64": 8, "F32": 4, "F16": 2, "BF16": 2,
-    "I64": 8, "I32": 4, "I16": 2, "I8": 1,
-    "U8": 1, "BOOL": 1,
+    "F64": 8,
+    "F32": 4,
+    "F16": 2,
+    "BF16": 2,
+    "I64": 8,
+    "I32": 4,
+    "I16": 2,
+    "I8": 1,
+    "U8": 1,
+    "BOOL": 1,
 }
 
 
-def fingerprint_safetensors(file_path: str, data: bytes) -> tuple[Optional[ModelFingerprint], list[Finding]]:
+def fingerprint_safetensors(
+    file_path: str, data: bytes
+) -> tuple[Optional[ModelFingerprint], list[Finding]]:
     """Generate fingerprint for a SafeTensors file."""
     findings: list[Finding] = []
 
@@ -109,7 +120,7 @@ def fingerprint_safetensors(file_path: str, data: bytes) -> tuple[Optional[Model
     if header_size > len(data) - 8:
         return None, findings
 
-    header_bytes = data[8:8 + header_size]
+    header_bytes = data[8 : 8 + header_size]
     try:
         header = json.loads(header_bytes.decode("utf-8"))
     except (json.JSONDecodeError, UnicodeDecodeError):
@@ -131,7 +142,7 @@ def fingerprint_safetensors(file_path: str, data: bytes) -> tuple[Optional[Model
 
         if len(offsets) == 2:
             start, end = offsets
-            tensor_data = data[data_start + start:data_start + end]
+            tensor_data = data[data_start + start : data_start + end]
             tensor_hash = _sha256(tensor_data)
             size_bytes = end - start
         else:
@@ -144,13 +155,15 @@ def fingerprint_safetensors(file_path: str, data: bytes) -> tuple[Optional[Model
             params *= dim
         total_params += params
 
-        tensors.append(TensorFingerprint(
-            name=name,
-            dtype=dtype,
-            shape=shape,
-            data_hash=tensor_hash,
-            size_bytes=size_bytes,
-        ))
+        tensors.append(
+            TensorFingerprint(
+                name=name,
+                dtype=dtype,
+                shape=shape,
+                data_hash=tensor_hash,
+                size_bytes=size_bytes,
+            )
+        )
 
     tensor_hashes = [t.data_hash for t in tensors if t.data_hash]
     aggregate = _compute_aggregate_hash(tensor_hashes) if tensor_hashes else ""
@@ -168,7 +181,9 @@ def fingerprint_safetensors(file_path: str, data: bytes) -> tuple[Optional[Model
     return fp, findings
 
 
-def fingerprint_file(file_path: str, data: bytes) -> tuple[Optional[ModelFingerprint], list[Finding]]:
+def fingerprint_file(
+    file_path: str, data: bytes
+) -> tuple[Optional[ModelFingerprint], list[Finding]]:
     """Route to appropriate fingerprinting function based on format."""
     lower = file_path.lower()
     if lower.endswith(".safetensors"):
@@ -198,19 +213,25 @@ def compare_fingerprints(
     # Check aggregate tensor hash
     if baseline.aggregate_hash and current.aggregate_hash:
         if baseline.aggregate_hash != current.aggregate_hash:
-            findings.append(_make_finding(
-                "HFS-060", file_path,
-                f"Model weight fingerprint changed: "
-                f"baseline={baseline.aggregate_hash[:16]}... "
-                f"current={current.aggregate_hash[:16]}..."
-            ))
+            findings.append(
+                _make_finding(
+                    "HFS-060",
+                    file_path,
+                    f"Model weight fingerprint changed: "
+                    f"baseline={baseline.aggregate_hash[:16]}... "
+                    f"current={current.aggregate_hash[:16]}...",
+                )
+            )
 
     # Check tensor count
     if baseline.tensor_count != current.tensor_count:
-        findings.append(_make_finding(
-            "HFS-060", file_path,
-            f"Tensor count changed: {baseline.tensor_count} -> {current.tensor_count}"
-        ))
+        findings.append(
+            _make_finding(
+                "HFS-060",
+                file_path,
+                f"Tensor count changed: {baseline.tensor_count} -> {current.tensor_count}",
+            )
+        )
 
     # Check individual tensors
     baseline_map = {t.name: t for t in baseline.tensors}
@@ -219,22 +240,25 @@ def compare_fingerprints(
     for name, base_tensor in baseline_map.items():
         curr_tensor = current_map.get(name)
         if curr_tensor is None:
-            findings.append(_make_finding(
-                "HFS-060", file_path,
-                f"Tensor '{name}' removed from model"
-            ))
+            findings.append(
+                _make_finding("HFS-060", file_path, f"Tensor '{name}' removed from model")
+            )
         elif base_tensor.data_hash != curr_tensor.data_hash:
-            findings.append(_make_finding(
-                "HFS-060", file_path,
-                f"Tensor '{name}' modified: "
-                f"{base_tensor.data_hash[:16]}... -> {curr_tensor.data_hash[:16]}..."
-            ))
+            findings.append(
+                _make_finding(
+                    "HFS-060",
+                    file_path,
+                    f"Tensor '{name}' modified: "
+                    f"{base_tensor.data_hash[:16]}... -> {curr_tensor.data_hash[:16]}...",
+                )
+            )
 
     for name in current_map:
         if name not in baseline_map:
-            findings.append(_make_finding(
-                "HFS-060", file_path,
-                f"New tensor '{name}' added to model (not in baseline)"
-            ))
+            findings.append(
+                _make_finding(
+                    "HFS-060", file_path, f"New tensor '{name}' added to model (not in baseline)"
+                )
+            )
 
     return findings

@@ -7,7 +7,9 @@ from pathlib import Path
 class TestRealtimeDashboard(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.html_path = Path(__file__).resolve().parents[1] / "dashboard" / "realtime" / "index.html"
+        cls.html_path = (
+            Path(__file__).resolve().parents[1] / "dashboard" / "realtime" / "index.html"
+        )
         cls.html = cls.html_path.read_text(encoding="utf-8")
 
     def _js_array(self, name):
@@ -100,7 +102,7 @@ class TestRealtimeDashboard(unittest.TestCase):
             "222 techniques",
             "475 sub-techniques",
             "enterpriseTechniqueCatalog=Array.from({length:222}",
-            "catalog=mode===\"Enterprise\"?enterpriseTechniqueCatalog",
+            'catalog=mode==="Enterprise"?enterpriseTechniqueCatalog',
             "T1566 Phishing",
             "T1059 Command and Scripting Interpreter",
             "T1055 Process Injection",
@@ -114,7 +116,7 @@ class TestRealtimeDashboard(unittest.TestCase):
             "setInterval(streamFeed,2000)",
             "setInterval(renderStats,3000)",
             "setInterval(updateCharts,10000)",
-            "localStorage.setItem(\"sentinel-page\"",
+            'localStorage.setItem("sentinel-page"',
         ]:
             self.assertIn(marker, self.html)
 

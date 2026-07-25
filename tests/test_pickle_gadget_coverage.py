@@ -8,11 +8,12 @@ CRLF-evasion bug, and dead ZIP-unpacking path). These tests lock in:
   * ZIP-wrapped pickle payloads
   * legitimate torch/numpy reconstruction globals stay clean (no false positive)
 """
-import io
-import zipfile
-import unittest
 
-from scanner.analyzer.pickle_scanner import scan_pickle_bytes, is_pickle_file
+import io
+import unittest
+import zipfile
+
+from scanner.analyzer.pickle_scanner import is_pickle_file, scan_pickle_bytes
 
 
 def _pickle_with_global(module: str, name: str, newline: bytes = b"\n") -> bytes:
@@ -28,8 +29,11 @@ class TestCRLFEvasion(unittest.TestCase):
     def test_crlf_eval_detected(self):
         # CRLF line endings must not evade detection
         findings = scan_pickle_bytes("m.pkl", _pickle_with_global("builtins", "eval", b"\r\n"))
-        self.assertIn("HFS-050", [f.rule_id for f in findings],
-                      "CRLF-terminated globals must still be detected")
+        self.assertIn(
+            "HFS-050",
+            [f.rule_id for f in findings],
+            "CRLF-terminated globals must still be detected",
+        )
 
 
 class TestGadgetCoverage(unittest.TestCase):
@@ -61,12 +65,16 @@ class TestZipWrappedPayload(unittest.TestCase):
         with zipfile.ZipFile(buf, "w") as zf:
             zf.writestr("archive/data.pkl", _pickle_with_global("os", "system"))
         findings = scan_pickle_bytes("model.zip", buf.getvalue())
-        self.assertIn("HFS-050", [f.rule_id for f in findings],
-                      "ZIP-wrapped malicious pickle must be detected")
+        self.assertIn(
+            "HFS-050",
+            [f.rule_id for f in findings],
+            "ZIP-wrapped malicious pickle must be detected",
+        )
 
     def test_zip_extension_scanned(self):
-        import tempfile
         import os
+        import tempfile
+
         # Create a temporary ZIP file to test the extension detection
         with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp:
             with zipfile.ZipFile(tmp, "w") as zf:
@@ -89,8 +97,7 @@ class TestNoFalsePositiveOnSafeGlobals(unittest.TestCase):
     def test_safe_globals_not_flagged(self):
         for module, name in self.SAFE:
             data = _pickle_with_global(module, name)
-            criticals = [f for f in scan_pickle_bytes("m.pkl", data)
-                         if f.rule_id == "HFS-050"]
+            criticals = [f for f in scan_pickle_bytes("m.pkl", data) if f.rule_id == "HFS-050"]
             self.assertEqual(criticals, [], f"safe global {module}.{name} wrongly flagged")
 
 

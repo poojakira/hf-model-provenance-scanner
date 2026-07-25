@@ -2,17 +2,15 @@
 Tests for the dynamic IOC feed system.
 Verifies local loading, merging, caching, and IOC checking.
 """
-import json
-import os
-import tempfile
+
 import unittest
 
 from scanner.analyzer.ioc_feed import (
     IOCDatabase,
-    build_ioc_database,
-    check_ioc,
     _load_local_iocs,
     _merge_feed,
+    build_ioc_database,
+    check_ioc,
 )
 
 
