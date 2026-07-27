@@ -22,6 +22,10 @@ concurrency:
 env:
   PYTHON_VERSION: "3.12"
   RUFF_VERSION: "0.8.4"
+  PYRIGHT_VERSION: "1.1.388"
+  BANDIT_VERSION: "1.8.3"
+  PIP_AUDIT_VERSION: "2.10.1"
+  CYCLONEDX_VERSION: "5.1.1"
 
 jobs:
   lint:
@@ -42,10 +46,10 @@ jobs:
         run: pip install ruff==${{ env.RUFF_VERSION }}
 
       - name: Run Ruff Linter
-        run: ruff check scanner tests --output-format=github
+        run: ruff check scanner attack_mapping tests --output-format=github
 
       - name: Run Ruff Formatter Check
-        run: ruff format --check scanner tests
+        run: ruff format --check scanner attack_mapping tests
 
   typecheck:
     name: Type Check (Pyright)
@@ -56,6 +60,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
+      - name: Checkout attack-v19-core
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: poojakira/attack-v19-core
+          path: attack-v19-core
+          token: ${{ secrets.ATTACK_CORE_TOKEN }}
+
       - name: Set up Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
@@ -65,11 +76,12 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyright==1.1.40
+          pip install pyright==${{ env.PYRIGHT_VERSION }}
+          pip install -e ./attack-v19-core
           pip install -e ".[dev]"
 
       - name: Run Pyright
-        run: PYTHONPATH=scanner pyright scanner tests
+        run: PYTHONPATH=.:attack-v19-core pyright scanner attack_mapping tests
 
   security:
     name: Security Audit
@@ -93,9 +105,9 @@ jobs:
         run: |
           set -o pipefail
           python -m pip install --upgrade pip
-          pip install bandit==1.8.3
-          pip install pip-audit==2.10.1
-          pip install cyclonedx-bom==5.1.1
+          pip install bandit==${{ env.BANDIT_VERSION }}
+          pip install pip-audit==${{ env.PIP_AUDIT_VERSION }}
+          pip install cyclonedx-bom==${{ env.CYCLONEDX_VERSION }}
           pip install -e ".[dev]"
 
       - name: Bandit SAST (fail on HIGH/MEDIUM)
@@ -119,12 +131,13 @@ jobs:
           path: sbom.json
           retention-days: 90
 
-      - name: Upload Bandit SARIF
+      - name: Upload Bandit report
         if: always()
-        uses: github/codeql-action/upload-sarif@192325c86100d080feab897ff886c34abd4c83a3
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          sarif_file: bandit-report.json
-          category: bandit
+          name: bandit-report
+          path: bandit-report.json
+          retention-days: 90
 
   test:
     name: Unit Tests (Python ${{ matrix.python-version }})
@@ -139,6 +152,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
+      - name: Checkout attack-v19-core
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: poojakira/attack-v19-core
+          path: attack-v19-core
+          token: ${{ secrets.ATTACK_CORE_TOKEN }}
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
@@ -150,11 +170,13 @@ jobs:
           set -o pipefail
           python -m pip install --upgrade pip
           pip install pytest pytest-cov
+          pip install -e ./attack-v19-core
+          python attack-v19-core/scripts/download_attack_data.py
           pip install -e ".[dev]"
 
       - name: Run tests with coverage
         run: |
-          PYTHONPATH=scanner pytest tests/ -v --tb=short \
+          PYTHONPATH=.:attack-v19-core pytest tests/ -v --tb=short \
             --cov=scanner \
             --cov-report=term-missing \
             --cov-report=xml:coverage.xml \
@@ -172,7 +194,7 @@ jobs:
 
       - name: Verify test collection
         run: |
-          count=$(PYTHONPATH=scanner python -m pytest tests/ --collect-only -q 2>/dev/null | tail -1 | grep -oP '\d+(?= tests)')
+          count=$(PYTHONPATH=.:attack-v19-core python -m pytest tests/ --collect-only -q 2>/dev/null | tail -1 | grep -oP '\d+(?= tests)')
           count=${count:-0}
           if [ "$count" -lt 10 ]; then
             echo "Expected at least 10 tests collected, got $count"
