@@ -18,7 +18,7 @@ dev = ["pytest>=8.0"]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["scanner*"]
+include = ["scanner*", "attack_mapping*"]
 
 [tool.setuptools.package-data]
 "scanner.data" = ["*.json"]
@@ -41,5 +41,3 @@ asyncio_default_fixture_loop_scope = "function"
 filterwarnings = [
     'ignore:The configuration option "asyncio_default_fixture_loop_scope" is unset:pytest.PytestDeprecationWarning',
 ]
-
-
