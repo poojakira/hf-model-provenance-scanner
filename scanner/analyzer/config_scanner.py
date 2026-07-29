@@ -2,7 +2,6 @@
 
 import json
 import re
-from typing import List
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
@@ -25,7 +24,7 @@ FROM_PRETRAINED_PATTERN = re.compile(
 )
 
 
-def analyze_config_file(file_path: str, source: str) -> List[Finding]:
+def analyze_config_file(file_path: str, source: str) -> list[Finding]:
     """Analyze a JSON config file for suspicious patterns.
 
     Checks:
@@ -33,7 +32,7 @@ def analyze_config_file(file_path: str, source: str) -> List[Finding]:
     - HFS-030: Unpinned model references (no revision= with 40-char SHA)
     - HFS-031: trust_remote_code=True
     """
-    findings: List[Finding] = []
+    findings: list[Finding] = []
     lower_path = file_path.lower()
 
     # Only analyze JSON config files

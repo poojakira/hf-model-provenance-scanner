@@ -1,0 +1,88 @@
+from __future__ import annotations
+
+import logging
+from dataclasses import dataclass
+
+from .constants import V19_REVOCATION_MAP
+from .index import ATTACKIndex, normalize_attack_id
+from .models import ATTACKMapping
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class MappingResolution:
+    source_id: str
+    normalized_id: str
+    resolved_id: str
+    was_normalized: bool
+    was_revoked: bool
+
+
+class ATTACKMappingBuilder:
+    def __init__(self, index: ATTACKIndex):
+        self.index = index
+
+    def resolve(self, attack_id: str) -> MappingResolution:
+        normalized_id = normalize_attack_id(attack_id)
+        resolved_id = V19_REVOCATION_MAP.get(normalized_id, normalized_id)
+        return MappingResolution(
+            source_id=attack_id,
+            normalized_id=normalized_id,
+            resolved_id=resolved_id,
+            was_normalized=normalized_id != attack_id,
+            was_revoked=resolved_id != normalized_id,
+        )
+
+    def build(self, attack_id: str, confidence: float) -> ATTACKMapping | None:
+        resolution = self.resolve(attack_id)
+        if resolution.was_revoked:
+            logger.warning(
+                "[ATT&CK v19] Technique %s was revoked. Auto-remapped to %s.",
+                resolution.normalized_id,
+                resolution.resolved_id,
+            )
+
+        technique = self.index.get_exact(resolution.resolved_id)
+        if technique is None:
+            logger.error(
+                "[ATT&CK v19] Technique %s not found in index. Original ID: %s. Skipping mapping.",
+                resolution.resolved_id,
+                resolution.source_id,
+            )
+            return None
+
+        tactic = self.index.tactic_for_technique(technique)
+        tactic_id = tactic.attack_id if tactic else "unknown"
+        tactic_name = tactic.name if tactic else "unknown"
+        parent = self.index.parent_for(technique)
+        parent_id = parent.attack_id if parent else technique.attack_id
+        parent_name = parent.name if parent else technique.name
+
+        return ATTACKMapping(
+            tactic_id=tactic_id,
+            tactic_name=tactic_name,
+            technique_id=parent_id,
+            technique_name=parent_name,
+            subtechnique_id=technique.attack_id if technique.is_subtechnique else None,
+            subtechnique_name=technique.name if technique.is_subtechnique else None,
+            domain=technique.domain,
+            confidence=confidence,
+            data_sources=technique.data_sources,
+            platforms=technique.platforms,
+            url=technique.url,
+            source_technique_id=resolution.source_id,
+            resolved_technique_id=resolution.resolved_id,
+            parent_technique_id=parent_id,
+            parent_technique_name=parent_name,
+            was_normalized=resolution.was_normalized,
+            was_revoked=resolution.was_revoked,
+        )
+
+    def build_many(self, attack_ids: list[str], confidence: float) -> list[ATTACKMapping]:
+        mappings = []
+        for attack_id in attack_ids:
+            mapping = self.build(attack_id, confidence)
+            if mapping is not None:
+                mappings.append(mapping)
+        return mappings

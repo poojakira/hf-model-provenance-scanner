@@ -280,7 +280,7 @@ def scan_local(
                     make_finding(
                         "HFS-098",
                         file_path=file_path,
-                        evidence=f"Binary model {size // (1024*1024)}MB exceeds "
+                        evidence=f"Binary model {size // (1024 * 1024)}MB exceeds "
                         f"{max_binary_mb}MB limit",
                     )
                 )
@@ -462,7 +462,7 @@ def main(argv=None):
         mode = "local"
     elif not is_local_dir and mode == "local" and not os.path.exists(args.target):
         print(
-            f"Error: Target '{args.target}' is not a local directory, " f"but mode is 'local'",
+            f"Error: Target '{args.target}' is not a local directory, but mode is 'local'",
             file=sys.stderr,
         )
         return 3
@@ -530,7 +530,7 @@ def main(argv=None):
         if getattr(args, "protect", False):
             protect_config = {}
             if args.protect_config:
-                with open(args.protect_config, "r") as f:
+                with open(args.protect_config) as f:
                     protect_config = json.load(f)
 
             monitor = create_production_monitor(
@@ -619,8 +619,7 @@ def main(argv=None):
                 if not args.verbose and f.severity == Severity.INFO:
                     continue
                 lines.append(
-                    f"[{f.severity.name}] {f.rule_id} "
-                    f"{f.file_path}:{f.line_number} - {f.message}"
+                    f"[{f.severity.name}] {f.rule_id} {f.file_path}:{f.line_number} - {f.message}"
                 )
             counts = {s: sum(1 for f in result.findings if f.severity == s) for s in Severity}
             lines.append(

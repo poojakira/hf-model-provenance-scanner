@@ -20,7 +20,6 @@ Architecture:
 import ast
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Optional
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
@@ -232,7 +231,7 @@ class TaintAnalyzer(ast.NodeVisitor):
                             f"from {module} import {alias.name}",
                         )
 
-    def _get_taint(self, node: ast.AST) -> Optional[TaintInfo]:
+    def _get_taint(self, node: ast.AST) -> TaintInfo | None:
         """Resolve the taint status of an expression."""
         if isinstance(node, ast.Name):
             return self.taint_map.get(node.id)
@@ -266,7 +265,7 @@ class TaintAnalyzer(ast.NodeVisitor):
 
         return None
 
-    def _get_call_taint(self, node: ast.Call) -> Optional[TaintInfo]:
+    def _get_call_taint(self, node: ast.Call) -> TaintInfo | None:
         """Determine taint of a function call's return value."""
         call_name = _dotted_name(node.func)
 

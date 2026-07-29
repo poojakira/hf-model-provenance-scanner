@@ -50,7 +50,7 @@ def create_malicious_pickle_subprocess():
 
 def create_malicious_pickle_eval():
     """Pickle calling builtins.eval."""
-    payload = b"cbuiltins\neval\n" b'(S\'__import__("os").system("id")\'\n' b"tR."
+    payload = b'cbuiltins\neval\n(S\'__import__("os").system("id")\'\ntR.'
     path = os.path.join(FIXTURES_DIR, "malicious_eval.pkl")
     with open(path, "wb") as f:
         f.write(payload)

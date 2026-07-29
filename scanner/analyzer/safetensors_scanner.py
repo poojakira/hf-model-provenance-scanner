@@ -172,8 +172,7 @@ def _scan_metadata(file_path: str, metadata: dict, findings: list[Finding]):
                 _make_finding(
                     "HFS-054",
                     file_path,
-                    f"Oversized metadata value for key '{key}': "
-                    f"{len(value):,} chars (suspicious)",
+                    f"Oversized metadata value for key '{key}': {len(value):,} chars (suspicious)",
                 )
             )
 

