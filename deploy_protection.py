@@ -21,19 +21,16 @@ import signal
 import sys
 import time
 from pathlib import Path
-from typing import Optional
 
 # Add scanner to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from scanner.cli import main as cli_main
 from scanner.analyzer.runtime_monitor import (
-    RuntimeMonitor,
-    ContainerEscapeDetector,
-    GPUExploitDetector,
     BehavioralProfiler,
+    RuntimeMonitor,
     SideChannelDetector,
 )
+from scanner.cli import main as cli_main
 
 
 class ProtectedModelServer:
@@ -81,7 +78,7 @@ class ProtectedModelServer:
         ]
         # Capture output
         import io
-        from contextlib import redirect_stdout, redirect_stderr
+        from contextlib import redirect_stderr, redirect_stdout
         stdout = io.StringIO()
         stderr = io.StringIO()
         try:
@@ -97,7 +94,7 @@ class ProtectedModelServer:
         except Exception as e:
             return {"error": str(e), "exit_code": 1}
 
-    def start_runtime_protection(self, target_pid: Optional[int] = None):
+    def start_runtime_protection(self, target_pid: int | None = None):
         """Start real-time behavioral monitoring."""
         if target_pid is None:
             target_pid = os.getpid()

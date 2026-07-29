@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 from scanner.models import Severity
 
@@ -11,7 +10,7 @@ class Rule:
     severity: Severity
     description: str
     remediation: str
-    cwe: Optional[str]
+    cwe: str | None
     tags: list[str]
 
 

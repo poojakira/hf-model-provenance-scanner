@@ -1,7 +1,7 @@
 import pytest
-from attack_core import ATTACKIndex, ATTACKLoader
+from attack_v19_core import ATTACKIndex, ATTACKLoader
 
-from attack_mapping.enricher import ATTACKEnricher
+from scanner.attack_mapping.enricher import ATTACKEnricher
 
 
 @pytest.fixture

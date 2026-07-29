@@ -11,7 +11,7 @@ from scanner.utils.levenshtein import levenshtein, token_cosine_similarity
 def load_protected_orgs() -> list[str]:
     path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "protected_orgs.json")
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return [str(item).lower() for item in json.load(f)]
     except Exception:
         return []

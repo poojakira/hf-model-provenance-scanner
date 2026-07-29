@@ -5,7 +5,6 @@ import json
 import os
 import shutil
 import subprocess
-from typing import Optional
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
@@ -31,7 +30,7 @@ def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def _find_verifier() -> Optional[str]:
+def _find_verifier() -> str | None:
     """Find an available signature verifier tool."""
     for tool in ("cosign", "gpg", "minisign"):
         if shutil.which(tool):
@@ -70,7 +69,7 @@ def verify_local_signatures(root: str) -> list:
                     0,
                     0,
                     rule.description,
-                    f"Signature file found but no verifier ({', '.join(['cosign','gpg','minisign'])}) available",
+                    f"Signature file found but no verifier ({', '.join(['cosign', 'gpg', 'minisign'])}) available",
                     rule.remediation,
                     rule.cwe,
                 )
