@@ -3,7 +3,6 @@
 import json
 import os
 import re
-from typing import List
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
@@ -17,7 +16,7 @@ def _load_iocs() -> dict:
     if _IOC_DATA is None:
         ioc_path = os.path.join(os.path.dirname(__file__), "..", "data", "iocs.json")
         try:
-            with open(ioc_path, "r", encoding="utf-8") as f:
+            with open(ioc_path, encoding="utf-8") as f:
                 _IOC_DATA = json.load(f)
         except (OSError, json.JSONDecodeError):
             _IOC_DATA = {
@@ -54,7 +53,7 @@ def _version_below(actual: str, minimum: str) -> bool:
     return _parse_version(actual) < _parse_version(minimum)
 
 
-def analyze_dependency_source(file_path: str, source: str) -> List[Finding]:
+def analyze_dependency_source(file_path: str, source: str) -> list[Finding]:
     """Analyze dependency files for security issues.
 
     Checks:
@@ -64,7 +63,7 @@ def analyze_dependency_source(file_path: str, source: str) -> List[Finding]:
     - HFS-043: Unpinned dependencies
     - HFS-044: Unsafe container directives (Dockerfiles)
     """
-    findings: List[Finding] = []
+    findings: list[Finding] = []
     basename = os.path.basename(file_path).lower()
     iocs = _load_iocs()
 
@@ -122,9 +121,9 @@ def analyze_dependency_source(file_path: str, source: str) -> List[Finding]:
 
 def _analyze_requirements(
     file_path: str, source: str, dangerous_packages: set, vulnerable_versions: dict
-) -> List[Finding]:
+) -> list[Finding]:
     """Analyze requirements.txt format files."""
-    findings: List[Finding] = []
+    findings: list[Finding] = []
 
     for line_num, line in enumerate(source.splitlines(), 1):
         line = line.strip()
@@ -220,9 +219,9 @@ def _analyze_requirements(
 
 def _analyze_pyproject(
     file_path: str, source: str, dangerous_packages: set, vulnerable_versions: dict
-) -> List[Finding]:
+) -> list[Finding]:
     """Analyze pyproject.toml for dependency issues."""
-    findings: List[Finding] = []
+    findings: list[Finding] = []
 
     # Simple regex-based extraction of dependencies from pyproject.toml
     # Look for dependencies = [...] sections
@@ -285,9 +284,9 @@ def _analyze_pyproject(
     return findings
 
 
-def _analyze_dockerfile(file_path: str, source: str) -> List[Finding]:
+def _analyze_dockerfile(file_path: str, source: str) -> list[Finding]:
     """Analyze Dockerfile for unsafe patterns."""
-    findings: List[Finding] = []
+    findings: list[Finding] = []
 
     patterns = [
         (DOCKERFILE_ROOT_PATTERN, "USER root directive"),

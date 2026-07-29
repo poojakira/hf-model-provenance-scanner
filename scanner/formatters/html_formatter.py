@@ -95,7 +95,7 @@ code {{ background: #e9ecef; padding: 0.1em 0.3em; border-radius: 3px; }}
 </tbody>
 </table>
 
-{f'<p class="error"><strong>Error:</strong> {result.error}</p>' if result.error else ''}
+{f'<p class="error"><strong>Error:</strong> {result.error}</p>' if result.error else ""}
 </body>
 </html>"""
     return html

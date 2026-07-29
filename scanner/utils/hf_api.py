@@ -13,7 +13,6 @@ import threading
 import time
 import urllib.error
 import urllib.request
-from typing import Optional
 
 MAX_DOWNLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 MAX_RETRIES = 3
@@ -54,7 +53,7 @@ class HFApiClient:
 
     BASE = "https://huggingface.co"
 
-    def __init__(self, token: Optional[str] = None):
+    def __init__(self, token: str | None = None):
         self.token = token
         self._cache: dict = {}
         # Rate limiter: starts conservative, updates from response headers
@@ -82,7 +81,7 @@ class HFApiClient:
         except (ValueError, TypeError):
             pass  # Keep current settings
 
-    def _request(self, url: str, max_bytes: Optional[int] = None) -> bytes:
+    def _request(self, url: str, max_bytes: int | None = None) -> bytes:
         """Make an HTTP GET request with rate limiting, retry logic, and caching."""
         # Check cache first
         with self._cache_lock:
@@ -106,7 +105,7 @@ class HFApiClient:
                     if max_bytes:
                         data = resp.read(max_bytes + 1)
                         if len(data) > max_bytes:
-                            raise ValueError(f"File exceeds {max_bytes // (1024*1024)}MB limit")
+                            raise ValueError(f"File exceeds {max_bytes // (1024 * 1024)}MB limit")
                     else:
                         data = resp.read()
 

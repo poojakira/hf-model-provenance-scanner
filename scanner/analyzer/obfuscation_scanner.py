@@ -12,7 +12,6 @@ Detects techniques used to bypass visual code review and static analysis:
 """
 
 import re
-from typing import Optional
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
@@ -205,7 +204,7 @@ def scan_unicode_obfuscation(file_path: str, source: str) -> list[Finding]:
             _make_finding(
                 "HFS-064",
                 file_path,
-                f"Unicode confusable characters in identifiers: " f"{'; '.join(evidence_parts)}",
+                f"Unicode confusable characters in identifiers: {'; '.join(evidence_parts)}",
                 confusable_lines[0][0],
             )
         )
@@ -248,7 +247,7 @@ def scan_polyglot_header(file_path: str, data: bytes) -> list[Finding]:
 
 
 def analyze_obfuscation(
-    file_path: str, source: str, raw_data: Optional[bytes] = None
+    file_path: str, source: str, raw_data: bytes | None = None
 ) -> list[Finding]:
     """
     Main entry point: run all obfuscation detection checks.

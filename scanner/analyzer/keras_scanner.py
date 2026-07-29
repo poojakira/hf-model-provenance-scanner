@@ -171,7 +171,7 @@ def _scan_embedded_configs(file_path: str, data: bytes, findings: list[Finding])
                         _make_finding(
                             "HFS-076",
                             file_path,
-                            f"Dangerous code in Keras Lambda layer: " f"'{func_body[:150]}'",
+                            f"Dangerous code in Keras Lambda layer: '{func_body[:150]}'",
                         )
                     )
                     break

@@ -1,7 +1,6 @@
 """Shell script analyzer: detects dangerous patterns in .sh/.bat/.ps1/.cmd files."""
 
 import re
-from typing import List
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
@@ -118,7 +117,7 @@ _PATTERNS = [
 ]
 
 
-def analyze_shell_script(file_path: str, source: str) -> List[Finding]:
+def analyze_shell_script(file_path: str, source: str) -> list[Finding]:
     """Analyze a shell/batch/PowerShell script for dangerous patterns.
 
     Scans for:
@@ -132,7 +131,7 @@ def analyze_shell_script(file_path: str, source: str) -> List[Finding]:
     - HFS-014: Hidden windows
     - HFS-004: Paste service C2
     """
-    findings: List[Finding] = []
+    findings: list[Finding] = []
     seen: set = set()  # Deduplicate rule+line combos
 
     for pattern, rule_id, description in _PATTERNS:

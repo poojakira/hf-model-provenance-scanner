@@ -27,8 +27,8 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Optional
 
 # We reuse the real scanner rather than reimplementing detection here.
 from scanner.cli import main as run_scan
@@ -58,7 +58,7 @@ class MonitorConfig:
     fail_on: str = "critical"  # severity that counts as a real hit
     only_flagged: bool = True  # print clean repos too, or just hits?
     max_seen_memory: int = 5000  # cap the dedupe set so it can't grow forever
-    token: Optional[str] = None  # HF token for higher rate limits
+    token: str | None = None  # HF token for higher rate limits
     sandbox: bool = False  # run the heavier sandbox engine per repo
 
 
@@ -69,7 +69,7 @@ def _load_seen() -> set:
     that was already cleared yesterday. Corrupt/missing file just means we
     start fresh — not worth crashing over."""
     try:
-        with open(STATE_FILE, "r", encoding="utf-8") as fh:
+        with open(STATE_FILE, encoding="utf-8") as fh:
             return set(json.load(fh))
     except (OSError, json.JSONDecodeError, ValueError):
         return set()
@@ -185,7 +185,7 @@ def _format_line(report: dict) -> str:
     high = sum(1 for f in findings if f.get("severity") == "high")
     return (
         f"[{ts}] {status:<5} {repo_id} — "
-        f"risk={risk.get('level','?')}({risk.get('score',0)}/100) "
+        f"risk={risk.get('level', '?')}({risk.get('score', 0)}/100) "
         f"crit={crit} high={high} "
         f"https://huggingface.co/{repo_id}"
     )
@@ -193,8 +193,8 @@ def _format_line(report: dict) -> str:
 
 def watch(
     cfg: MonitorConfig,
-    on_hit: Optional[Callable[[dict], None]] = None,
-    max_iterations: Optional[int] = None,
+    on_hit: Callable[[dict], None] | None = None,
+    max_iterations: int | None = None,
 ) -> None:
     """Main loop: poll the Hub, scan new arrivals, alert on hits, repeat.
 

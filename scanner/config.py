@@ -45,6 +45,6 @@ except ImportError:
 
 def load_config(path: str = ".hf-scanner.toml") -> dict:
     if os.path.exists(path):
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return tomllib.loads(f.read())
     return {}

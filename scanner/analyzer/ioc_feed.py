@@ -27,7 +27,6 @@ import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 # Cache directory — use platform-appropriate user cache
@@ -85,7 +84,7 @@ def _load_local_iocs() -> dict:
     """Load the bundled IOC database."""
     path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "iocs.json")
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
     except (OSError, json.JSONDecodeError):
         return {}
@@ -112,18 +111,18 @@ def _is_cache_fresh(url: str, ttl: int = DEFAULT_TTL_SECONDS) -> bool:
     """Check if cached feed is within TTL."""
     meta_path = _cache_meta_path(url)
     try:
-        with open(meta_path, "r") as f:
+        with open(meta_path) as f:
             fetched_at = float(f.read().strip())
         return (time.time() - fetched_at) < ttl
     except (OSError, ValueError):
         return False
 
 
-def _read_cached_feed(url: str) -> Optional[dict]:
+def _read_cached_feed(url: str) -> dict | None:
     """Read cached feed data."""
     cache_file = _cache_path(url)
     try:
-        with open(cache_file, "r", encoding="utf-8") as f:
+        with open(cache_file, encoding="utf-8") as f:
             return json.load(f)
     except (OSError, json.JSONDecodeError):
         return None
@@ -143,7 +142,7 @@ def _write_cache(url: str, data: dict):
         pass
 
 
-def fetch_remote_feed(url: str, timeout: int = 10) -> Optional[dict]:
+def fetch_remote_feed(url: str, timeout: int = 10) -> dict | None:
     """Fetch a single remote IOC feed with caching."""
     # Check cache first
     if _is_cache_fresh(url):
@@ -173,7 +172,7 @@ def fetch_remote_feed(url: str, timeout: int = 10) -> Optional[dict]:
 
 
 def build_ioc_database(
-    feed_urls: Optional[list[str]] = None,
+    feed_urls: list[str] | None = None,
     no_network: bool = False,
     ttl: int = DEFAULT_TTL_SECONDS,
 ) -> IOCDatabase:
@@ -224,7 +223,7 @@ def _merge_feed(db: IOCDatabase, feed: dict):
             db.vulnerable_versions[pkg] = ver
 
 
-def check_ioc(value: str, db: IOCDatabase) -> Optional[str]:
+def check_ioc(value: str, db: IOCDatabase) -> str | None:
     """
     Check a single value against the IOC database.
     Returns the IOC category matched, or None.
