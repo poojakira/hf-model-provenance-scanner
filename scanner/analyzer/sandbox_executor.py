@@ -472,19 +472,19 @@ def _interpret(file_path: str, ops: list) -> list[Finding]:
         if op == "exec":
             findings.append(
                 _make_finding(
-                    "HFS-072", file_path, 0, f"Sandbox: exec() with: {entry.get('code','')}"
+                    "HFS-072", file_path, 0, f"Sandbox: exec() with: {entry.get('code', '')}"
                 )
             )
         elif op == "eval":
             findings.append(
                 _make_finding(
-                    "HFS-072", file_path, 0, f"Sandbox: eval() with: {entry.get('code','')}"
+                    "HFS-072", file_path, 0, f"Sandbox: eval() with: {entry.get('code', '')}"
                 )
             )
         elif op == "compile":
             findings.append(
                 _make_finding(
-                    "HFS-072", file_path, 0, f"Sandbox: compile() with: {entry.get('source','')}"
+                    "HFS-072", file_path, 0, f"Sandbox: compile() with: {entry.get('source', '')}"
                 )
             )
         elif op == "import":
@@ -496,7 +496,7 @@ def _interpret(file_path: str, ops: list) -> list[Finding]:
                         "HFS-072",
                         file_path,
                         0,
-                        f"Sandbox: blocked import '{entry.get('module','')}'",
+                        f"Sandbox: blocked import '{entry.get('module', '')}'",
                     )
                 )
         elif op == "attr":
@@ -515,7 +515,7 @@ def _interpret(file_path: str, ops: list) -> list[Finding]:
             ):
                 findings.append(
                     _make_finding(
-                        "HFS-072", file_path, 0, f"Sandbox: {entry.get('module','')}.{attr}()"
+                        "HFS-072", file_path, 0, f"Sandbox: {entry.get('module', '')}.{attr}()"
                     )
                 )
     return findings

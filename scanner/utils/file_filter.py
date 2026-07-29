@@ -1,12 +1,12 @@
 """File walking utility with size filtering."""
 
 import os
-from typing import Generator, Tuple
+from collections.abc import Generator
 
 SKIP_DIRS = {"__pycache__", ".git"}
 
 
-def walk_files(root: str, max_size_kb: int = 512) -> Generator[Tuple[str, bool], None, None]:
+def walk_files(root: str, max_size_kb: int = 512) -> Generator[tuple[str, bool], None, None]:
     """Walk directory tree yielding (file_path, is_oversized) tuples.
 
     Skips __pycache__ and .git directories.

@@ -9,7 +9,6 @@ import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 try:
     import psutil
@@ -79,14 +78,14 @@ class RuntimeMonitor:
     adversarial inputs, backdoors, gradient leakage, speculative execution.
     """
 
-    def __init__(self, model_hash: str, allowlist_config: Optional[dict] = None):
+    def __init__(self, model_hash: str, allowlist_config: dict | None = None):
         self.model_hash = model_hash
         self.allowlist = allowlist_config or {}
-        self.baseline: Optional[BaselineProfile] = None
+        self.baseline: BaselineProfile | None = None
         self.events: deque = deque(maxlen=10000)
         self.alerts: list[Finding] = []
         self._monitoring = False
-        self._monitor_thread: Optional[threading.Thread] = None
+        self._monitor_thread: threading.Thread | None = None
         self._syscall_counts = defaultdict(int)
         self._network_connections: list[NetworkEvent] = []
         self._process_tree: dict[int, ProcessEvent] = {}

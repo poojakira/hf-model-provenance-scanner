@@ -191,10 +191,7 @@ ATTACK_5_PICKLE_REDUCE_EX = (
 # ═══════════════════════════════════════════════════════════════════════
 
 ATTACK_6_PICKLE_COPYREG = (
-    b"cbuiltins\ngetattr\n"
-    b"(cbuiltins\n__import__\n"
-    b"(S'os'\ntRS'system'\ntR"
-    b"(S'whoami'\ntR."
+    b"cbuiltins\ngetattr\n(cbuiltins\n__import__\n(S'os'\ntRS'system'\ntR(S'whoami'\ntR."
 )
 
 # ═══════════════════════════════════════════════════════════════════════

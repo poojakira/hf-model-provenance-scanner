@@ -232,7 +232,7 @@ def analyze_gguf_file(file_path: str, data: bytes) -> list[Finding]:
                     _make_finding(
                         "HFS-056",
                         file_path,
-                        f"Suspicious metadata in key '{key}': " f"matched '{match.group()[:80]}'",
+                        f"Suspicious metadata in key '{key}': matched '{match.group()[:80]}'",
                     )
                 )
                 break

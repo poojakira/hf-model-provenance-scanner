@@ -28,7 +28,6 @@ import hmac
 import json
 import os
 import sys
-import tempfile
 import urllib.request
 
 # Add scanner to path
@@ -89,9 +88,10 @@ def verify_signature(payload: bytes, signature: str, secret: str) -> bool:
 
 def scan_repo(repo_id: str) -> dict:
     """Run the scanner against a HuggingFace repo."""
-    from scanner.cli import main
     import io
     from contextlib import redirect_stdout
+
+    from scanner.cli import main
 
     stdout = io.StringIO()
     with redirect_stdout(stdout):
@@ -197,7 +197,7 @@ def handle_webhook(event: dict) -> dict:
 
 def run_server(host: str = "0.0.0.0", port: int = 8080):
     """Run a simple HTTP server for webhook testing."""
-    from http.server import HTTPServer, BaseHTTPRequestHandler
+    from http.server import BaseHTTPRequestHandler, HTTPServer
 
     class Handler(BaseHTTPRequestHandler):
         def do_POST(self):

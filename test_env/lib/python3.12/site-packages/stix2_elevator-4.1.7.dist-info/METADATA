@@ -1,0 +1,490 @@
+Metadata-Version: 2.1
+Name: stix2-elevator
+Version: 4.1.7
+Summary: Utility to upgrade STIX 1.X and CybOX content to STIX 2.X
+Home-page: https://oasis-open.github.io/cti-documentation/
+Author: OASIS Cyber Threat Intelligence Technical Committee
+Author-email: cti-users@lists.oasis-open.org
+Project-URL: Documentation, https://stix2-elevator.readthedocs.io/
+Project-URL: Source Code, https://github.com/oasis-open/cti-stix-elevator/
+Project-URL: Bug Tracker, https://github.com/oasis-open/cti-stix-elevator/issues/
+Keywords: stix stix2 json xml cti cyber threat intelligence
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Development Status :: 2 - Pre-Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+Requires-Dist: maec
+Requires-Dist: netaddr
+Requires-Dist: pycountry (>=20.7.0)
+Requires-Dist: pluralizer
+Requires-Dist: stix (<1.2.1.0,>=1.1.1.9)
+Requires-Dist: stix2 (>=3.0.0)
+Requires-Dist: stix2-validator (>=3.0.0)
+Requires-Dist: stixmarx (>=1.0.8)
+Provides-Extra: acs
+Requires-Dist: stix-edh (>=1.0.3) ; extra == 'acs'
+Provides-Extra: dev
+Requires-Dist: bumpversion ; extra == 'dev'
+Requires-Dist: pre-commit ; extra == 'dev'
+Provides-Extra: docs
+Requires-Dist: sphinx ; extra == 'docs'
+Requires-Dist: sphinx-prompt ; extra == 'docs'
+Provides-Extra: test
+Requires-Dist: coverage ; extra == 'test'
+Requires-Dist: pytest ; extra == 'test'
+Requires-Dist: pytest-cov ; extra == 'test'
+Requires-Dist: tox ; extra == 'test'
+
+|Build_Status| |Coverage| |Version| |Documentation_Status|
+
+cti-stix-elevator
+=================
+
+NOTE: This is an `OASIS TC Open
+Repository <https://www.oasis-open.org/resources/open-
+repositories/>`_.
+See the `Governance`_ section for more information.
+
+The stix2-elevator is a software tool for converting STIX 1.x XML to
+STIX
+2.0 or 2.1 JSON. Due to the differences between STIX 1.x and STIX 2.x, this
+conversion is best-effort only. During the conversion, stix2-
+elevator
+provides information on the assumptions it needs to make to produce
+valid STIX
+2.x JSON, and what information was not able to be converted.
+
+To convert STIX 2.x JSON back to STIX 1.x XML use the `stix2-slider`
+
+The stix2-elevator is a "best-effort" attempt to convert STIX 1.x content to STIX 2.x content.
+**Caution should be taken if the elevator is to be used in a production environment as warnings
+concerning the conversion are often generated.**  Users should determine which warnings are
+acceptable and use the --disable option in conjunction with the –error-policy option only to produce
+results when no other warnings are emitted.
+
+**STIX 1.x Composite Indicator Expressions and CybOX 2.x Composite
+Observable Expressions allow a level of flexibility not present in
+STIX
+2 patterns. These composite expressions can frequently have ambiguous
+interpretations, so STIX 2 Indicators created by the stix2-elevator
+from
+STIX 1.x Indicators containing composite expressions should be
+inspected
+to ensure the STIX 2 Indicator has the intended meaning.**
+
+For more information, see `the
+documentation <https://stix2-elevator.readthedocs.io/>`__ on
+ReadTheDocs.
+
+Please enter any comments on how to improve the elevator into the issue tracker.
+
+Requirements
+------------
+
+- Python 3.7+
+- `python-stix <https://stix.readthedocs.io/en/stable/>`_ and its dependencies
+
+  .. note::
+
+      Make sure to use either the latest version of python-stix 1.1.1.x or
+      1.2.0.x, depending on whether you want to support STIX 1.1.1 or STIX 1.2.
+
+-  `python-stix2 <https://pypi.org/project/stix2/>`_ >= 3.0.0
+-  `stix2-validator <https://pypi.org/project/stix2-validator/>`_ >= 3.0.0
+   and its dependencies
+-  `pycountry <https://pypi.org/project/pycountry/>`_ >= 20.7.0
+-  `stixmarx <https://pypi.org/project/stixmarx/>`_ >= 1.0.8
+
+Installation
+------------
+
+Install with pip
+
+.. code-block:: bash
+
+    $ pip install stix2-elevator
+
+This will install all necessary dependencies, including the latest
+version of python-stix.
+
+If you need to support older STIX 1.1.1 content, install python-stix
+1.1.1.x first
+
+.. code-block:: bash
+
+    $ pip install 'stix<1.2'
+    $ pip install stix2-elevator
+
+You can also install the stix2-elevator from GitHub to get the latest
+(unstable) version
+
+.. code-block:: bash
+
+    $ pip install git+https://github.com/oasis-open/cti-stix-elevator.git
+
+Installation Steps for ACS Data Marking Support
+-----------------------------------------------
+
+ACS data markings correspond to the common marking scheme used by the U.S. government (e.g., U, C, S, TS).
+To elevate STIX 1.x content that contains ACS data markings, it is necessary to install an additional python package
+called 'stix_edh'.
+
+Install with pip
+
+.. code-block:: bash
+
+    $ pip install stix2-elevator[acs]
+
+Usage
+-----
+
+It is recommended that you ensure that the input STIX 1.x file is
+valid before submitting it to the elevator.
+Use the `stix-validator <https://pypi.org/project/stix-validator/>`_.
+
+As A Script
+~~~~~~~~~~~
+
+The elevator comes with a bundled script which you can use to elevate
+STIX 1.x content to STIX 2.x content:
+
+.. code-block:: text
+
+    usage: stix2_elevator [-h]
+              [--missing-policy {use-extensions,use-custom-properties,add-to-description,ignore}]
+              [--header-object-type {report,grouping}]
+              [--custom-property-prefix CUSTOM_PROPERTY_PREFIX]
+              [--infrastructure]
+              [--acs]
+              [--incidents]
+              [--package-created-by-id PACKAGE_CREATED_BY_ID]
+              [--default-timestamp DEFAULT_TIMESTAMP]
+              [--validator-args VALIDATOR_ARGS]
+              [-e ENABLED]
+              [-d DISABLED]
+              [-s]
+              [--message-log-directory MESSAGE_LOG_DIRECTORY]
+              [--log-level {DEBUG,INFO,WARN,ERROR,CRITICAL}]
+              [-m MARKINGS_ALLOWED]
+              [-p {no_policy,strict_policy}]
+              [-v {2.0,2.1}]
+              [-r]
+              file
+
+
+stix2-elevator v4.1.7
+
+positional arguments:
+
+.. code-block:: text
+
+  file          The input STIX 1.x document to be elevated.
+
+optional arguments:
+
+.. code-block:: text
+
+  -h, --help
+                Show this help message and exit
+
+  --missing-policy {use-extensions,use-custom-properties,add-to-description,ignore}
+                Policy for including STIX 1.x content that cannot be
+                represented directly in STIX 2.x. The default is 'add-
+                to-description'.
+
+  --header-object-type {report,grouping}
+                What STIX 2 type to use to store extra information
+                from the STIX 1 package header.The default is
+                'report'.
+
+  --custom-property-prefix CUSTOM_PROPERTY_PREFIX
+                Prefix to use for custom property names when missing
+                policy is 'use-custom-properties'. The default is
+                'elevator'.
+
+  --infrastructure
+                Infrastructure will be included in the conversion.
+                Default for version 2.1 is true.
+
+  --incidents
+                Incidents will be included in the conversion.
+                Default for version 2.1 is true.
+
+  --acs
+                Process ACS data markings
+                Default is false.
+
+  --package-created-by-id PACKAGE_CREATED_BY_ID
+                Use provided identifier for "created_by_ref"
+                properties.
+
+                Example: --package-created-by-id "identity--1234abcd-1a12-42a3-0ab4-1234abcd5678"
+
+  --default-timestamp DEFAULT_TIMESTAMP
+                Use provided timestamp for properties that require a
+                timestamp.
+
+                Example: --default-timestamp "2016-11-15T13:10:35.053000Z"
+
+  --validator-args VALIDATOR_ARGS
+                Arguments to pass to stix2-validator.
+                See https://stix2-validator.readthedocs.io/en/latest/options.html.
+
+                Example: --validator-args="-v --strict-types -d 212"
+
+  -e ENABLED, --enable ENABLED
+                A comma-separated list of the stix2-elevator messages
+                to enable. Not to be used with --disable.
+
+                Example: --enable 250
+
+  -d DISABLED, --disable DISABLED
+                A comma-separated list of the stix2-elevator messages
+                to disable. Not to be used with --enable.
+
+                Example: --disable 212,220
+
+  -s, --silent
+                If this flag is set, all stix2-elevator messages will
+                be disabled.
+
+  --message-log-directory MESSAGE_LOG_DIRECTORY
+                If this flag is set, all stix2-elevator messages will
+                be saved to a file. The name of the file will be the
+                input file with extension .log in the specified
+                directory.
+
+                Note, make sure the directory already exists.
+
+                Example: --message-log-directory "../logs".
+
+  --log-level {DEBUG,INFO,WARN,ERROR,CRITICAL}
+                The logging output level.
+
+  -m MARKINGS_ALLOWED, --markings-allowed MARKINGS_ALLOWED
+                Avoid error exit, if these markings types
+                (as specified via their python class names) are in the
+                content, but not supported by the elevator. Specify as
+                a comma-separated list.
+
+                Example: --markings-allowed "ISAMarkingsAssertion,ISAMarkings"
+
+  -p {no_policy,strict_policy},
+  --error-policy {no_policy,strict_policy},
+  --policy {no_policy,strict_policy}   #deprecated
+               The policy to deal with errors. The default is 'no_policy'.
+
+  -v {2.0,2.1}, --version {2.0,2.1}
+               The version of stix 2 to be produced. The default is 2.1
+
+  -r, --ignore-required-properties
+                        Do not provide missing required properties
+
+
+Refer to elevator_log_messages.rst for all stix2-elevator messages. Use the
+associated code number to --enable or --disable a message. By default, the
+stix2-elevator displays all messages.
+
+Note: disabling the message does not disable the functionality.
+
+As A Library
+~~~~~~~~~~~~
+
+You can also use this library to integrate STIX elevation into your own tools.
+
+.. code-block:: python
+
+    # Elevate a STIX 1.x via filename
+    # Use set_option_value to override default elevator options
+    # Read the documentation for options
+    from stix2elevator import elevate
+    from stix2elevator.options import initialize_options, set_option_value
+
+    initialize_options(options={"spec_version": "2.1"})
+
+    results = elevate("stix_file.xml")
+    print(results)
+
+The same method can also accept a string as an argument.
+
+.. code-block:: python
+
+    # Elevate a STIX 1.x via string
+    # Use set_option_value to override default elevator options
+    # Read the documentation for options
+    from stix2elevator import elevate
+    from stix2elevator.options import initialize_options, set_option_value
+
+    initialize_options(options={"spec_version": "2.1"})
+
+    results = elevate("<stix:Package...")
+    print(results)
+
+The same method can also accept a STIX 1.x package object as an argument.
+
+.. code-block:: python
+
+    # Elevate a STIX 1.x via string
+    from stix2elevator import elevate
+    from stix2elevator.options import initialize_options
+
+    initialize_options(options={"spec_version": "2.1"})
+
+    results = elevate(<STIX Package Object>)
+    print(results)
+
+To set others options, use set_option_value() found in options.py, or add them as keywords to initialize_options().
+
+Using the stepper
+~~~~~~~~~~~~~~~~~
+
+The stix-stepper is a simple script that will convert STIX 2.0 content to STIX 2.1 content.
+
+You can invoke it as follows.
+
+.. code-block:: bash
+
+    $ stix_stepper <2.0 file>
+
+The 2.1 content is printed to stdout
+
+Governance
+----------
+
+This GitHub public repository (
+**https://github.com/oasis-open/cti-stix-elevator** ) was
+`proposed <https://lists.oasis-
+open.org/archives/cti/201610/msg00106.html>`__
+and
+`approved <https://lists.oasis-
+open.org/archives/cti/201610/msg00126.html>`__
+[`bis <https://issues.oasis-open.org/browse/TCADMIN-2477>`__] by the
+`OASIS Cyber Threat Intelligence (CTI)
+TC <https://www.oasis-open.org/committees/cti/>`__ as an `OASIS TC
+Open Repository <https://www.oasis-open.org/resources/open-
+repositories/>`__
+to support development of open source resources related to Technical
+Committee work.
+
+While this TC Open Repository remains associated with the sponsor TC,
+its
+development priorities, leadership, intellectual property terms,
+participation rules, and other matters of governance are `separate and
+distinct <https://github.com/oasis-open/cti-stix-
+elevator/blob/master/CONTRIBUTING.md#governance-distinct-from-oasis-
+tc-process>`__
+from the OASIS TC Process and related policies.
+
+All contributions made to this TC Open Repository are subject to open
+source license terms expressed in the `BSD-3-Clause
+License <https://www.oasis-open.org/sites/www.oasis-
+open.org/files/BSD-3-Clause.txt>`__.
+That license was selected as the declared `"Applicable
+License" <https://www.oasis-open.org/resources/open-
+repositories/licenses>`__
+when the TC Open Repository was created.
+
+As documented in `"Public Participation
+Invited <https://github.com/oasis-open/cti-stix-
+elevator/blob/master/CONTRIBUTING.md#public-participation-
+invited>`__",
+contributions to this OASIS TC Open Repository are invited from all
+parties, whether affiliated with OASIS or not. Participants must have
+a
+GitHub account, but no fees or OASIS membership obligations are
+required. Participation is expected to be consistent with the `OASIS
+TC Open Repository Guidelines and
+Procedures <https://www.oasis-open.org/policies-guidelines/open-
+repositories>`__,
+the open source
+`LICENSE <https://github.com/oasis-open/cti-stix-
+elevator/blob/master/LICENSE>`__
+designated for this particular repository, and the requirement for an
+`Individual Contributor License
+Agreement <https://www.oasis-open.org/resources/open-
+repositories/cla/individual-cla>`__
+that governs intellectual property.
+
+Maintainers
+~~~~~~~~~~~
+
+TC Open Repository
+`Maintainers <https://www.oasis-open.org/resources/open-
+repositories/maintainers-guide>`__
+are responsible for oversight of this project's community development
+activities, including evaluation of GitHub `pull
+requests <https://github.com/oasis-open/cti-stix-
+elevator/blob/master/CONTRIBUTING.md#fork-and-pull-collaboration-
+model>`__
+and
+`preserving <https://www.oasis-open.org/policies-guidelines/open-
+repositories#repositoryManagement>`__
+open source principles of openness and fairness. Maintainers are
+recognized and trusted experts who serve to implement community goals
+and consensus design preferences.
+
+Initially, the associated TC members have designated one or more
+persons
+to serve as Maintainer(s); subsequently, participating community
+members
+may select additional or substitute Maintainers, per `consensus
+agreements <https://www.oasis-open.org/resources/open-
+repositories/maintainers-guide#additionalMaintainers>`__.
+
+**Current Maintainers of this TC Open Repository**
+
+-  `Jason Keirstead <mailto:Jason.Keirstead@ca.ibm.com>`__; GitHub ID:
+   https://github.com/JasonKeirstead; WWW: `IBM <http://www.ibm.com/>`__
+-  `Duncan Sparrell <mailto:duncan@sfractal.com>`__; GitHub ID:
+   https://github.com/sparrell; WWW: `sFractal <http://sfractal.com/>`__
+
+About OASIS TC Open Repositories
+--------------------------------
+
+-  `TC Open Repositories: Overview and
+   Resources <https://www.oasis-open.org/resources/open-
+   repositories/>`__
+-  `Frequently Asked
+   Questions <https://www.oasis-open.org/resources/open-
+   repositories/faq>`__
+-  `Open Source
+   Licenses <https://www.oasis-open.org/resources/open-
+   repositories/licenses>`__
+-  `Contributor License Agreements
+   (CLAs) <https://www.oasis-open.org/resources/open-
+   repositories/cla>`__
+-  `Maintainers' Guidelines and
+   Agreement <https://www.oasis-open.org/resources/open-
+   repositories/maintainers-guide>`__
+
+Feedback
+--------
+
+Questions or comments about this TC Open Repository's activities
+should be
+composed as GitHub issues or comments. If use of an issue/comment is
+not
+possible or appropriate, questions may be directed by email to the
+Maintainer(s) `listed above <#currentMaintainers>`__. Please send
+general questions about TC Open Repository participation to OASIS
+Staff at
+repository-admin@oasis-open.org and any specific CLA-related questions
+to repository-cla@oasis-open.org.
+
+.. |Build_Status| image:: https://github.com/oasis-open/cti-stix-elevator/workflows/cti-stix-elevator%20test%20harness/badge.svg
+   :target: https://github.com/oasis-open/cti-stix-elevator/actions?query=workflow%3A%22cti-stix-elevator+test+harness%22
+.. |Coverage| image:: https://codecov.io/gh/oasis-open/cti-stix-elevator/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/oasis-open/cti-stix-elevator
+.. |Version| image:: https://img.shields.io/pypi/v/stix2-elevator.svg?maxAge=3600
+   :target: https://pypi.org/project/stix2-elevator/
+.. |Documentation_Status| image:: https://readthedocs.org/projects/stix2-elevator/badge/?version=latest
+   :target: https://stix2-elevator.readthedocs.io/en/latest/
+   :alt: Documentation Status

@@ -14,7 +14,6 @@ import hashlib
 import json
 import struct
 from dataclasses import dataclass, field
-from typing import Optional
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
@@ -109,7 +108,7 @@ DTYPE_SIZES = {
 
 def fingerprint_safetensors(
     file_path: str, data: bytes
-) -> tuple[Optional[ModelFingerprint], list[Finding]]:
+) -> tuple[ModelFingerprint | None, list[Finding]]:
     """Generate fingerprint for a SafeTensors file."""
     findings: list[Finding] = []
 
@@ -181,9 +180,7 @@ def fingerprint_safetensors(
     return fp, findings
 
 
-def fingerprint_file(
-    file_path: str, data: bytes
-) -> tuple[Optional[ModelFingerprint], list[Finding]]:
+def fingerprint_file(file_path: str, data: bytes) -> tuple[ModelFingerprint | None, list[Finding]]:
     """Route to appropriate fingerprinting function based on format."""
     lower = file_path.lower()
     if lower.endswith(".safetensors"):

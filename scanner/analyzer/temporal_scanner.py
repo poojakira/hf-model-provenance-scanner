@@ -16,7 +16,6 @@ import json
 import os
 import time
 from dataclasses import dataclass, field
-from typing import Optional
 
 from scanner.models import Finding, ScanResult, Severity
 from scanner.rules.definitions import get_rule
@@ -32,7 +31,7 @@ class FileBaseline:
     sha256: str
     size: int
     findings_count: int
-    highest_severity: Optional[str]
+    highest_severity: str | None
 
 
 @dataclass
@@ -47,8 +46,8 @@ class ScanBaseline:
     total_findings: int
     files: list[FileBaseline] = field(default_factory=list)
     finding_rule_ids: list[str] = field(default_factory=list)
-    org_verified: Optional[bool] = None
-    org_name: Optional[str] = None
+    org_verified: bool | None = None
+    org_name: str | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -164,7 +163,7 @@ def create_baseline(
     )
 
 
-def save_baseline(baseline: ScanBaseline, output_path: Optional[str] = None) -> str:
+def save_baseline(baseline: ScanBaseline, output_path: str | None = None) -> str:
     """Save baseline to JSON file."""
     path = output_path or BASELINE_FILENAME
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
@@ -173,13 +172,13 @@ def save_baseline(baseline: ScanBaseline, output_path: Optional[str] = None) -> 
     return path
 
 
-def load_baseline(path: Optional[str] = None) -> Optional[ScanBaseline]:
+def load_baseline(path: str | None = None) -> ScanBaseline | None:
     """Load a previously saved baseline."""
     path = path or BASELINE_FILENAME
     if not os.path.exists(path):
         return None
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
         return ScanBaseline.from_dict(data)
     except (json.JSONDecodeError, KeyError, OSError):

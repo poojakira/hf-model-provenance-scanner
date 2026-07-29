@@ -2,7 +2,6 @@ import ast
 import base64
 import os
 import re
-from typing import Optional
 
 from scanner.models import Finding, Severity
 from scanner.rules.definitions import get_rule
@@ -70,7 +69,7 @@ def is_base64_candidate(s: str) -> bool:
     return not any(pattern.match(stripped) for pattern in HIGH_ENTROPY_ALLOWLIST_PATTERNS)
 
 
-def safe_b64decode(s: str) -> Optional[bytes]:
+def safe_b64decode(s: str) -> bytes | None:
     stripped = re.sub(r"\s+", "", s)
     try:
         return base64.b64decode(stripped, validate=True)
@@ -140,7 +139,7 @@ class ScannerASTVisitor(ast.NodeVisitor):
             )
         )
 
-    def literal_string(self, node: ast.AST) -> Optional[str]:
+    def literal_string(self, node: ast.AST) -> str | None:
         if isinstance(node, ast.Constant):
             if isinstance(node.value, str):
                 return node.value

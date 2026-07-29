@@ -123,7 +123,7 @@ class TestCli(unittest.TestCase):
                 ]
             )
             self.assertEqual(code, 0)
-            with open(policy_path, "r", encoding="utf-8") as f:
+            with open(policy_path, encoding="utf-8") as f:
                 policy = json.load(f)
             self.assertEqual(policy["kind"], "RuntimePolicy")
             self.assertFalse(policy["spec"]["process"]["noNewPrivileges"] is False)
@@ -149,7 +149,7 @@ class TestCli(unittest.TestCase):
                 ]
             )
             self.assertEqual(code, 0)
-            with open(report_path, "r", encoding="utf-8") as f:
+            with open(report_path, encoding="utf-8") as f:
                 report = f.read()
             self.assertIn("HF Model Provenance Scanner Report", report)
             self.assertIn("Risk Assessment", report)

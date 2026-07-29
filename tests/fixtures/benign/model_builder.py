@@ -9,7 +9,7 @@ import os
 
 
 def load_config(model_dir: str) -> dict:
-    with open(os.path.join(model_dir, "config.json"), "r", encoding="utf-8") as f:
+    with open(os.path.join(model_dir, "config.json"), encoding="utf-8") as f:
         return json.load(f)
 
 
