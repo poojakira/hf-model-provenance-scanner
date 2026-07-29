@@ -46,4 +46,10 @@ logs/
 # Temp
 tmp/
 temp/
-*.tmp
+*.tmpvenv/
+.pytest_cache/
+__pycache__/
+*.pyc
+.coverage
+test_env/
+*.egg-info
