@@ -519,4 +519,3 @@ def _interpret(file_path: str, ops: list) -> list[Finding]:
                     )
                 )
     return findings
-

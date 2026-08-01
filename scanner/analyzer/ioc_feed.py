@@ -260,4 +260,3 @@ def check_ioc(value: str, db: IOCDatabase) -> str | None:
         return "known_malicious_url"
 
     return None
-

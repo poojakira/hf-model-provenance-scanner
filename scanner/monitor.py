@@ -259,4 +259,3 @@ def _build_config_from_env() -> MonitorConfig:
 
 if __name__ == "__main__":
     watch(_build_config_from_env())
-

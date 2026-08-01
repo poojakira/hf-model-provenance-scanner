@@ -72,5 +72,3 @@ def format_runtime_policy(target: str) -> str:
     """Format the runtime policy as a JSON string."""
     policy = build_runtime_policy(target)
     return json.dumps(policy, indent=2)
-
-
