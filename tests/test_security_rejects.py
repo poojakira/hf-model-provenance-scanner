@@ -82,6 +82,8 @@ class TestMaliciousFixtureSafety(unittest.TestCase):
     def test_privacy_filter_fixture_is_inert_when_called(self):
         fixture = Path(__file__).parent / "fixtures" / "malicious" / "privacy_filter_loader.py"
         spec = importlib.util.spec_from_file_location("privacy_filter_loader_fixture", fixture)
+        assert spec is not None
+        assert spec.loader is not None
         module = importlib.util.module_from_spec(spec)
         with patch.object(subprocess, "run", side_effect=AssertionError("subprocess.run executed")):
             spec.loader.exec_module(module)
