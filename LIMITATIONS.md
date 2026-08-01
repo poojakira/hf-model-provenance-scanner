@@ -1,12 +1,12 @@
 # Capabilities & Limitations (v0.2.0 — Current)
 
-## Verified Detection Rate
+## Included Test-Suite Results
 
 | Suite | Attacks | Detected | False Positives |
 |---|---|---|---|
-| Core real-world incidents | 12 | 12 (100%) | 0 |
-| Extended variants (env gating, decorators, generators, DNS exfil) | 18 | 18 (100%) | 0 |
-| Large-scale (multi-MB files, 300+ line code) | 3 | 3 (100%) | 0 |
+| Core real-world incidents | 12 | 12/12 in included incident-reproduction fixtures | 0 |
+| Extended variants (env gating, decorators, generators, DNS exfil) | 18 | 18/18 in included extended fixtures | 0 |
+| Large-scale (multi-MB files, 300+ line code) | 3 | 3/3 included scale fixtures; not a general scale benchmark | 0 |
 | Real models (GPT-2 downloaded, Llama-3-8B 288-tensor structure) | — | 0 findings | 0 |
 
 ## What Each Engine Catches
@@ -87,7 +87,7 @@
 - A defensive static + dynamic analysis scanner
 - A provenance and identity verification engine
 - A CI/CD gate that blocks malicious model deployments
-- A compliance tool (EU AI Act, CISA SBOM requirements)
+- A provenance/SBOM artifact generator that may support compliance workflows
 
 ## What This Tool IS NOT
 

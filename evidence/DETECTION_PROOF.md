@@ -2,7 +2,7 @@
 
 ## Summary
 
-The HF Model Provenance Scanner was tested against **12 documented real-world attacks** from 2025-2026. All 12 were detected with zero false positives.
+The HF Model Provenance Scanner was tested against **12 documented real-world attacks** from 2025-2026. All 12 included reproductions were detected; false-positive results apply only to this suite.
 
 ## Test Results
 
@@ -21,8 +21,8 @@ The HF Model Provenance Scanner was tested against **12 documented real-world at
 | 11 | SafeTensors metadata C2 injection | Novel technique | — | ✅ | 2 | <1ms |
 | 12 | GGUF metadata shell injection | Novel technique | — | ✅ | 1 | <1ms |
 
-**Detection Rate: 100% (12/12)**
-**False Positive Rate: 0%**
+**Included red-team suite: 12/12 detected**
+**False positives: 0 in this suite only**
 **Total Scan Time: 116ms**
 
 ## How to Reproduce

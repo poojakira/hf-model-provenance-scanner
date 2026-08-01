@@ -116,7 +116,7 @@ cd hf-model-provenance-scanner
 python3 tests/redteam/simulate_attacks.py
 ```
 
-The simulation replicates the **exact techniques** from this incident and confirms 100% detection.
+The simulation reproduces selected techniques from this incident and the included fixtures were detected.
 
 ## References
 
