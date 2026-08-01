@@ -25,6 +25,7 @@ import json
 import os
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
 
@@ -150,6 +151,10 @@ def fetch_remote_feed(url: str, timeout: int = 10) -> dict | None:
         if cached is not None:
             return cached
 
+    parsed_url = urllib.parse.urlparse(url)
+    if parsed_url.scheme not in {"http", "https"}:
+        return _read_cached_feed(url)
+
     # Fetch from network
     try:
         req = urllib.request.Request(
@@ -159,7 +164,7 @@ def fetch_remote_feed(url: str, timeout: int = 10) -> dict | None:
                 "Accept": "application/json",
             },
         )
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:  # nosec B310
             if int(resp.headers.get("Content-Length", 0)) > MAX_FEED_SIZE:
                 return _read_cached_feed(url)  # Fallback to cache
             raw = resp.read(MAX_FEED_SIZE)
@@ -255,3 +260,4 @@ def check_ioc(value: str, db: IOCDatabase) -> str | None:
         return "known_malicious_url"
 
     return None
+
