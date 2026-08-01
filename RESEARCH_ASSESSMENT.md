@@ -36,7 +36,7 @@ HuggingFace uses **PickleScan** as its primary defense. PickleScan:
 
 **Protect AI's ModelScan** and **Guardian** similarly focus on binary model formats only.
 
-**No existing tool** combined source code analysis, binary scanning, org impersonation detection, and provenance verification into a single solution.
+This repository combines source code analysis, binary scanning, organization impersonation checks, and provenance verification in one scanner.
 
 ### Regulatory Pressure
 
@@ -57,8 +57,8 @@ HuggingFace uses **PickleScan** as its primary defense. PickleScan:
 | Catch obfuscated source code attacks | Novel chr()/rot13/ctypes/getattr evasion | ✅ Achieved (sandbox catches all) |
 | Zero runtime dependencies | Deployable anywhere without install conflicts | ✅ Achieved (stdlib only) |
 | CI/CD integration | GitHub Actions, GitLab, Azure, Jenkins, Docker | ✅ Achieved (7 platforms) |
-| EU AI Act compliance output | CycloneDX AIBOM generation | ✅ Achieved |
-| Zero false positives on legitimate code | Test against real ML codebases | ✅ Achieved |
+| CycloneDX AIBOM export for provenance documentation | CycloneDX AIBOM generation | ✅ Achieved |
+| 0 false positives in the named test corpus | Test against real ML codebases | ✅ Achieved |
 | Rug-pull detection | Detect malicious updates after trust establishment | ✅ Achieved (temporal baseline) |
 
 ---
@@ -207,7 +207,7 @@ The integration infrastructure (GitHub Actions, webhooks, etc.) exists but:
 
 Despite the criticisms above:
 
-1. **Novel architecture**: No other tool combines 5 analysis engines (AST + taint + symbolic + sandbox + binary). This is genuinely new in the ML security space.
+1. **Combined analysis architecture**: This repo combines AST, taint, symbolic, sandbox, and binary checks. Competitor coverage has not been independently benchmarked.
 
 2. **Zero-dependency design**: Real engineering advantage. No supply chain risk in the scanner itself. Deploys anywhere Python runs.
 
@@ -275,11 +275,11 @@ Despite the criticisms above:
 
 ## 10. Conclusion
 
-This is a **genuinely novel** and **practically useful** tool that addresses a real and growing threat. It would have prevented the May 2026 incident. It catches attacks that no competitor detects. Its zero-dependency design eliminates deployment friction.
+This is a defense-in-depth scanner for a real and growing threat. It would have emitted blocking findings for the reproduced May 2026 scenario. Competitor coverage and operational friction have not been independently benchmarked.
 
 It is NOT a silver bullet. No tool is. The remaining gaps (adoption, real-world scale testing, environmental gating, social engineering) are real. The "100% detection" claim is true but should be qualified.
 
-**Recommendation:** Deploy immediately in CI/CD pipelines. Pursue HuggingFace platform integration. Fix the packaging bugs. Test on real models. Publish the architecture.
+**Recommendation:** Pilot in non-blocking CI before enforcement. Pursue HuggingFace platform integration. Fix the packaging bugs. Test on real models. Publish the architecture.
 
 **Score:** 8.5/10 as a security tool. 9.5/10 for the specific problem it targets.
 

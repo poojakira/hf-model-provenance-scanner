@@ -13,7 +13,6 @@ permissions:
   contents: read
   security-events: write
   actions: read
-  id-token: write
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -46,10 +45,10 @@ jobs:
         run: pip install ruff==${{ env.RUFF_VERSION }}
 
       - name: Run Ruff Linter
-        run: ruff check scanner attack_mapping tests --output-format=github
+        run: ruff check scanner tests --output-format=github
 
       - name: Run Ruff Formatter Check
-        run: ruff format --check scanner attack_mapping tests
+        run: ruff format --check scanner tests
 
   typecheck:
     name: Type Check (Pyright)
@@ -88,9 +87,9 @@ jobs:
       - name: Run Pyright
         run: |
           if [ -d "attack-v19-core" ]; then
-            PYTHONPATH=.:attack-v19-core pyright scanner attack_mapping tests
+            PYTHONPATH=.:attack-v19-core pyright scanner tests
           else
-            pyright scanner attack_mapping tests
+            pyright scanner tests
           fi
 
   security:
@@ -127,7 +126,7 @@ jobs:
 
       - name: pip-audit (fail on known vulns)
         run: |
-          pip-audit -r requirements.txt --skip-editable --format json -o pip-audit.json || true
+          pip-audit --format json -o pip-audit.json || true
           python .github/scripts/check_pip_audit.py
 
       - name: Generate CycloneDX SBOM
@@ -272,7 +271,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'fs'
           scan-ref: '.'

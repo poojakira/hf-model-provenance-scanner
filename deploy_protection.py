@@ -201,7 +201,7 @@ class ProtectedModelServer:
 
 
 def create_production_config() -> dict:
-    """Production-ready configuration."""
+    """Deployment configuration example."""
     return {
         "static": {
             "fail_on": "high",

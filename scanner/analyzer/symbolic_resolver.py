@@ -68,7 +68,7 @@ def _make_finding(rule_id, file_path, line, evidence):
 def _resolve_node(node):
     """Safely resolve constant AST expressions to strings."""
     if isinstance(node, ast.Constant):
-        if isinstance(node.value, (str, int)):
+        if isinstance(node.value, str | int):
             return str(node.value)
     if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
         l, r = _resolve_node(node.left), _resolve_node(node.right)

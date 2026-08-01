@@ -148,7 +148,7 @@ class ScannerASTVisitor(ast.NodeVisitor):
                     return node.value.decode("utf-8")
                 except UnicodeDecodeError:
                     return None
-            if isinstance(node.value, (int, float, bool)):
+            if isinstance(node.value, int | float | bool):
                 return str(node.value)
         if isinstance(node, ast.Name):
             return self.constants.get(node.id)
@@ -265,7 +265,7 @@ class ScannerASTVisitor(ast.NodeVisitor):
         if call_name in ("getattr", "builtins.getattr") and len(node.args) >= 2:
             obj = (
                 dotted_name(node.args[0])
-                if isinstance(node.args[0], (ast.Name, ast.Attribute))
+                if isinstance(node.args[0], ast.Name | ast.Attribute)
                 else ""
             )
             if obj in ("os", "subprocess", "builtins", "__builtins__", "shutil", "ctypes"):
