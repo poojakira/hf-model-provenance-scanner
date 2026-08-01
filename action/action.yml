@@ -70,45 +70,50 @@ runs:
       id: scan
       shell: bash
       run: |
-        ARGS="${{ inputs.target }} --mode ${{ inputs.mode }} --fail-on ${{ inputs.fail-on }}"
-        ARGS="$ARGS --format ${{ inputs.format }}"
-        
+        case "${{ inputs.mode }}" in local|remote|both) ;; *) echo "invalid mode" >&2; exit 2 ;; esac
+        case "${{ inputs.fail-on }}" in critical|high|medium|low|info|never) ;; *) echo "invalid fail-on" >&2; exit 2 ;; esac
+        case "${{ inputs.format }}" in text|json|sarif|html) ;; *) echo "invalid format" >&2; exit 2 ;; esac
+        case "${{ inputs.sandbox }}" in true|false) ;; *) echo "invalid sandbox" >&2; exit 2 ;; esac
+
+        args=("${{ inputs.target }}" --mode "${{ inputs.mode }}" --fail-on "${{ inputs.fail-on }}" --format "${{ inputs.format }}")
+
         if [ -n "${{ inputs.output }}" ]; then
-          ARGS="$ARGS --output ${{ inputs.output }}"
+          args+=(--output "${{ inputs.output }}")
         fi
-        
+
         if [ "${{ inputs.sandbox }}" = "true" ]; then
-          ARGS="$ARGS --sandbox"
+          args+=(--sandbox)
         fi
-        
+
         if [ -n "${{ inputs.token }}" ]; then
-          ARGS="$ARGS --token ${{ inputs.token }}"
+          args+=(--token "${{ inputs.token }}")
         fi
-        
+
         if [ -n "${{ inputs.baseline }}" ]; then
-          ARGS="$ARGS --baseline ${{ inputs.baseline }}"
+          args+=(--baseline "${{ inputs.baseline }}")
         fi
-        
+
         if [ -n "${{ inputs.save-baseline }}" ]; then
-          ARGS="$ARGS --save-baseline ${{ inputs.save-baseline }}"
+          args+=(--save-baseline "${{ inputs.save-baseline }}")
         fi
-        
-        # Run scanner and capture exit code
+
+        # Run scanner and capture exit code. Keep inputs as array elements to avoid shell injection.
         set +e
-        hf-scanner $ARGS
+        hf-scanner "${args[@]}"
         EXIT_CODE=$?
         set -e
-        
-        echo "exit-code=$EXIT_CODE" >> $GITHUB_OUTPUT
-        
-        # Also run JSON format to extract metadata
-        JSON_OUT=$(hf-scanner ${{ inputs.target }} --mode ${{ inputs.mode }} --format json --fail-on never 2>/dev/null || true)
+
+        echo "exit-code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+
+        # Also run JSON format to extract metadata.
+        json_args=("${{ inputs.target }}" --mode "${{ inputs.mode }}" --format json --fail-on never)
+        JSON_OUT=$(hf-scanner "${json_args[@]}" 2>/dev/null || true)
         if [ -n "$JSON_OUT" ]; then
           echo "risk-score=$(echo "$JSON_OUT" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(d["risk"]["score"])')" >> $GITHUB_OUTPUT
           echo "risk-level=$(echo "$JSON_OUT" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(d["risk"]["level"])')" >> $GITHUB_OUTPUT
           echo "findings-count=$(echo "$JSON_OUT" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(len(d["findings"]))')" >> $GITHUB_OUTPUT
         fi
-        
+
         exit $EXIT_CODE
 
     - name: Upload SARIF (if applicable)
