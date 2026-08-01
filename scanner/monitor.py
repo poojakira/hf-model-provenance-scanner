@@ -26,6 +26,7 @@ import os
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -98,12 +99,15 @@ def fetch_newest(cfg: MonitorConfig) -> list[str]:
     blip returns an empty list rather than throwing; the caller just tries again
     next tick."""
     url = f"{HF_API}?sort=createdAt&direction=-1&limit={cfg.page_size}"
+    parsed_url = urllib.parse.urlparse(url)
+    if parsed_url.scheme not in {"http", "https"}:
+        return []
     headers = {"User-Agent": "hf-scanner-monitor/0.2.0"}
     if cfg.token:
         headers["Authorization"] = f"Bearer {cfg.token}"
     req = urllib.request.Request(url, headers=headers)
     try:
-        with urllib.request.urlopen(req, timeout=20) as resp:
+        with urllib.request.urlopen(req, timeout=20) as resp:  # nosec B310
             payload = json.loads(resp.read())
     except (urllib.error.URLError, OSError, json.JSONDecodeError) as err:
         # Don't die on a hiccup — a monitor that crashes on the first 503 is
@@ -255,3 +259,4 @@ def _build_config_from_env() -> MonitorConfig:
 
 if __name__ == "__main__":
     watch(_build_config_from_env())
+

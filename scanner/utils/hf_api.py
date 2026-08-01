@@ -12,6 +12,7 @@ import random
 import threading
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 
 MAX_DOWNLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
@@ -93,12 +94,15 @@ class HFApiClient:
         if wait_time > 0:
             time.sleep(wait_time)
 
+        parsed_url = urllib.parse.urlparse(url)
+        if parsed_url.scheme not in {"http", "https"}:
+            raise ValueError("Hugging Face API URL must use http or https")
         req = urllib.request.Request(url, headers=self._headers())
         last_error = None
 
         for attempt in range(MAX_RETRIES):
             try:
-                with urllib.request.urlopen(req, timeout=30) as resp:
+                with urllib.request.urlopen(req, timeout=30) as resp:  # nosec B310
                     # Update rate limiter from response headers
                     self._update_rate_limit(dict(resp.headers))
 
@@ -164,3 +168,4 @@ class HFApiClient:
         """Download a single file from the repository (max 10MB)."""
         url = f"{self.BASE}/{repo_id}/resolve/main/{filename}"
         return self._request(url, max_bytes=MAX_DOWNLOAD_BYTES)
+
