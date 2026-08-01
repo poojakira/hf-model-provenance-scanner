@@ -124,7 +124,7 @@ class HFApiClient:
                     raise
                 if attempt < MAX_RETRIES - 1:
                     # Exponential backoff with jitter
-                    delay = BASE_RETRY_DELAY * (2**attempt) + random.uniform(0, 0.5)
+                    delay = BASE_RETRY_DELAY * (2**attempt) + random.uniform(0, 0.5)  # noqa: S311 - retry jitter, not cryptographic randomness
                     if e.code == 429:
                         # Respect Retry-After header if present
                         retry_after = e.headers.get("Retry-After")
@@ -135,7 +135,7 @@ class HFApiClient:
             except (urllib.error.URLError, OSError) as e:
                 last_error = e
                 if attempt < MAX_RETRIES - 1:
-                    delay = BASE_RETRY_DELAY * (2**attempt) + random.uniform(0, 0.5)
+                    delay = BASE_RETRY_DELAY * (2**attempt) + random.uniform(0, 0.5)  # noqa: S311 - retry jitter, not cryptographic randomness
                     time.sleep(delay)
 
         raise RuntimeError(f"Request failed after {MAX_RETRIES} retries: {last_error}")
