@@ -168,4 +168,3 @@ class HFApiClient:
         """Download a single file from the repository (max 10MB)."""
         url = f"{self.BASE}/{repo_id}/resolve/main/{filename}"
         return self._request(url, max_bytes=MAX_DOWNLOAD_BYTES)
-
