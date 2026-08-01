@@ -26,7 +26,12 @@ def _slack_escalation(webhook_url: str):
     Kept as a closure so the URL is captured once. Failures here must never
     take down the watchtower — a dead Slack webhook is not a reason to stop
     watching the Hub."""
+    import urllib.parse
     import urllib.request
+
+    parsed_url = urllib.parse.urlparse(webhook_url)
+    if parsed_url.scheme not in {"http", "https"}:
+        raise ValueError("webhook_url must use http or https")
 
     def _notify(report: dict) -> None:
         risk = report.get("risk", {})
@@ -40,7 +45,7 @@ def _slack_escalation(webhook_url: str):
             webhook_url, data=body, headers={"Content-Type": "application/json"}, method="POST"
         )
         try:
-            urllib.request.urlopen(req, timeout=10)
+            urllib.request.urlopen(req, timeout=10)  # nosec B310
         except Exception as err:  # noqa: BLE001 - never crash the daemon on notify
             print(f"[monitor] slack notify failed: {err}", file=sys.stderr)
 
@@ -107,3 +112,4 @@ def main(argv=None) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
