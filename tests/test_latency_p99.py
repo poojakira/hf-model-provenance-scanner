@@ -6,11 +6,10 @@ Measures scanner performance on clean model payloads to verify:
 
 All data is constructed in-memory. No network calls.
 """
+
 import json
 import struct
 import time
-
-import pytest
 
 from scanner.analyzer.ast_visitor import analyze_python_source
 from scanner.analyzer.safetensors_scanner import analyze_safetensors_file
