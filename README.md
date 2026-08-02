@@ -26,8 +26,8 @@ This repository maps all security findings to [MITRE ATT&CK v19](https://attack.
 |------------|------------------|
 | Static and artifact scanning | Unit tests cover CLI, pickle, SafeTensors, GGUF, obfuscation, sandbox, IOC, and security-rejection paths. |
 | Detection-rate claims | Only cite detection percentages with the exact committed test corpus or evidence file that produced them. |
-| Latency claims | `tests/test_latency_p99.py` measures P99 < 200 ms on in-memory GPT-2 (12-layer) and Llama-3-8B (32-layer) clean payloads over 50 runs. |
-| False-positive rate | 0 findings on clean GPT-2 and Llama-3-8B safetensors + config (verified in `tests/test_latency_p99.py`). |
+| Latency claims | `tests/test_latency_p99.py` measures P99 < 200 ms over 50 runs using in-memory fixtures shaped like GPT-2 and Llama-3-8B metadata. It does not download or scan full model weights. |
+| False-positive rate | The same test reports 0 findings for its clean in-memory SafeTensors/config fixtures. This is not a false-positive measurement on published Hugging Face model files. |
 | Deployment posture | This is a security scanner/library. Treat runtime sandboxing as defense-in-depth, not a complete containment guarantee. |
 ### Migration from v18
 
