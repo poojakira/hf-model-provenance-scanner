@@ -11,6 +11,7 @@ import argparse
 import hashlib
 import json
 import platform
+import shutil
 import subprocess
 import sys
 import time
@@ -22,10 +23,10 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 if str(REPOSITORY_ROOT) not in sys.path:
     sys.path.insert(0, str(REPOSITORY_ROOT))
 
-from scanner.analyzer.safetensors_scanner import (
+from scanner.analyzer.safetensors_scanner import (  # noqa: E402
     SAFETENSORS_HEADER_SIZE_BYTES,
     analyze_safetensors_file,
-)  # noqa: E402
+)
 from scanner.cli import SCANNER_VERSION, analyze_source_file, scan_local  # noqa: E402
 from scanner.config import load_config  # noqa: E402
 from scanner.models import ScanResult  # noqa: E402
@@ -52,7 +53,10 @@ def sha256_file(path: Path) -> str:
 
 def git_commit() -> str | None:
     """Return the checked-out source commit when Git is available."""
-    result = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True)
+    executable = shutil.which("git")
+    if not executable:
+        return None
+    result = subprocess.run([executable, "rev-parse", "HEAD"], capture_output=True, text=True)
     return result.stdout.strip() if result.returncode == 0 else None
 
 
