@@ -2,6 +2,7 @@ import pytest
 
 try:
     from attack_v19_core import ATTACKIndex, ATTACKLoader
+
     from scanner.attack_mapping.enricher import ATTACKEnricher
 
     _HAS_ATTACK_CORE = True
