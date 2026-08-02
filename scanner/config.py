@@ -36,7 +36,12 @@ except ImportError:
                     elif v == "false":
                         v = False
                     elif v.startswith("[") and v.endswith("]"):
-                        v = []  # lists not fully supported in fallback
+                        items = v[1:-1].strip()
+                        v = [
+                            item.strip().strip('"').strip("'")
+                            for item in items.split(",")
+                            if item.strip()
+                        ]
                     current_section[k.strip('"')] = v
             return config
 
