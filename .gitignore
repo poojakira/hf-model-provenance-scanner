@@ -1,7 +1,7 @@
-__pycache__/
-*.pyc
-*.egg-info/
-.eggs/
+# Virtual environments
+test_env/
+venv/
+.venv/
 
 # Build artifacts
 dist/
@@ -11,15 +11,28 @@ build/
 
 # Coverage
 .coverage
-.coverage.*
 htmlcov/
-pytest_cache/
+
+# Logs
+install.log
+*.log
+logs/
+
+# Reports
+report*.html
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.eggs/
+
+# Test
+.pytest_cache/
 
 # IDE
 .vscode/
 .idea/
-*.swp
-*.swo
 
 # OS
 .DS_Store
@@ -39,17 +52,6 @@ Thumbs.db
 *.safetensors
 *.gguf
 
-# Logs
-*.log
-logs/
-
 # Temp
 tmp/
 temp/
-*.tmpvenv/
-.pytest_cache/
-__pycache__/
-*.pyc
-.coverage
-test_env/
-*.egg-info
