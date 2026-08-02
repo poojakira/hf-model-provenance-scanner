@@ -22,7 +22,11 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 if str(REPOSITORY_ROOT) not in sys.path:
     sys.path.insert(0, str(REPOSITORY_ROOT))
 
-from scanner.cli import SCANNER_VERSION, scan_local  # noqa: E402
+from scanner.analyzer.safetensors_scanner import (
+    SAFETENSORS_HEADER_SIZE_BYTES,
+    analyze_safetensors_file,
+)  # noqa: E402
+from scanner.cli import SCANNER_VERSION, analyze_source_file, scan_local  # noqa: E402
 from scanner.config import load_config  # noqa: E402
 from scanner.models import ScanResult  # noqa: E402
 from scanner.provenance import verify_sbom_artifacts  # noqa: E402
@@ -44,6 +48,12 @@ def sha256_file(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def git_commit() -> str | None:
+    """Return the checked-out source commit when Git is available."""
+    result = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True)
+    return result.stdout.strip() if result.returncode == 0 else None
 
 
 def artifact_manifest(root: Path) -> list[dict[str, Any]]:
@@ -81,8 +91,34 @@ def serialize_result(result: ScanResult) -> dict[str, Any]:
     }
 
 
+def scan_safetensors_header_once(root: Path) -> tuple[float, dict[str, Any]]:
+    """Measure metadata/header analysis without full tensor reads or artifact hashing."""
+    result = ScanResult(str(root), "local", SCANNER_VERSION)
+    started = time.perf_counter()
+    for path in sorted(root.rglob("*.safetensors")):
+        with path.open("rb") as handle:
+            prefix = handle.read(SAFETENSORS_HEADER_SIZE_BYTES)
+            if len(prefix) < SAFETENSORS_HEADER_SIZE_BYTES:
+                data = prefix
+            else:
+                header_size = int.from_bytes(prefix, "little")
+                data = prefix + handle.read(header_size)
+        result.files_scanned += 1
+        result.findings.extend(analyze_safetensors_file(str(path), data))
+    for name in ("config.json", "generation_config.json"):
+        path = root / name
+        if path.is_file():
+            data = path.read_bytes()
+            result.files_scanned += 1
+            result.findings.extend(analyze_source_file(str(path), data.decode("utf-8"), data))
+    result.risk = compute_risk(result)
+    return (time.perf_counter() - started) * 1000, serialize_result(result)
+
+
 def scan_once(root: Path, max_binary_mb: int, scope: str) -> tuple[float, dict[str, Any]]:
-    """Measure either scanner processing or complete CLI process execution."""
+    """Measure scanner metadata processing, full in-process scanning, or CLI execution."""
+    if scope == "safetensors-header":
+        return scan_safetensors_header_once(root)
     if scope == "in-process":
         result = ScanResult(str(root), "local", SCANNER_VERSION)
         started = time.perf_counter()
@@ -126,7 +162,11 @@ def main() -> None:
     parser.add_argument("--runs", type=int, default=100)
     parser.add_argument("--warmup", type=int, default=3)
     parser.add_argument("--max-binary-mb", type=int, default=10_000)
-    parser.add_argument("--measurement-scope", choices=["in-process", "cli"], default="in-process")
+    parser.add_argument(
+        "--measurement-scope",
+        choices=["safetensors-header", "in-process", "cli"],
+        default="in-process",
+    )
     parser.add_argument("--require-zero-findings", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -153,7 +193,8 @@ def main() -> None:
     payload = {
         "schema_version": "hf-real-artifact-evidence-v1",
         "generated_at_utc": datetime.now(UTC).isoformat(),
-        "claim_boundary": "Results apply only to the local artifact manifest and scanner revision recorded here.",
+        "claim_boundary": "Results apply only to the local artifact manifest, scanner revision, and measurement scope recorded here. SafeTensors-header scope excludes full tensor reads, artifact hashing, and process startup.",
+        "source_commit": git_commit(),
         "model": {"id": args.model_id, "revision": args.revision},
         "environment": {
             "python": sys.version,
