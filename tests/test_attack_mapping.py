@@ -1,7 +1,17 @@
 import pytest
-from attack_v19_core import ATTACKIndex, ATTACKLoader
 
-from scanner.attack_mapping.enricher import ATTACKEnricher
+try:
+    from attack_v19_core import ATTACKIndex, ATTACKLoader
+    from scanner.attack_mapping.enricher import ATTACKEnricher
+
+    _HAS_ATTACK_CORE = True
+except (ImportError, Exception):
+    _HAS_ATTACK_CORE = False
+
+pytestmark = pytest.mark.skipif(
+    not _HAS_ATTACK_CORE,
+    reason="attack-v19-core not installed or ATT&CK data not downloaded",
+)
 
 
 @pytest.fixture
