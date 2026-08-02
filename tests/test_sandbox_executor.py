@@ -41,7 +41,7 @@ def test_runtime_instrumentation_keeps_bare_os_import_quiet():
 def test_runtime_instrumentation_executes_target_in_separate_globals(monkeypatch):
     captured = {}
 
-    def fake_run(cmd, capture_output, text, timeout, env, cwd):
+    def fake_run(cmd, capture_output, text, timeout, env, cwd=None):
         with open(cmd[-1], encoding="utf-8") as handle:
             captured["script"] = handle.read()
         return SimpleNamespace(stdout="[]", stderr="", returncode=0)
