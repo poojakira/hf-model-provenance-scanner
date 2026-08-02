@@ -76,6 +76,8 @@ _F = []
 import os as _safe_os
 import os.path as _safe_path
 _BM = {"os","subprocess","shutil","ctypes","socket","webbrowser","urllib","http"}
+for _module_name in _BM:
+    sys.modules.pop(_module_name, None)
 class _M:
     def __init__(s,n): s._n=n
     def __getattr__(s,a):
@@ -107,6 +109,17 @@ _b.open=lambda *a,**k: (_ for _ in ()).throw(PermissionError("sandbox"))
 FOOTER = "\nimport sys,json\nsys.stdout.write(json.dumps(_F))\n"
 
 
+def _build_instrumented_source(source: str) -> str:
+    """Execute untrusted source in a separate globals dictionary inside the harness."""
+    return (
+        HARNESS
+        + "\n_USER_GLOBALS = {'__name__': '__main__'}\n_code = "
+        + repr(source)
+        + "\n_re(_code, _USER_GLOBALS, _USER_GLOBALS)\n"
+        + FOOTER
+    )
+
+
 def sandbox_execute(file_path: str, source: str) -> list[Finding]:
     """Execute code in sandboxed environment with multiple env configs, return findings."""
     backend = os.environ.get("HF_SANDBOX_BACKEND", "subprocess").lower()
@@ -133,17 +146,6 @@ def _sandbox_subprocess(file_path: str, source: str) -> list[Finding]:
                 findings.append(f)
         if findings:
             break
-
-    # Add warning about legacy sandbox
-    findings.append(
-        _make_finding(
-            "HFS-072",
-            file_path,
-            0,
-            "Sandbox: using legacy subprocess backend — set HF_SANDBOX_BACKEND=gvisor for stronger isolation",
-        )
-    )
-
     return findings
 
 
@@ -181,7 +183,7 @@ def _check_gvisor_available() -> bool:
 def _sandbox_gvisor_single(file_path: str, source: str, env: dict) -> list[Finding]:
     """Single gVisor sandbox execution with a specific environment."""
     findings: list[Finding] = []
-    instrumented = HARNESS + "\n" + source + "\n" + FOOTER
+    instrumented = _build_instrumented_source(source)
 
     with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
         f.write(instrumented)
@@ -326,7 +328,7 @@ def _check_firecracker_available() -> bool:
 def _sandbox_single_run(file_path: str, source: str, env: dict) -> list[Finding]:
     """Single sandbox execution with a specific environment."""
     findings: list[Finding] = []
-    instrumented = HARNESS + "\n" + source + "\n" + FOOTER
+    instrumented = _build_instrumented_source(source)
 
     with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
         f.write(instrumented)
@@ -408,17 +410,6 @@ def _sandbox_subprocess(file_path: str, source: str) -> list[Finding]:
                 findings.append(f)
         if findings:
             break
-
-    # Add warning about legacy sandbox
-    findings.append(
-        _make_finding(
-            "HFS-072",
-            file_path,
-            0,
-            "Sandbox: using legacy subprocess backend — set HF_SANDBOX_BACKEND=gvisor for stronger isolation",
-        )
-    )
-
     return findings
 
 
