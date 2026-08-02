@@ -5,6 +5,9 @@ try:
 
     from scanner.attack_mapping.enricher import ATTACKEnricher
 
+    # Verify data is actually downloaded (not just importable)
+    _loader = ATTACKLoader()
+    _index = ATTACKIndex(_loader)
     _HAS_ATTACK_CORE = True
 except (ImportError, Exception):
     _HAS_ATTACK_CORE = False
