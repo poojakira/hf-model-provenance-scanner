@@ -1,6 +1,6 @@
 # hf-model-provenance-scanner
 
-[![Live Dashboard](https://img.shields.io/badge/Live_Dashboard-View-blue)](https://poojakira.github.io/mlsec-dashboards/hf-model-provenance-scanner/)
+[![Live Dashboard](https://img.shields.io/badge/Live_Dashboard-View-blue)](https://poojakira.github.io/hf-model-provenance-scanner/)
 
 A security scanner that checks HuggingFace model repositories for supply chain attacks. It inspects model files (pickle, SafeTensors, GGUF, ONNX, Keras), Python source, shell scripts, configs, and dependency files for malicious payloads.
 
