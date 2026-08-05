@@ -6,15 +6,15 @@ A security scanner that checks HuggingFace model repositories for supply chain a
 
 ## What It Detects
 
-- **Pickle exploits** — malicious opcodes, gadget chains, and known bypass techniques (copyreg, STACK_GLOBAL, corrupted headers) that evade PickleScan
-- **Obfuscated payloads** — base64 encoding, chr() chains, string concatenation tricks hiding malicious code
-- **Command & control calls** — network connections to suspicious endpoints embedded in model metadata or source
-- **SSL/TLS bypass** — code that disables certificate verification to enable MITM attacks
-- **Shell injection** — malicious commands in shell scripts or GGUF/SafeTensors metadata
-- **Credential theft** — code that reads tokens, env vars, or credential files
-- **Typosquatting** — model repos with names similar to popular models
-- **Missing signatures** — repos without cryptographic signing or SBOM provenance
-- **Rug-pull detection** — temporal analysis that flags suspicious changes between model versions
+- **Pickle exploits** - malicious opcodes, gadget chains, and known bypass techniques (copyreg, STACK_GLOBAL, corrupted headers) that evade PickleScan
+- **Obfuscated payloads** - base64 encoding, chr() chains, string concatenation tricks hiding malicious code
+- **Command & control calls** - network connections to suspicious endpoints embedded in model metadata or source
+- **SSL/TLS bypass** - code that disables certificate verification to enable MITM attacks
+- **Shell injection** - malicious commands in shell scripts or GGUF/SafeTensors metadata
+- **Credential theft** - code that reads tokens, env vars, or credential files
+- **Typosquatting** - model repos with names similar to popular models
+- **Missing signatures** - repos without cryptographic signing or SBOM provenance
+- **Rug-pull detection** - temporal analysis that flags suspicious changes between model versions
 
 File formats scanned: `.pkl`, `.pt`, `.pth`, `.bin`, `.ckpt`, `.safetensors`, `.gguf`, `.onnx`, `.h5`, `.keras`, `.py`, `.sh`, `.bat`, `.ps1`, `.json`, `.toml`, `.yml`
 
@@ -126,14 +126,17 @@ hf-scanner ./model-folder --protect --protect-config config.json
 
 ## Test Results
 
-Tested against 12 documented real-world attacks from 2025-2026 (see `evidence/DETECTION_PROOF.md`):
+The scanner's detection capability is measured against its internal red-team fixture suite (see `evidence/DETECTION_PROOF.md`). These fixtures are controlled, internally maintained test cases — not a claim about arbitrary real-world models.
 
-- 12/12 attacks detected in the included red-team suite
-- 0 false positives on clean GPT-2 and Llama-3-8B SafeTensors files
-- P99 scan latency < 200ms on GPT-2 (12-layer) and Llama-3-8B (32-layer) over 50 runs
+Results on the internal fixture suite:
+
+- 12/12 documented incident-reproduction fixtures detected (real-world attack patterns from 2025-2026 JFrog and Sonatype research, reproduced as test cases)
+- 18/18 extended variant fixtures detected (additional attack permutations constructed internally)
+- 0 false positives on clean GPT-2 and Llama-3-8B SafeTensors fixtures
+- P99 scan latency < 200ms on GPT-2 SafeTensors metadata/header path over 50 runs (the Llama-3-8B test uses a simulated tensor structure, not a full model artifact scan)
 - Total red-team suite scan time: 116ms
 
-The test suite includes pickle bypass techniques from JFrog and Sonatype research, SafeTensors metadata injection, GGUF shell injection, and source-level attacks (credential theft, obfuscated loaders).
+**Scope note:** "12/12" and "18/18" refer to detection within this specific internal fixture suite. They are not claims about detection rates on arbitrary HuggingFace models in the wild. The false-positive results apply to the clean fixtures tested, not to all possible benign models.
 
 To reproduce:
 ```bash
@@ -144,17 +147,17 @@ python tests/redteam/simulate_attacks.py
 
 ```
 scanner/
-  cli.py              — CLI entry point
-  analyzer/           — Detection engines (pickle, safetensors, gguf, onnx, keras,
+  cli.py              - CLI entry point
+  analyzer/           - Detection engines (pickle, safetensors, gguf, onnx, keras,
                         obfuscation, taint, shell, config, ast, sandbox, temporal)
-  rules/              — Finding definitions and severity mappings
-  formatters/         — Output formatters (json, sarif, html)
-  attack_mapping/     — MITRE ATT&CK technique mapping
-  utils/              — HF API client, Levenshtein distance, file filtering
+  rules/              - Finding definitions and severity mappings
+  formatters/         - Output formatters (json, sarif, html)
+  attack_mapping/     - MITRE ATT&CK technique mapping
+  utils/              - HF API client, Levenshtein distance, file filtering
 tests/
-  redteam/            — Attack simulations and extended test corpus
-  fixtures/           — Benign and malicious test files
-integrations/         — CI configs for GitHub Actions, GitLab, Jenkins, CircleCI, Azure
+  redteam/            - Attack simulations and extended test corpus
+  fixtures/           - Benign and malicious test files
+integrations/         - CI configs for GitHub Actions, GitLab, Jenkins, CircleCI, Azure
 ```
 
 ## ATT&CK Mapping
@@ -166,9 +169,9 @@ pip install hf-scanner[attack]
 ```
 
 Key technique mappings:
-- T1195.001 — Supply Chain Compromise: Compromise Software Supply Chain
-- T1683/001 — Trusted Developer Utilities
-- T1027/018 — Obfuscated Files or Information
+- T1195.001 - Supply Chain Compromise: Compromise Software Supply Chain
+- T1683/001 - Trusted Developer Utilities
+- T1027/018 - Obfuscated Files or Information
 
 ## License
 
