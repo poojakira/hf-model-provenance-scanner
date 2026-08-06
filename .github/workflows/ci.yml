@@ -9,10 +9,11 @@ on:
     - cron: '0 2 * * 1'
   workflow_dispatch:
 
+# Hardening: explicit least-privilege permissions at workflow level.
+# Individual jobs that need more (e.g. security-events: write) declare
+# their own permissions block.
 permissions:
   contents: read
-  security-events: write
-  actions: read
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -31,12 +32,16 @@ jobs:
     name: Lint & Format
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        # actions/checkout v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        # actions/setup-python v5.3.0
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
@@ -55,18 +60,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: lint
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        # actions/checkout v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Checkout attack-v19-core
-        uses: actions/checkout@v4
+        # actions/checkout v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: poojakira/attack-v19-core
           path: attack-v19-core
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        # actions/setup-python v5.3.0
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
@@ -101,10 +111,12 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        # actions/checkout v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        # actions/setup-python v5.3.0
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
@@ -134,7 +146,8 @@ jobs:
 
       - name: Upload SBOM artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        # actions/upload-artifact v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: sbom
           path: sbom.json
@@ -142,7 +155,8 @@ jobs:
 
       - name: Upload Bandit report
         if: always()
-        uses: actions/upload-artifact@v4
+        # actions/upload-artifact v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: bandit-report
           path: bandit-report.json
@@ -153,22 +167,27 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     needs: lint
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        # actions/checkout v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Checkout attack-v19-core
-        uses: actions/checkout@v4
+        # actions/checkout v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: poojakira/attack-v19-core
           path: attack-v19-core
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        # actions/setup-python v5.3.0
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
@@ -205,7 +224,8 @@ jobs:
 
       - name: Upload coverage report
         if: always()
-        uses: actions/upload-artifact@v4
+        # actions/upload-artifact v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: coverage-${{ matrix.python-version }}
           path: coverage.xml
@@ -231,6 +251,7 @@ jobs:
     timeout-minutes: 30
     permissions:
       security-events: write
+      actions: read
       contents: read
     needs: lint
     strategy:
@@ -239,16 +260,19 @@ jobs:
         language: ['python']
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        # actions/checkout v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        # github/codeql-action v3.28.18
+        uses: github/codeql-action/init@f35333b910470a5408cb081b68f0701254a7d27b
         with:
           languages: ${{ matrix.language }}
           queries: +security-and-quality
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        # github/codeql-action v3.28.18
+        uses: github/codeql-action/analyze@f35333b910470a5408cb081b68f0701254a7d27b
         with:
           category: "/language:${{ matrix.language }}"
 
@@ -263,10 +287,12 @@ jobs:
     needs: lint
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        # actions/checkout v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@v0.36.0
+        # aquasecurity/trivy-action v0.36.0
+        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -275,7 +301,8 @@ jobs:
           severity: 'HIGH,CRITICAL'
 
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        # github/codeql-action v3.28.18
+        uses: github/codeql-action/upload-sarif@f35333b910470a5408cb081b68f0701254a7d27b
         with:
           sarif_file: 'trivy-results.sarif'
           category: trivy
@@ -286,15 +313,20 @@ jobs:
     timeout-minutes: 15
     if: ${{ always() }}
     needs: [lint, test]
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        # actions/checkout v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        # docker/setup-buildx-action v3.10.0
+        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2
 
       - name: Build Docker image (no push)
-        uses: docker/build-push-action@v6
+        # docker/build-push-action v6.15.0
+        uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4
         with:
           context: .
           push: false
@@ -314,10 +346,12 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        # actions/checkout v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        # actions/setup-python v5.3.0
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -333,4 +367,5 @@ jobs:
         run: twine check dist/*
 
       - name: Publish to PyPI (Trusted Publishing)
-        uses: pypa/gh-action-pypi-publish@release/v1
+        # pypa/gh-action-pypi-publish v1.12.4
+        uses: pypa/gh-action-pypi-publish@7f25271a4aa483500f742f9492b2ab5648d61011

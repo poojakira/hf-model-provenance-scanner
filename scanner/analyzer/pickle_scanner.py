@@ -17,6 +17,7 @@ import io
 import struct
 from pathlib import Path
 
+from scanner.config import MAX_ARCHIVE_MEMBERS, MAX_PICKLE_SIZE_BYTES
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
 
@@ -647,6 +648,20 @@ def scan_pickle_bytes(file_path: str, data: bytes) -> list[Finding]:
     """
     findings: list[Finding] = []
 
+    # --- Size guard (HIGH: CWE-770) ---
+    # Reject oversized inputs before any parsing. This prevents a crafted
+    # 1 GB pickle from consuming all available memory on the scanner host.
+    if len(data) > MAX_PICKLE_SIZE_BYTES:
+        findings.append(
+            _make_finding(
+                "HFS-098",
+                file_path,
+                f"Pickle/model file size {len(data) // (1024 * 1024)} MB exceeds "
+                f"MAX_PICKLE_SIZE_BYTES ({MAX_PICKLE_SIZE_BYTES // (1024 * 1024)} MB) — scan aborted",
+            )
+        )
+        return findings
+
     # CVE-2025-10155: File extension mismatch - pickle content with non-pickle extension
     lower_path = file_path.lower()
     if not (
@@ -664,18 +679,45 @@ def scan_pickle_bytes(file_path: str, data: bytes) -> list[Finding]:
 
     # Check if it's a ZIP file (PyTorch .pt format)
     if data[:2] == b"PK":
-        findings.extend(_scan_pytorch_zip(file_path, data))
+        try:
+            findings.extend(_scan_pytorch_zip(file_path, data))
+        except Exception as exc:  # noqa: BLE001 — top-level safety net
+            findings.append(
+                _make_finding(
+                    "HFS-098",
+                    file_path,
+                    f"Unhandled exception scanning ZIP/PyTorch archive: {type(exc).__name__}: {exc}",
+                )
+            )
     elif data[:1] == PICKLE_MAGIC or _looks_like_pickle(data):
         # Direct pickle file
-        scanner = PickleScanner(file_path, data)
-        findings.extend(scanner.scan())
+        try:
+            scanner = PickleScanner(file_path, data)
+            findings.extend(scanner.scan())
+        except Exception as exc:  # noqa: BLE001 — top-level safety net
+            findings.append(
+                _make_finding(
+                    "HFS-098",
+                    file_path,
+                    f"Unhandled exception scanning pickle: {type(exc).__name__}: {exc}",
+                )
+            )
     else:
         # Try scanning anyway — some pickle files have no magic
         # Search for pickle opcodes in the first 1MB
         scan_window = data[:1_048_576]
         if OP_GLOBAL in scan_window or OP_STACK_GLOBAL in scan_window:
-            scanner = PickleScanner(file_path, data)
-            findings.extend(scanner.scan())
+            try:
+                scanner = PickleScanner(file_path, data)
+                findings.extend(scanner.scan())
+            except Exception as exc:  # noqa: BLE001 — top-level safety net
+                findings.append(
+                    _make_finding(
+                        "HFS-098",
+                        file_path,
+                        f"Unhandled exception scanning potential pickle: {type(exc).__name__}: {exc}",
+                    )
+                )
 
     return findings
 
@@ -697,7 +739,21 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
 
     try:
         with zipfile.ZipFile(io.BytesIO(data), "r") as zf:
-            for name in zf.namelist():
+            all_names = zf.namelist()
+
+            # --- Archive member limit (HIGH: CWE-409 zip-bomb protection) ---
+            if len(all_names) > MAX_ARCHIVE_MEMBERS:
+                findings.append(
+                    _make_finding(
+                        "HFS-098",
+                        file_path,
+                        f"ZIP archive has {len(all_names)} members, exceeds MAX_ARCHIVE_MEMBERS "
+                        f"({MAX_ARCHIVE_MEMBERS}) — processing first {MAX_ARCHIVE_MEMBERS} only",
+                    )
+                )
+                all_names = all_names[:MAX_ARCHIVE_MEMBERS]
+
+            for name in all_names:
                 lower_name = name.lower()
                 # CVE-2025-10155: File extension mismatch - .bin with pickle content
                 if (
