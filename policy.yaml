@@ -1,0 +1,141 @@
+# policy.yaml — hf-model-provenance-scanner
+# Policy-as-code configuration. Secure defaults are set.
+# Every setting is an ALLOW-LIST, not a block-list.
+# If it's not listed here as allowed, it is denied.
+
+# ──────────────────────────────────────────────────────────────
+# Pickle opcode allow-list
+# ──────────────────────────────────────────────────────────────
+# SECURE DEFAULT: Only safe, data-only opcodes are allowed.
+# The dangerous opcodes (REDUCE, GLOBAL, STACK_GLOBAL, INST, OBJ,
+# NEWOBJ, BUILD with callable) are NOT listed here — they are implicitly denied.
+# These opcodes can call arbitrary Python functions during deserialization.
+#
+# WHY allow-list over block-list: New attack variants may use undocumented
+# or future opcodes. An allow-list rejects anything not explicitly approved.
+allowed_opcodes:
+  - MARK         # Stack marker — data structure only
+  - STOP         # End of pickle stream
+  - EMPTY_DICT   # {} literal
+  - EMPTY_LIST   # [] literal
+  - EMPTY_TUPLE  # () literal
+  - EMPTY_SET    # set() literal
+  - NONE         # None value
+  - INT          # Integer value
+  - LONG         # Long integer
+  - LONG1        # Long integer (compact)
+  - LONG4        # Long integer (extended)
+  - FLOAT        # Float value
+  - BINFLOAT     # Binary float
+  - STRING       # String value
+  - SHORT_BINSTRING  # Short binary string
+  - BINSTRING    # Binary string
+  - BINUNICODE   # Unicode string
+  - BINUNICODE8  # Unicode string (8-byte length)
+  - BINBYTES     # Bytes value
+  - BINBYTES8    # Bytes (8-byte length)
+  - BYTEARRAY8   # Bytearray
+  - NEXT_BUFFER  # Out-of-band buffer
+  - READONLY_BUFFER  # Readonly buffer
+  - TUPLE        # Tuple from stack
+  - TUPLE1       # 1-element tuple
+  - TUPLE2       # 2-element tuple
+  - TUPLE3       # 3-element tuple
+  - DICT         # Dict from stack
+  - LIST         # List from stack
+  - FROZENSET    # Frozenset
+  - SETITEMS     # Set dict items
+  - SETITEM      # Set single dict item
+  - APPEND       # Append to list
+  - APPENDS      # Append multiple to list
+  - BINPUT       # Store in memo
+  - LONG_BINPUT  # Store in memo (long index)
+  - BINGET       # Get from memo
+  - LONG_BINGET  # Get from memo (long index)
+  - PUT          # Store in memo (text)
+  - GET          # Get from memo (text)
+  - POP          # Discard top of stack
+  - POP_MARK     # Discard to mark
+  - DUP          # Duplicate top
+  - PROTO        # Protocol version declaration
+  - FRAME        # Frame marker (protocol 4+)
+  - MEMOIZE      # Store in memo (protocol 4+)
+  - NEWFALSE     # False literal
+  - NEWTRUE      # True literal
+
+# Opcodes that are NEVER allowed (implicit deny, listed for documentation):
+# REDUCE       — calls any callable with args. Primary RCE vector.
+# GLOBAL       — imports any module. Primary arbitrary import vector.
+# STACK_GLOBAL — GLOBAL variant. Used in gadget chains.
+# INST         — legacy object instantiation with callable.
+# OBJ          — object from callable on stack.
+# NEWOBJ       — object via __new__.
+# NEWOBJ_EX    — NEWOBJ with kwargs.
+# BUILD        — calls __setstate__ on objects (can call callables).
+# EXT1/EXT2/EXT4 — extended registry (used in copyreg bypasses).
+
+# ──────────────────────────────────────────────────────────────
+# Signature requirements
+# ──────────────────────────────────────────────────────────────
+# SECURE DEFAULT: Require Ed25519 or SHA-256 provenance.
+# WHY: An unsigned model artifact has no chain of custody.
+# If the original author didn't sign it, you can't verify it hasn't been tampered with.
+# Set to false ONLY if you have an alternate provenance mechanism (e.g., SLSA attestation).
+require_signature: true
+
+# ──────────────────────────────────────────────────────────────
+# SafeTensors requirement
+# ──────────────────────────────────────────────────────────────
+# SECURE DEFAULT: false — many legitimate models still use pickle-based .pt/.bin.
+# We enforce opcode scanning for those formats instead.
+# Set to true for the highest-security environments (green-field pipelines, 
+# regulated industries) where you can require SafeTensors from all model authors.
+require_safetensors: false
+
+# ──────────────────────────────────────────────────────────────
+# CI gate: fail on severity
+# ──────────────────────────────────────────────────────────────
+# SECURE DEFAULT: Fail on HIGH and CRITICAL.
+# LOW and MEDIUM findings are reported but do not block merge.
+# WHY: CRITICAL = active RCE/code execution risk. HIGH = strong indicator of malice.
+# MEDIUM findings (e.g., SSL bypass) are serious but may have legitimate use in dev environments.
+fail_on:
+  - CRITICAL
+  - HIGH
+
+# ──────────────────────────────────────────────────────────────
+# File size limits
+# ──────────────────────────────────────────────────────────────
+# Maximum binary file size to scan in MB.
+# WHY: Scanning multi-GB model files exhausts memory and CI time budgets.
+# Files above this limit emit a WARNING finding but are not scanned.
+# Reduce this if CI memory is constrained; increase if you need full coverage.
+max_binary_mb: 100
+
+# ──────────────────────────────────────────────────────────────
+# Sandbox execution
+# ──────────────────────────────────────────────────────────────
+# SECURE DEFAULT: false — sandbox adds significant overhead and requires
+# a compatible execution environment (Linux + seccomp).
+# Enable for highest-confidence detection of runtime behavior.
+# Never enable on shared CI runners without container isolation.
+sandbox_enabled: false
+
+# ──────────────────────────────────────────────────────────────
+# Temporal / rug-pull detection
+# ──────────────────────────────────────────────────────────────
+# SECURE DEFAULT: true if a baseline file exists.
+# Detects models that change between scans — a key rug-pull indicator.
+# Does nothing if no baseline file is provided.
+temporal_detection: true
+
+# ──────────────────────────────────────────────────────────────
+# Output
+# ──────────────────────────────────────────────────────────────
+# SECURE DEFAULT: Include remediation hints in every finding.
+# Developers need to know what to do, not just that something is wrong.
+include_remediation_hints: true
+
+# Default output format when --format is not specified on CLI.
+# sarif integrates with GitHub Code Scanning for free on public repos.
+default_output_format: sarif
