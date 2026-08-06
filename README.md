@@ -10,6 +10,48 @@
 
 ---
 
+## Model Signing (Ed25519)
+
+PulseNet signs every model artifact with Ed25519 to prevent supply chain tampering (MITRE ATT&CK **T1683.001**).
+
+### Generate keypair and sign a model
+
+```python
+from scanner.signing.ed25519 import ModelSigner
+
+# Generate keypair (store private key securely — never commit it)
+private_pem, public_pem = ModelSigner.generate_keypair()
+
+# Sign a model artifact
+sig = ModelSigner.sign_artifact(private_pem, 'model.safetensors')
+print(sig)
+# {
+#   'artifact_path': 'model.safetensors',
+#   'sha256': 'abc123...',
+#   'signature_b64': 'BASE64...',
+#   'algorithm': 'Ed25519',
+#   'signed_at': '2026-08-05T00:00:00+00:00'
+# }
+
+# Verify before loading
+ok = ModelSigner.verify_artifact(public_pem, 'model.safetensors', sig['signature_b64'])
+assert ok, 'Model artifact tampered — refusing to load'
+```
+
+### Why this matters
+
+A model file that passes SHA-256 checksum verification may still have been replaced if the attacker also updates the manifest. Ed25519 signing with a key stored outside the repo (e.g. AWS KMS, hardware key) makes manifest tampering cryptographically detectable without access to the private key.
+
+### Sign a provenance manifest
+
+```python
+manifest = {'model': 'llama-3-8b', 'sha256': 'abc...', 'source': 'meta-llama'}
+sig_b64 = ModelSigner.sign_manifest(private_pem, manifest)
+ok = ModelSigner.verify_manifest(public_pem, manifest, sig_b64)
+```
+
+---
+
 ## Supply Chain Threat Model
 
 This scanner was designed in response to real ML supply chain attacks — including the 2024–2025 wave of malicious Hugging Face model uploads documented by JFrog and Sonatype researchers, where pickle-serialized payloads executed arbitrary code on researcher and production machines upon `torch.load()` calls.
