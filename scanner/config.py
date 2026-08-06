@@ -1,5 +1,25 @@
 import os
 
+# ---------------------------------------------------------------------------
+# Security limits — authoritative constants for the entire scanner.
+# Import these from scanner.config rather than hard-coding in individual modules.
+# ---------------------------------------------------------------------------
+
+#: Maximum size of any non-binary source file to read into memory.
+MAX_FILE_SIZE_BYTES: int = 500 * 1024 * 1024  # 500 MB
+
+#: Maximum size of a pickle/model file to pass to the opcode scanner.
+#: Files larger than this are rejected with a HFS-098 size-limit finding.
+MAX_PICKLE_SIZE_BYTES: int = 100 * 1024 * 1024  # 100 MB
+
+#: Maximum number of members to process from a single ZIP/PyTorch archive.
+#: Protects against zip-bomb style resource exhaustion.
+MAX_ARCHIVE_MEMBERS: int = 1000
+
+#: Per-request network timeout when downloading files from Hugging Face.
+#: The value applies to urllib.request.urlopen(timeout=...) calls.
+DOWNLOAD_TIMEOUT_SECONDS: int = 300
+
 try:
     import tomllib
 except ImportError:
