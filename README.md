@@ -38,6 +38,63 @@ ok = ModelSigner.verify_artifact(public_pem, 'model.safetensors', sig['signature
 assert ok, 'Model artifact tampered — refusing to load'
 ```
 
+
+## Supply Chain Integrity — Signing, SBOM, and Release Verification
+
+### Model Signing (Ed25519)
+
+See the [Model Signing section](#model-signing-ed25519) below for usage.
+
+### Production Signing: sigstore/cosign
+
+For production supply chain use, Ed25519 with a repo-managed key is a starting point. The 2026 industry standard is **sigstore/cosign** with keyless signing via OIDC:
+
+`ash
+# Sign a model artifact with cosign (keyless, OIDC-based)
+cosign sign-blob model.safetensors \
+  --bundle model.safetensors.bundle
+
+# Verify
+cosign verify-blob model.safetensors \
+  --bundle model.safetensors.bundle \
+  --certificate-identity-regexp '.*' \
+  --certificate-oidc-issuer 'https://token.actions.githubusercontent.com'
+`
+
+> **Why not just Ed25519?** Homebrew Ed25519 requires distributing and trusting the public key out-of-band. sigstore/cosign uses transparency logs (Rekor) so any signature can be independently verified without pre-distributing keys. For a supply chain security tool, using sigstore is the credible choice. This repo includes Ed25519 as an educational implementation; use cosign in production.
+
+### SLSA Provenance
+
+This tool targets **SLSA Level 2** for its own releases:
+- Source: GitHub-hosted repository (SLSA L1)
+- Build: GitHub Actions with SLSA provenance generator (target: L2)
+- Artifact: Release tarball with SHA-256 manifest
+
+See .github/workflows/ for the provenance generation workflow.
+
+### CycloneDX SBOM
+
+Scan output can include a **CycloneDX 1.5 SBOM** alongside SARIF:
+
+`python
+from scanner.sbom.cyclonedx_generator import generate_model_sbom, save_sbom
+
+sbom = generate_model_sbom(
+    model_path='model.safetensors',
+    model_name='meta-llama/Llama-3-8B',
+    findings=scan_results,
+)
+save_sbom(sbom, 'output/model.cdx.json')
+`
+
+### Verify This Tool's Own Release
+
+`ash
+bash verify_my_release.sh v1.0.0
+`
+
+This script downloads the release tarball, computes SHA-256, compares against the provenance manifest, and optionally runs cosign verification.
+
 ### Why this matters
 
 A model file that passes SHA-256 checksum verification may still have been replaced if the attacker also updates the manifest. Ed25519 signing with a key stored outside the repo (e.g. AWS KMS, hardware key) makes manifest tampering cryptographically detectable without access to the private key.
