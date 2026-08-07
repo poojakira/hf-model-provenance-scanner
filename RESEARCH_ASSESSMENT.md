@@ -1,6 +1,6 @@
 # Research Assessment: HF Model Provenance Scanner
 
-**Author perspective:** Senior Research Engineer, 30 years in software security, applied ML systems, and supply-chain integrity at organizations including CERT/CC, Google Project Zero, and MITRE.
+Self-assessment by the author. No external review has been conducted.
 
 **Date:** July 2026
 
@@ -281,8 +281,4 @@ It is NOT a silver bullet. No tool is. The remaining gaps (adoption, real-world 
 
 **Recommendation:** Pilot in non-blocking CI before enforcement. Pursue HuggingFace platform integration. Fix the packaging bugs. Test on real models. Publish the architecture.
 
-**Score:** 8.5/10 as a security tool. 9.5/10 for the specific problem it targets.
 
----
-
-*Assessment conducted independently. No conflicts of interest.*
