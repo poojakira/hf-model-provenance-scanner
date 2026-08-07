@@ -1,5 +1,12 @@
 # Changelog - hf-model-provenance-scanner
 
+## [0.2.0] - 2026-08-07
+
+### Added
+- False-positive rate benchmark
+- Detection evidence table in README
+- 80+ analyzer rules
+
 ## [1.0.0] - 2026-07-22
 
 ### Changed - ATT&CK v19 Migration
