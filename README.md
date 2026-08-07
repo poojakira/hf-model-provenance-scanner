@@ -10,6 +10,19 @@
 
 ---
 
+## Detection Evidence
+
+| Metric | Value | Source |
+|--------|-------|--------|
+| Internal incident fixtures | 12/12 detected | [`tests/redteam/`](tests/redteam/) |
+| False-positive rate | **5.9%** (1/17 known-good configs) | [`evidence/generated/false_positive_rate.json`](evidence/generated/false_positive_rate.json) |
+| FP finding severity | LOW only (HFS-030: unpinned revision) | Methodology: configs from meta-llama, google, mistralai, microsoft, openai-community |
+| Header-scan P99 | < 5ms | [`evidence/generated/`](evidence/generated/) |
+
+**Known limitation:** All detection validation is against internal fixtures and synthetic configs. No large-scale wild corpus benchmark exists yet. The scanner has not been tested against HuggingFace's full model registry.
+
+---
+
 ## Model Signing (Ed25519)
 
 PulseNet signs every model artifact with Ed25519 to prevent supply chain tampering (MITRE ATT&CK **T1683.001**).
