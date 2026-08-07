@@ -1,0 +1,239 @@
+{
+  "name": "HF Model Security Scan Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "model-upload",
+        "responseMode": "onReceived",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "webhook-trigger",
+      "name": "Model Upload Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "model-scan-trigger"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "id": "check-repo-format",
+              "leftValue": "={{ $json.body.repo_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "isNotEmpty"
+              }
+            }
+          ]
+        }
+      },
+      "id": "validate-payload",
+      "name": "Validate Payload",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8000/scan",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "repo_id",
+              "value": "={{ $json.body.repo_id }}"
+            },
+            {
+              "name": "revision",
+              "value": "={{ $json.body.revision || 'main' }}"
+            },
+            {
+              "name": "scan_mode",
+              "value": "full"
+            },
+            {
+              "name": "fail_on",
+              "value": "high"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 120000,
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "run-provenance-scan",
+      "name": "Run Provenance Scan",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 240]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "id": "check-findings",
+              "leftValue": "={{ $json.risk.level }}",
+              "rightValue": "HIGH",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "check-severity",
+      "name": "High/Critical Findings?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 240]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SLACK_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"channel\": \"#ml-security-alerts\",\n  \"username\": \"Model Security Scanner\",\n  \"icon_emoji\": \":shield:\",\n  \"blocks\": [\n    {\n      \"type\": \"header\",\n      \"text\": {\n        \"type\": \"plain_text\",\n        \"text\": \":rotating_light: Malicious Model Detected\"\n      }\n    },\n    {\n      \"type\": \"section\",\n      \"fields\": [\n        { \"type\": \"mrkdwn\", \"text\": \"*Repo:*\\n{{ $('Run Provenance Scan').item.json.scan_target }}\" },\n        { \"type\": \"mrkdwn\", \"text\": \"*Risk:*\\n{{ $('Run Provenance Scan').item.json.risk.level }}\" },\n        { \"type\": \"mrkdwn\", \"text\": \"*Findings:*\\n{{ $('Run Provenance Scan').item.json.findings.length }} issues\" },\n        { \"type\": \"mrkdwn\", \"text\": \"*Top Finding:*\\n{{ $('Run Provenance Scan').item.json.findings[0].rule_id }}: {{ $('Run Provenance Scan').item.json.findings[0].evidence.substring(0, 100) }}\" }\n      ]\n    },\n    {\n      \"type\": \"actions\",\n      \"elements\": [\n        {\n          \"type\": \"button\",\n          \"text\": { \"type\": \"plain_text\", \"text\": \"View Full Report\" },\n          \"url\": \"{{ $env.SCANNER_DASHBOARD_URL }}/reports/{{ $('Run Provenance Scan').item.json.scan_id }}\",\n          \"style\": \"danger\"\n        }\n      ]\n    }\n  ]\n}"
+      },
+      "id": "alert-slack",
+      "name": "Alert Slack",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 180]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.QUARANTINE_API_URL }}/quarantine",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "repo_id",
+              "value": "={{ $('Run Provenance Scan').item.json.scan_target }}"
+            },
+            {
+              "name": "reason",
+              "value": "=Automated scan flagged {{ $('Run Provenance Scan').item.json.findings.length }} high/critical findings"
+            },
+            {
+              "name": "scan_id",
+              "value": "={{ $('Run Provenance Scan').item.json.scan_id }}"
+            },
+            {
+              "name": "findings_summary",
+              "value": "={{ JSON.stringify($('Run Provenance Scan').item.json.findings.map(f => f.rule_id)) }}"
+            }
+          ]
+        }
+      },
+      "id": "quarantine-model",
+      "name": "Quarantine Model",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.JIRA_BASE_URL }}/rest/api/3/issue",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"fields\": {\n    \"project\": { \"key\": \"{{ $env.JIRA_PROJECT_KEY }}\" },\n    \"issuetype\": { \"name\": \"Security Incident\" },\n    \"summary\": \"[AUTO] Malicious model detected: {{ $('Run Provenance Scan').item.json.scan_target }}\",\n    \"description\": {\n      \"type\": \"doc\",\n      \"version\": 1,\n      \"content\": [\n        {\n          \"type\": \"paragraph\",\n          \"content\": [\n            { \"type\": \"text\", \"text\": \"Automated provenance scan detected {{ $('Run Provenance Scan').item.json.findings.length }} findings at risk level {{ $('Run Provenance Scan').item.json.risk.level }}.\" }\n          ]\n        }\n      ]\n    },\n    \"priority\": { \"name\": \"Critical\" },\n    \"labels\": [\"ml-security\", \"automated-scan\", \"supply-chain\"]\n  }\n}"
+      },
+      "id": "create-jira-ticket",
+      "name": "Create Jira Ticket",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 240]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SLACK_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"channel\": \"#ml-security-alerts\",\n  \"text\": \":white_check_mark: Model scan passed: {{ $('Run Provenance Scan').item.json.scan_target }} ({{ $('Run Provenance Scan').item.json.findings.length }} low/info findings)\"\n}"
+      },
+      "id": "notify-clean",
+      "name": "Notify Clean Scan",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 420]
+    },
+    {
+      "parameters": {
+        "errorMessage": "=Invalid webhook payload: missing repo_id. Expected: {\"repo_id\": \"org/model-name\", \"revision\": \"commit-sha\"}"
+      },
+      "id": "reject-invalid",
+      "name": "Reject Invalid",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [680, 400]
+    }
+  ],
+  "connections": {
+    "Model Upload Webhook": {
+      "main": [
+        [{ "node": "Validate Payload", "type": "main", "index": 0 }]
+      ]
+    },
+    "Validate Payload": {
+      "main": [
+        [{ "node": "Run Provenance Scan", "type": "main", "index": 0 }],
+        [{ "node": "Reject Invalid", "type": "main", "index": 0 }]
+      ]
+    },
+    "Run Provenance Scan": {
+      "main": [
+        [{ "node": "High/Critical Findings?", "type": "main", "index": 0 }]
+      ]
+    },
+    "High/Critical Findings?": {
+      "main": [
+        [
+          { "node": "Alert Slack", "type": "main", "index": 0 },
+          { "node": "Quarantine Model", "type": "main", "index": 0 }
+        ],
+        [{ "node": "Notify Clean Scan", "type": "main", "index": 0 }]
+      ]
+    },
+    "Alert Slack": {
+      "main": [
+        [{ "node": "Create Jira Ticket", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "hf-model-provenance-scanner"
+  },
+  "tags": [
+    { "name": "ml-security" },
+    { "name": "supply-chain" },
+    { "name": "automated-response" }
+  ]
+}

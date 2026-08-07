@@ -200,3 +200,25 @@ jobs:
 2. **Next** — Add pre-commit hook (catches during development)
 3. **Then** — Deploy webhook for all HuggingFace repos in your org
 4. **Ongoing** — Enable temporal monitoring for rug-pull detection
+
+
+---
+
+## n8n Workflow Automation
+
+Import the pre-built n8n workflow for automated scan → alert → quarantine:
+
+```bash
+n8n import:workflow --input integrations/n8n-model-scan-pipeline.json
+```
+
+The workflow:
+1. Receives model upload webhooks
+2. Runs the provenance scan
+3. Routes by severity (HIGH/CRITICAL → incident path, LOW → notify success)
+4. Alerts Slack, quarantines the model, creates a Jira ticket
+
+See [`integrations/N8N_WORKFLOW.md`](integrations/N8N_WORKFLOW.md) for setup details.
+
+n8n Community Edition is free and self-hosted — no SaaS costs.
+
