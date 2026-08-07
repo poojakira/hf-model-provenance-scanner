@@ -6,7 +6,7 @@
 [![SARIF](https://img.shields.io/badge/SARIF-GitHub%20Code%20Scanning-blueviolet)](https://docs.github.com/en/code-security/code-scanning)
 [![SLSA Level 2](https://img.shields.io/badge/SLSA-Level%202%20Aligned-green)](https://slsa.dev/spec/v1.0/levels)
 
-[Live Dashboard](https://poojakira.github.io/hf-model-provenance-scanner/)
+[Demo Dashboard (static)](https://poojakira.github.io/hf-model-provenance-scanner/)
 
 ---
 
