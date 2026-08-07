@@ -1,0 +1,337 @@
+{
+  "name": "ML Security SOC — Full Incident Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "security-event",
+        "responseMode": "responseNode",
+        "options": { "rawBody": true }
+      },
+      "id": "n8n-node-1",
+      "name": "Ingest Security Event",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [180, 400],
+      "webhookId": "ml-sec-ingest"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalize incoming events from multiple sources into a common schema.\n// Supports: HF scanner webhooks, IAM scanner output, MCP gateway alerts,\n// CloudTrail GuardDuty findings, and generic SARIF.\n\nconst raw = $input.first().json.body || $input.first().json;\nconst headers = $input.first().json.headers || {};\n\n// Detect source by presence of known fields\nlet source = 'unknown';\nlet severity = 'medium';\nlet title = '';\nlet details = {};\nlet dedup_key = '';\n\nif (raw.findings && raw.scan_target) {\n  // HF Model Provenance Scanner output\n  source = 'hf-provenance-scanner';\n  severity = raw.risk?.level?.toLowerCase() || 'medium';\n  title = `Model supply chain: ${raw.findings.length} findings on ${raw.scan_target}`;\n  details = { repo: raw.scan_target, findings: raw.findings, risk: raw.risk };\n  dedup_key = `hf-${raw.scan_target}-${raw.risk?.score}`;\n\n} else if (raw.rule_id && raw.rule_id.startsWith('AIG')) {\n  // IAM Scanner finding\n  source = 'aws-agent-identity-guard';\n  severity = raw.severity || 'high';\n  title = `IAM: ${raw.rule_id} on ${raw.resource_name}`;\n  details = raw;\n  dedup_key = `iam-${raw.rule_id}-${raw.resource_name}`;\n\n} else if (raw.account_id && raw.findings) {\n  // IAM Scanner full report\n  source = 'aws-agent-identity-guard';\n  const crit = raw.findings.filter(f => f.severity === 'critical').length;\n  severity = crit > 0 ? 'critical' : 'high';\n  title = `IAM Posture: ${raw.findings.length} findings in account ${raw.account_id}`;\n  details = { account: raw.account_id, summary: raw.summary, top: raw.findings.slice(0, 5) };\n  dedup_key = `iam-account-${raw.account_id}-${raw.findings.length}`;\n\n} else if (raw.call_id && raw.tool_name) {\n  // MCP Gateway alert\n  source = 'mcp-security-gateway';\n  severity = raw.blocked ? 'high' : 'medium';\n  title = `MCP: ${raw.detection_type} on tool ${raw.tool_name}`;\n  details = raw;\n  dedup_key = `mcp-${raw.tool_name}-${raw.detection_type}`;\n\n} else if (raw.detail?.type && raw.source === 'aws.guardduty') {\n  // GuardDuty finding via EventBridge\n  source = 'guardduty';\n  severity = raw.detail.severity >= 7 ? 'critical' : raw.detail.severity >= 4 ? 'high' : 'medium';\n  title = `GuardDuty: ${raw.detail.type}`;\n  details = { finding_id: raw.detail.id, type: raw.detail.type, resource: raw.detail.resource };\n  dedup_key = `gd-${raw.detail.id}`;\n\n} else if (raw.runs && raw.$schema?.includes('sarif')) {\n  // Generic SARIF input\n  source = 'sarif';\n  const results = raw.runs?.[0]?.results || [];\n  const errors = results.filter(r => r.level === 'error');\n  severity = errors.length > 0 ? 'high' : 'medium';\n  title = `SARIF: ${results.length} results from ${raw.runs[0]?.tool?.driver?.name}`;\n  details = { tool: raw.runs[0]?.tool?.driver?.name, results_count: results.length };\n  dedup_key = `sarif-${raw.runs[0]?.tool?.driver?.name}-${results.length}`;\n\n} else {\n  title = `Unknown event from ${headers['user-agent'] || 'unknown'}`;\n  details = raw;\n  dedup_key = `unknown-${Date.now()}`;\n}\n\nreturn [{\n  json: {\n    event_id: `evt_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,\n    source,\n    severity,\n    title,\n    details,\n    dedup_key,\n    received_at: new Date().toISOString(),\n    raw_size_bytes: JSON.stringify(raw).length\n  }\n}];"
+      },
+      "id": "n8n-node-2",
+      "name": "Normalize Event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [420, 400]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "key": "=dedup:{{ $json.dedup_key }}",
+        "options": {}
+      },
+      "id": "n8n-node-3",
+      "name": "Check Dedup Cache",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [640, 400],
+      "credentials": { "redis": { "id": "redis-1", "name": "Redis" } }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false },
+          "conditions": [
+            {
+              "id": "not-duplicate",
+              "leftValue": "={{ $json.value }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "isEmpty" }
+            }
+          ]
+        }
+      },
+      "id": "n8n-node-4",
+      "name": "Is New Event?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [860, 400]
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "=dedup:{{ $('Normalize Event').item.json.dedup_key }}",
+        "value": "={{ $('Normalize Event').item.json.event_id }}",
+        "expire": true,
+        "ttl": 3600
+      },
+      "id": "n8n-node-5",
+      "name": "Set Dedup Key",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [1080, 340],
+      "credentials": { "redis": { "id": "redis-1", "name": "Redis" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Enrich the event with threat intelligence context.\n// In production this calls VirusTotal, AbuseIPDB, or internal TI feeds.\n// Here we add MITRE ATT&CK mapping based on the event source.\n\nconst event = $('Normalize Event').first().json;\nlet attack_techniques = [];\nlet attack_tactics = [];\nlet priority_score = 0;\n\nswitch (event.source) {\n  case 'hf-provenance-scanner':\n    attack_techniques = ['T1195.002', 'T1059.006', 'T1204.002'];\n    attack_tactics = ['TA0001', 'TA0002', 'TA0005'];\n    priority_score = event.severity === 'critical' ? 95 : event.severity === 'high' ? 75 : 40;\n    break;\n  case 'aws-agent-identity-guard':\n    attack_techniques = ['T1078.004', 'T1098', 'T1548'];\n    attack_tactics = ['TA0004', 'TA0003', 'TA0005'];\n    priority_score = event.severity === 'critical' ? 90 : event.severity === 'high' ? 70 : 35;\n    break;\n  case 'mcp-security-gateway':\n    attack_techniques = ['T1059', 'T1041', 'T1567'];\n    attack_tactics = ['TA0002', 'TA0010', 'TA0010'];\n    priority_score = event.severity === 'critical' ? 85 : event.severity === 'high' ? 65 : 30;\n    break;\n  case 'guardduty':\n    attack_techniques = ['T1190', 'T1110'];\n    attack_tactics = ['TA0001', 'TA0006'];\n    priority_score = event.severity === 'critical' ? 95 : event.severity === 'high' ? 80 : 50;\n    break;\n  default:\n    priority_score = 25;\n}\n\nreturn [{\n  json: {\n    ...event,\n    enrichment: {\n      mitre_attack: { techniques: attack_techniques, tactics: attack_tactics },\n      priority_score,\n      sla_minutes: priority_score >= 80 ? 15 : priority_score >= 60 ? 60 : 480,\n      auto_remediate: priority_score >= 85 && event.source === 'aws-agent-identity-guard',\n      requires_human: priority_score >= 80\n    }\n  }\n}];"
+      },
+      "id": "n8n-node-6",
+      "name": "Enrich & Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1080, 460]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": false },
+                "conditions": [
+                  { "leftValue": "={{ $json.enrichment.priority_score }}", "rightValue": 80, "operator": { "type": "number", "operation": "gte" } }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "critical_path"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": false },
+                "conditions": [
+                  { "leftValue": "={{ $json.enrichment.priority_score }}", "rightValue": 50, "operator": { "type": "number", "operation": "gte" } }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "high_path"
+            }
+          ],
+          "fallbackOutput": { "renameOutput": true, "outputKey": "low_path" }
+        }
+      },
+      "id": "n8n-node-7",
+      "name": "Route by Priority",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1300, 460]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.PAGERDUTY_EVENTS_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"routing_key\": \"{{ $env.PAGERDUTY_ROUTING_KEY }}\",\n  \"event_action\": \"trigger\",\n  \"dedup_key\": \"{{ $json.dedup_key }}\",\n  \"payload\": {\n    \"summary\": \"{{ $json.title }}\",\n    \"severity\": \"{{ $json.severity }}\",\n    \"source\": \"{{ $json.source }}\",\n    \"timestamp\": \"{{ $json.received_at }}\",\n    \"component\": \"ml-security-pipeline\",\n    \"group\": \"{{ $json.source }}\",\n    \"class\": \"security-incident\",\n    \"custom_details\": {\n      \"event_id\": \"{{ $json.event_id }}\",\n      \"priority_score\": {{ $json.enrichment.priority_score }},\n      \"mitre_techniques\": {{ JSON.stringify($json.enrichment.mitre_attack.techniques) }},\n      \"sla_minutes\": {{ $json.enrichment.sla_minutes }},\n      \"auto_remediate\": {{ $json.enrichment.auto_remediate }}\n    }\n  }\n}",
+        "options": { "timeout": 10000 }
+      },
+      "id": "n8n-node-8",
+      "name": "Page On-Call (PagerDuty)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1540, 340]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SLACK_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"channel\": \"#ml-security-incidents\",\n  \"username\": \"SOC Automation\",\n  \"icon_emoji\": \":rotating_light:\",\n  \"blocks\": [\n    { \"type\": \"header\", \"text\": { \"type\": \"plain_text\", \"text\": \":rotating_light: P1 — {{ $json.title }}\" } },\n    { \"type\": \"section\", \"fields\": [\n      { \"type\": \"mrkdwn\", \"text\": \"*Source:*\\n{{ $json.source }}\" },\n      { \"type\": \"mrkdwn\", \"text\": \"*Priority:*\\n{{ $json.enrichment.priority_score }}/100\" },\n      { \"type\": \"mrkdwn\", \"text\": \"*MITRE:*\\n{{ $json.enrichment.mitre_attack.techniques.join(', ') }}\" },\n      { \"type\": \"mrkdwn\", \"text\": \"*SLA:*\\n{{ $json.enrichment.sla_minutes }} min\" }\n    ]},\n    { \"type\": \"context\", \"elements\": [{ \"type\": \"mrkdwn\", \"text\": \"Event ID: `{{ $json.event_id }}` | Auto-remediate: {{ $json.enrichment.auto_remediate }}\" }] }\n  ]\n}"
+      },
+      "id": "n8n-node-9",
+      "name": "Alert Slack (Critical)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1540, 460]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.enrichment.auto_remediate }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ]
+        }
+      },
+      "id": "n8n-node-10",
+      "name": "Auto-Remediate?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1540, 580]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Auto-remediation: attach a deny-all permission boundary to the offending role.\n// This is non-destructive (doesn't delete the role) but immediately contains\n// the blast radius while humans investigate.\n\nconst event = $input.first().json;\nconst roleName = event.details?.resource_name || event.details?.top?.[0]?.resource_name;\n\nif (!roleName) {\n  return [{ json: { action: 'skip', reason: 'no role name in event details' } }];\n}\n\n// The actual AWS CLI command to attach a deny-all boundary.\n// In production, this would use an IAM role with only iam:PutRolePermissionsBoundary.\nconst command = [\n  'aws', 'iam', 'put-role-permissions-boundary',\n  '--role-name', roleName,\n  '--permissions-boundary', `arn:aws:iam::${event.details?.account || 'ACCOUNT_ID'}:policy/SecurityContainment-DenyAll`\n].join(' ');\n\nreturn [{\n  json: {\n    action: 'contain',\n    command,\n    role: roleName,\n    note: 'Attached deny-all permission boundary. Role still exists but cannot perform any action until boundary is removed by security team.',\n    event_id: event.event_id\n  }\n}];"
+      },
+      "id": "n8n-node-11",
+      "name": "Generate Containment",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1760, 520]
+    },
+    {
+      "parameters": {
+        "command": "={{ $json.command }}",
+        "options": { "timeout": 30000 }
+      },
+      "id": "n8n-node-12",
+      "name": "Execute Containment",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1980, 520]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SLACK_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"channel\": \"#ml-security-incidents\",\n  \"text\": \":shield: *Auto-contained:* Permission boundary attached to `{{ $('Generate Containment').item.json.role }}`. Role is now deny-all until security team removes boundary.\\nEvent: `{{ $('Generate Containment').item.json.event_id }}`\"\n}"
+      },
+      "id": "n8n-node-13",
+      "name": "Confirm Containment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2200, 520]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SLACK_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"channel\": \"#ml-security-alerts\",\n  \"text\": \":warning: *P2 Alert:* {{ $json.title }}\\nSource: {{ $json.source }} | Score: {{ $json.enrichment.priority_score }}/100 | SLA: {{ $json.enrichment.sla_minutes }}min\\nMITRE: {{ $json.enrichment.mitre_attack.techniques.join(', ') }}\"\n}"
+      },
+      "id": "n8n-node-14",
+      "name": "Alert Slack (High)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1540, 700]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.JIRA_BASE_URL }}/rest/api/3/issue",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"fields\": {\n    \"project\": { \"key\": \"{{ $env.JIRA_PROJECT_KEY }}\" },\n    \"issuetype\": { \"name\": \"Security Incident\" },\n    \"summary\": \"[{{ $json.severity.toUpperCase() }}] {{ $json.title }}\",\n    \"priority\": { \"name\": \"{{ $json.enrichment.priority_score >= 80 ? 'Critical' : 'High' }}\" },\n    \"labels\": [\"ml-security\", \"automated\", \"{{ $json.source }}\"],\n    \"description\": {\n      \"type\": \"doc\", \"version\": 1,\n      \"content\": [{ \"type\": \"paragraph\", \"content\": [{ \"type\": \"text\", \"text\": \"Priority: {{ $json.enrichment.priority_score }}/100. SLA: {{ $json.enrichment.sla_minutes }} minutes. MITRE: {{ $json.enrichment.mitre_attack.techniques.join(', ') }}. Auto-remediate: {{ $json.enrichment.auto_remediate }}.\" }] }]\n    }\n  }\n}"
+      },
+      "id": "n8n-node-15",
+      "name": "Create Incident Ticket",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1760, 700]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log to append-only audit trail (S3 or local file)\nconst event = $('Normalize Event').first().json;\nconst enriched = $('Enrich & Score').first().json;\n\nreturn [{\n  json: {\n    timestamp: new Date().toISOString(),\n    event_id: event.event_id,\n    source: event.source,\n    severity: event.severity,\n    title: event.title,\n    priority_score: enriched.enrichment?.priority_score,\n    mitre_techniques: enriched.enrichment?.mitre_attack?.techniques,\n    dedup_key: event.dedup_key,\n    outcome: 'processed'\n  }\n}];"
+      },
+      "id": "n8n-node-16",
+      "name": "Audit Log Entry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1540, 840]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ accepted: true, event_id: $('Normalize Event').item.json.event_id, dedup_key: $('Normalize Event').item.json.dedup_key }) }}"
+      },
+      "id": "n8n-node-17",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1300, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ accepted: false, reason: 'duplicate', existing_event: $json.value }) }}",
+        "options": { "responseCode": 409 }
+      },
+      "id": "n8n-node-18",
+      "name": "Respond 409 Duplicate",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1080, 560]
+    }
+  ],
+  "connections": {
+    "Ingest Security Event": {
+      "main": [[{ "node": "Normalize Event", "type": "main", "index": 0 }]]
+    },
+    "Normalize Event": {
+      "main": [[{ "node": "Check Dedup Cache", "type": "main", "index": 0 }]]
+    },
+    "Check Dedup Cache": {
+      "main": [[{ "node": "Is New Event?", "type": "main", "index": 0 }]]
+    },
+    "Is New Event?": {
+      "main": [
+        [
+          { "node": "Set Dedup Key", "type": "main", "index": 0 },
+          { "node": "Enrich & Score", "type": "main", "index": 0 },
+          { "node": "Respond 200", "type": "main", "index": 0 }
+        ],
+        [{ "node": "Respond 409 Duplicate", "type": "main", "index": 0 }]
+      ]
+    },
+    "Enrich & Score": {
+      "main": [[{ "node": "Route by Priority", "type": "main", "index": 0 }]]
+    },
+    "Route by Priority": {
+      "main": [
+        [
+          { "node": "Page On-Call (PagerDuty)", "type": "main", "index": 0 },
+          { "node": "Alert Slack (Critical)", "type": "main", "index": 0 },
+          { "node": "Auto-Remediate?", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Alert Slack (High)", "type": "main", "index": 0 },
+          { "node": "Create Incident Ticket", "type": "main", "index": 0 }
+        ],
+        [{ "node": "Audit Log Entry", "type": "main", "index": 0 }]
+      ]
+    },
+    "Auto-Remediate?": {
+      "main": [
+        [{ "node": "Generate Containment", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Generate Containment": {
+      "main": [[{ "node": "Execute Containment", "type": "main", "index": 0 }]]
+    },
+    "Execute Containment": {
+      "main": [[{ "node": "Confirm Containment", "type": "main", "index": 0 }]]
+    },
+    "Alert Slack (High)": {
+      "main": [[{ "node": "Create Incident Ticket", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "errorWorkflow": "error-handler-workflow-id"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "ml-security-soc"
+  },
+  "pinData": {},
+  "tags": [
+    { "name": "soc-automation" },
+    { "name": "incident-response" },
+    { "name": "ml-security" },
+    { "name": "auto-remediation" },
+    { "name": "production" }
+  ]
+}

@@ -21,6 +21,19 @@
 
 **Known limitation:** All detection validation is against internal fixtures and synthetic configs. No large-scale wild corpus benchmark exists yet. The scanner has not been tested against HuggingFace's full model registry.
 
+## n8n Workflow Automation
+
+Three import-ready n8n workflows for production SOC integration:
+
+| Workflow | What it does |
+|----------|-------------|
+| [Model Scan Pipeline](integrations/n8n-model-scan-pipeline.json) | Webhook → scan → severity routing → Slack alert → quarantine → Jira |
+| [SOC Incident Pipeline](integrations/n8n-soc-incident-pipeline.json) | Multi-source ingest → Redis dedup → MITRE enrichment → priority routing → PagerDuty → auto-remediation |
+
+Features: Redis-based deduplication, MITRE ATT&CK mapping, SLA assignment (15/60/480 min), automated IAM containment via permission boundaries.
+
+See [`integrations/N8N_MASTERY.md`](integrations/N8N_MASTERY.md) for full architecture and setup.
+
 ---
 
 ## Model Signing (Ed25519)
