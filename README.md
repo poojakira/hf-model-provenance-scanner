@@ -11,6 +11,25 @@ A single `torch.load()` call deserializes attacker-controlled pickle bytecode. M
 
 `hf-scanner` is a static analysis tool that detects these attacks **before** model weights are loaded into memory. It combines a taint engine, symbolic resolver, and temporal scanner — capabilities that don't exist in ModelScan or PickleScan.
 
+## Verified head-to-head vs Protect AI ModelScan 0.8.8
+
+We benchmark against the actual installed competitor (`pip install modelscan==0.8.8`), not a description of it. Both scanners run as subprocesses against the same files; numbers come straight from each tool's JSON output. Reproduce with `python benchmark/modelscan_headtohead.py`.
+
+| Payload | Technique | ModelScan 0.8.8 | hf-scanner |
+|---------|-----------|-----------------|------------|
+| `os.system` | direct denylist | ✅ caught | ✅ caught |
+| `subprocess.Popen` | direct denylist | ✅ caught | ✅ caught |
+| `runpy.run_path` | indirect exec | ✅ caught | ✅ caught |
+| `bdb.Bdb().run` | debugger exec | ✅ caught | ✅ caught |
+| `builtins.exec` via getattr | obfuscated ref | ✅ caught | ✅ caught |
+| `webbrowser.open` | platform trigger | ✅ caught | ✅ caught |
+| **`timeit.timeit(code)`** | **memoized-global exec** | ❌ **MISSED** | ✅ caught |
+| **`importlib.import_module('os')`** | **gadget-chain import** | ❌ **MISSED** | ✅ caught |
+
+**Detection: hf-scanner 8/8 (100%) vs ModelScan 6/8 (75%).** ModelScan misses `timeit` and `importlib` because its scanner does not treat those stdlib entry points as unsafe. `timeit.timeit()` compiles and runs an arbitrary code string; `importlib.import_module` is the first link in a getattr→call gadget chain. Our memo-aware opcode parser reconstructs globals even when the pickle reuses a single memoized string across module and qualname (the exact trick that hides `timeit.timeit`).
+
+**False positives: 0/5 for both** on legitimate sklearn/PyTorch/numpy/tokenizer pickles. We add recall without adding noise. Evidence: [`evidence/generated/modelscan_headtohead.json`](evidence/generated/modelscan_headtohead.json), [`evidence/generated/modelscan_false_positive.json`](evidence/generated/modelscan_false_positive.json). Regression-locked in [`tests/test_modelscan_bypass_regression.py`](tests/test_modelscan_bypass_regression.py).
+
 ---
 
 ## Install and Scan in 20 Seconds
