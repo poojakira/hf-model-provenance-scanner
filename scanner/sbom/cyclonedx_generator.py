@@ -11,6 +11,7 @@ Generates a CycloneDX 1.5 JSON SBOM describing:
 
 CycloneDX spec: https://cyclonedx.org/specification/overview/
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -19,7 +20,6 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-
 
 CYCLONEDX_VERSION = "1.5"
 CYCLONEDX_SCHEMA = "http://cyclonedx.org/schema/bom-1.5.schema.json"

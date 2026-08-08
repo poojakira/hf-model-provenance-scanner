@@ -13,15 +13,16 @@ Usage:
     sig = ModelSigner.sign_artifact(private_pem, 'model.safetensors')
     ok = ModelSigner.verify_artifact(public_pem, 'model.safetensors', sig['signature_b64'])
 """
+
 from __future__ import annotations
+
 import base64
 import hashlib
 import json
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any
 
-from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 
 
@@ -56,8 +57,8 @@ class ModelSigner:
     @staticmethod
     def _sha256_file(path: str) -> str:
         h = hashlib.sha256()
-        with open(path, 'rb') as f:
-            for chunk in iter(lambda: f.read(65536), b''):
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(65536), b""):
                 h.update(chunk)
         return h.hexdigest()
 
@@ -67,24 +68,25 @@ class ModelSigner:
         Returns dict with: artifact_path, sha256, signature_b64, algorithm, signed_at
         """
         sha256 = ModelSigner._sha256_file(artifact_path)
-        payload = json.dumps({'path': artifact_path, 'sha256': sha256}, sort_keys=True).encode()
+        payload = json.dumps({"path": artifact_path, "sha256": sha256}, sort_keys=True).encode()
         private_key = ModelSigner._load_private_key(private_key_pem)
         signature = private_key.sign(payload)
         return {
-            'artifact_path': artifact_path,
-            'sha256': sha256,
-            'signature_b64': base64.b64encode(signature).decode(),
-            'algorithm': 'Ed25519',
-            'signed_at': datetime.now(tz=timezone.utc).isoformat(),
+            "artifact_path": artifact_path,
+            "sha256": sha256,
+            "signature_b64": base64.b64encode(signature).decode(),
+            "algorithm": "Ed25519",
+            "signed_at": datetime.now(tz=timezone.utc).isoformat(),
         }
 
     @staticmethod
     def verify_artifact(public_key_pem: bytes, artifact_path: str, signature_b64: str) -> bool:
         """Verify a model artifact signature. Returns True if valid."""
         from cryptography.exceptions import InvalidSignature
+
         try:
             sha256 = ModelSigner._sha256_file(artifact_path)
-            payload = json.dumps({'path': artifact_path, 'sha256': sha256}, sort_keys=True).encode()
+            payload = json.dumps({"path": artifact_path, "sha256": sha256}, sort_keys=True).encode()
             public_key = ModelSigner._load_public_key(public_key_pem)
             signature = base64.b64decode(signature_b64)
             public_key.verify(signature, payload)
@@ -100,9 +102,12 @@ class ModelSigner:
         return base64.b64encode(private_key.sign(payload)).decode()
 
     @staticmethod
-    def verify_manifest(public_key_pem: bytes, manifest: dict[str, Any], signature_b64: str) -> bool:
+    def verify_manifest(
+        public_key_pem: bytes, manifest: dict[str, Any], signature_b64: str
+    ) -> bool:
         """Verify a signed manifest. Returns True if valid."""
         from cryptography.exceptions import InvalidSignature
+
         try:
             payload = json.dumps(manifest, sort_keys=True).encode()
             public_key = ModelSigner._load_public_key(public_key_pem)

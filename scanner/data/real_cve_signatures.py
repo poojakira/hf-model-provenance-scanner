@@ -401,27 +401,31 @@ def detect_pickle_rce(data: bytes) -> list[dict]:
     for pattern in CVE_2024_5480.byte_patterns:
         offset = data.find(pattern)
         if offset != -1:
-            matches.append({
-                "cve": CVE_2024_5480.cve_id,
-                "source": CVE_2024_5480.source,
-                "pattern": pattern,
-                "offset": offset,
-                "severity": CVE_2024_5480.severity,
-                "description": f"Pickle RCE gadget: {pattern[:40]!r}",
-            })
+            matches.append(
+                {
+                    "cve": CVE_2024_5480.cve_id,
+                    "source": CVE_2024_5480.source,
+                    "pattern": pattern,
+                    "offset": offset,
+                    "severity": CVE_2024_5480.severity,
+                    "description": f"Pickle RCE gadget: {pattern[:40]!r}",
+                }
+            )
 
     # Check JFrog 2024 patterns
     for pattern in JFROG_2024.byte_patterns:
         offset = data.find(pattern)
         if offset != -1:
-            matches.append({
-                "cve": JFROG_2024.cve_id,
-                "source": JFROG_2024.source,
-                "pattern": pattern,
-                "offset": offset,
-                "severity": JFROG_2024.severity,
-                "description": f"JFrog malicious model indicator: {pattern[:40]!r}",
-            })
+            matches.append(
+                {
+                    "cve": JFROG_2024.cve_id,
+                    "source": JFROG_2024.source,
+                    "pattern": pattern,
+                    "offset": offset,
+                    "severity": JFROG_2024.severity,
+                    "description": f"JFrog malicious model indicator: {pattern[:40]!r}",
+                }
+            )
 
     return matches
 
@@ -437,27 +441,31 @@ def detect_typosquat(org_name: str) -> list[dict]:
 
     for malicious, target, technique in SONATYPE_2024_TYPOSQUATS:
         if org_lower == malicious.lower():
-            matches.append({
-                "cve": SONATYPE_2024.cve_id,
-                "source": SONATYPE_2024.source,
-                "malicious_name": malicious,
-                "target_org": target,
-                "technique": technique,
-                "severity": SONATYPE_2024.severity,
-                "description": f"Known typosquat: '{malicious}' impersonates '{target}' via {technique}",
-            })
+            matches.append(
+                {
+                    "cve": SONATYPE_2024.cve_id,
+                    "source": SONATYPE_2024.source,
+                    "malicious_name": malicious,
+                    "target_org": target,
+                    "technique": technique,
+                    "severity": SONATYPE_2024.severity,
+                    "description": f"Known typosquat: '{malicious}' impersonates '{target}' via {technique}",
+                }
+            )
 
     # Check homoglyph confusion even for unknown names
     for legit_char, confusable in HOMOGLYPH_PAIRS:
         if confusable in org_name:  # case-sensitive check for homoglyphs
-            matches.append({
-                "cve": SONATYPE_2024.cve_id,
-                "source": SONATYPE_2024.source,
-                "org_name": org_name,
-                "homoglyph": f"'{confusable}' could be confused with '{legit_char}'",
-                "severity": "MEDIUM",
-                "description": f"Potential homoglyph confusion: '{confusable}' in '{org_name}'",
-            })
+            matches.append(
+                {
+                    "cve": SONATYPE_2024.cve_id,
+                    "source": SONATYPE_2024.source,
+                    "org_name": org_name,
+                    "homoglyph": f"'{confusable}' could be confused with '{legit_char}'",
+                    "severity": "MEDIUM",
+                    "description": f"Potential homoglyph confusion: '{confusable}' in '{org_name}'",
+                }
+            )
 
     return matches
 
@@ -475,42 +483,48 @@ def detect_safetensors_injection(header_data: bytes, header_size: int) -> list[d
     # Check header size against thresholds
     thresholds = WIZ_HEADER_THRESHOLDS
     if header_size > thresholds["malicious"]:
-        matches.append({
-            "cve": WIZ_2024.cve_id,
-            "source": WIZ_2024.source,
-            "severity": "CRITICAL",
-            "header_size": header_size,
-            "threshold": "malicious",
-            "description": (
-                f"Header size {header_size:,} bytes exceeds malicious threshold "
-                f"({thresholds['malicious']:,} bytes)"
-            ),
-        })
+        matches.append(
+            {
+                "cve": WIZ_2024.cve_id,
+                "source": WIZ_2024.source,
+                "severity": "CRITICAL",
+                "header_size": header_size,
+                "threshold": "malicious",
+                "description": (
+                    f"Header size {header_size:,} bytes exceeds malicious threshold "
+                    f"({thresholds['malicious']:,} bytes)"
+                ),
+            }
+        )
     elif header_size > thresholds["suspicious"]:
-        matches.append({
-            "cve": WIZ_2024.cve_id,
-            "source": WIZ_2024.source,
-            "severity": "HIGH",
-            "header_size": header_size,
-            "threshold": "suspicious",
-            "description": (
-                f"Header size {header_size:,} bytes exceeds suspicious threshold "
-                f"({thresholds['suspicious']:,} bytes)"
-            ),
-        })
+        matches.append(
+            {
+                "cve": WIZ_2024.cve_id,
+                "source": WIZ_2024.source,
+                "severity": "HIGH",
+                "header_size": header_size,
+                "threshold": "suspicious",
+                "description": (
+                    f"Header size {header_size:,} bytes exceeds suspicious threshold "
+                    f"({thresholds['suspicious']:,} bytes)"
+                ),
+            }
+        )
 
     # Scan header content for injection patterns
     for pattern in WIZ_2024.byte_patterns:
         offset = header_data.find(pattern)
         if offset != -1:
-            matches.append({
-                "cve": WIZ_2024.cve_id,
-                "source": WIZ_2024.source,
-                "severity": WIZ_2024.severity,
-                "pattern": pattern,
-                "offset": offset,
-                "description": f"Code injection in safetensors header: {pattern[:40]!r}",
-            })
+            matches.append(
+                {
+                    "cve": WIZ_2024.cve_id,
+                    "source": WIZ_2024.source,
+                    "severity": WIZ_2024.severity,
+                    "pattern": pattern,
+                    "offset": offset,
+                    "description": f"Code injection in safetensors header: {pattern[:40]!r}",
+                }
+            )
 
     # Check regex patterns against decoded header text
     try:
@@ -518,14 +532,16 @@ def detect_safetensors_injection(header_data: bytes, header_size: int) -> list[d
         for regex in WIZ_2024.regex_patterns:
             match = regex.search(header_text)
             if match:
-                matches.append({
-                    "cve": WIZ_2024.cve_id,
-                    "source": WIZ_2024.source,
-                    "severity": WIZ_2024.severity,
-                    "regex": regex.pattern,
-                    "match": match.group()[:100],
-                    "description": f"Regex match in header: {match.group()[:60]}",
-                })
+                matches.append(
+                    {
+                        "cve": WIZ_2024.cve_id,
+                        "source": WIZ_2024.source,
+                        "severity": WIZ_2024.severity,
+                        "regex": regex.pattern,
+                        "match": match.group()[:100],
+                        "description": f"Regex match in header: {match.group()[:60]}",
+                    }
+                )
     except Exception:
         pass
 
@@ -551,31 +567,35 @@ def detect_gguf_overflow(data: bytes) -> list[dict]:
     if len(data) >= 8:
         version = struct.unpack_from("<I", data, 4)[0]
         if version == 0 or version > 100:
-            matches.append({
-                "cve": GGUF_2024.cve_id,
-                "source": GGUF_2024.source,
-                "severity": "HIGH",
-                "field": "version",
-                "value": version,
-                "description": f"Invalid GGUF version: {version} (valid: 1-3)",
-            })
+            matches.append(
+                {
+                    "cve": GGUF_2024.cve_id,
+                    "source": GGUF_2024.source,
+                    "severity": "HIGH",
+                    "field": "version",
+                    "value": version,
+                    "description": f"Invalid GGUF version: {version} (valid: 1-3)",
+                }
+            )
 
     # Parse tensor count (bytes 8-15 for v2+, uint64 LE)
     # GGUF layout: magic(4) + version(4) + n_tensors(8) + n_kv(8)
     if len(data) >= 16:
         n_tensors = struct.unpack_from("<Q", data, 8)[0]
         if n_tensors > 100_000:
-            matches.append({
-                "cve": GGUF_2024.cve_id,
-                "source": GGUF_2024.source,
-                "severity": "HIGH",
-                "field": "n_tensors",
-                "value": n_tensors,
-                "description": (
-                    f"Suspicious tensor count: {n_tensors:,} "
-                    "(likely crafted to trigger overflow)"
-                ),
-            })
+            matches.append(
+                {
+                    "cve": GGUF_2024.cve_id,
+                    "source": GGUF_2024.source,
+                    "severity": "HIGH",
+                    "field": "n_tensors",
+                    "value": n_tensors,
+                    "description": (
+                        f"Suspicious tensor count: {n_tensors:,} "
+                        "(likely crafted to trigger overflow)"
+                    ),
+                }
+            )
 
     # Scan for exploit dimension values anywhere in the file
     # (dimension values are uint32 LE scattered through tensor descriptors)
@@ -583,18 +603,20 @@ def detect_gguf_overflow(data: bytes) -> list[dict]:
         dim_bytes = struct.pack("<I", exploit_dim)
         offset = data.find(dim_bytes, 8)  # Skip magic + version
         if offset != -1:
-            matches.append({
-                "cve": GGUF_2024.cve_id,
-                "source": GGUF_2024.source,
-                "severity": "HIGH",
-                "field": "tensor_dimension",
-                "value": hex(exploit_dim),
-                "offset": offset,
-                "description": (
-                    f"Exploit dimension value {hex(exploit_dim)} at offset {offset} "
-                    "(triggers integer overflow in ggml_new_tensor_impl)"
-                ),
-            })
+            matches.append(
+                {
+                    "cve": GGUF_2024.cve_id,
+                    "source": GGUF_2024.source,
+                    "severity": "HIGH",
+                    "field": "tensor_dimension",
+                    "value": hex(exploit_dim),
+                    "offset": offset,
+                    "description": (
+                        f"Exploit dimension value {hex(exploit_dim)} at offset {offset} "
+                        "(triggers integer overflow in ggml_new_tensor_impl)"
+                    ),
+                }
+            )
 
     return matches
 
