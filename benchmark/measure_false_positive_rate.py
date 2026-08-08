@@ -19,6 +19,7 @@ Requirements:
     - Network access to HuggingFace Hub API (for metadata fetch)
     - OR: pre-downloaded config files in benchmark/known_good_configs/
 """
+
 from __future__ import annotations
 
 import json
@@ -153,9 +154,7 @@ KNOWN_GOOD_CONFIGS: dict[str, dict[str, Any]] = {
         "summary_proj_to_labels": True,
         "summary_type": "cls_index",
         "summary_use_proj": True,
-        "task_specific_params": {
-            "text-generation": {"do_sample": True, "max_length": 50}
-        },
+        "task_specific_params": {"text-generation": {"do_sample": True, "max_length": 50}},
         "vocab_size": 50257,
     },
 }
@@ -177,7 +176,7 @@ KNOWN_GOOD_ORGS = [
 # Known-good Python snippets that might appear in model repos
 KNOWN_GOOD_PYTHON = [
     # Typical modeling_*.py pattern
-    '''import torch
+    """import torch
 import torch.nn as nn
 from transformers import PreTrainedModel
 
@@ -194,15 +193,15 @@ class MyModel(PreTrainedModel):
         for layer in self.layers:
             x = layer(x, attention_mask)
         return x
-''',
+""",
     # Typical tokenizer script
-    '''from transformers import AutoTokenizer
+    """from transformers import AutoTokenizer
 
 def convert_tokenizer(input_dir, output_dir):
     tokenizer = AutoTokenizer.from_pretrained(input_dir)
     tokenizer.save_pretrained(output_dir)
     print(f"Saved tokenizer to {output_dir}")
-''',
+""",
 ]
 
 
@@ -253,13 +252,15 @@ def run_org_analysis(org_name: str) -> list[dict[str, Any]]:
     for p in protected:
         dist = levenshtein(org_lower, p)
         if dist <= 4 and dist > 0:
-            findings.append({
-                "org_name": org_name,
-                "rule_id": "HFS-020",
-                "severity": "high",
-                "evidence": f"Distance {dist} from protected org '{p}'",
-                "verdict": "FALSE_POSITIVE",
-            })
+            findings.append(
+                {
+                    "org_name": org_name,
+                    "rule_id": "HFS-020",
+                    "severity": "high",
+                    "evidence": f"Distance {dist} from protected org '{p}'",
+                    "verdict": "FALSE_POSITIVE",
+                }
+            )
             break
 
     return findings
@@ -274,14 +275,18 @@ def run_python_analysis(snippet_name: str, code: str) -> list[dict[str, Any]]:
         if ast_results:
             items = ast_results if isinstance(ast_results, list) else [ast_results]
             for f in items:
-                findings.append({
-                    "snippet": snippet_name,
-                    "analyzer": "ast_visitor",
-                    "rule_id": getattr(f, "rule_id", "AST"),
-                    "severity": getattr(f.severity, "value", str(f.severity)) if hasattr(f, "severity") else "unknown",
-                    "evidence": getattr(f, "evidence", "")[:200],
-                    "verdict": "FALSE_POSITIVE",
-                })
+                findings.append(
+                    {
+                        "snippet": snippet_name,
+                        "analyzer": "ast_visitor",
+                        "rule_id": getattr(f, "rule_id", "AST"),
+                        "severity": getattr(f.severity, "value", str(f.severity))
+                        if hasattr(f, "severity")
+                        else "unknown",
+                        "evidence": getattr(f, "evidence", "")[:200],
+                        "verdict": "FALSE_POSITIVE",
+                    }
+                )
     except Exception as e:
         findings.append({"snippet": snippet_name, "analyzer": "ast_visitor", "error": str(e)})
 
@@ -290,14 +295,18 @@ def run_python_analysis(snippet_name: str, code: str) -> list[dict[str, Any]]:
         if obf_results:
             items = obf_results if isinstance(obf_results, list) else [obf_results]
             for f in items:
-                findings.append({
-                    "snippet": snippet_name,
-                    "analyzer": "obfuscation_scanner",
-                    "rule_id": getattr(f, "rule_id", "OBF"),
-                    "severity": getattr(f.severity, "value", str(f.severity)) if hasattr(f, "severity") else "unknown",
-                    "evidence": getattr(f, "evidence", "")[:200],
-                    "verdict": "FALSE_POSITIVE",
-                })
+                findings.append(
+                    {
+                        "snippet": snippet_name,
+                        "analyzer": "obfuscation_scanner",
+                        "rule_id": getattr(f, "rule_id", "OBF"),
+                        "severity": getattr(f.severity, "value", str(f.severity))
+                        if hasattr(f, "severity")
+                        else "unknown",
+                        "evidence": getattr(f, "evidence", "")[:200],
+                        "verdict": "FALSE_POSITIVE",
+                    }
+                )
     except Exception as e:
         findings.append({"snippet": snippet_name, "analyzer": "obfuscation", "error": str(e)})
 
@@ -343,7 +352,9 @@ def main() -> int:
         print(status)
 
     # Phase 3: Python analysis against known-good code patterns
-    print(f"\n[3/3] Testing Python analysis against {len(KNOWN_GOOD_PYTHON)} known-good snippets...")
+    print(
+        f"\n[3/3] Testing Python analysis against {len(KNOWN_GOOD_PYTHON)} known-good snippets..."
+    )
     for i, snippet in enumerate(KNOWN_GOOD_PYTHON):
         total_checks += 1
         fps = run_python_analysis(f"snippet_{i}", snippet)
@@ -359,7 +370,7 @@ def main() -> int:
     fp_rate = fp_count / total_checks if total_checks > 0 else 0.0
 
     print(f"\n{'=' * 70}")
-    print(f"RESULTS:")
+    print("RESULTS:")
     print(f"  Total checks:       {total_checks}")
     print(f"  False positives:    {fp_count}")
     print(f"  Errors:             {error_count}")

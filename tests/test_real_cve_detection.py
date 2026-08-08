@@ -8,8 +8,6 @@ every test corresponds to a real-world disclosed vulnerability.
 
 import struct
 
-import pytest
-
 from scanner.data.real_cve_signatures import (
     ALL_SIGNATURES,
     CVE_2024_5480,
@@ -257,9 +255,7 @@ class TestSonatype2024_Typosquatting:
         """Every known typosquat from Sonatype should be detected."""
         for malicious, target, technique in SONATYPE_2024_TYPOSQUATS:
             matches = detect_typosquat(malicious)
-            assert len(matches) >= 1, (
-                f"Typosquat '{malicious}' (targets '{target}') not detected"
-            )
+            assert len(matches) >= 1, f"Typosquat '{malicious}' (targets '{target}') not detected"
 
 
 class TestWiz2024_SafetensorsInjection:
@@ -269,7 +265,9 @@ class TestWiz2024_SafetensorsInjection:
         """Verify Wiz signature references correct source."""
         assert "wiz.io" in WIZ_2024.source
         assert WIZ_2024.severity == "HIGH"
-        assert WIZ_2024.metadata["attack_surface"] == "__metadata__ field in safetensors JSON header"
+        assert (
+            WIZ_2024.metadata["attack_surface"] == "__metadata__ field in safetensors JSON header"
+        )
 
     def test_detect_oversized_header_malicious(self):
         """Headers >100MB should be flagged as malicious."""
@@ -375,8 +373,7 @@ class TestGGUF2024_BufferOverflow:
         data = header + b"\x00" * 32 + struct.pack("<I", 0xFFFFFFFF)
         matches = detect_gguf_overflow(data)
         assert any(
-            m.get("field") == "tensor_dimension" and m.get("value") == "0xffffffff"
-            for m in matches
+            m.get("field") == "tensor_dimension" and m.get("value") == "0xffffffff" for m in matches
         )
 
     def test_detect_int32_max_dimension(self):
@@ -385,8 +382,7 @@ class TestGGUF2024_BufferOverflow:
         data = header + b"\x00" * 32 + struct.pack("<I", 0x7FFFFFFF)
         matches = detect_gguf_overflow(data)
         assert any(
-            m.get("field") == "tensor_dimension" and m.get("value") == "0x7fffffff"
-            for m in matches
+            m.get("field") == "tensor_dimension" and m.get("value") == "0x7fffffff" for m in matches
         )
 
     def test_detect_sign_confusion_dimension(self):
@@ -395,8 +391,7 @@ class TestGGUF2024_BufferOverflow:
         data = header + b"\x00" * 32 + struct.pack("<I", 0x80000000)
         matches = detect_gguf_overflow(data)
         assert any(
-            m.get("field") == "tensor_dimension" and m.get("value") == "0x80000000"
-            for m in matches
+            m.get("field") == "tensor_dimension" and m.get("value") == "0x80000000" for m in matches
         )
 
     def test_legitimate_gguf_no_alert(self):

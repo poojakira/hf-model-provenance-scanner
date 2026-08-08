@@ -138,9 +138,7 @@ def test_oversized_pickle_rejected():
     # Should get exactly one size-limit finding, not a crash
     assert len(findings) >= 1, "Expected at least one finding for oversized pickle"
     rule_ids = {f.rule_id for f in findings}
-    assert "HFS-098" in rule_ids, (
-        f"Expected HFS-098 size-limit finding, got rule IDs: {rule_ids}"
-    )
+    assert "HFS-098" in rule_ids, f"Expected HFS-098 size-limit finding, got rule IDs: {rule_ids}"
 
     # Verify the finding mentions size information
     size_findings = [f for f in findings if f.rule_id == "HFS-098"]
@@ -168,9 +166,9 @@ def test_oversized_pickle_rejected_via_tempfile():
     try:
         findings = analyze_pickle_file(tf_path, oversized_data)
         rule_ids = {f.rule_id for f in findings}
-        assert "HFS-098" in rule_ids, (
-            f"analyze_pickle_file did not return HFS-098 for oversized data; got: {rule_ids}"
-        )
+        assert (
+            "HFS-098" in rule_ids
+        ), f"analyze_pickle_file did not return HFS-098 for oversized data; got: {rule_ids}"
     finally:
         os.unlink(tf_path)
 
@@ -211,9 +209,9 @@ def test_malformed_pickle_handled():
         # Must not raise — must return a list (possibly empty, possibly with findings)
         try:
             findings = scan_pickle_bytes(f"malformed_{i}.pkl", bad_data)
-            assert isinstance(findings, list), (
-                f"scan_pickle_bytes returned non-list for input {i}: {type(findings)}"
-            )
+            assert isinstance(
+                findings, list
+            ), f"scan_pickle_bytes returned non-list for input {i}: {type(findings)}"
         except Exception as exc:
             pytest.fail(
                 f"scan_pickle_bytes raised unhandled {type(exc).__name__} for malformed input {i}: {exc}\n"
@@ -239,8 +237,6 @@ def test_malformed_pickle_via_analyze_pickle_file():
             findings = analyze_pickle_file(tf_path, garbage_payload)
             assert isinstance(findings, list)
         except Exception as exc:
-            pytest.fail(
-                f"analyze_pickle_file raised unhandled {type(exc).__name__}: {exc}"
-            )
+            pytest.fail(f"analyze_pickle_file raised unhandled {type(exc).__name__}: {exc}")
     finally:
         os.unlink(tf_path)
