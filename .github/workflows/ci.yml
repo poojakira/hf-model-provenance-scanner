@@ -275,8 +275,6 @@ jobs:
         uses: github/codeql-action/analyze@f35333b910470a5408cb081b68f0701254a7d27b
         with:
           category: "/language:${{ matrix.language }}"
-
-  container-scan:
     name: Container Scan (Trivy)
     runs-on: ubuntu-latest
     timeout-minutes: 20
