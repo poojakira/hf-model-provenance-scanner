@@ -1,18 +1,23 @@
 {
-  "name": "ML Security SOC — Full Incident Pipeline",
+  "name": "ML Security SOC \u00e2\u20ac\u201d Full Incident Pipeline",
   "nodes": [
     {
       "parameters": {
         "httpMethod": "POST",
         "path": "security-event",
         "responseMode": "responseNode",
-        "options": { "rawBody": true }
+        "options": {
+          "rawBody": true
+        }
       },
       "id": "n8n-node-1",
       "name": "Ingest Security Event",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [180, 400],
+      "position": [
+        180,
+        400
+      ],
       "webhookId": "ml-sec-ingest"
     },
     {
@@ -23,7 +28,10 @@
       "name": "Normalize Event",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [420, 400]
+      "position": [
+        420,
+        400
+      ]
     },
     {
       "parameters": {
@@ -35,19 +43,32 @@
       "name": "Check Dedup Cache",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [640, 400],
-      "credentials": { "redis": { "id": "redis-1", "name": "Redis" } }
+      "position": [
+        640,
+        400
+      ],
+      "credentials": {
+        "redis": {
+          "id": "redis-1",
+          "name": "Redis"
+        }
+      }
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": false },
+          "options": {
+            "caseSensitive": false
+          },
           "conditions": [
             {
               "id": "not-duplicate",
               "leftValue": "={{ $json.value }}",
               "rightValue": "",
-              "operator": { "type": "string", "operation": "isEmpty" }
+              "operator": {
+                "type": "string",
+                "operation": "isEmpty"
+              }
             }
           ]
         }
@@ -56,7 +77,10 @@
       "name": "Is New Event?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [860, 400]
+      "position": [
+        860,
+        400
+      ]
     },
     {
       "parameters": {
@@ -70,8 +94,16 @@
       "name": "Set Dedup Key",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [1080, 340],
-      "credentials": { "redis": { "id": "redis-1", "name": "Redis" } }
+      "position": [
+        1080,
+        340
+      ],
+      "credentials": {
+        "redis": {
+          "id": "redis-1",
+          "name": "Redis"
+        }
+      }
     },
     {
       "parameters": {
@@ -81,7 +113,10 @@
       "name": "Enrich & Score",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1080, 460]
+      "position": [
+        1080,
+        460
+      ]
     },
     {
       "parameters": {
@@ -89,9 +124,18 @@
           "values": [
             {
               "conditions": {
-                "options": { "caseSensitive": false },
+                "options": {
+                  "caseSensitive": false
+                },
                 "conditions": [
-                  { "leftValue": "={{ $json.enrichment.priority_score }}", "rightValue": 80, "operator": { "type": "number", "operation": "gte" } }
+                  {
+                    "leftValue": "={{ $json.enrichment.priority_score }}",
+                    "rightValue": 80,
+                    "operator": {
+                      "type": "number",
+                      "operation": "gte"
+                    }
+                  }
                 ]
               },
               "renameOutput": true,
@@ -99,23 +143,38 @@
             },
             {
               "conditions": {
-                "options": { "caseSensitive": false },
+                "options": {
+                  "caseSensitive": false
+                },
                 "conditions": [
-                  { "leftValue": "={{ $json.enrichment.priority_score }}", "rightValue": 50, "operator": { "type": "number", "operation": "gte" } }
+                  {
+                    "leftValue": "={{ $json.enrichment.priority_score }}",
+                    "rightValue": 50,
+                    "operator": {
+                      "type": "number",
+                      "operation": "gte"
+                    }
+                  }
                 ]
               },
               "renameOutput": true,
               "outputKey": "high_path"
             }
           ],
-          "fallbackOutput": { "renameOutput": true, "outputKey": "low_path" }
+          "fallbackOutput": {
+            "renameOutput": true,
+            "outputKey": "low_path"
+          }
         }
       },
       "id": "n8n-node-7",
       "name": "Route by Priority",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3,
-      "position": [1300, 460]
+      "position": [
+        1300,
+        460
+      ]
     },
     {
       "parameters": {
@@ -124,13 +183,18 @@
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\n  \"routing_key\": \"{{ $env.PAGERDUTY_ROUTING_KEY }}\",\n  \"event_action\": \"trigger\",\n  \"dedup_key\": \"{{ $json.dedup_key }}\",\n  \"payload\": {\n    \"summary\": \"{{ $json.title }}\",\n    \"severity\": \"{{ $json.severity }}\",\n    \"source\": \"{{ $json.source }}\",\n    \"timestamp\": \"{{ $json.received_at }}\",\n    \"component\": \"ml-security-pipeline\",\n    \"group\": \"{{ $json.source }}\",\n    \"class\": \"security-incident\",\n    \"custom_details\": {\n      \"event_id\": \"{{ $json.event_id }}\",\n      \"priority_score\": {{ $json.enrichment.priority_score }},\n      \"mitre_techniques\": {{ JSON.stringify($json.enrichment.mitre_attack.techniques) }},\n      \"sla_minutes\": {{ $json.enrichment.sla_minutes }},\n      \"auto_remediate\": {{ $json.enrichment.auto_remediate }}\n    }\n  }\n}",
-        "options": { "timeout": 10000 }
+        "options": {
+          "timeout": 10000
+        }
       },
       "id": "n8n-node-8",
       "name": "Page On-Call (PagerDuty)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1540, 340]
+      "position": [
+        1540,
+        340
+      ]
     },
     {
       "parameters": {
@@ -138,23 +202,31 @@
         "url": "={{ $env.SLACK_WEBHOOK_URL }}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"channel\": \"#ml-security-incidents\",\n  \"username\": \"SOC Automation\",\n  \"icon_emoji\": \":rotating_light:\",\n  \"blocks\": [\n    { \"type\": \"header\", \"text\": { \"type\": \"plain_text\", \"text\": \":rotating_light: P1 — {{ $json.title }}\" } },\n    { \"type\": \"section\", \"fields\": [\n      { \"type\": \"mrkdwn\", \"text\": \"*Source:*\\n{{ $json.source }}\" },\n      { \"type\": \"mrkdwn\", \"text\": \"*Priority:*\\n{{ $json.enrichment.priority_score }}/100\" },\n      { \"type\": \"mrkdwn\", \"text\": \"*MITRE:*\\n{{ $json.enrichment.mitre_attack.techniques.join(', ') }}\" },\n      { \"type\": \"mrkdwn\", \"text\": \"*SLA:*\\n{{ $json.enrichment.sla_minutes }} min\" }\n    ]},\n    { \"type\": \"context\", \"elements\": [{ \"type\": \"mrkdwn\", \"text\": \"Event ID: `{{ $json.event_id }}` | Auto-remediate: {{ $json.enrichment.auto_remediate }}\" }] }\n  ]\n}"
+        "jsonBody": "={\n  \"channel\": \"#ml-security-incidents\",\n  \"username\": \"SOC Automation\",\n  \"icon_emoji\": \":rotating_light:\",\n  \"blocks\": [\n    { \"type\": \"header\", \"text\": { \"type\": \"plain_text\", \"text\": \":rotating_light: P1 \u00e2\u20ac\u201d {{ $json.title }}\" } },\n    { \"type\": \"section\", \"fields\": [\n      { \"type\": \"mrkdwn\", \"text\": \"*Source:*\\n{{ $json.source }}\" },\n      { \"type\": \"mrkdwn\", \"text\": \"*Priority:*\\n{{ $json.enrichment.priority_score }}/100\" },\n      { \"type\": \"mrkdwn\", \"text\": \"*MITRE:*\\n{{ $json.enrichment.mitre_attack.techniques.join(', ') }}\" },\n      { \"type\": \"mrkdwn\", \"text\": \"*SLA:*\\n{{ $json.enrichment.sla_minutes }} min\" }\n    ]},\n    { \"type\": \"context\", \"elements\": [{ \"type\": \"mrkdwn\", \"text\": \"Event ID: `{{ $json.event_id }}` | Auto-remediate: {{ $json.enrichment.auto_remediate }}\" }] }\n  ]\n}"
       },
       "id": "n8n-node-9",
       "name": "Alert Slack (Critical)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1540, 460]
+      "position": [
+        1540,
+        460
+      ]
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": false },
+          "options": {
+            "caseSensitive": false
+          },
           "conditions": [
             {
               "leftValue": "={{ $json.enrichment.auto_remediate }}",
               "rightValue": true,
-              "operator": { "type": "boolean", "operation": "equals" }
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
             }
           ]
         }
@@ -163,7 +235,10 @@
       "name": "Auto-Remediate?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [1540, 580]
+      "position": [
+        1540,
+        580
+      ]
     },
     {
       "parameters": {
@@ -173,18 +248,26 @@
       "name": "Generate Containment",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1760, 520]
+      "position": [
+        1760,
+        520
+      ]
     },
     {
       "parameters": {
         "command": "={{ $json.command }}",
-        "options": { "timeout": 30000 }
+        "options": {
+          "timeout": 30000
+        }
       },
       "id": "n8n-node-12",
       "name": "Execute Containment",
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
-      "position": [1980, 520]
+      "position": [
+        1980,
+        520
+      ]
     },
     {
       "parameters": {
@@ -198,7 +281,10 @@
       "name": "Confirm Containment",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [2200, 520]
+      "position": [
+        2200,
+        520
+      ]
     },
     {
       "parameters": {
@@ -212,7 +298,10 @@
       "name": "Alert Slack (High)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1540, 700]
+      "position": [
+        1540,
+        700
+      ]
     },
     {
       "parameters": {
@@ -228,7 +317,10 @@
       "name": "Create Incident Ticket",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1760, 700]
+      "position": [
+        1760,
+        700
+      ]
     },
     {
       "parameters": {
@@ -238,7 +330,10 @@
       "name": "Audit Log Entry",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1540, 840]
+      "position": [
+        1540,
+        840
+      ]
     },
     {
       "parameters": {
@@ -249,72 +344,186 @@
       "name": "Respond 200",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1300, 300]
+      "position": [
+        1300,
+        300
+      ]
     },
     {
       "parameters": {
         "respondWith": "json",
         "responseBody": "={{ JSON.stringify({ accepted: false, reason: 'duplicate', existing_event: $json.value }) }}",
-        "options": { "responseCode": 409 }
+        "options": {
+          "responseCode": 409
+        }
       },
       "id": "n8n-node-18",
       "name": "Respond 409 Duplicate",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1080, 560]
+      "position": [
+        1080,
+        560
+      ]
     }
   ],
   "connections": {
     "Ingest Security Event": {
-      "main": [[{ "node": "Normalize Event", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Normalize Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Normalize Event": {
-      "main": [[{ "node": "Check Dedup Cache", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Check Dedup Cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Check Dedup Cache": {
-      "main": [[{ "node": "Is New Event?", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Is New Event?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Is New Event?": {
       "main": [
         [
-          { "node": "Set Dedup Key", "type": "main", "index": 0 },
-          { "node": "Enrich & Score", "type": "main", "index": 0 },
-          { "node": "Respond 200", "type": "main", "index": 0 }
+          {
+            "node": "Set Dedup Key",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Enrich & Score",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Respond 200",
+            "type": "main",
+            "index": 0
+          }
         ],
-        [{ "node": "Respond 409 Duplicate", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Respond 409 Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Enrich & Score": {
-      "main": [[{ "node": "Route by Priority", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Route by Priority",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Route by Priority": {
       "main": [
         [
-          { "node": "Page On-Call (PagerDuty)", "type": "main", "index": 0 },
-          { "node": "Alert Slack (Critical)", "type": "main", "index": 0 },
-          { "node": "Auto-Remediate?", "type": "main", "index": 0 }
+          {
+            "node": "Page On-Call (PagerDuty)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Alert Slack (Critical)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Auto-Remediate?",
+            "type": "main",
+            "index": 0
+          }
         ],
         [
-          { "node": "Alert Slack (High)", "type": "main", "index": 0 },
-          { "node": "Create Incident Ticket", "type": "main", "index": 0 }
+          {
+            "node": "Alert Slack (High)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Incident Ticket",
+            "type": "main",
+            "index": 0
+          }
         ],
-        [{ "node": "Audit Log Entry", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Audit Log Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Auto-Remediate?": {
       "main": [
-        [{ "node": "Generate Containment", "type": "main", "index": 0 }],
+        [
+          {
+            "node": "Generate Containment",
+            "type": "main",
+            "index": 0
+          }
+        ],
         []
       ]
     },
     "Generate Containment": {
-      "main": [[{ "node": "Execute Containment", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Execute Containment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Execute Containment": {
-      "main": [[{ "node": "Confirm Containment", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Confirm Containment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Alert Slack (High)": {
-      "main": [[{ "node": "Create Incident Ticket", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Create Incident Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -328,10 +537,21 @@
   },
   "pinData": {},
   "tags": [
-    { "name": "soc-automation" },
-    { "name": "incident-response" },
-    { "name": "ml-security" },
-    { "name": "auto-remediation" },
-    { "name": "production" }
-  ]
+    {
+      "name": "soc-automation"
+    },
+    {
+      "name": "incident-response"
+    },
+    {
+      "name": "ml-security"
+    },
+    {
+      "name": "auto-remediation"
+    },
+    {
+      "name": "production"
+    }
+  ],
+  "id": "n8n_soc_incident_pipeline"
 }
