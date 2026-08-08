@@ -274,6 +274,12 @@ class PickleScanner:
         self.globals_found: list[str] = []
         self.reduces_found: int = 0
         self.string_stack: list[str] = []
+        # Memo table: pickle MEMOIZE/PUT store the top-of-stack value so later
+        # BINGET/GET opcodes can push it back. Malicious pickles reuse a single
+        # memoized module string for both the module and qualname of a
+        # STACK_GLOBAL (e.g. timeit.timeit), which defeats scanners that don't
+        # track the memo. We track it so those globals reconstruct correctly.
+        self.memo: list[str | None] = []
         self.protocol = 0
 
     def scan(self) -> list[Finding]:
@@ -453,8 +459,9 @@ class PickleScanner:
                 # FRAME (8-byte frame length, protocol 4)
                 self.pos += 8
             elif op == b"\x94":
-                # MEMOIZE (protocol 4)
-                pass
+                # MEMOIZE (protocol 4): store top of stack in the memo table.
+                # We only care about strings (module/qualname fragments).
+                self.memo.append(self.string_stack[-1] if self.string_stack else None)
             elif op == b"\x9c":
                 # EXT4 - used for copyreg dispatch_table manipulation
                 # This is a PickleScan bypass technique
@@ -478,11 +485,17 @@ class PickleScanner:
                 # GET (protocol 0)
                 _, self.pos = _read_string_nl(data, self.pos)
             elif op == b"h":
-                # BINGET (1-byte index)
-                self.pos += 1
+                # BINGET (1-byte index): push the memoized value back onto the
+                # stack so STACK_GLOBAL can reconstruct globals that reuse a
+                # single memoized string (denylist-bypass technique).
+                idx, self.pos = _read_uint1(data, self.pos)
+                if 0 <= idx < len(self.memo) and self.memo[idx] is not None:
+                    self.string_stack.append(self.memo[idx])
             elif op == b"j":
                 # LONG_BINGET (4-byte index)
-                self.pos += 4
+                idx, self.pos = _read_uint4(data, self.pos)
+                if 0 <= idx < len(self.memo) and self.memo[idx] is not None:
+                    self.string_stack.append(self.memo[idx])
             elif op in (
                 b"(",
                 b")",

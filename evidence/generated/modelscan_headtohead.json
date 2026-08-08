@@ -1,0 +1,98 @@
+{
+  "schema_version": "modelscan-headtohead-v1",
+  "generated_at_utc": "2026-08-08T22:08:58Z",
+  "competitor": "protectai/modelscan 0.8.8",
+  "methodology": "Generated real malicious pickle files using documented denylist-bypass techniques (runpy, timeit, bdb, importlib, builtins-via-getattr). Ran both scanners as subprocesses and recorded actual detection output. No synthetic results \u2014 every number reflects a real scan.",
+  "totals": {
+    "payloads": 8,
+    "modelscan_caught": 6,
+    "our_scanner_caught": 8
+  },
+  "bypass_payloads": {
+    "count": 6,
+    "modelscan_caught": 4,
+    "our_scanner_caught": 6
+  },
+  "per_payload": [
+    {
+      "payload": "direct_os_system",
+      "is_denylist_bypass": false,
+      "description": "os.system (denylist baseline)",
+      "modelscan_detected": true,
+      "our_scanner_detected": true,
+      "our_scanner_rules": [
+        "HFS-050"
+      ]
+    },
+    {
+      "payload": "subprocess_popen",
+      "is_denylist_bypass": false,
+      "description": "subprocess.Popen (denylist baseline)",
+      "modelscan_detected": true,
+      "our_scanner_detected": true,
+      "our_scanner_rules": [
+        "HFS-050"
+      ]
+    },
+    {
+      "payload": "runpy_run_path",
+      "is_denylist_bypass": true,
+      "description": "runpy.run_path indirect execution",
+      "modelscan_detected": true,
+      "our_scanner_detected": true,
+      "our_scanner_rules": [
+        "HFS-050"
+      ]
+    },
+    {
+      "payload": "timeit_stmt",
+      "is_denylist_bypass": true,
+      "description": "timeit.timeit code-string execution",
+      "modelscan_detected": false,
+      "our_scanner_detected": true,
+      "our_scanner_rules": [
+        "HFS-050"
+      ]
+    },
+    {
+      "payload": "bdb_run",
+      "is_denylist_bypass": true,
+      "description": "bdb.Bdb().run debugger execution",
+      "modelscan_detected": true,
+      "our_scanner_detected": true,
+      "our_scanner_rules": [
+        "HFS-050"
+      ]
+    },
+    {
+      "payload": "importlib_os",
+      "is_denylist_bypass": true,
+      "description": "importlib.import_module('os') indirect",
+      "modelscan_detected": false,
+      "our_scanner_detected": true,
+      "our_scanner_rules": [
+        "HFS-050"
+      ]
+    },
+    {
+      "payload": "builtins_exec",
+      "is_denylist_bypass": true,
+      "description": "builtins.exec via getattr obfuscation",
+      "modelscan_detected": true,
+      "our_scanner_detected": true,
+      "our_scanner_rules": [
+        "HFS-050"
+      ]
+    },
+    {
+      "payload": "webbrowser_open",
+      "is_denylist_bypass": true,
+      "description": "webbrowser.open command trigger",
+      "modelscan_detected": true,
+      "our_scanner_detected": true,
+      "our_scanner_rules": [
+        "HFS-050"
+      ]
+    }
+  ]
+}

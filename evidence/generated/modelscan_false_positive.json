@@ -1,0 +1,48 @@
+{
+  "schema_version": "modelscan-fp-benchmark-v1",
+  "generated_at_utc": "2026-08-08T22:09:03Z",
+  "competitor": "protectai/modelscan 0.8.8",
+  "methodology": "Built real legitimate model pickles (sklearn estimator dict, PyTorch state_dict with numpy tensors, numpy arrays, nested config, tokenizer state). Ran both scanners. Any finding on these benign artifacts is a false positive. Numbers reflect actual scan output.",
+  "totals": {
+    "legitimate_artifacts": 5,
+    "modelscan_false_positives": 0,
+    "our_scanner_false_positives": 0
+  },
+  "per_artifact": [
+    {
+      "artifact": "sklearn_estimator",
+      "modelscan_false_positive": false,
+      "modelscan_severity": "",
+      "our_scanner_false_positive": false,
+      "our_scanner_rules": []
+    },
+    {
+      "artifact": "pytorch_state_dict",
+      "modelscan_false_positive": false,
+      "modelscan_severity": "",
+      "our_scanner_false_positive": false,
+      "our_scanner_rules": []
+    },
+    {
+      "artifact": "numpy_arrays",
+      "modelscan_false_positive": false,
+      "modelscan_severity": "",
+      "our_scanner_false_positive": false,
+      "our_scanner_rules": []
+    },
+    {
+      "artifact": "nested_config",
+      "modelscan_false_positive": false,
+      "modelscan_severity": "",
+      "our_scanner_false_positive": false,
+      "our_scanner_rules": []
+    },
+    {
+      "artifact": "tokenizer_state",
+      "modelscan_false_positive": false,
+      "modelscan_severity": "",
+      "our_scanner_false_positive": false,
+      "our_scanner_rules": []
+    }
+  ]
+}
