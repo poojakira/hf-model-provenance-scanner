@@ -14,7 +14,10 @@
       "name": "Model Upload Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [240, 300],
+      "position": [
+        240,
+        300
+      ],
       "webhookId": "model-scan-trigger"
     },
     {
@@ -40,7 +43,10 @@
       "name": "Validate Payload",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [460, 300]
+      "position": [
+        460,
+        300
+      ]
     },
     {
       "parameters": {
@@ -78,7 +84,10 @@
       "name": "Run Provenance Scan",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [680, 240]
+      "position": [
+        680,
+        240
+      ]
     },
     {
       "parameters": {
@@ -103,7 +112,10 @@
       "name": "High/Critical Findings?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [900, 240]
+      "position": [
+        900,
+        240
+      ]
     },
     {
       "parameters": {
@@ -117,7 +129,10 @@
       "name": "Alert Slack",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1120, 180]
+      "position": [
+        1120,
+        180
+      ]
     },
     {
       "parameters": {
@@ -149,7 +164,10 @@
       "name": "Quarantine Model",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1120, 320]
+      "position": [
+        1120,
+        320
+      ]
     },
     {
       "parameters": {
@@ -165,7 +183,10 @@
       "name": "Create Jira Ticket",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1340, 240]
+      "position": [
+        1340,
+        240
+      ]
     },
     {
       "parameters": {
@@ -179,7 +200,10 @@
       "name": "Notify Clean Scan",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1120, 420]
+      "position": [
+        1120,
+        420
+      ]
     },
     {
       "parameters": {
@@ -189,38 +213,85 @@
       "name": "Reject Invalid",
       "type": "n8n-nodes-base.stopAndError",
       "typeVersion": 1,
-      "position": [680, 400]
+      "position": [
+        680,
+        400
+      ]
     }
   ],
   "connections": {
     "Model Upload Webhook": {
       "main": [
-        [{ "node": "Validate Payload", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Validate Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Validate Payload": {
       "main": [
-        [{ "node": "Run Provenance Scan", "type": "main", "index": 0 }],
-        [{ "node": "Reject Invalid", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Run Provenance Scan",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reject Invalid",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Run Provenance Scan": {
       "main": [
-        [{ "node": "High/Critical Findings?", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "High/Critical Findings?",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "High/Critical Findings?": {
       "main": [
         [
-          { "node": "Alert Slack", "type": "main", "index": 0 },
-          { "node": "Quarantine Model", "type": "main", "index": 0 }
+          {
+            "node": "Alert Slack",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Quarantine Model",
+            "type": "main",
+            "index": 0
+          }
         ],
-        [{ "node": "Notify Clean Scan", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Notify Clean Scan",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Alert Slack": {
       "main": [
-        [{ "node": "Create Jira Ticket", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Create Jira Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   },
@@ -232,8 +303,15 @@
     "instanceId": "hf-model-provenance-scanner"
   },
   "tags": [
-    { "name": "ml-security" },
-    { "name": "supply-chain" },
-    { "name": "automated-response" }
-  ]
+    {
+      "name": "ml-security"
+    },
+    {
+      "name": "supply-chain"
+    },
+    {
+      "name": "automated-response"
+    }
+  ],
+  "id": "n8n_model_scan_pipeline"
 }
