@@ -1,0 +1,41 @@
+{
+  "schema_version": "fp-rate-evidence-v1",
+  "generated_at_utc": "2026-08-08T01:36:39.632292+00:00",
+  "scanner_root": "C:\\Users\\pooja\\repos\\hf-model-provenance-scanner",
+  "methodology": "Ran config, org-name, and Python analyzers against known-good model configurations from verified HuggingFace organizations. Any finding on these inputs is a false positive by definition.",
+  "known_good_models": [
+    "meta-llama/Llama-3.1-8B",
+    "google/gemma-2-9b",
+    "mistralai/Mistral-7B-v0.3",
+    "microsoft/Phi-3-mini-4k-instruct",
+    "openai-community/gpt2"
+  ],
+  "known_good_orgs": [
+    "meta-llama",
+    "google",
+    "mistralai",
+    "microsoft",
+    "openai-community",
+    "facebook",
+    "huggingface",
+    "stabilityai",
+    "EleutherAI",
+    "bigscience"
+  ],
+  "python_snippets_tested": 2,
+  "total_checks": 17,
+  "false_positives": 1,
+  "errors": 0,
+  "fp_rate": 0.0588,
+  "elapsed_seconds": 0.1,
+  "findings": [
+    {
+      "snippet": "snippet_1",
+      "analyzer": "ast_visitor",
+      "rule_id": "HFS-030",
+      "severity": "low",
+      "evidence": "from_pretrained revision=None",
+      "verdict": "FALSE_POSITIVE"
+    }
+  ]
+}
