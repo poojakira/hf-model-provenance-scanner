@@ -34,7 +34,7 @@ from scanner.data.real_cve_signatures import (
 )
 
 
-class TestCVE2024_5480_PickleRCE:
+class TestCVE2024_5480_PickleRCE:  # noqa: N801
     """CVE-2024-5480: HuggingFace Hub RCE via pickle deserialization."""
 
     def test_signature_metadata(self):
@@ -111,7 +111,7 @@ class TestCVE2024_5480_PickleRCE:
             ), f"Pattern not detected: {pattern!r}"
 
 
-class TestJFrog2024_MaliciousPyTorchModels:
+class TestJFrog2024_MaliciousPyTorchModels:  # noqa: N801
     """JFrog Research 2024: Malicious PyTorch models with __reduce__ abuse."""
 
     def test_signature_metadata(self):
@@ -186,7 +186,7 @@ class TestJFrog2024_MaliciousPyTorchModels:
         assert len(jfrog_matches) >= 1
 
 
-class TestSonatype2024_Typosquatting:
+class TestSonatype2024_Typosquatting:  # noqa: N801
     """Sonatype 2024: Typosquatted HuggingFace model repositories."""
 
     def test_signature_metadata(self):
@@ -258,7 +258,7 @@ class TestSonatype2024_Typosquatting:
             assert len(matches) >= 1, f"Typosquat '{malicious}' (targets '{target}') not detected"
 
 
-class TestWiz2024_SafetensorsInjection:
+class TestWiz2024_SafetensorsInjection:  # noqa: N801
     """Wiz Research 2024: Safetensors header injection attacks."""
 
     def test_signature_metadata(self):
@@ -335,7 +335,7 @@ class TestWiz2024_SafetensorsInjection:
         assert WIZ_HEADER_THRESHOLDS["malicious"] == 100_000_000
 
 
-class TestGGUF2024_BufferOverflow:
+class TestGGUF2024_BufferOverflow:  # noqa: N801
     """NVIDIA/Trail of Bits 2024: GGUF format buffer overflow (CVE-2024-25664)."""
 
     def test_signature_metadata(self):
