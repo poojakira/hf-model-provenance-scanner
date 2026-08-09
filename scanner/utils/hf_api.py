@@ -168,3 +168,47 @@ class HFApiClient:
         """Download a single file from the repository (max 10MB)."""
         url = f"{self.BASE}/{repo_id}/resolve/main/{filename}"
         return self._request(url, max_bytes=MAX_DOWNLOAD_BYTES)
+
+    def fetch_range(self, repo_id: str, filename: str, n_bytes: int) -> bytes:
+        """Fetch only the first ``n_bytes`` of a file using an HTTP Range request.
+
+        This is what makes real-time pre-download scanning possible: a malicious
+        pickle declares its dangerous opcodes in the file header, and a
+        safetensors metadata-injection lives in the leading JSON header. We can
+        detect both by pulling a few KB instead of downloading multi-gigabyte
+        weights. Falls back to a capped full read if the server ignores Range.
+        """
+        url = f"{self.BASE}/{repo_id}/resolve/main/{filename}"
+        parsed = urllib.parse.urlparse(url)
+        if parsed.scheme not in {"http", "https"}:
+            raise ValueError("URL must use http or https")
+
+        wait = self._rate_limiter.consume(1)
+        if wait > 0:
+            time.sleep(wait)
+
+        req = urllib.request.Request(url, headers=self._headers())
+        req.add_header("Range", f"bytes=0-{max(0, n_bytes - 1)}")
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:  # nosec B310
+                return resp.read(n_bytes)
+        except urllib.error.HTTPError as e:
+            if e.code in (401, 403, 404):
+                raise
+            # Server ignored Range (200 instead of 206) or transient error:
+            # fall back to a capped read so we still get the header bytes.
+            return self._request(url, max_bytes=min(n_bytes, MAX_DOWNLOAD_BYTES))
+
+    def head_file_size(self, repo_id: str, filename: str) -> int | None:
+        """Return the file size in bytes via a HEAD request, or None if unknown."""
+        url = f"{self.BASE}/{repo_id}/resolve/main/{filename}"
+        parsed = urllib.parse.urlparse(url)
+        if parsed.scheme not in {"http", "https"}:
+            raise ValueError("URL must use http or https")
+        req = urllib.request.Request(url, headers=self._headers(), method="HEAD")
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:  # nosec B310
+                size = resp.headers.get("Content-Length") or resp.headers.get("X-Linked-Size")
+                return int(size) if size and size.isdigit() else None
+        except (urllib.error.HTTPError, urllib.error.URLError, OSError, ValueError):
+            return None
