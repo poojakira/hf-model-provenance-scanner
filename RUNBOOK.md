@@ -545,7 +545,7 @@ hf-scanner --version
 ```bash
 # Quick validation
 make test
-# Expected: 124 passed, 3 skipped
+# Expected: 199 passed, 3 skipped
 
 # Full verification (lint + test + build + security audit)
 make verify
