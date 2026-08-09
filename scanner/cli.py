@@ -455,6 +455,40 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     out_format = args.format or ("text" if sys.stdout.isatty() else "json")
+
+    # ── Real-time URL scan ────────────────────────────────────────────────────
+    # If the target is a HuggingFace URL, scan it BEFORE downloading weights:
+    # list files via API, then Range-fetch only the pickle/safetensors headers.
+    target_str = str(args.target)
+    if target_str.startswith(("http://", "https://")) or "huggingface.co" in target_str:
+        from scanner.url_scanner import scan_url  # noqa: PLC0415
+
+        hf_token = args.token or os.environ.get("HF_TOKEN")
+        try:
+            url_result = scan_url(target_str, token=hf_token)
+        except ValueError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            return 3
+        if out_format == "json":
+            print(json.dumps(url_result.to_dict(), indent=2))
+        else:
+            r = url_result
+            print(
+                f"Scanned {r.repo_id} — {r.files_scanned}/{r.files_listed} files, "
+                f"{r.to_dict()['megabytes_fetched']} MB fetched (headers only)"
+            )
+            if r.is_malicious:
+                print(f"VERDICT: MALICIOUS — {len(r.findings)} finding(s)")
+                for f in r.findings:
+                    print(
+                        f"  {f.severity.value.upper()} {f.rule_id} {f.file_path}: {f.evidence[:100]}"
+                    )
+            else:
+                print("VERDICT: clean (no high/critical findings in scanned headers)")
+            for err in r.errors:
+                print(f"  [warn] {err}", file=sys.stderr)
+        return 1 if url_result.is_malicious else 0
+
     mode = "local" if args.no_network else args.mode
     is_local_dir = os.path.isdir(args.target)
 
