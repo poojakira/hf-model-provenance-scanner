@@ -32,6 +32,34 @@ We benchmark against the actual installed competitor (`pip install modelscan==0.
 
 ---
 
+## Scan a link before you download it (real-time)
+
+Paste a HuggingFace URL and get a verdict **before** the weights ever touch your
+disk. The scanner lists the repo's files over the API, then uses HTTP Range
+requests to pull only the pickle opcode header and safetensors metadata header —
+a few hundred KB — instead of downloading the multi-gigabyte tensor payload.
+
+```bash
+hf-scanner https://huggingface.co/openai-community/gpt2 --format json
+```
+```json
+{
+  "repo_id": "openai-community/gpt2",
+  "files_listed": 26,
+  "files_scanned": 8,
+  "megabytes_fetched": 0.516,
+  "verdict": "clean",
+  "findings": []
+}
+```
+
+That real run scanned 8 security-relevant files while fetching **0.5 MB** — the
+full GPT-2 repo is ~500 MB. A malicious `pytorch_model.bin` is caught from its
+header opcodes alone, before `torch.load` or `from_pretrained` runs. Bare ids
+(`org/model`) and `.../tree/main` URLs work too.
+
+---
+
 ## Install and Scan in 20 Seconds
 
 ```bash
@@ -39,7 +67,6 @@ pip install hf-scanner
 
 # Scan a HuggingFace model repo
 hf-scanner meta-llama/Llama-3-8B
-
 # Scan local model files
 hf-scanner ./models/ --mode local --fail-on high
 
