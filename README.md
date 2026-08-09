@@ -7,9 +7,9 @@
 
 **Models on HuggingFace Hub are executing arbitrary code when you load them. This tool catches it.**
 
-A single `torch.load()` call deserializes attacker-controlled pickle bytecode. Malicious `REDUCE` and `STACK_GLOBAL` opcodes execute `os.system`, `subprocess.Popen`, or `eval` — giving full shell access on your machine or CI runner. SafeTensors was supposed to fix this, but Wiz demonstrated header injection that embeds C2 callbacks in metadata. GGUF metadata fields overflow into shell commands. Typosquatted orgs impersonate `meta-llama` and `mistralai` to distribute weaponized weights.
+A single `torch.load()` call deserializes attacker-controlled pickle bytecode. Malicious `REDUCE` and `STACK_GLOBAL` opcodes execute `os.system`, `subprocess.Popen`, or `eval`, giving full shell access on your machine or CI runner. SafeTensors was supposed to fix this, but Wiz demonstrated header injection that embeds C2 callbacks in metadata. GGUF metadata fields overflow into shell commands. Typosquatted orgs impersonate `meta-llama` and `mistralai` to distribute weaponized weights.
 
-`hf-scanner` is a static analysis tool that detects these attacks **before** model weights are loaded into memory. It combines a taint engine, symbolic resolver, and temporal scanner — capabilities that don't exist in ModelScan or PickleScan.
+`hf-scanner` is a static analysis tool that detects these attacks **before** model weights are loaded into memory. It combines a taint engine, symbolic resolver, and temporal scanner. These capabilities don't exist in ModelScan or PickleScan.
 
 ## Verified head-to-head vs Protect AI ModelScan 0.8.8
 
@@ -36,8 +36,8 @@ We benchmark against the actual installed competitor (`pip install modelscan==0.
 
 Paste a HuggingFace URL and get a verdict **before** the weights ever touch your
 disk. The scanner lists the repo's files over the API, then uses HTTP Range
-requests to pull only the pickle opcode header and safetensors metadata header —
-a few hundred KB — instead of downloading the multi-gigabyte tensor payload.
+requests to pull only the pickle opcode header and safetensors metadata header
+(a few hundred KB) instead of downloading the multi-gigabyte tensor payload.
 
 ```bash
 hf-scanner https://huggingface.co/openai-community/gpt2 --format json
@@ -53,7 +53,7 @@ hf-scanner https://huggingface.co/openai-community/gpt2 --format json
 }
 ```
 
-That real run scanned 8 security-relevant files while fetching **0.5 MB** — the
+That real run scanned 8 security-relevant files while fetching **0.5 MB**. The
 full GPT-2 repo is ~500 MB. A malicious `pytorch_model.bin` is caught from its
 header opcodes alone, before `torch.load` or `from_pretrained` runs. Bare ids
 (`org/model`) and `.../tree/main` URLs work too.
@@ -110,7 +110,7 @@ ModelScan (Protect AI) scans individual files for known-bad patterns. It does no
 | Source code + config + shell analysis | ❌ | ✅ |
 | SARIF output for GitHub Security tab | ❌ | ✅ |
 
-The taint engine traces data flow across Python files — if `config.json` sets a URL and `model.py` calls `requests.get()` with it, the connection is flagged. ModelScan sees each file in isolation.
+The taint engine traces data flow across Python files. If `config.json` sets a URL and `model.py` calls `requests.get()` with it, the connection is flagged. ModelScan sees each file in isolation.
 
 ---
 
@@ -274,10 +274,10 @@ scanner/
 
 Every finding maps to ATT&CK v19:
 
-- **T1195.001** — Supply Chain Compromise: Software Supply Chain
-- **T1683/001** — Trusted Developer Utilities Proxy Execution
-- **T1027/018** — Obfuscated Files or Information
-- **T1685** — Disable or Modify Tools
+- **T1195.001**: Supply Chain Compromise: Software Supply Chain
+- **T1683/001**: Trusted Developer Utilities Proxy Execution
+- **T1027/018**: Obfuscated Files or Information
+- **T1685**: Disable or Modify Tools
 
 ---
 
