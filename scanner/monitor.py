@@ -1,22 +1,21 @@
 """
-Real-time Hub monitor — a watchtower over newly-published Hugging Face models.
+Polling Hub monitor for newly-published Hugging Face models.
 
-This is the "real-time on real data" piece. Instead of waiting for someone to
-point the scanner at a repo, this polls the live Hugging Face API for models
-that were JUST created, and scans each one the moment it appears.
+Instead of waiting for someone to point the scanner at a repo, this polls the
+Hugging Face API for recently created models, diffs them against local state,
+and scans new arrivals on the next configured poll cycle.
 
 Two ways to run it:
-  1. Poll mode (default) — no HF cooperation needed. We hit the public
+  1. Poll mode (default) — no HF cooperation needed. We call the public
      /api/models endpoint sorted by creation time, diff against what we've
      already seen, and scan the new arrivals. This is how an independent
-     researcher would watch the whole Hub.
+     researcher could monitor newly listed Hub repositories.
   2. Webhook mode — see integrations/huggingface_webhook.py. That's push-based
      and lower latency, but the org has to configure the webhook to point at us.
 
 Why polling and not just webhooks: webhooks only fire for repos WE own or are
 subscribed to. To watch the entire Hub for typosquats of openai/meta/etc, we
-have to pull the firehose ourselves. HF rate-limits but the createdAt sort is
-cheap.
+have to poll the API ourselves and operate within Hugging Face rate limits.
 
 Zero dependencies — urllib only, same as the rest of the tool.
 """
@@ -31,7 +30,7 @@ import urllib.request
 from collections.abc import Callable
 from dataclasses import dataclass
 
-# We reuse the real scanner rather than reimplementing detection here.
+# Reuse the scanner rather than reimplementing detection here.
 from scanner.cli import main as run_scan
 
 HF_API = "https://huggingface.co/api/models"

@@ -1,5 +1,5 @@
 """
-CLI for the real-time Hub watchtower.
+CLI for the polling Hub watchtower.
 
 Separate entry point from the main scanner because watching is a long-running
 daemon, not a one-shot scan. Run it under systemd/supervisor in production.

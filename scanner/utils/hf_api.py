@@ -172,7 +172,7 @@ class HFApiClient:
     def fetch_range(self, repo_id: str, filename: str, n_bytes: int) -> bytes:
         """Fetch only the first ``n_bytes`` of a file using an HTTP Range request.
 
-        This is what makes real-time pre-download scanning possible: a malicious
+        This is what makes pre-download scanning possible: a malicious
         pickle declares its dangerous opcodes in the file header, and a
         safetensors metadata-injection lives in the leading JSON header. We can
         detect both by pulling a few KB instead of downloading multi-gigabyte
