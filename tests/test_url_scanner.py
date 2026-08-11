@@ -1,5 +1,5 @@
 """
-Tests for real-time URL scanning (scan a model link before downloading weights).
+Tests for pre-download URL scanning.
 
 Uses a fake HFApiClient so tests are deterministic and need no network. The
 fake serves file listings and byte ranges from in-memory content, exactly like

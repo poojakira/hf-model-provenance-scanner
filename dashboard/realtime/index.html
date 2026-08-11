@@ -149,7 +149,7 @@ h1{font-size:18px;line-height:1.1;font-weight:800;white-space:nowrap;overflow:hi
 </div>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><div class="mark">HF</div><div><h1>HF Model Provenance Scanner / Realtime Security Ops</h1><p class="subtitle">Static telemetry console for model supply-chain scanning, provenance risk, and incident containment.</p></div></div>
+    <div class="brand"><div class="mark">HF</div><div><h1>HF Model Provenance Scanner / Static Security Ops</h1><p class="subtitle">Static telemetry console for model supply-chain scanning, provenance risk, and incident containment.</p></div></div>
     <input id="search" class="search" autocomplete="off" placeholder="Filter model, source, tactic, hash...">
     <div class="status-strip" aria-label="system status"><span class="chip critical"><i class="dot"></i>Threat Level Elevated</span><span class="chip ok"><i class="dot"></i>Scanner Online</span><span class="chip"><span id="clock" class="mono">--:--:-- UTC</span></span></div>
   </header>
@@ -161,7 +161,7 @@ h1{font-size:18px;line-height:1.1;font-weight:800;white-space:nowrap;overflow:hi
     </section>
     <section class="center-ops">
       <div class="panel scene-panel"><div><div class="panel-head"><h2>3D Threat Map / Model Provenance Graph</h2><span class="small" id="sceneStatus">WebGL initializing</span></div><div class="legend"><span><i class="swatch"></i>Trusted registry</span><span><i class="swatch amber"></i>Unverified artifact</span><span><i class="swatch red"></i>Active block</span><span><i class="swatch green"></i>Signed model</span></div></div><div class="scene-readout"><div class="readout"><span class="label">Provenance Trust</span><strong id="trustScore" class="mono">--</strong><span class="small">signature + lineage</span></div><div class="readout"><span class="label">Blocked Ingress</span><strong id="blockedCount" class="mono">--</strong><span class="small">auto policy actions</span></div><div class="readout"><span class="label">Mean Contain</span><strong id="containTime" class="mono">--</strong><span class="small">minutes to isolate</span></div></div></div>
-      <div class="panel"><div class="panel-head"><h2>ATT&CK And ML Supply-Chain Pressure</h2><span class="small">live-looking synthetic stream</span></div><div id="matrix" class="matrix-grid"></div></div>
+      <div class="panel"><div class="panel-head"><h2>ATT&CK And ML Supply-Chain Pressure</h2><span class="small">deterministic synthetic stream</span></div><div id="matrix" class="matrix-grid"></div></div>
     </section>
     <section class="right-rail">
       <div class="panel"><div class="panel-head"><h2>Threat Feed</h2><span class="small" id="feedCount">0 rows</span></div><div id="feed" class="feed"></div></div>

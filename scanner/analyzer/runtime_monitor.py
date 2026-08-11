@@ -327,7 +327,7 @@ class RuntimeMonitor:
 
 
 class ContainerEscapeDetector:
-    """Detect container escape attempts in real-time."""
+    """Detect container escape attempts during monitored execution."""
 
     ESCAPE_INDICATORS = {
         "proc_access": ["/proc/sys/kernel", "/proc/self/ns", "/proc/1/ns"],

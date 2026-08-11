@@ -32,7 +32,7 @@ We benchmark against the actual installed competitor (`pip install modelscan==0.
 
 ---
 
-## Scan a link before you download it (real-time)
+## Scan a link before you download it
 
 Paste a HuggingFace URL and get a verdict **before** the weights ever touch your
 disk. The scanner lists the repo's files over the API, then uses HTTP Range

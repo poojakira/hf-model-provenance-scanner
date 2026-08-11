@@ -435,7 +435,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--protect",
         action="store_true",
-        help="Enable real-time runtime protection (blocks on critical findings)",
+        help="Enable runtime protection checks during monitored execution (blocks on critical findings)",
     )
     parser.add_argument(
         "--protect-config",
