@@ -139,7 +139,7 @@ The scanner ships with a secure-by-default `policy.yaml`. This file controls:
 ### Location
 
 The scanner looks for `policy.yaml` in this order:
-1. Path specified via `--policy` flag
+1. Path specified via `--config` flag
 2. `./policy.yaml` (current working directory)
 3. Built-in defaults (most restrictive)
 
@@ -204,7 +204,7 @@ hf-scanner ./models/weights.pkl --mode local
 ### Scan with Custom Policy
 
 ```bash
-hf-scanner ./models/ --mode local --policy /path/to/custom-policy.yaml
+hf-scanner ./models/ --mode local --config /path/to/.hf-scanner.toml
 ```
 
 ---
@@ -462,7 +462,7 @@ Model Upload Event → Webhook → Scanner API → Risk Assessment
 
 ## 10. False Positive Handling
 
-**Current false positive rate:** 5.9% on known-good model configurations.
+**Current false positive evidence:** fixture-level only. Do not publish a false-positive rate without the exact benchmark command, dataset/artifact hashes, scanner commit, dependency versions, and raw output.
 
 ### Identifying False Positives
 
@@ -522,7 +522,7 @@ File an issue at https://github.com/poojakira/hf-model-provenance-scanner/issues
 | Scanner hangs on large model | Memory/CPU constrained | Check `psutil` resource limits. Scan individual files instead of directories. |
 | `--mode hub` connection timeout | Network issue or Hub rate limit | Retry with `--timeout 120`. Check HuggingFace Hub status. |
 | Exit code 2 with no output | Bad policy.yaml or runtime crash | Run with `--verbose` flag. Check stderr. |
-| Findings differ between runs | Policy file changed or scanner updated | Pin scanner version and use explicit `--policy` path |
+| Findings differ between runs | Config file changed or scanner updated | Pin scanner version and use explicit `--config` path |
 | Docker build fails | Missing build deps | Ensure Dockerfile base image matches Python 3.10+ |
 | `PermissionError` reading model files | File permissions | `chmod -R 644 models/` (Linux) or run PowerShell as admin (Windows) |
 | ATT&CK mapping missing | attack-v19-core not installed | `pip install "hf-scanner[attack]"` |
@@ -594,7 +594,7 @@ hf-scanner ./models/ --mode local --fail-on critical
 hf-scanner ./models/ --mode local --fail-on high
 
 # Custom policy
-hf-scanner ./models/ --mode local --policy ./custom-policy.yaml
+hf-scanner ./models/ --mode local --config ./.hf-scanner.toml
 
 # Verbose output for debugging
 hf-scanner ./models/ --mode local --verbose

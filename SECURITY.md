@@ -4,7 +4,7 @@
 
 To report a security vulnerability **in this scanner tool**, do not open a public GitHub issue.
 
-Email: **security@[your-email-here]**
+Use GitHub's private vulnerability reporting or security advisory workflow for this repository when available. If private reporting is not enabled, contact the repository owner directly through the GitHub profile before publishing details.
 
 Include:
 - Description of the vulnerability
@@ -12,9 +12,9 @@ Include:
 - Potential impact
 - Any suggested mitigations
 
-**Expected response time:** Acknowledgement within 72 hours. CRITICAL issues (e.g., code execution via crafted model file) patched within 7 days.
+No response-time SLA is currently committed. Critical issues such as scanner-host code execution from a crafted model file should be treated as urgent and fixed before any release promotion.
 
-This project follows coordinated disclosure. We will credit reporters in the CHANGELOG unless anonymity is preferred.
+This project prefers coordinated disclosure. Reporter credit is optional and requires reporter consent.
 
 ## Scope — In Scope
 
@@ -33,4 +33,4 @@ This project follows coordinated disclosure. We will credit reporters in the CHA
 
 ## Security Assumptions
 
-See [THREAT_MODEL.md](THREAT_MODEL.md) for the full threat model of this tool, including what it assumes about its environment and what it explicitly does not protect against.
+See `LIMITATIONS.md` for current boundaries and unsupported cases. A complete threat model is not yet published, so this repository must not be described as production-ready.

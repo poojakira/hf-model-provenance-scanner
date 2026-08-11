@@ -131,6 +131,57 @@ class TestCli(unittest.TestCase):
         finally:
             os.unlink(policy_path)
 
+    def test_aibom_output_is_written(self):
+        with tempfile.NamedTemporaryFile("r", encoding="utf-8", suffix=".json", delete=False) as f:
+            aibom_path = f.name
+        try:
+            code = cli.main(
+                [
+                    str(BENIGN_FIXTURE),
+                    "--mode",
+                    "local",
+                    "--quiet",
+                    "--fail-on",
+                    "never",
+                    "--aibom",
+                    aibom_path,
+                ]
+            )
+            self.assertEqual(code, 0)
+            with open(aibom_path, encoding="utf-8") as f:
+                bom = json.load(f)
+            self.assertEqual(bom["bomFormat"], "CycloneDX")
+            self.assertEqual(bom["specVersion"], "1.6")
+            self.assertGreaterEqual(len(bom["components"]), 1)
+        finally:
+            os.unlink(aibom_path)
+
+    def test_skip_binary_skips_binary_model_analyzers(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            payload = Path(tmp) / "model.pkl"
+            payload.write_bytes((FIXTURES_DIR / "binary" / "malicious_os_system.pkl").read_bytes())
+
+            stdout = io.StringIO()
+            with redirect_stdout(stdout):
+                code = cli.main(
+                    [
+                        tmp,
+                        "--mode",
+                        "local",
+                        "--format",
+                        "json",
+                        "--skip-binary",
+                        "--fail-on",
+                        "never",
+                    ]
+                )
+            self.assertEqual(code, 0)
+            report = json.loads(stdout.getvalue())
+            rule_ids = {finding["rule_id"] for finding in report["findings"]}
+            self.assertNotIn("HFS-050", rule_ids)
+            self.assertEqual(report["files_scanned"], 0)
+            self.assertEqual(report["files_skipped"], 0)
+
     def test_html_report_output(self):
         with tempfile.NamedTemporaryFile("r", encoding="utf-8", suffix=".html", delete=False) as f:
             report_path = f.name
