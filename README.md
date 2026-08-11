@@ -26,7 +26,7 @@ We benchmark against the actual installed competitor (`pip install modelscan==0.
 | **`timeit.timeit(code)`** | **memoized-global exec** | ❌ **MISSED** | ✅ caught |
 | **`importlib.import_module('os')`** | **gadget-chain import** | ❌ **MISSED** | ✅ caught |
 
-**Detection: hf-scanner 8/8 (100%) vs ModelScan 6/8 (75%).** ModelScan misses `timeit` and `importlib` because its scanner does not treat those stdlib entry points as unsafe. `timeit.timeit()` compiles and runs an arbitrary code string; `importlib.import_module` is the first link in a getattr→call gadget chain. Our memo-aware opcode parser reconstructs globals even when the pickle reuses a single memoized string across module and qualname (the exact trick that hides `timeit.timeit`).
+**Fixture result:** hf-scanner flagged all 8 committed memo/gadget regression fixtures in this repository. Treat this as local regression evidence only, not a real-world detection-rate claim or product comparison. Any comparison with other scanners must cite the exact versions, fixtures, commands, raw outputs, and environment.
 
 **False positives: 0/5 for both** on legitimate sklearn/PyTorch/numpy/tokenizer pickles. We add recall without adding noise. Evidence: [`evidence/generated/modelscan_headtohead.json`](evidence/generated/modelscan_headtohead.json), [`evidence/generated/modelscan_false_positive.json`](evidence/generated/modelscan_false_positive.json). Regression-locked in [`tests/test_modelscan_bypass_regression.py`](tests/test_modelscan_bypass_regression.py).
 
@@ -74,7 +74,7 @@ hf-scanner ./models/ --mode local --fail-on high
 hf-scanner ./models/ --format sarif --output results.sarif
 ```
 
-Zero runtime dependencies beyond `psutil`. Python 3.10+.
+Runtime dependency: `psutil`. Python 3.10+.
 
 ---
 
@@ -100,7 +100,7 @@ ModelScan (Protect AI) scans individual files for known-bad patterns. It does no
 
 | Capability | ModelScan | hf-scanner |
 |---|:---:|:---:|
-| Cross-file taint tracking | ❌ | ✅ |
+| Intra-package taint tracking | ❌ | Partial |
 | Symbolic resolution (indirect calls) | ❌ | ✅ |
 | Temporal analysis (rug-pull detection) | ❌ | ✅ |
 | Typosquat detection | ❌ | ✅ |
@@ -110,13 +110,13 @@ ModelScan (Protect AI) scans individual files for known-bad patterns. It does no
 | Source code + config + shell analysis | ❌ | ✅ |
 | SARIF output for GitHub Security tab | ❌ | ✅ |
 
-The taint engine traces data flow across Python files. If `config.json` sets a URL and `model.py` calls `requests.get()` with it, the connection is flagged. ModelScan sees each file in isolation.
+The taint engine is a static heuristic. It catches selected intra-package flows covered by tests, but it is not a complete cross-file data-flow engine.
 
 ---
 
 ## Real CVE Detection
 
-Tested against 12 reproduced real-world attacks from 2025–2026. **12/12 detected.** Full results in [`evidence/DETECTION_PROOF.md`](evidence/DETECTION_PROOF.md).
+Tested against 12 committed incident-reproduction fixtures. Full fixture results are in [`evidence/DETECTION_PROOF.md`](evidence/DETECTION_PROOF.md). Do not quote these as real-world detection rates without rerunning the exact command, commit, fixture hashes, scanner version, and environment.
 
 | Attack | CVE | Detected | Time |
 |---|---|:---:|---|
@@ -239,7 +239,7 @@ scanner/
   rules/definitions.py   — 40+ finding definitions with severity
   formatters/            — SARIF, JSON, HTML output
   attack_mapping/        — MITRE ATT&CK v19 technique mapping
-  signing/               — Ed25519 artifact signing
+    signing/               — Experimental Ed25519 helpers, not wired into CLI
   sbom/                  — CycloneDX 1.5 BOM generation
 ```
 
@@ -253,12 +253,12 @@ scanner/
 | `--fail-on SEVERITY` | Exit code 1 threshold (default: high) |
 | `--format json/sarif/text/html` | Output format |
 | `--output FILE` | Write report to file |
-| `--policy FILE` | Apply policy-as-code config |
+| `--config FILE` | Read scanner configuration TOML |
 | `--baseline FILE` | Compare against saved baseline |
 | `--save-baseline FILE` | Save current state for rug-pull detection |
-| `--sign` | Sign artifact after scanning (Ed25519) |
-| `--verify-signature` | Verify existing signature |
 | `--aibom FILE` | Generate CycloneDX AI BOM |
+| `--runtime-policy FILE` | Write a hardened runtime policy JSON template |
+| `--skip-binary` | Skip binary model analyzers |
 | `--no-network` | Force local-only scan |
 | `-q, --quiet` | Suppress output, exit code only |
 

@@ -27,6 +27,7 @@ from scanner.analyzer.temporal_scanner import (
     save_baseline,
 )
 from scanner.analyzer.weight_fingerprint import fingerprint_file
+from scanner.aibom_generator import format_aibom
 from scanner.config import load_config
 from scanner.formatters.html_formatter import format_html
 from scanner.formatters.json_formatter import format_json
@@ -193,7 +194,11 @@ def _is_binary_model(file_path: str) -> bool:
 
 
 def scan_local(
-    result: ScanResult, target: str, config: dict, max_binary_mb: int = 100
+    result: ScanResult,
+    target: str,
+    config: dict,
+    max_binary_mb: int = 100,
+    scan_binary: bool = True,
 ) -> tuple[dict[str, bytes], dict[str, bytes], dict[str, tuple[str, int]]]:
     """
     Scan local files. Returns (artifacts, sboms, file_hashes).
@@ -270,8 +275,8 @@ def scan_local(
             artifacts[file_path] = data
         result.findings.extend(source_findings)
 
-    # Scan binary model files with dedicated analyzers
-    for file_path in binary_files:
+    # Scan binary model files with dedicated analyzers.
+    for file_path in binary_files if scan_binary else []:
         try:
             size = os.path.getsize(file_path)
             if size > max_binary_bytes:
@@ -305,7 +310,11 @@ def scan_local(
 
 
 def scan_remote_files(
-    result: ScanResult, repo_id: str, client: HFApiClient, config: dict
+    result: ScanResult,
+    repo_id: str,
+    client: HFApiClient,
+    config: dict,
+    scan_binary: bool = True,
 ) -> tuple[dict[str, bytes], dict[str, bytes], dict[str, tuple[str, int]]]:
     """Scan remote files including binary model scanning."""
     files = client.list_repo_files(repo_id)
@@ -328,6 +337,9 @@ def scan_remote_files(
 
         # Binary model files get specialized scanning
         if _is_binary_model(filename):
+            if not scan_binary:
+                result.files_skipped += 1
+                continue
             result.files_scanned += 1
             binary_findings = analyze_binary_file(filename, data)
             result.findings.extend(binary_findings)
@@ -525,7 +537,7 @@ def main(argv=None):
             result.org_check = org_check
             result.findings.extend(org_findings)
             remote_artifacts, remote_sboms, remote_hashes = scan_remote_files(
-                result, args.target, client, config
+                result, args.target, client, config, scan_binary=not args.skip_binary
             )
             artifacts.update(remote_artifacts)
             sboms.update(remote_sboms)
@@ -533,7 +545,11 @@ def main(argv=None):
 
         if mode in ["local", "both"]:
             local_artifacts, local_sboms, local_hashes = scan_local(
-                result, args.target, config, max_binary_mb=args.max_binary_mb
+                result,
+                args.target,
+                config,
+                max_binary_mb=args.max_binary_mb,
+                scan_binary=not args.skip_binary,
             )
             artifacts.update(local_artifacts)
             sboms.update(local_sboms)
@@ -636,6 +652,13 @@ def main(argv=None):
     if args.save_baseline:
         baseline = create_baseline(result, all_file_hashes)
         save_baseline(baseline, args.save_baseline)
+
+    if args.aibom:
+        aibom_dir = os.path.dirname(os.path.abspath(args.aibom))
+        if aibom_dir:
+            os.makedirs(aibom_dir, exist_ok=True)
+        with open(args.aibom, "w", encoding="utf-8") as f:
+            f.write(format_aibom(result, all_file_hashes))
 
     if not args.quiet:
         if out_format == "json":
