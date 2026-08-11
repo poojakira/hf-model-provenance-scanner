@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 
-class TestRealtimeDashboard(unittest.TestCase):
+class TestStaticDashboard(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.html_path = (
@@ -17,106 +17,82 @@ class TestRealtimeDashboard(unittest.TestCase):
         self.assertIsNotNone(match, f"missing {name} array")
         return json.loads(match.group(1))
 
-    def test_dashboard_is_single_file_soc_experience(self):
+    def test_dashboard_is_single_file_static_soc_experience(self):
         self.assertEqual(self.html.count("</html>"), 1)
-        self.assertIn("SENTINEL HQ", self.html)
-        self.assertIn("THREAT LEVEL: ELEVATED", self.html)
-        self.assertIn("Simulated real-time attacks", self.html)
+        self.assertIn("HF Model Provenance Scanner / Static Security Ops", self.html)
+        self.assertIn("Telemetry is deterministic synthetic data", self.html)
         self.assertIn("Chart.js/4.4.1/chart.umd.min.js", self.html)
+        self.assertIn("three.js/0.160.0/three.min.js", self.html)
 
-    def test_dashboard_has_eight_required_pages(self):
-        for page_id in [
-            "command",
+    def test_dashboard_has_expected_static_surface(self):
+        for element_id in [
+            "sceneHost",
+            "threatScene",
+            "fallbackMap",
+            "metrics",
+            "stages",
+            "queue",
             "matrix",
-            "products",
             "feed",
-            "analytics",
-            "actors",
-            "incidents",
-            "executive",
+            "severityChart",
+            "blocksChart",
+            "coverageChart",
         ]:
-            self.assertRegex(self.html, rf'<(?:section|nav|div)[^>]+id="{page_id}"')
+            self.assertRegex(self.html, rf'<(?:canvas|section|nav|div)[^>]+id="{element_id}"')
         for label in [
-            "Command Center",
-            "ATT&CK Matrix",
-            "Product Security Hub",
-            "Live Threat Feed",
-            "Analytics & Graphs",
-            "Threat Actors",
-            "Incident Response",
-            "CEO Summary",
+            "Model Intake Replay",
+            "Supply Chain Stages",
+            "Containment Queue",
+            "3D Threat Map / Model Provenance Graph",
+            "ATT&CK And ML Supply-Chain Pressure",
+            "Threat Feed",
+            "Risk Distribution",
+            "Scanner Coverage",
+            "Operator Notes",
         ]:
             self.assertIn(label, self.html)
 
-    def test_product_security_hub_uses_exact_product_names(self):
+    def test_dashboard_uses_expected_model_supply_chain_fixture_values(self):
         self.assertEqual(
-            self._js_array("products"),
+            self._js_array("models"),
             [
-                "Web App",
-                "Mobile App",
-                "REST API Gateway",
-                "Admin Dashboard",
-                "Payment Processing Service",
-                "Customer Database",
-                "Email / Messaging Service",
-                "Cloud Storage",
-                "CI/CD Pipeline",
-                "Internal HR / ERP System",
+                "llama-guard-ops",
+                "bert-phish-detector",
+                "clip-safety-gate",
+                "fraud-xgb-prod",
+                "mistral-rag-filter",
+                "resnet-malware-v2",
+                "tabular-risk-lgbm",
+                "voice-id-encoder",
             ],
         )
-
-    def test_threat_actors_use_exact_known_names_and_visible_fields(self):
         self.assertEqual(
-            self._js_array("actors"),
+            self._js_array("sources"),
             [
-                "APT28",
-                "Lazarus",
-                "Volt Typhoon",
-                "Sandworm",
-                "Fancy Bear",
-                "Cozy Bear",
-                "REvil",
-                "Conti",
-                "LockBit",
-                "Scattered Spider",
-                "Kimsuky",
-                "MuddyWater",
+                "hf://community",
+                "s3://model-drop",
+                "ghcr.io/runner",
+                "registry.internal",
+                "notebook-upload",
+                "partner-sftp",
+                "ci-artifact",
+                "mirror-cache",
             ],
         )
-        for marker in [
-            "actorProfiles=",
-            "Origin flag/country:",
-            "T-IDs:",
-            "Industries targeted:",
-            "Last seen:",
-            '?"active":"inactive"',
-            "openActor(name)",
-        ]:
-            self.assertIn(marker, self.html)
 
     def test_dashboard_simulation_and_matrix_markers_are_present(self):
         for marker in [
-            "Array.from({ length: 540 }",
-            "30+ countries observed",
-            "15 tactics",
-            "222 techniques",
-            "475 sub-techniques",
-            "enterpriseTechniqueCatalog=Array.from({length:222}",
-            'catalog=mode==="Enterprise"?enterpriseTechniqueCatalog',
-            "T1566 Phishing",
-            "T1059 Command and Scripting Interpreter",
-            "T1055 Process Injection",
-            "T1078 Valid Accounts",
-            "T1190 Exploit Public-Facing Application",
-            "T1133 External Remote Services",
-            "T1071 Application Layer Protocol",
-            "T1486 Data Encrypted for Impact",
-            "T1003 OS Credential Dumping",
-            "T1021 Remote Services",
-            "setInterval(streamFeed,2000)",
-            "setInterval(renderStats,3000)",
-            "setInterval(updateCharts,10000)",
-            'localStorage.setItem("sentinel-page"',
+            "const tactics=",
+            "const signals=",
+            "const stages=",
+            "const events=Array.from({length:96}",
+            "pickle opcode chain",
+            "unsigned safetensors",
+            "model card drift",
+            "hash mismatch",
+            "dependency confusion",
+            "weight poisoning",
+            "setInterval(stream,2400)",
         ]:
             self.assertIn(marker, self.html)
 
@@ -138,11 +114,15 @@ class TestRealtimeDashboard(unittest.TestCase):
         lower = self.html.lower()
         for marker in forbidden:
             self.assertNotIn(marker.lower(), lower)
-        self.assertIn("CSV Mock Export", self.html)
-        self.assertIn("window.print()", self.html)
+        self.assertIn("No build step required", self.html)
 
-    def test_dashboard_removes_old_live_scanner_surface(self):
+    def test_dashboard_avoids_live_scanner_claims(self):
         for marker in [
+            "Realtime Security Ops",
+            "Realtime SOC",
+            "real-time",
+            "live-looking",
+            "Scanner Online",
             "Scan live repository",
             "Load real scanner JSON",
             "HF Scanner Realtime Console",

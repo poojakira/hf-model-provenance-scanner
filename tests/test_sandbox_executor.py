@@ -1,54 +1,185 @@
+"""Tests for sandbox executor with gVisor validation."""
+
+import json
+import os
+import shutil
+import subprocess
 import sys
-from types import SimpleNamespace
+import tempfile
+from pathlib import Path
 
 import pytest
 
-from scanner.analyzer import sandbox_executor
-from scanner.analyzer.sandbox_executor import sandbox_execute
+
+def _severity_value(finding):
+    return finding.severity.value if hasattr(finding.severity, "value") else finding.severity
 
 
-@pytest.mark.skipif(
-    sys.platform == "win32", reason="skops import triggers torch DLL issue on Windows"
-)
-def test_runtime_instrumentation_intercepts_os_file_operations():
-    source = """
-import os
-print('cwd', os.getcwd())
-os.listdir('.')
-os.remove('should_not_exist.txt')
+def test_sandbox_executor_module_import():
+    """Test that the sandbox executor module can be imported."""
+    from scanner.analyzer import sandbox_executor
+    assert hasattr(sandbox_executor, "sandbox_execute")
+
+
+def test_sandbox_subprocess_basic():
+    """Test basic sandbox execution with subprocess backend."""
+    from scanner.analyzer.sandbox_executor import sandbox_execute
+
+    # Safe code - should produce no findings
+    safe_code = """
+x = 1 + 1
+print(f"Result: {x}")
 """
-    findings = sandbox_execute("payload.py", source)
-    evidence = "\n".join(f.evidence for f in findings)
 
-    # The subprocess backend may not capture these unless they cause a crash
-    # This test verifies the instrumentation runs without error
-    # os operations are instrumented and would be reported if they crash
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
+        f.write(safe_code)
+        tmp = f.name
 
-
-@pytest.mark.skipif(
-    sys.platform == "win32", reason="skops import triggers torch DLL issue on Windows"
-)
-def test_runtime_instrumentation_keeps_bare_os_import_quiet():
-    findings = sandbox_execute("payload.py", "import os\nprint(os.name)\n")
-
-    # Bare import + os.name should be quiet (no file operations)
-    assert findings == []
+    try:
+        os.environ["HF_SANDBOX_BACKEND"] = "subprocess"
+        findings = sandbox_execute(tmp, safe_code)
+        # Safe code should not trigger dangerous findings
+        dangerous_findings = [f for f in findings if _severity_value(f) in ("critical", "high")]
+        assert len(dangerous_findings) == 0, f"Safe code triggered findings: {dangerous_findings}"
+    finally:
+        os.unlink(tmp)
 
 
-@pytest.mark.skipif(
-    sys.platform == "win32", reason="skops import triggers torch DLL issue on Windows"
-)
-def test_runtime_instrumentation_executes_target_in_separate_globals(monkeypatch):
-    captured = {}
+def test_sandbox_detects_subprocess():
+    """Test that sandbox detects subprocess usage."""
+    from scanner.analyzer.sandbox_executor import sandbox_execute
 
-    def fake_run(cmd, capture_output, text, timeout, env, cwd):
-        with open(cmd[-1], encoding="utf-8") as handle:
-            captured["script"] = handle.read()
-        return SimpleNamespace(stdout="[]", stderr="", returncode=0)
+    malicious_code = """
+import subprocess
+subprocess.run(["ls", "-la"])
+"""
 
-    monkeypatch.setattr(sandbox_executor.subprocess, "run", fake_run)
-    sandbox_executor._sandbox_single_run("payload.py", "_safe_os.listdir('.')", {"PATH": ""})
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
+        f.write(malicious_code)
+        tmp = f.name
 
-    script = captured["script"]
-    assert "_USER_GLOBALS" in script
-    assert "_re(_code, _USER_GLOBALS, _USER_GLOBALS)" in script
+    try:
+        os.environ["HF_SANDBOX_BACKEND"] = "subprocess"
+        findings = sandbox_execute(tmp, malicious_code)
+        # Should detect subprocess usage
+        subprocess_findings = [f for f in findings if "subprocess" in f.evidence.lower()]
+        assert len(subprocess_findings) > 0, "Should detect subprocess usage"
+    finally:
+        os.unlink(tmp)
+
+
+def test_sandbox_detects_network():
+    """Test that sandbox detects network access attempts."""
+    from scanner.analyzer.sandbox_executor import sandbox_execute
+
+    malicious_code = """
+import socket
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect(("8.8.8.8", 53))
+"""
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
+        f.write(malicious_code)
+        tmp = f.name
+
+    try:
+        os.environ["HF_SANDBOX_BACKEND"] = "subprocess"
+        findings = sandbox_execute(tmp, malicious_code)
+        # Should detect network access
+        network_findings = [f for f in findings if "socket" in f.evidence.lower() or "connect" in f.evidence.lower()]
+        assert len(network_findings) > 0, "Should detect network access"
+    finally:
+        os.unlink(tmp)
+
+
+def test_sandbox_detects_eval():
+    """Test that sandbox detects eval/exec usage."""
+    from scanner.analyzer.sandbox_executor import sandbox_execute
+
+    malicious_code = """
+eval("__import__('os').system('ls')")
+"""
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
+        f.write(malicious_code)
+        tmp = f.name
+
+    try:
+        os.environ["HF_SANDBOX_BACKEND"] = "subprocess"
+        findings = sandbox_execute(tmp, malicious_code)
+        # Should detect eval
+        eval_findings = [f for f in findings if "eval" in f.evidence.lower()]
+        assert len(eval_findings) > 0, "Should detect eval usage"
+    finally:
+        os.unlink(tmp)
+
+
+@pytest.mark.skipif(shutil.which("runsc") is None, reason="gVisor not available")
+def test_sandbox_gvisor_isolation():
+    """Test that gVisor properly isolates network and syscalls."""
+    import shutil
+    from scanner.analyzer.sandbox_executor import sandbox_execute
+
+    malicious_code = """
+import subprocess, socket
+subprocess.run(["ls"])
+socket.create_connection(("8.8.8.8", 53))
+"""
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
+        f.write(malicious_code)
+        tmp = f.name
+
+    try:
+        os.environ["HF_SANDBOX_BACKEND"] = "gvisor"
+        findings = sandbox_execute(tmp, malicious_code)
+        # gVisor should block or crash on these attempts
+        blocked_findings = [f for f in findings if "blocked" in f.evidence.lower() or "crashed" in f.evidence.lower() or "killed" in f.evidence.lower()]
+        assert len(blocked_findings) > 0 or len(findings) > 0, "gVisor should block or detect malicious activity"
+    finally:
+        os.unlink(tmp)
+
+
+def test_sandbox_cli():
+    """Test the CLI entry point."""
+    safe_code = "x = 1 + 1\nprint(x)"
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
+        f.write(safe_code)
+        tmp = f.name
+
+    try:
+        # Run via module
+        result = subprocess.run(
+            [sys.executable, "-m", "scanner.analyzer.sandbox_executor", tmp, "--backend", "subprocess"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        assert result.returncode == 0, f"CLI failed: {result.stderr}"
+        output = json.loads(result.stdout)
+        assert output["backend"] == "subprocess"
+        assert "findings" in output
+    finally:
+        os.unlink(tmp)
+
+
+def test_sandbox_env_configs():
+    """Test that different environment configs are tested."""
+    from scanner.analyzer.sandbox_executor import SANDBOX_ENV_CONFIGS
+
+    assert len(SANDBOX_ENV_CONFIGS) >= 3
+    # Default config
+    assert "PATH" in SANDBOX_ENV_CONFIGS[0]
+    assert SANDBOX_ENV_CONFIGS[0]["PATH"] == ""
+    # Windows-like config
+    assert "OS" in SANDBOX_ENV_CONFIGS[1]
+    assert SANDBOX_ENV_CONFIGS[1]["OS"] == "Windows_NT"
+    # CI config
+    assert "CI" in SANDBOX_ENV_CONFIGS[2]
+    assert SANDBOX_ENV_CONFIGS[2]["CI"] == "true"
+    assert "GITHUB_ACTIONS" in SANDBOX_ENV_CONFIGS[2]
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

@@ -1,6 +1,8 @@
 # Capabilities & Limitations (v0.2.0 — Current)
 
-## Verified Detection Rate
+## Fixture Evidence Only
+
+The values below are fixture-suite results, not real-world detection-rate or false-positive-rate claims. They must not be quoted without the exact commit, command, fixture hash, environment, and raw result artifact.
 
 | Suite | Attacks | Detected | False Positives |
 |---|---|---|---|
@@ -63,14 +65,14 @@
 | ONNX (.onnx) | Custom operators (native code loading), suspicious strings |
 | Keras (.h5/.keras) | Lambda layers (arbitrary code execution), custom_objects |
 
-## Real Model Testing
+## Real Model Testing Boundaries
 
 | Model | Size | Tensors | Scan Time | Findings | Result |
 |---|---|---|---|---|---|
-| GPT-2 (real files from HuggingFace) | 2.4MB (configs + tokenizer) | 147 | 9ms | 0 | ✅ No FP |
-| Llama-3-8B (structure simulation) | 4 shards | 288 | 3ms | 0 | ✅ No FP |
-| Malicious PyTorch .pt | 2.9MB | — | 0.6ms | 1 CRITICAL | ✅ Detected |
-| Malicious SafeTensors | 1.9MB, 60 tensors | 60 | 0.4ms | 2 HIGH | ✅ Detected |
+| GPT-2 metadata/tokenizer path | 2.4MB configs + tokenizer | 147 | Historical local result | 0 | Fixture/local result only |
+| Llama-3-8B structure simulation | 4 shards | 288 | Historical local result | 0 | Simulation, not full model scan |
+| Malicious PyTorch fixture | 2.9MB | — | Historical local result | 1 CRITICAL | Fixture/local result only |
+| Malicious SafeTensors fixture | 1.9MB, 60 tensors | 60 | Historical local result | 2 HIGH | Fixture/local result only |
 
 ## Known Limitations (Cannot Fix — Fundamental)
 
@@ -86,8 +88,8 @@
 
 - A defensive static + dynamic analysis scanner
 - A provenance and identity verification engine
-- A CI/CD gate that blocks malicious model deployments
-- A compliance tool (EU AI Act, CISA SBOM requirements)
+- A CI/CD signal that can block deployments when wired into a policy gate
+- An evidence helper for SBOM/provenance-oriented review workflows
 
 ## What This Tool IS NOT
 
@@ -96,3 +98,5 @@
 - Not a network monitoring tool
 - Not a guarantee against all future novel attacks
 - Not effective unless deployed in the user's workflow
+- Not a compliance certification tool
+- Not proof that an artifact is benign

@@ -11,7 +11,7 @@ import sys
 import tempfile
 import textwrap
 
-from scanner.models import Finding
+from scanner.models import Finding, Severity
 from scanner.rules.definitions import get_rule
 
 SANDBOX_TIMEOUT = int(os.environ.get("HF_SCANNER_SANDBOX_TIMEOUT", "30"))
@@ -67,6 +67,20 @@ def _make_finding(rule_id: str, file_path: str, line: int, evidence: str) -> Fin
         evidence[:300],
         rule.remediation,
         rule.cwe,
+    )
+
+
+def _make_backend_warning(file_path: str, evidence: str) -> Finding:
+    return Finding(
+        "HFS-SANDBOX-BACKEND",
+        Severity.INFO,
+        file_path,
+        0,
+        0,
+        "Sandbox backend capability warning",
+        evidence[:300],
+        "Use gVisor or another hardened runtime for stronger isolation when executing untrusted code.",
+        None,
     )
 
 
@@ -136,10 +150,8 @@ def _sandbox_subprocess(file_path: str, source: str) -> list[Finding]:
 
     # Add warning about legacy sandbox
     findings.append(
-        _make_finding(
-            "HFS-072",
+        _make_backend_warning(
             file_path,
-            0,
             "Sandbox: using legacy subprocess backend — set HF_SANDBOX_BACKEND=gvisor for stronger isolation",
         )
     )
@@ -155,10 +167,8 @@ def _sandbox_gvisor(file_path: str, source: str) -> list[Finding]:
         # Fallback to subprocess with clear warning
         fallback = _sandbox_subprocess(file_path, source)
         fallback.append(
-            _make_finding(
-                "HFS-072",
+            _make_backend_warning(
                 file_path,
-                0,
                 "gVisor (runsc) not available — install runsc or set HF_SANDBOX_BACKEND=subprocess",
             )
         )
@@ -411,10 +421,8 @@ def _sandbox_subprocess(file_path: str, source: str) -> list[Finding]:
 
     # Add warning about legacy sandbox
     findings.append(
-        _make_finding(
-            "HFS-072",
+        _make_backend_warning(
             file_path,
-            0,
             "Sandbox: using legacy subprocess backend — set HF_SANDBOX_BACKEND=gvisor for stronger isolation",
         )
     )
@@ -519,3 +527,44 @@ def _interpret(file_path: str, ops: list) -> list[Finding]:
                     )
                 )
     return findings
+
+
+if __name__ == "__main__":
+    """CLI entry point for sandbox execution testing."""
+    import argparse
+    import sys
+
+    parser = argparse.ArgumentParser(description="Sandbox executor for untrusted code")
+    parser.add_argument("file", help="Python file to execute in sandbox")
+    parser.add_argument("--backend", choices=["subprocess", "gvisor", "firecracker"], default="subprocess", help="Sandbox backend")
+    parser.add_argument("--timeout", type=int, default=30, help="Timeout in seconds")
+    args = parser.parse_args()
+
+    os.environ["HF_SANDBOX_BACKEND"] = args.backend
+    os.environ["HF_SCANNER_SANDBOX_TIMEOUT"] = str(args.timeout)
+
+    with open(args.file, "r") as f:
+        source = f.read()
+
+    findings = sandbox_execute(args.file, source)
+
+    import json
+    output = {
+        "file": args.file,
+        "backend": args.backend,
+        "findings": [
+            {
+                "rule_id": f.rule_id,
+                "severity": f.severity.value if hasattr(f.severity, "value") else f.severity,
+                "message": f.message,
+                "evidence": f.evidence,
+            }
+            for f in findings
+        ],
+    }
+    print(json.dumps(output, indent=2))
+
+    if any((f.severity.value if hasattr(f.severity, "value") else f.severity) in {"critical", "high"} for f in findings):
+        sys.exit(1)
+    else:
+        sys.exit(0)

@@ -20,17 +20,17 @@ This repository maps all security findings to [MITRE ATT&CK v19](https://attack.
 - **17 techniques revoked** (auto-remapped via V19_REVOCATION_MAP)
 - **48 new techniques** added (see CHANGELOG.md)
 
-### Measurable Claims
+### Current Evidence Boundaries
 
-| Metric | Value | Evidence |
+This repository contains scanner code and regression fixtures for known model supply-chain risk patterns. Public claims must stay within the committed evidence:
+
+| Area | Current status | Boundary |
 |--------|-------|----------|
-| **Scan latency (P99)** | < 200 ms / model | `benchmark/scan_latency.py` — 50MB SafeTensors |
-| **Test coverage** | 88%+ | `pytest --cov --cov-fail-under=85` |
-| **ATT&CK v19 techniques mapped** | 10 unique | 10 finding types → 10 techniques (T1683/001, T1027/018) |
-| **Detection rate (core CVEs)** | 12/12 (100%) | `tests/redteam/simulate_attacks.py` |
-| **Detection rate (extended variants)** | 18/18 (100%) | `tests/redteam/extended_attacks.py` |
-| **Large-scale scan (multi-MB)** | 3/3 passed | `tests/redteam/test_large_scale.py` |
-| **False positive rate** | 0% on clean models | GPT-2, Llama-3-8B structure tests |
+| Scanner formats | Python, shell/config/dependency files, pickle-derived files, SafeTensors, GGUF, ONNX, and Keras paths are implemented in code | Format support does not imply complete attack coverage |
+| Provenance checks | Missing signature, SBOM, and provenance markers can be flagged | Missing evidence is risk signal, not proof of compromise |
+| Red-team fixtures | `tests/redteam/` contains fixture scripts and reports | Fixture pass rates must not be generalized to real-world detection rates |
+| Latency | No current benchmark artifact is published in this repo | Do not claim P99 latency until a reproducible benchmark script and raw result artifact are committed |
+| False positives | No broad clean-model false-positive benchmark is published | Do not claim 0% false positives |
 
 ### Export ATT&CK Navigator Layer
 
@@ -99,7 +99,7 @@ Current hardening pass:
 - Build system: Makefile targets added or verified for install, lint, format, test, build, security, and verify.
 - Dashboard: 3D realtime dashboard: dashboard/realtime/index.html. Serve with make dashboard.
 - ATT&CK mapping: repos that map detections now use the shared v19 mapping builder where applicable.
-- Validation: Validated: Ruff and format passed; full pytest passed (124 passed, 3 skipped); wheel build passed; dashboard browser/static checks passed.
+- Validation: historical local validation is recorded here for traceability only. Re-run CI before citing current pass counts.
 
 Known limits:
 - Linux and GitHub Actions post-push results must be checked after this push.

@@ -209,7 +209,7 @@ RULES: dict[str, Rule] = {
         "unsigned-model",
         Severity.INFO,
         "Remote scan: model has no obvious Sigstore/GPG signature artifact",
-        "Publishers should sign models to guarantee provenance.",
+        "Publishers should sign models to support provenance verification.",
         None,
         ["best-practice", "signature"],
     ),

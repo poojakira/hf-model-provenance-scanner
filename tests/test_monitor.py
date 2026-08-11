@@ -1,5 +1,5 @@
 """
-Tests for the real-time Hub monitor.
+Tests for the polling Hub monitor.
 
 The monitor talks to the live Hub in production, so these tests stub out both
 the "what's new" feed and the per-repo scan. We're testing the WATCHTOWER

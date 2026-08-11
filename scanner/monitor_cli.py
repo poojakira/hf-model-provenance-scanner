@@ -1,5 +1,5 @@
 """
-CLI for the real-time Hub watchtower.
+CLI for the polling Hub watchtower.
 
 Separate entry point from the main scanner because watching is a long-running
 daemon, not a one-shot scan. Run it under systemd/supervisor in production.
@@ -50,8 +50,8 @@ def _slack_escalation(webhook_url: str):
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="hf-scan-monitor",
-        description="Real-time watchtower: scan newly-published Hugging Face "
-        "models as they appear.",
+        description="Polling watchtower: periodically scan newly-published "
+        "Hugging Face models.",
     )
     p.add_argument(
         "--interval", type=int, default=60, help="seconds between polls of the Hub (default: 60)"
