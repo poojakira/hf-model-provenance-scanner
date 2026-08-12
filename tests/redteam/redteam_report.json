@@ -136,9 +136,9 @@
       ]
     },
     {
-      "name": "CVE-2026-46517 LMDeploy RCE",
+      "name": "CVE-2026-46432 LMDeploy RCE",
       "technique": "Hardcoded trust_remote_code enables RCE",
-      "cve": "CVE-2026-46517",
+      "cve": "CVE-2026-46432",
       "detected": true,
       "findings_count": 2,
       "detection_time_ms": 55.4,
