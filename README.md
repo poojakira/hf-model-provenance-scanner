@@ -7,7 +7,7 @@
 
 **Models on HuggingFace Hub are executing arbitrary code when you load them. This tool catches it.**
 
-A single `torch.load()` call deserializes attacker-controlled pickle bytecode. Malicious `REDUCE` and `STACK_GLOBAL` opcodes execute `os.system`, `subprocess.Popen`, or `eval`, giving full shell access on your machine or CI runner. SafeTensors was supposed to fix this, but Wiz demonstrated header injection that embeds C2 callbacks in metadata. GGUF metadata fields overflow into shell commands. Typosquatted orgs impersonate `meta-llama` and `mistralai` to distribute weaponized weights.
+A single `torch.load()` call deserializes attacker-controlled pickle bytecode. Malicious `REDUCE` and `STACK_GLOBAL` opcodes execute `os.system`, `subprocess.Popen`, or `eval`, giving full shell access on your machine or CI runner. SafeTensors was designed to prevent this, but header injection attacks can embed C2 callbacks in metadata. GGUF metadata fields overflow into shell commands. Typosquatted orgs impersonate `meta-llama` and `mistralai` to distribute weaponized weights.
 
 `hf-scanner` is a static analysis tool that detects these attacks **before** model weights are loaded into memory. It combines a taint engine, symbolic resolver, and temporal scanner. These capabilities don't exist in ModelScan or PickleScan.
 
@@ -36,8 +36,13 @@ We benchmark against the actual installed competitor (`pip install modelscan==0.
 
 Paste a HuggingFace URL and get a verdict **before** the weights ever touch your
 disk. The scanner lists the repo's files over the API, then uses HTTP Range
-requests to pull only the pickle opcode header and safetensors metadata header
-(a few hundred KB) instead of downloading the multi-gigabyte tensor payload.
+requests to pull only the security-relevant portions:
+
+- **Pickle** (`.bin`, `.pt`, `.pth`, `.pkl`): first 512 KB (opcode stream)
+- **SafeTensors** (`.safetensors`): metadata header (up to 16 MB probe)
+- **Config/Source** (`.json`, `.py`): full file up to 2 MB
+
+instead of downloading the multi-gigabyte tensor payload.
 
 ```bash
 hf-scanner https://huggingface.co/openai-community/gpt2 --format json
@@ -53,10 +58,11 @@ hf-scanner https://huggingface.co/openai-community/gpt2 --format json
 }
 ```
 
-That real run scanned 8 security-relevant files while fetching **0.5 MB**. The
-full GPT-2 repo is ~500 MB. A malicious `pytorch_model.bin` is caught from its
+That real run scanned 8 security-relevant files (pickle format) while fetching **0.5 MB**.
+The full GPT-2 repo is ~500 MB. A malicious `pytorch_model.bin` is caught from its
 header opcodes alone, before `torch.load` or `from_pretrained` runs. Bare ids
-(`org/model`) and `.../tree/main` URLs work too.
+(`org/model`) and `.../tree/main` URLs work too. SafeTensors repos may fetch more
+depending on header size.
 
 ---
 
@@ -84,7 +90,7 @@ Runtime dependency: `psutil`. Python 3.10+.
 |---|---|---|
 | **Pickle RCE** (`REDUCE`/`GLOBAL`/`STACK_GLOBAL`) | CVE-2024-5480, CVE-2026-4372, JFrog 2025 bypasses | Deep opcode walk + gadget chain matching |
 | **PickleScan bypass** (corrupted headers, copyreg, Protocol 4) | JFrog + Sonatype confirmed bypasses | Full protocol parse, not regex |
-| **SafeTensors header injection** | Wiz 2025 research, C2 in metadata | Header-only scan, metadata taint analysis |
+| **SafeTensors header injection** | Metadata injection with C2 callbacks | Header-only scan, metadata taint analysis |
 | **GGUF metadata overflow** | Shell commands in metadata fields | Structural parse + shell pattern detection |
 | **Typosquatted organizations** | `meta-Ilama`, `mistral-ai`, `0penai` | Levenshtein distance against verified org list |
 | **Obfuscated payloads** | base64, `chr()` chains, string concat | Multi-layer decode + re-scan |
@@ -114,14 +120,14 @@ The taint engine is a static heuristic. It catches selected intra-package flows 
 
 ---
 
-## Real CVE Detection
+## Real-World Attack Detection
 
-Tested against 12 committed incident-reproduction fixtures. Full fixture results are in [`evidence/DETECTION_PROOF.md`](evidence/DETECTION_PROOF.md). Do not quote these as real-world detection rates without rerunning the exact command, commit, fixture hashes, scanner version, and environment.
+Tested against 12 committed incident-reproduction fixtures (2 with CVE IDs, 10 from public security research). Full fixture results are in [`evidence/DETECTION_PROOF.md`](evidence/DETECTION_PROOF.md). Do not quote these as real-world detection rates without rerunning the exact command, commit, fixture hashes, scanner version, and environment.
 
 | Attack | CVE | Detected | Time |
 |---|---|:---:|---|
 | HF Transformers RCE | CVE-2026-4372 | ✅ | 18ms |
-| LMDeploy trust_remote_code | CVE-2026-46517 | ✅ | 18ms |
+| LMDeploy trust_remote_code | CVE-2026-46432 | ✅ | 18ms |
 | JFrog PickleScan bypass (corrupted header) | — | ✅ | <1ms |
 | JFrog PickleScan bypass (builtins.eval) | — | ✅ | <1ms |
 | Sonatype copyreg gadget chain | — | ✅ | <1ms |
@@ -133,7 +139,7 @@ Tested against 12 committed incident-reproduction fixtures. Full fixture results
 | Protocol 4 STACK_GLOBAL | — | ✅ | <1ms |
 | Acronis TRU credential stealer | — | ✅ | 21ms |
 
-Total scan time for all 12: **116ms**.
+Total scan time for all 12 fixtures: **116ms**.
 
 ---
 
@@ -202,7 +208,7 @@ All claims are backed by reproducible artifacts committed to this repository.
 
 | Evidence | Location |
 |---|---|
-| Red-team attack reproductions (12/12) | [`tests/redteam/simulate_attacks.py`](tests/redteam/simulate_attacks.py) |
+| Red-team attack reproductions (12 fixtures) | [`tests/redteam/simulate_attacks.py`](tests/redteam/simulate_attacks.py) |
 | Machine-readable detection report | [`tests/redteam/redteam_report.json`](tests/redteam/redteam_report.json) |
 | Extended variant coverage (18/18) | [`tests/redteam/extended_attacks.py`](tests/redteam/extended_attacks.py) |
 | False-positive measurement | [`evidence/generated/false_positive_rate.json`](evidence/generated/false_positive_rate.json) |
@@ -235,7 +241,7 @@ scanner/
     obfuscation_scanner.py — Multi-layer decode (base64, chr, concat)
     org_checker.py       — Typosquat detection via Levenshtein
     ast_visitor.py       — Python AST analysis
-    sandbox_executor.py  — Isolated execution environment
+    sandbox_executor.py  — EXPERIMENTAL sandbox (subprocess/gVisor/Firecracker)
   rules/definitions.py   — 40+ finding definitions with severity
   formatters/            — SARIF, JSON, HTML output
   attack_mapping/        — MITRE ATT&CK v19 technique mapping
@@ -275,8 +281,8 @@ scanner/
 Every finding maps to ATT&CK v19:
 
 - **T1195.001**: Supply Chain Compromise: Software Supply Chain
-- **T1683/001**: Trusted Developer Utilities Proxy Execution
-- **T1027/018**: Obfuscated Files or Information
+- **T1683.001**: Generate Content: Written Content
+- **T1027.018**: Obfuscated Files or Information: Invisible Unicode
 - **T1685**: Disable or Modify Tools
 
 ---

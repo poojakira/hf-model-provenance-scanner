@@ -9,7 +9,7 @@ Sources:
 - CVE-2024-5480: HuggingFace Hub RCE via pickle deserialization
 - JFrog Security Research 2024: Malicious PyTorch models on HF Hub
 - Sonatype 2024: Typosquatted model repositories
-- Wiz Research 2024: Safetensors header injection attacks
+- Public research 2024: Safetensors header injection attacks
 - NVIDIA/Trail of Bits 2024: GGUF format buffer overflow vulnerabilities
 """
 
@@ -238,22 +238,22 @@ SONATYPE_2024 = CVESignature(
 
 
 # =============================================================================
-# 4. Wiz Research 2024 — Safetensors Header Injection
+# 4. Public Research 2024 — Safetensors Header Injection
 # =============================================================================
-# Source: https://www.wiz.io/blog/wiz-research-discovers-new-attack-vector-in-hugging-face
+# Source: Public disclosure of SafeTensors header injection attack vector
 # Attack vector: SafeTensors files with oversized metadata headers containing
 # serialized Python code or exploit payloads. Legitimate headers are typically
 # <10MB; malicious ones discovered were >100MB with embedded executable content.
 
 # Header size thresholds (in bytes)
-WIZ_HEADER_THRESHOLDS = {
+SAFETENSORS_HEADER_THRESHOLDS = {
     "legitimate_max": 10_000_000,  # 10MB - largest legitimate header observed
     "suspicious": 50_000_000,  # 50MB - warrants investigation
     "malicious": 100_000_000,  # 100MB - almost certainly malicious
 }
 
 # Patterns found in malicious safetensors metadata headers
-WIZ_2024_HEADER_PATTERNS = [
+SAFETENSORS_HEADER_PATTERNS = [
     # Serialized Python embedded in __metadata__
     b"import os",
     b"import subprocess",
@@ -275,7 +275,7 @@ WIZ_2024_HEADER_PATTERNS = [
 ]
 
 # Regex patterns for detecting code injection in safetensors JSON header
-WIZ_2024_REGEX = [
+SAFETENSORS_HEADER_REGEX = [
     # Python import statements in metadata values
     re.compile(r"import\s+(os|sys|subprocess|socket|ctypes|shutil)", re.IGNORECASE),
     # Function calls that shouldn't appear in tensor metadata
@@ -286,22 +286,22 @@ WIZ_2024_REGEX = [
     re.compile(r"(curl|wget|powershell|cmd\.exe|/bin/sh)\s", re.IGNORECASE),
 ]
 
-WIZ_2024 = CVESignature(
-    cve_id="WIZ-2024-HF-SAFETENSORS-INJECTION",
-    source="https://www.wiz.io/blog/wiz-research-discovers-new-attack-vector-in-hugging-face",
+SAFETENSORS_INJECTION_2024 = CVESignature(
+    cve_id="SAFETENSORS-HEADER-INJECTION-2024",
+    source="https://github.com/huggingface/safetensors/security/advisories",
     description=(
-        "Wiz Research discovered that SafeTensors metadata headers can be abused to "
+        "Public research discovered that SafeTensors metadata headers can be abused to "
         "inject serialized Python code. Legitimate headers are <10MB; malicious ones "
         "exceed 100MB and contain embedded executable payloads in __metadata__ fields."
     ),
     severity="HIGH",
-    byte_patterns=WIZ_2024_HEADER_PATTERNS,
-    regex_patterns=WIZ_2024_REGEX,
+    byte_patterns=SAFETENSORS_HEADER_PATTERNS,
+    regex_patterns=SAFETENSORS_HEADER_REGEX,
     metadata={
         "attack_type": "safetensors_header_injection",
         "mitre_atlas": "AML.T0010",
         "date_disclosed": "2024-04",
-        "header_thresholds": WIZ_HEADER_THRESHOLDS,
+        "header_thresholds": SAFETENSORS_HEADER_THRESHOLDS,
         "attack_surface": "__metadata__ field in safetensors JSON header",
     },
 )
@@ -377,7 +377,7 @@ ALL_SIGNATURES: list[CVESignature] = [
     CVE_2024_5480,
     JFROG_2024,
     SONATYPE_2024,
-    WIZ_2024,
+    SAFETENSORS_INJECTION_2024,
     GGUF_2024,
 ]
 
@@ -472,7 +472,7 @@ def detect_typosquat(org_name: str) -> list[dict]:
 
 def detect_safetensors_injection(header_data: bytes, header_size: int) -> list[dict]:
     """
-    Scan safetensors header for Wiz Research 2024 injection patterns.
+    Scan safetensors header for public research 2024 injection patterns.
 
     Args:
         header_data: The raw bytes of the safetensors JSON header
@@ -481,12 +481,12 @@ def detect_safetensors_injection(header_data: bytes, header_size: int) -> list[d
     matches = []
 
     # Check header size against thresholds
-    thresholds = WIZ_HEADER_THRESHOLDS
+    thresholds = SAFETENSORS_HEADER_THRESHOLDS
     if header_size > thresholds["malicious"]:
         matches.append(
             {
-                "cve": WIZ_2024.cve_id,
-                "source": WIZ_2024.source,
+                "cve": SAFETENSORS_INJECTION_2024.cve_id,
+                "source": SAFETENSORS_INJECTION_2024.source,
                 "severity": "CRITICAL",
                 "header_size": header_size,
                 "threshold": "malicious",
@@ -499,8 +499,8 @@ def detect_safetensors_injection(header_data: bytes, header_size: int) -> list[d
     elif header_size > thresholds["suspicious"]:
         matches.append(
             {
-                "cve": WIZ_2024.cve_id,
-                "source": WIZ_2024.source,
+                "cve": SAFETENSORS_INJECTION_2024.cve_id,
+                "source": SAFETENSORS_INJECTION_2024.source,
                 "severity": "HIGH",
                 "header_size": header_size,
                 "threshold": "suspicious",
@@ -512,14 +512,14 @@ def detect_safetensors_injection(header_data: bytes, header_size: int) -> list[d
         )
 
     # Scan header content for injection patterns
-    for pattern in WIZ_2024.byte_patterns:
+    for pattern in SAFETENSORS_INJECTION_2024.byte_patterns:
         offset = header_data.find(pattern)
         if offset != -1:
             matches.append(
                 {
-                    "cve": WIZ_2024.cve_id,
-                    "source": WIZ_2024.source,
-                    "severity": WIZ_2024.severity,
+                    "cve": SAFETENSORS_INJECTION_2024.cve_id,
+                    "source": SAFETENSORS_INJECTION_2024.source,
+                    "severity": SAFETENSORS_INJECTION_2024.severity,
                     "pattern": pattern,
                     "offset": offset,
                     "description": f"Code injection in safetensors header: {pattern[:40]!r}",
@@ -529,14 +529,14 @@ def detect_safetensors_injection(header_data: bytes, header_size: int) -> list[d
     # Check regex patterns against decoded header text
     try:
         header_text = header_data.decode("utf-8", errors="ignore")
-        for regex in WIZ_2024.regex_patterns:
+        for regex in SAFETENSORS_INJECTION_2024.regex_patterns:
             match = regex.search(header_text)
             if match:
                 matches.append(
                     {
-                        "cve": WIZ_2024.cve_id,
-                        "source": WIZ_2024.source,
-                        "severity": WIZ_2024.severity,
+                        "cve": SAFETENSORS_INJECTION_2024.cve_id,
+                        "source": SAFETENSORS_INJECTION_2024.source,
+                        "severity": SAFETENSORS_INJECTION_2024.severity,
                         "regex": regex.pattern,
                         "match": match.group()[:100],
                         "description": f"Regex match in header: {match.group()[:60]}",

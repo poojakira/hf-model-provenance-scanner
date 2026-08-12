@@ -1,6 +1,15 @@
 """
 Sandbox Execution Engine — Run untrusted code in restricted environments.
-Supports: subprocess (fallback), gVisor (runsc), Firecracker microVMs.
+
+Backends:
+- subprocess: EXPERIMENTAL — limited isolation, not a security boundary.
+  Uses Python's subprocess with restricted env and import hooks. Suitable for
+  behavioral analysis only; does NOT provide strong isolation.
+- gVisor (runsc): Stronger isolation via ptrace/KVM platform.
+- Firecracker microVM: Strongest isolation via microVM (requires pre-configured image).
+
+Default backend is subprocess (experimental). Set HF_SANDBOX_BACKEND=gvisor or
+firecracker for stronger isolation in production.
 """
 
 import json
@@ -133,7 +142,13 @@ def sandbox_execute(file_path: str, source: str) -> list[Finding]:
 
 
 def _sandbox_subprocess(file_path: str, source: str) -> list[Finding]:
-    """Legacy subprocess-based sandbox with multiple env configs (fallback)."""
+    """EXPERIMENTAL subprocess-based sandbox with limited isolation.
+
+    This backend uses Python subprocess with restricted environment variables
+    and import hooks to detect malicious behavior. It does NOT provide a
+    security boundary and should not be relied upon for strong isolation.
+    Use gVisor or Firecracker backends for production workloads.
+    """
     findings: list[Finding] = []
     seen_evidence = set()
 

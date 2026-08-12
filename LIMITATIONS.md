@@ -4,7 +4,7 @@
 
 | Suite | Attacks | Detected | False Positives |
 |---|---|---|---|
-| Core real-world incidents | 12 | 12/12 in included incident-reproduction fixtures | 0 |
+| Core real-world incidents | 12 | 12 detected in included incident-reproduction fixtures | 0 |
 | Extended variants (env gating, decorators, generators, DNS exfil) | 18 | 18/18 in included extended fixtures | 0 |
 | Large-scale (multi-MB files, 300+ line code) | 3 | 3/3 included scale fixtures; not a general scale benchmark | 0 |
 | Real models (GPT-2 downloaded, Llama-3-8B 288-tensor structure) | — | 0 findings | 0 |

@@ -20,12 +20,12 @@ from scanner.data.real_cve_signatures import (
     JFROG_2024,
     JFROG_2024_CLASS_NAMES,
     JFROG_2024_REGEX,
+    SAFETENSORS_HEADER_THRESHOLDS,
+    SAFETENSORS_INJECTION_2024,
     SIGNATURES_BY_ID,
     SONATYPE_2024,
     SONATYPE_2024_TYPOSQUATS,
     SONATYPE_DISTANCE_THRESHOLDS,
-    WIZ_2024,
-    WIZ_HEADER_THRESHOLDS,
     detect_gguf_overflow,
     detect_pickle_rce,
     detect_safetensors_injection,
@@ -258,15 +258,15 @@ class TestSonatype2024_Typosquatting:  # noqa: N801
             assert len(matches) >= 1, f"Typosquat '{malicious}' (targets '{target}') not detected"
 
 
-class TestWiz2024_SafetensorsInjection:  # noqa: N801
-    """Wiz Research 2024: Safetensors header injection attacks."""
+class TestSafetensorsInjection2024:  # noqa: N801
+    """Public research 2024: Safetensors header injection attacks."""
 
     def test_signature_metadata(self):
-        """Verify Wiz signature references correct source."""
-        assert "wiz.io" in WIZ_2024.source
-        assert WIZ_2024.severity == "HIGH"
+        """Verify signature references correct source."""
+        assert "github.com" in SAFETENSORS_INJECTION_2024.source
+        assert SAFETENSORS_INJECTION_2024.severity == "HIGH"
         assert (
-            WIZ_2024.metadata["attack_surface"] == "__metadata__ field in safetensors JSON header"
+            SAFETENSORS_INJECTION_2024.metadata["attack_surface"] == "__metadata__ field in safetensors JSON header"
         )
 
     def test_detect_oversized_header_malicious(self):
@@ -329,10 +329,10 @@ class TestWiz2024_SafetensorsInjection:  # noqa: N801
         assert len(matches) >= 1
 
     def test_header_thresholds_defined(self):
-        """Verify header size thresholds match Wiz research findings."""
-        assert WIZ_HEADER_THRESHOLDS["legitimate_max"] == 10_000_000
-        assert WIZ_HEADER_THRESHOLDS["suspicious"] == 50_000_000
-        assert WIZ_HEADER_THRESHOLDS["malicious"] == 100_000_000
+        """Verify header size thresholds match research findings."""
+        assert SAFETENSORS_HEADER_THRESHOLDS["legitimate_max"] == 10_000_000
+        assert SAFETENSORS_HEADER_THRESHOLDS["suspicious"] == 50_000_000
+        assert SAFETENSORS_HEADER_THRESHOLDS["malicious"] == 100_000_000
 
 
 class TestGGUF2024_BufferOverflow:  # noqa: N801
@@ -438,7 +438,7 @@ class TestUnifiedScanAll:
         """scan_all should check safetensors injection when file_type specified."""
         header = b'{"__metadata__": {"x": "import subprocess"}}'
         matches = scan_all(header, context={"file_type": "safetensors", "header_size": len(header)})
-        assert any(m["cve"] == "WIZ-2024-HF-SAFETENSORS-INJECTION" for m in matches)
+        assert any(m["cve"] == "SAFETENSORS-HEADER-INJECTION-2024" for m in matches)
 
     def test_scan_all_gguf_auto_detect(self):
         """scan_all should auto-detect GGUF files by magic bytes."""
@@ -452,7 +452,7 @@ class TestUnifiedScanAll:
         assert "CVE-2024-5480" in SIGNATURES_BY_ID
         assert "JFROG-2024-HF-MALICIOUS-MODELS" in SIGNATURES_BY_ID
         assert "SONATYPE-2024-HF-TYPOSQUAT" in SIGNATURES_BY_ID
-        assert "WIZ-2024-HF-SAFETENSORS-INJECTION" in SIGNATURES_BY_ID
+        assert "SAFETENSORS-HEADER-INJECTION-2024" in SIGNATURES_BY_ID
         assert "CVE-2024-25664" in SIGNATURES_BY_ID
 
     def test_all_signatures_have_sources(self):

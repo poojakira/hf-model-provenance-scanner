@@ -231,7 +231,7 @@ def _read_string_nl(data: bytes, pos: int) -> tuple[str, int]:
     Handles both \n and \r\n line endings for CRLF evasion fix.
     """
     end = data.index(b"\n", pos)
-    # Strip trailing \r for CRLF evasion (CVE-2026-46517 fix)
+    # Strip trailing \r for CRLF evasion (CVE-2026-46432 fix)
     s = data[pos:end].decode("ascii", errors="replace")
     if s.endswith("\r"):
         s = s[:-1]

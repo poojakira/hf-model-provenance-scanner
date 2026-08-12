@@ -5,6 +5,7 @@ Features:
 - Exponential backoff with jitter
 - Deterministic failures for 401/403/404
 - In-memory caching
+- Preserves Authorization header on same-origin redirects for private/gated repos
 """
 
 import json
@@ -18,6 +19,31 @@ import urllib.request
 MAX_DOWNLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 MAX_RETRIES = 3
 BASE_RETRY_DELAY = 1.0
+
+
+# Custom redirect handler that preserves Authorization header for same-origin redirects
+class _HFRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Redirect handler that keeps Authorization header for huggingface.co redirects."""
+
+    def __init__(self, token: str | None):
+        self.token = token
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        # Parse original and new URLs
+        orig_parsed = urllib.parse.urlparse(req.full_url)
+        new_parsed = urllib.parse.urlparse(newurl)
+
+        # Only preserve Authorization header for same-origin (huggingface.co) redirects
+        # Cross-origin redirects (e.g., to CDN) should not receive the token
+        if self.token and orig_parsed.netloc == new_parsed.netloc:
+            # Keep the Authorization header
+            new_headers = dict(req.headers)
+            new_headers["Authorization"] = f"Bearer {self.token}"
+            return urllib.request.Request(newurl, headers=new_headers, method=req.get_method())
+        else:
+            # Strip Authorization header for cross-origin redirects
+            new_headers = {k: v for k, v in req.headers.items() if k.lower() != "authorization"}
+            return urllib.request.Request(newurl, headers=new_headers, method=req.get_method())
 
 
 # Token bucket rate limiter (per-client)
@@ -82,6 +108,10 @@ class HFApiClient:
         except (ValueError, TypeError):
             pass  # Keep current settings
 
+    def _build_opener(self):
+        """Build urllib opener with custom redirect handler for token preservation."""
+        return urllib.request.build_opener(_HFRedirectHandler(self.token))
+
     def _request(self, url: str, max_bytes: int | None = None) -> bytes:
         """Make an HTTP GET request with rate limiting, retry logic, and caching."""
         # Check cache first
@@ -99,10 +129,11 @@ class HFApiClient:
             raise ValueError("Hugging Face API URL must use http or https")
         req = urllib.request.Request(url, headers=self._headers())
         last_error = None
+        opener = self._build_opener()
 
         for attempt in range(MAX_RETRIES):
             try:
-                with urllib.request.urlopen(req, timeout=30) as resp:  # nosec B310
+                with opener.open(req, timeout=30) as resp:  # nosec B310
                     # Update rate limiter from response headers
                     self._update_rate_limit(dict(resp.headers))
 
@@ -189,8 +220,9 @@ class HFApiClient:
 
         req = urllib.request.Request(url, headers=self._headers())
         req.add_header("Range", f"bytes=0-{max(0, n_bytes - 1)}")
+        opener = self._build_opener()
         try:
-            with urllib.request.urlopen(req, timeout=30) as resp:  # nosec B310
+            with opener.open(req, timeout=30) as resp:  # nosec B310
                 return resp.read(n_bytes)
         except urllib.error.HTTPError as e:
             if e.code in (401, 403, 404):
@@ -206,8 +238,9 @@ class HFApiClient:
         if parsed.scheme not in {"http", "https"}:
             raise ValueError("URL must use http or https")
         req = urllib.request.Request(url, headers=self._headers(), method="HEAD")
+        opener = self._build_opener()
         try:
-            with urllib.request.urlopen(req, timeout=30) as resp:  # nosec B310
+            with opener.open(req, timeout=30) as resp:  # nosec B310
                 size = resp.headers.get("Content-Length") or resp.headers.get("X-Linked-Size")
                 return int(size) if size and size.isdigit() else None
         except (urllib.error.HTTPError, urllib.error.URLError, OSError, ValueError):

@@ -9,7 +9,7 @@ Replicates EXACT techniques from documented 2025-2026 incidents:
 4. JFrog PickleScan bypass techniques (7 methods)
 5. Sonatype PickleScan bypass (4 additional methods)
 6. Acronis TRU HuggingFace/ClawHub malware campaign
-7. CVE-2026-46517 LMDeploy trust_remote_code RCE
+7. CVE-2026-46432 LMDeploy trust_remote_code RCE
 
 Each simulation is an INERT payload that triggers the same scanner rules
 as the real attack would, proving detection capability without being weaponizable.
@@ -195,12 +195,12 @@ ATTACK_6_PICKLE_COPYREG = (
 )
 
 # ═══════════════════════════════════════════════════════════════════════
-# INCIDENT 7: CVE-2026-46517 LMDeploy trust_remote_code
+# INCIDENT 7: CVE-2026-46432 LMDeploy trust_remote_code
 # Technique: Hardcoded trust_remote_code enables supply chain RCE
 # ═══════════════════════════════════════════════════════════════════════
 
 ATTACK_7_LMDEPLOY = """
-# CVE-2026-46517: LMDeploy hardcodes trust_remote_code=True
+# CVE-2026-46432: LMDeploy hardcodes trust_remote_code=True
 # Any HuggingFace model with custom code auto-executes on load
 from transformers import AutoModelForCausalLM
 model = AutoModelForCausalLM.from_pretrained(
@@ -349,10 +349,10 @@ def run_simulation():
             cve=None,
         ),
         AttackSimulation(
-            "CVE-2026-46517 LMDeploy RCE",
+            "CVE-2026-46432 LMDeploy RCE",
             ATTACK_7_LMDEPLOY,
             "Hardcoded trust_remote_code enables RCE",
-            cve="CVE-2026-46517",
+            cve="CVE-2026-46432",
         ),
         AttackSimulation(
             "Acronis TRU Credential Stealer",
