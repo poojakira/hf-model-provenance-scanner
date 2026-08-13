@@ -305,10 +305,27 @@ def scan_local(
 
 
 def scan_remote_files(
-    result: ScanResult, repo_id: str, client: HFApiClient, config: dict
+    result: ScanResult, repo_id: str, client: HFApiClient, config: dict,
+    revision: str = "main",
 ) -> tuple[dict[str, bytes], dict[str, bytes], dict[str, tuple[str, int]]]:
-    """Scan remote files including binary model scanning."""
-    files = client.list_repo_files(repo_id)
+    """Scan remote files including binary model scanning.
+
+    Security: all file operations are pinned to an immutable commit SHA
+    to prevent TOCTOU between scan time and deployment time.
+    """
+    # ── Step 1: resolve to immutable commit SHA ──────────────────────────────
+    try:
+        commit_sha = client.resolve_to_commit_sha(repo_id, revision)
+    except Exception as exc:
+        result.error = f"Could not resolve {repo_id}@{revision} to immutable SHA: {exc}"
+        result.completeness = "UNKNOWN"
+        return {}, {}, {}
+
+    # Record the pinned SHA in the result for evidence / provenance
+    if not hasattr(result, "artifact_revision"):
+        result.artifact_revision = commit_sha
+
+    files = client.list_repo_files(repo_id, commit_sha)
     add_remote_policy_findings(result, repo_id, files, config)
     artifacts: dict[str, bytes] = {}
     sboms: dict[str, bytes] = {}
@@ -318,7 +335,7 @@ def scan_remote_files(
         if not should_scan_remote_file(filename):
             continue
         try:
-            data = client.download_file(repo_id, filename)
+            data = client.download_file(repo_id, filename, commit_sha)
         except Exception as exc:
             result.files_skipped += 1
             result.findings.append(make_finding("HFS-098", file_path=filename, evidence=str(exc)))
@@ -596,6 +613,21 @@ def main(argv=None):
         return 2
 
     result.scan_duration_seconds = time.time() - start_time
+
+    # ── Completeness: PARTIAL != CLEAN ─────────────────────────────────────
+    # If any file was skipped (oversized, unsupported, errored), mark the
+    # scan PARTIAL.  Downstream consumers MUST NOT treat this as a clean bill
+    # of health.  The skipped files are already recorded as HFS-098 findings.
+    from scanner.models import Completeness
+    if result.error:
+        result.completeness = Completeness.UNKNOWN
+    elif result.files_skipped > 0:
+        result.completeness = Completeness.PARTIAL
+    elif result.files_scanned == 0 and result.files_skipped == 0:
+        result.completeness = Completeness.UNKNOWN
+    else:
+        result.completeness = Completeness.COMPLETE
+
     result.risk = compute_risk(result)
 
     # Save baseline if requested

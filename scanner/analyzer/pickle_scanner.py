@@ -274,6 +274,9 @@ class PickleScanner:
         self.reduces_found: int = 0
         self.string_stack: list[str] = []
         self.protocol = 0
+        # Tracks opcodes we did not recognise — any unknown opcode
+        # causes the scan result to be INDETERMINATE, not CLEAN.
+        self.unknown_opcode_count: int = 0
 
     def scan(self) -> list[Finding]:
         """Main scan entry point."""
@@ -305,6 +308,19 @@ class PickleScanner:
         # Post-scan analysis
         self._analyze_globals()
         self._check_reduce_count()
+        # If unknown opcodes were encountered the stream could not be
+        # fully analysed.  Emit an INDETERMINATE finding so callers
+        # cannot treat this scan as clean.
+        if self.unknown_opcode_count > 0:
+            self.findings.append(
+                _make_finding(
+                    "HFS-099",
+                    self.file_path,
+                    f"{self.unknown_opcode_count} unknown pickle opcode(s) encountered — "
+                    "scan is INDETERMINATE. The stream may contain unanalysed code "
+                    "execution paths. Do not treat as clean.",
+                )
+            )
         return self.findings
 
     def _parse_opcodes(self):
@@ -526,8 +542,12 @@ class PickleScanner:
                 # Nested protocol header
                 self.pos += 1  # Skip version byte
             else:
-                # Unknown opcode - skip conservatively
-                pass
+                # Unknown opcode — we cannot reason about the pickle stream
+                # beyond this point. Increment counter and stop parsing.
+                # The caller will check unknown_opcode_count > 0 and
+                # set the scan verdict to INDETERMINATE.
+                self.unknown_opcode_count += 1
+                break
 
     def _analyze_globals(self):
         """Classify discovered globals into critical/suspicious/safe."""

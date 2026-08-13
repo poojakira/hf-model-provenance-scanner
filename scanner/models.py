@@ -11,6 +11,43 @@ class Severity(Enum):
     LOW = "low"
     INFO = "info"
 
+class Completeness(str):
+    COMPLETE="COMPLETE"
+    PARTIAL="PARTIAL"
+    UNKNOWN="UNKNOWN"
+
+
+class Completeness(Enum):
+    """Describes scan coverage of the target.
+
+    COMPLETE  — every file was scanned within configured limits.
+    PARTIAL   — one or more files were skipped (oversized, unsupported,
+                or errored). CLEAN + PARTIAL != safe. Surface to caller.
+    UNKNOWN   — completeness could not be determined.
+
+    RULE: PARTIAL != CLEAN. Callers must surface this distinction.
+    """
+    COMPLETE = "COMPLETE"
+    PARTIAL = "PARTIAL"
+    UNKNOWN = "UNKNOWN"
+
+
+class Completeness(Enum):
+    """Describes how thoroughly the scanner covered the scan target.
+
+    COMPLETE  — every file was scanned within configured limits.
+    PARTIAL   — one or more files were skipped (oversized, unsupported,
+                or errored).  A CLEAN verdict with PARTIAL completeness
+                MUST NOT be interpreted as "no threats present."
+    UNKNOWN   — completeness could not be determined.
+
+    RULE: PARTIAL != CLEAN.  Callers must surface this distinction.
+    """
+    COMPLETE = "COMPLETE"
+    PARTIAL = "PARTIAL"
+    UNKNOWN = "UNKNOWN"
+
+
 
 @dataclass
 class Finding:
@@ -56,6 +93,16 @@ class ScanResult:
     files_skipped: int = 0
     scan_duration_seconds: float = 0.0
     error: str | None = None
+    completeness: str = "UNKNOWN"
+    skipped_files_detail: list = None
+    def __post_init__(self):
+        if self.skipped_files_detail is None:
+            object.__setattr__(self,"skipped_files_detail",[])
+    # Completeness tracks whether all files were scanned.
+    # MUST be set to PARTIAL when any file is skipped.
+    # Callers MUST NOT treat (verdict=CLEAN, completeness=PARTIAL) as safe.
+    completeness: Completeness = Completeness.UNKNOWN
+    skipped_files_detail: list[str] = field(default_factory=list)
 
     @property
     def highest_severity(self) -> Severity | None:

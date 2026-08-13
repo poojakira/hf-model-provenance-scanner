@@ -10,24 +10,40 @@ from unittest.mock import patch
 from scanner import cli
 
 
+# Fake SHA used by FakeClient — 40 hex chars, deterministic
+FAKE_COMMIT_SHA = "a" * 40
+
+
 class FakeClient:
+    """Test double for HFApiClient implementing the immutable-revision interface.
+
+    All methods accept the new commit_sha parameter that was added as part of
+    the TOCTOU fix (FINDING-001). The SHA is ignored for test purposes but
+    the signature must match so tests exercise the new code paths.
+    """
+
     card = "Privacy Filter model card from OpenAI. Use the privacy filter for PII detection."
 
     def __init__(self, token=None):
         self.token = token
 
-    def get_model_info(self, repo_id):
-        return {"id": repo_id, "downloads": 244000, "createdAt": "2020-01-01T00:00:00.000Z"}
+    def get_model_info(self, repo_id, revision=None):
+        return {"id": repo_id, "downloads": 244000, "createdAt": "2020-01-01T00:00:00.000Z",
+                "sha": FAKE_COMMIT_SHA}
 
-    def get_model_card(self, repo_id):
+    def resolve_to_commit_sha(self, repo_id: str, revision: str = "main") -> str:
+        """Return a deterministic fake SHA for tests."""
+        return FAKE_COMMIT_SHA
+
+    def get_model_card(self, repo_id, commit_sha=None):
         if repo_id in {"Open-OSS/privacy-filter", "openai/privacy-filter"}:
             return self.card
         return ""
 
-    def list_repo_files(self, repo_id):
+    def list_repo_files(self, repo_id, commit_sha=None):
         return ["README.md", "loader.py"]
 
-    def download_file(self, repo_id, filename):
+    def download_file(self, repo_id, filename, commit_sha=None):
         if filename == "loader.py":
             path = os.path.join(
                 os.path.dirname(__file__), "fixtures", "malicious", "privacy_filter_loader.py"
