@@ -51,6 +51,4 @@ See `tests/redteam/redteam_report.json` for the full structured output.
 | #12 GGUF injection | ❌ | ❌ | ❌ | ✅ |
 
 PickleScan has 7+ confirmed bypass vulnerabilities (JFrog + Sonatype research).
-This scanner catches ALL of them because it parses pickle opcodes directly,
-plus it analyzes Python source code, configs, and shell scripts — which no
-competitor does.
+This scanner catches the committed bypass fixtures because it parses pickle opcodes directly. It also analyzes selected Python source, config, and shell-script patterns covered by the tracked regression suite.

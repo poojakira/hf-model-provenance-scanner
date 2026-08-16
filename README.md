@@ -9,7 +9,7 @@
 
 A single `torch.load()` call deserializes attacker-controlled pickle bytecode. Malicious `REDUCE` and `STACK_GLOBAL` opcodes execute `os.system`, `subprocess.Popen`, or `eval`, giving full shell access on your machine or CI runner. SafeTensors was designed to prevent this, but header injection attacks can embed C2 callbacks in metadata. GGUF metadata fields overflow into shell commands. Typosquatted orgs impersonate `meta-llama` and `mistralai` to distribute weaponized weights.
 
-`hf-scanner` is a static analysis tool that detects these attacks **before** model weights are loaded into memory. It combines a taint engine, symbolic resolver, and temporal scanner. These capabilities don't exist in ModelScan or PickleScan.
+`hf-scanner` is a static analysis tool that detects selected attack patterns **before** model weights are loaded into memory. It combines a taint engine, symbolic resolver, and temporal scanner. The committed head-to-head evidence below covers specific ModelScan 0.8.8 fixtures only, not every scanner capability or future competitor release.
 
 ## Verified head-to-head vs Protect AI ModelScan 0.8.8
 
@@ -112,7 +112,7 @@ ModelScan (Protect AI) scans individual files for known-bad patterns. It does no
 | Typosquat detection | ❌ | ✅ |
 | SafeTensors metadata injection | ❌ | ✅ |
 | GGUF structural scanning | ❌ | ✅ |
-| PickleScan bypass coverage (all 7) | Partial | ✅ |
+| PickleScan bypass fixture coverage | Partial | detected for committed fixtures |
 | Source code + config + shell analysis | ❌ | ✅ |
 | SARIF output for GitHub Security tab | ❌ | ✅ |
 
