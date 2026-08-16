@@ -266,7 +266,8 @@ class TestSafetensorsInjection2024:  # noqa: N801
         assert "github.com" in SAFETENSORS_INJECTION_2024.source
         assert SAFETENSORS_INJECTION_2024.severity == "HIGH"
         assert (
-            SAFETENSORS_INJECTION_2024.metadata["attack_surface"] == "__metadata__ field in safetensors JSON header"
+            SAFETENSORS_INJECTION_2024.metadata["attack_surface"]
+            == "__metadata__ field in safetensors JSON header"
         )
 
     def test_detect_oversized_header_malicious(self):
