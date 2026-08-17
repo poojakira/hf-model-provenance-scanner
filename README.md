@@ -82,6 +82,12 @@ hf-scanner ./models/ --format sarif --output results.sarif
 
 Runtime dependency: `psutil`. Python 3.10+.
 
+To use the experimental Ed25519 signing module (`scanner/signing/`), install with:
+
+```bash
+pip install hf-scanner[signing]
+```
+
 ---
 
 ## What It Catches
