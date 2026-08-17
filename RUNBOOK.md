@@ -545,7 +545,7 @@ hf-scanner --version
 ```bash
 # Quick validation
 make test
-# Expected: 199 passed, 3 skipped
+# Expected: 201 passed, 3 skipped
 
 # Full verification (lint + test + build + security audit)
 make verify
@@ -562,7 +562,7 @@ make verify
 
 ```bash
 # Check scanner latency
-python benchmark/run_real_artifact_benchmark.py
+python benchmark/run_real_artifact_benchmark.py ./models/ --model-id org/model-name --revision v1.0 --output benchmark_results.json
 
 # Expected: p99 < 5s for typical model repos
 ```
@@ -599,3 +599,5 @@ hf-scanner ./models/ --mode local --config ./.hf-scanner.toml
 # Verbose output for debugging
 hf-scanner ./models/ --mode local --verbose
 ```
+
+> **Windows note:** If `hf-scanner` is not on PATH, use `py -m scanner.cli` as a drop-in replacement for all commands above.
