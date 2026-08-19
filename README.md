@@ -1,6 +1,6 @@
 # HF Model Provenance Scanner
 
-Supply-chain security scanner for Hugging Face model repositories. Taint engine walks pickle opcodes, SafeTensors headers, and GGUF structures to find code-execution gadgets, typosquatting, and rug-pull indicators — fetching only the bytes it needs via HTTP Range requests (0.5 MB instead of 500 MB for GPT-2).
+Supply-chain security scanner for Hugging Face model repositories. Taint engine walks pickle opcodes, SafeTensors headers, and GGUF structures to find code-execution gadgets, typosquatting, and rug-pull indicators  -  fetching only the bytes it needs via HTTP Range requests (0.5 MB instead of 500 MB for GPT-2).
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
@@ -23,9 +23,9 @@ Supply-chain security scanner for Hugging Face model repositories. Taint engine 
 
 ## Why I Built This
 
-Model files on Hugging Face are not just weights — pickle files execute arbitrary Python on deserialization. SafeTensors was supposed to fix that, but malformed headers can still trigger parser vulnerabilities. And the supply-chain threat goes beyond file format: models get typosquatted, silently replaced weeks after publication, or published by impersonated authors.
+Model files on Hugging Face are not just weights  -  pickle files execute arbitrary Python on deserialization. SafeTensors was supposed to fix that, but malformed headers can still trigger parser vulnerabilities. And the supply-chain threat goes beyond file format: models get typosquatted, silently replaced weeks after publication, or published by impersonated authors.
 
-I built this scanner because the existing tools (primarily ModelScan) download entire model files and miss important attack patterns — specifically `importlib.import_module` + `getattr` chains and memoized-global exec via memo stack lookups. Those patterns are real; CVE-2026-46432 uses the importlib bypass and ModelScan 0.8.8 doesn't catch it.
+I built this scanner because the existing tools (primarily ModelScan) download entire model files and miss important attack patterns  -  specifically `importlib.import_module` + `getattr` chains and memoized-global exec via memo stack lookups. Those patterns are real; CVE-2026-46432 uses the importlib bypass and ModelScan 0.8.8 doesn't catch it.
 
 The key design decision was HTTP Range requests: fetch only the first 8-64 KB of each file (enough for opcode analysis), never download full model weights. This makes it practical to scan every model dependency on every PR without consuming bandwidth.
 
@@ -79,15 +79,15 @@ Hugging Face Hub (model repository)
 
 ## What It Detects
 
-- **Pickle REDUCE/GLOBAL gadget chains** — traces opcode sequences leading to `os.system`, `subprocess.Popen`, `eval`, `exec`
-- **Memoized-global exec** — `GLOBAL` pushing `builtins.exec` onto the memo stack for later invocation
-- **importlib loader bypass** — `importlib.import_module` + `getattr` to invoke modules without direct GLOBAL on the dangerous function
-- **Multi-layer obfuscation** — `base64.b64decode(chr(97)+chr(98)+...)` patterns, nested decode
-- **SafeTensors header manipulation** — oversized headers, tensor names with path traversal, size mismatches
-- **GGUF structural anomalies** — invalid magic bytes, metadata with embedded executable content
-- **Typosquatting** — model names within Levenshtein distance 1-2 of popular models
-- **Rug-pull / temporal replacement** — file hashes change after publication without version bump
-- **Author impersonation** — org/username similarity to known publishers
+- **Pickle REDUCE/GLOBAL gadget chains**  -  traces opcode sequences leading to `os.system`, `subprocess.Popen`, `eval`, `exec`
+- **Memoized-global exec**  -  `GLOBAL` pushing `builtins.exec` onto the memo stack for later invocation
+- **importlib loader bypass**  -  `importlib.import_module` + `getattr` to invoke modules without direct GLOBAL on the dangerous function
+- **Multi-layer obfuscation**  -  `base64.b64decode(chr(97)+chr(98)+...)` patterns, nested decode
+- **SafeTensors header manipulation**  -  oversized headers, tensor names with path traversal, size mismatches
+- **GGUF structural anomalies**  -  invalid magic bytes, metadata with embedded executable content
+- **Typosquatting**  -  model names within Levenshtein distance 1-2 of popular models
+- **Rug-pull / temporal replacement**  -  file hashes change after publication without version bump
+- **Author impersonation**  -  org/username similarity to known publishers
 
 ### Comparison vs ModelScan 0.8.8
 
@@ -110,20 +110,17 @@ Tested both tools against the same 12 attack fixtures and 5 benign models:
 ## Quick Start
 
 ```bash
-# Docker — scans bert-base-uncased in under 10 seconds
-docker run --rm ghcr.io/poojakira/hf-provenance-scanner:latest \
-  scan --repo bert-base-uncased --format sarif
-
+# Docker  -  scans bert-base-uncased in under 10 seconds
 # From source
 git clone https://github.com/poojakira/hf-model-provenance-scanner.git
 cd hf-model-provenance-scanner
 pip install -e .
-hf-scan --repo bert-base-uncased --format text
+hf-scanner bert-base-uncased --format text
 ```
 
 ```
 Scanning: bert-base-uncased
-Fetched: 487 KB (vs 433 MB full download — 99.9% reduction)
+Fetched: 487 KB (vs 433 MB full download  -  99.9% reduction)
 Files analyzed: 6
 Time: 89 ms
 
@@ -133,20 +130,20 @@ Time: 89 ms
 Scan a malicious fixture:
 
 ```bash
-hf-scan --repo tests/fixtures/malicious-pickle-exec --format text
+hf-scanner tests/fixtures/malicious-pickle-exec --format text
 ```
 
 ```
 CRITICAL  pickle_gadget_chain (CVE-2026-4372)
   File: model.pkl
   Opcode: REDUCE at offset 0x1a4
-  Call chain: builtins.exec → base64.b64decode → os.system("curl ...")
+  Call chain: builtins.exec -> base64.b64decode -> os.system("curl ...")
   ATT&CK: T1059.006
 
 CRITICAL  importlib_bypass (CVE-2026-46432)
   File: model.pkl
   Opcode: STACK_GLOBAL at offset 0x2f1
-  Call chain: importlib.import_module("os") → getattr("system")
+  Call chain: importlib.import_module("os") -> getattr("system")
   ATT&CK: T1129
 
 2 findings (2 critical). Exit code: 1

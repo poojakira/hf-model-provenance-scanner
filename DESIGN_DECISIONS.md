@@ -6,9 +6,9 @@ How and why this scanner is built the way it is. Written for someone who works o
 
 ModelScan (Protect AI) is the closest existing tool. I used it for months before writing this. Three gaps drove me to build something different:
 
-1. **It downloads entire model files.** A GPT-2 scan means pulling 500 MB. For Llama-2-7B, that's 13.5 GB. In a CI pipeline running on every PR, that's untenable. My scanner uses HTTP Range requests to fetch only the first 8-64 KB of each file — enough for opcode analysis. The result: 0.5 MB fetched instead of 500 MB for GPT-2 (99.9% reduction).
+1. **It downloads entire model files.** A GPT-2 scan means pulling 500 MB. For Llama-2-7B, that's 13.5 GB. In a CI pipeline running on every PR, that's untenable. My scanner uses HTTP Range requests to fetch only the first 8-64 KB of each file  -  enough for opcode analysis. The result: 0.5 MB fetched instead of 500 MB for GPT-2 (99.9% reduction).
 
-2. **It misses importlib-based bypasses.** ModelScan 0.8.8 checks for direct GLOBAL opcodes pointing to dangerous functions (`os.system`, `subprocess.Popen`, etc.). But CVE-2026-46432 uses `importlib.import_module("os")` followed by `getattr(module, "system")` — the GLOBAL points to `importlib.import_module`, which isn't in ModelScan's dangerous-function list. My scanner's symbolic resolver traces the full call chain: if `import_module` is called with a string that resolves to a dangerous module, and `getattr` is called on the result, that's flagged regardless of what the initial GLOBAL targets.
+2. **It misses importlib-based bypasses.** ModelScan 0.8.8 checks for direct GLOBAL opcodes pointing to dangerous functions (`os.system`, `subprocess.Popen`, etc.). But CVE-2026-46432 uses `importlib.import_module("os")` followed by `getattr(module, "system")`  -  the GLOBAL points to `importlib.import_module`, which isn't in ModelScan's dangerous-function list. My scanner's symbolic resolver traces the full call chain: if `import_module` is called with a string that resolves to a dangerous module, and `getattr` is called on the result, that's flagged regardless of what the initial GLOBAL targets.
 
 3. **It doesn't detect supply-chain manipulation.** Typosquatting, silent model replacement after publication (rug-pulls), and author impersonation are real threats on the Hub. ModelScan treats each file in isolation. This scanner compares against baselines and checks publisher identity.
 
@@ -25,7 +25,7 @@ This makes the scanner practical for:
 - Scanning all models in a team's dependency list (seconds, not hours)
 - Running on free-tier CI runners with limited disk
 
-The tradeoff: if an attacker places a gadget chain beyond the first 64 KB of a file, the scanner misses it. In practice, pickle opcodes that execute on deserialization are in the early bytes — the interpreter processes them sequentially. I haven't found a real-world example where the dangerous opcodes start beyond 64 KB. If one emerges, the range size is configurable.
+The tradeoff: if an attacker places a gadget chain beyond the first 64 KB of a file, the scanner misses it. In practice, pickle opcodes that execute on deserialization are in the early bytes  -  the interpreter processes them sequentially. I haven't found a real-world example where the dangerous opcodes start beyond 64 KB. If one emerges, the range size is configurable.
 
 ## Why taint tracking instead of pattern matching?
 
@@ -42,7 +42,7 @@ The taint engine works differently:
 1. Walk the opcode stream sequentially (like the Python pickle VM would)
 2. Track what's on the stack at each point
 3. When a `REDUCE` opcode fires, resolve what function it calls by tracing back through the stack
-4. If that resolution involves `chr()` concatenation, `base64.b64decode`, or string building — decode it symbolically
+4. If that resolution involves `chr()` concatenation, `base64.b64decode`, or string building  -  decode it symbolically
 5. Check the resolved function name against the dangerous-function set
 
 This catches multi-layer obfuscation because it *executes the string-building logic symbolically* rather than pattern-matching against the raw bytes.
@@ -62,19 +62,19 @@ SPDX would work too. I just found CycloneDX's spec easier to implement correctly
 ## Why Levenshtein distance for typosquat detection?
 
 I tested three approaches:
-1. **Exact substring matching** — too many false positives (`bert-base` matches `bert-base-uncased`, `bert-base-chinese`, etc.)
-2. **Levenshtein distance ≤ 2** — catches `bert-base-uncasd` (distance 1), `gpt2-x1` vs `gpt2-xl` (distance 1), while ignoring `bert-base-chinese` (distance 7)
-3. **Embedding similarity** — overkill for string comparison, adds ML dependencies, and doesn't clearly beat Levenshtein for this use case
+1. **Exact substring matching**  -  too many false positives (`bert-base` matches `bert-base-uncased`, `bert-base-chinese`, etc.)
+2. **Levenshtein distance <= 2**  -  catches `bert-base-uncasd` (distance 1), `gpt2-x1` vs `gpt2-xl` (distance 1), while ignoring `bert-base-chinese` (distance 7)
+3. **Embedding similarity**  -  overkill for string comparison, adds ML dependencies, and doesn't clearly beat Levenshtein for this use case
 
 The threshold of 2 was chosen empirically: I scraped the top 500 models on the Hub and computed pairwise Levenshtein distances. Legitimate variants (different sizes, languages, fine-tunes) are always distance 3+. Typosquats are distance 1-2. The gap is clean enough that a static threshold works.
 
 ## Why temporal diffing for rug-pulls?
 
-A rug-pull attack works like this: publish a legitimate model, wait for it to gain downloads and trust, then silently replace the files with a backdoored version. The model card, name, and URL stay the same — only the file hashes change.
+A rug-pull attack works like this: publish a legitimate model, wait for it to gain downloads and trust, then silently replace the files with a backdoored version. The model card, name, and URL stay the same  -  only the file hashes change.
 
 The scanner maintains a local baseline (first-seen hashes per model repo). On subsequent scans, if file hashes differ from the baseline without a corresponding version/revision bump, it flags as a potential rug-pull.
 
-This catches the attack but requires the scanner to have been run at least once before the attack happens (to establish the baseline). First scan of a model can't detect a rug-pull — there's nothing to diff against.
+This catches the attack but requires the scanner to have been run at least once before the attack happens (to establish the baseline). First scan of a model can't detect a rug-pull  -  there's nothing to diff against.
 
 ## What I'd change
 
