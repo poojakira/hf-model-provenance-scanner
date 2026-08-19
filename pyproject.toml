@@ -4,13 +4,31 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hf-scanner"
-version = "0.2.0"
+version = "1.0.0"
 description = "ML supply chain provenance scanner for Hugging Face repositories"
+readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
+authors = [{name = "Pooja Kiran"}]
+keywords = ["security", "ml", "huggingface", "supply-chain", "provenance", "sarif"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Security",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
 dependencies = [
     "psutil>=5.9",
 ]
+
+[project.urls]
+Homepage = "https://github.com/poojakira/hf-model-provenance-scanner"
+Documentation = "https://poojakira.github.io/hf-model-provenance-scanner/"
+Issues = "https://github.com/poojakira/hf-model-provenance-scanner/issues"
+Changelog = "https://github.com/poojakira/hf-model-provenance-scanner/blob/main/CHANGELOG.md"
 
 [project.scripts]
 hf-scanner = "scanner.cli:main"
