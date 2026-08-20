@@ -33,10 +33,10 @@ Checks performed: pickle exploit detection, unsigned weights, missing model card
 
 ```bash
 # From a file (one repo ID per line)
-hf-scanner --manifest models.txt --format json --output results/
+hf-scanner --manifest manifest.txt --format json --output results/
 
 # Fail CI on critical findings
-hf-scanner --manifest models/requirements.txt --fail-on critical
+hf-scanner --manifest manifest.txt --fail-on critical
 ```
 
 ## CI Integration

@@ -12,7 +12,7 @@ Model supply-chain scanner with taint engine and symbolic resolver. Detects pick
 | Metric | Value |
 |--------|-------|
 | File formats supported | 17 |
-| Attack fixtures detected | 12/12 |
+| Malicious fixtures (pickle/safetensors/GGUF/py) | 11 |
 | False positives | 0/5 |
 | Total scan time (12 fixtures) | 116 ms |
 | Bandwidth reduction | 99.9% |
@@ -131,7 +131,7 @@ hf-scanner bert-base-uncased --format text
 hf-scanner bert-base-uncased --format sarif --output findings.sarif
 
 # Batch scan from manifest
-hf-scanner --manifest models/requirements.txt --fail-on critical
+hf-scanner --manifest manifest.txt --fail-on critical    # manifest.txt: one repo ID per line
 ```
 
 ## Sample Output
@@ -191,7 +191,7 @@ jobs:
 
       - name: Scan model files
         run: |
-          hf-scanner --manifest models/requirements.txt \
+          hf-scanner --manifest manifest.txt \
             --format sarif \
             --output findings.sarif \
             --fail-on critical

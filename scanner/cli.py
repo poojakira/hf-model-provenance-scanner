@@ -45,7 +45,7 @@ from scanner.runtime_policy import format_runtime_policy
 from scanner.utils.file_filter import walk_files
 from scanner.utils.hf_api import HFApiClient
 
-SCANNER_VERSION = "0.2.0"
+SCANNER_VERSION = "1.0.0"
 SCRIPT_EXTENSIONS = (".sh", ".bat", ".ps1", ".cmd")
 CONFIG_EXTENSIONS = (".json",)
 PYTHON_EXTENSIONS = (".py",)
