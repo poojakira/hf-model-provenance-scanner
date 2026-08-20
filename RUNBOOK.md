@@ -18,13 +18,13 @@ pip install -e ".[dev]"
 
 ```bash
 # Scan by repo ID
-hf-provenance scan meta-llama/Llama-2-7b
+hf-scanner bert-base-uncased
 
-# Scan a local model directory
-hf-provenance scan ./downloaded-model/
+# Scan with specific output format
+hf-scanner bert-base-uncased --format sarif --output findings.sarif
 
 # With severity threshold
-hf-provenance scan microsoft/phi-2 --min-severity high --exit-code
+hf-scanner microsoft/phi-2 --fail-on critical
 ```
 
 Checks performed: pickle exploit detection, unsigned weights, missing model cards, suspicious commit history, dependency confusion in configs.
@@ -33,10 +33,10 @@ Checks performed: pickle exploit detection, unsigned weights, missing model card
 
 ```bash
 # From a file (one repo ID per line)
-hf-provenance batch models.txt --output results/ --format json
+hf-scanner --manifest models.txt --format json --output results/
 
-# Parallel execution
-hf-provenance batch models.txt --workers 4
+# Fail CI on critical findings
+hf-scanner --manifest models/requirements.txt --fail-on critical
 ```
 
 ## CI Integration
@@ -46,7 +46,7 @@ hf-provenance batch models.txt --workers 4
 - name: Scan Model Provenance
   run: |
     pip install hf-model-provenance-scanner
-    hf-provenance scan ${{ env.MODEL_REPO }} --format sarif --exit-code > provenance.sarif
+    hf-scanner ${{ env.MODEL_REPO }} --format sarif --output provenance.sarif --fail-on critical
   env:
     HF_TOKEN: ${{ secrets.HF_TOKEN }}
 - name: Upload SARIF
@@ -58,13 +58,13 @@ hf-provenance batch models.txt --workers 4
 ## Docker Usage
 
 ```bash
-docker build -t hf-provenance:latest .
+docker build -t hf-scanner:latest .
 
 # Single scan
-docker run --rm -e HF_TOKEN=$HF_TOKEN hf-provenance:latest scan meta-llama/Llama-2-7b
+docker run --rm -e HF_TOKEN=$HF_TOKEN hf-scanner:latest bert-base-uncased
 
 # Mount local models
-docker run --rm -v /path/to/models:/models hf-provenance:latest scan /models/my-model
+docker run --rm -v /path/to/models:/models hf-scanner:latest /models/my-model
 ```
 
 ## Troubleshooting
