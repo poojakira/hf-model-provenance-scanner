@@ -1,4 +1,4 @@
-# policy.yaml — hf-model-provenance-scanner
+# policy.yaml  --  hf-model-provenance-scanner
 # Policy-as-code configuration. Secure defaults are set.
 # Every setting is an ALLOW-LIST, not a block-list.
 # If it's not listed here as allowed, it is denied.
@@ -8,13 +8,13 @@
 # ──────────────────────────────────────────────────────────────
 # SECURE DEFAULT: Only safe, data-only opcodes are allowed.
 # The dangerous opcodes (REDUCE, GLOBAL, STACK_GLOBAL, INST, OBJ,
-# NEWOBJ, BUILD with callable) are NOT listed here — they are implicitly denied.
+# NEWOBJ, BUILD with callable) are NOT listed here  --  they are implicitly denied.
 # These opcodes can call arbitrary Python functions during deserialization.
 #
 # WHY allow-list over block-list: New attack variants may use undocumented
 # or future opcodes. An allow-list rejects anything not explicitly approved.
 allowed_opcodes:
-  - MARK         # Stack marker — data structure only
+  - MARK         # Stack marker  --  data structure only
   - STOP         # End of pickle stream
   - EMPTY_DICT   # {} literal
   - EMPTY_LIST   # [] literal
@@ -64,15 +64,15 @@ allowed_opcodes:
   - NEWTRUE      # True literal
 
 # Opcodes that are NEVER allowed (implicit deny, listed for documentation):
-# REDUCE       — calls any callable with args. Primary RCE vector.
-# GLOBAL       — imports any module. Primary arbitrary import vector.
-# STACK_GLOBAL — GLOBAL variant. Used in gadget chains.
-# INST         — legacy object instantiation with callable.
-# OBJ          — object from callable on stack.
-# NEWOBJ       — object via __new__.
-# NEWOBJ_EX    — NEWOBJ with kwargs.
-# BUILD        — calls __setstate__ on objects (can call callables).
-# EXT1/EXT2/EXT4 — extended registry (used in copyreg bypasses).
+# REDUCE        --  calls any callable with args. Primary RCE vector.
+# GLOBAL        --  imports any module. Primary arbitrary import vector.
+# STACK_GLOBAL  --  GLOBAL variant. Used in gadget chains.
+# INST          --  legacy object instantiation with callable.
+# OBJ           --  object from callable on stack.
+# NEWOBJ        --  object via __new__.
+# NEWOBJ_EX     --  NEWOBJ with kwargs.
+# BUILD         --  calls __setstate__ on objects (can call callables).
+# EXT1/EXT2/EXT4  --  extended registry (used in copyreg bypasses).
 
 # ──────────────────────────────────────────────────────────────
 # Signature requirements
@@ -86,7 +86,7 @@ require_signature: true
 # ──────────────────────────────────────────────────────────────
 # SafeTensors requirement
 # ──────────────────────────────────────────────────────────────
-# SECURE DEFAULT: false — many legitimate models still use pickle-based .pt/.bin.
+# SECURE DEFAULT: false  --  many legitimate models still use pickle-based .pt/.bin.
 # We enforce opcode scanning for those formats instead.
 # Set to true for the highest-security environments (green-field pipelines, 
 # regulated industries) where you can require SafeTensors from all model authors.
@@ -115,7 +115,7 @@ max_binary_mb: 100
 # ──────────────────────────────────────────────────────────────
 # Sandbox execution
 # ──────────────────────────────────────────────────────────────
-# SECURE DEFAULT: false — sandbox adds significant overhead and requires
+# SECURE DEFAULT: false  --  sandbox adds significant overhead and requires
 # a compatible execution environment (Linux + seccomp).
 # Enable for highest-confidence detection of runtime behavior.
 # Never enable on shared CI runners without container isolation.
@@ -125,7 +125,7 @@ sandbox_enabled: false
 # Temporal / rug-pull detection
 # ──────────────────────────────────────────────────────────────
 # SECURE DEFAULT: true if a baseline file exists.
-# Detects models that change between scans — a key rug-pull indicator.
+# Detects models that change between scans  --  a key rug-pull indicator.
 # Does nothing if no baseline file is provided.
 temporal_detection: true
 

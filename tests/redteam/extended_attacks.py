@@ -1,5 +1,5 @@
 """
-Extended Red Team Suite — 30+ attack variants beyond the core 12.
+Extended Red Team Suite  --  30+ attack variants beyond the core 12.
 
 Tests conditional payloads, environmental gating, large file patterns,
 framework-specific vectors, and complex multi-stage attacks to validate
@@ -297,7 +297,7 @@ def train_step(model, batch):
 
 def run_extended():
     print("=" * 70)
-    print("  EXTENDED RED TEAM SUITE — 30+ Attack Variants")
+    print("  EXTENDED RED TEAM SUITE  --  30+ Attack Variants")
     print("=" * 70)
     print()
 

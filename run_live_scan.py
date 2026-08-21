@@ -1,4 +1,4 @@
-"""Live scanning demo — runs the HF model provenance scanner on sample payloads.
+"""Live scanning demo  --  runs the HF model provenance scanner on sample payloads.
 
 Usage: python run_live_scan.py
 
@@ -70,7 +70,7 @@ def severity_badge(sev: Severity) -> str:
 
 def print_header():
     print(f"\n{CYAN}{'═' * 72}{RESET}")
-    print(f"{CYAN}  HF MODEL PROVENANCE SCANNER — LIVE SCANNING DEMO{RESET}")
+    print(f"{CYAN}  HF MODEL PROVENANCE SCANNER  --  LIVE SCANNING DEMO{RESET}")
     print(f"{CYAN}{'═' * 72}{RESET}")
     print(f"{DIM}  Scanning 10 sample payloads (mix of clean & malicious){RESET}")
     print(f"{DIM}  Engines: pickle opcode | safetensors | GGUF | AST taint | obfuscation{RESET}")
@@ -117,7 +117,7 @@ def gen_clean_pickle() -> tuple[str, str, bytes]:
 
 
 def gen_malicious_pickle_os() -> tuple[str, str, bytes]:
-    """Pickle calling os.system — classic RCE payload."""
+    """Pickle calling os.system  --  classic RCE payload."""
     payload = (
         b"\x80\x02" b"\x8c\x02os" b"\x8c\x06system" b"\x93" b"\x8c\x06whoami" b"\x85" b"R" b"."
     )
@@ -125,13 +125,13 @@ def gen_malicious_pickle_os() -> tuple[str, str, bytes]:
 
 
 def gen_malicious_pickle_eval() -> tuple[str, str, bytes]:
-    """Pickle calling builtins.eval — PickleScan bypass technique."""
+    """Pickle calling builtins.eval  --  PickleScan bypass technique."""
     payload = b'cbuiltins\neval\n(S\'__import__("os").system("id")\'\ntR.'
     return ("Malicious pickle (builtins.eval)", "pickle", payload)
 
 
 def gen_corrupted_pickle() -> tuple[str, str, bytes]:
-    """Corrupted pickle with globals but no STOP — JFrog bypass."""
+    """Corrupted pickle with globals but no STOP  --  JFrog bypass."""
     payload = (
         b"\x80\x02"
         b"\x8c\x02os"
@@ -140,7 +140,7 @@ def gen_corrupted_pickle() -> tuple[str, str, bytes]:
         b"\x8c\x06whoami"
         b"\x85"
         b"R"
-        b"\xff\xff\xff"  # No STOP — truncated
+        b"\xff\xff\xff"  # No STOP  --  truncated
     )
     return ("Corrupted pickle (JFrog bypass)", "pickle", payload)
 
@@ -280,7 +280,7 @@ def main():
             )
             print(f"         {DIM}→ {top.message[:70]}{RESET}")
         else:
-            print(f"         {GREEN}✓ Clean — no findings{RESET}")
+            print(f"         {GREEN}✓ Clean  --  no findings{RESET}")
 
         print(f"         {DIM}⏱ {elapsed_ms:.1f}ms{RESET}")
         print()
@@ -290,7 +290,7 @@ def main():
                 "name": name,
                 "format": fmt,
                 "findings": len(findings),
-                "top_severity": findings[0].severity.value if findings else "—",
+                "top_severity": findings[0].severity.value if findings else " -- ",
                 "time_ms": elapsed_ms,
             }
         )
@@ -315,7 +315,7 @@ def main():
         elif sev_str in ("low", "info"):
             sev_display = f"{GREEN}{sev_str.upper()}{RESET}"
         else:
-            sev_display = f"{DIM}—{RESET}"
+            sev_display = f"{DIM} -- {RESET}"
 
         findings_str = str(r["findings"]) if r["findings"] > 0 else f"{DIM}0{RESET}"
         if r["findings"] > 0:
@@ -395,16 +395,16 @@ def main():
     # ─── Final verdict ─────────────────────────────────────────────────────
     if scan_result.risk.score >= 70:
         verdict_color = RED
-        verdict = "CRITICAL RISK — malicious payloads detected"
+        verdict = "CRITICAL RISK  --  malicious payloads detected"
     elif scan_result.risk.score >= 40:
         verdict_color = MAGENTA
-        verdict = "HIGH RISK — suspicious payloads detected"
+        verdict = "HIGH RISK  --  suspicious payloads detected"
     elif scan_result.risk.score >= 20:
         verdict_color = YELLOW
-        verdict = "MEDIUM RISK — review recommended"
+        verdict = "MEDIUM RISK  --  review recommended"
     else:
         verdict_color = GREEN
-        verdict = "LOW RISK — all payloads appear clean"
+        verdict = "LOW RISK  --  all payloads appear clean"
 
     print(f"{CYAN}{'═' * 72}{RESET}")
     print(f"  {verdict_color}{BOLD}{verdict}{RESET}")

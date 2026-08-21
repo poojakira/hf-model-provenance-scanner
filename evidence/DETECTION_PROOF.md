@@ -8,18 +8,18 @@ The HF Model Provenance Scanner was tested against **12 documented real-world at
 
 | # | Attack | Source | CVE | Detected | Findings | Time |
 |---|--------|--------|-----|----------|----------|------|
-| 1 | May 2026 Open-OSS/privacy-filter | MLHive, CSO Online | — | ✅ | 9 | 22ms |
+| 1 | May 2026 Open-OSS/privacy-filter | MLHive, CSO Online |  --  | ✅ | 9 | 22ms |
 | 2 | HF Transformers RCE | DigitalWarfare | CVE-2026-4372 | ✅ | 4 | 18ms |
-| 3 | LiteLLM Supply Chain | StartupFortune | — | ✅ | 1 | 18ms |
+| 3 | LiteLLM Supply Chain | StartupFortune |  --  | ✅ | 1 | 18ms |
 | 4 | LMDeploy trust_remote_code | SentinelOne | CVE-2026-46432 | ✅ | 2 | 18ms |
-| 5 | Acronis TRU Credential Stealer | Acronis | — | ✅ | 4 | 21ms |
-| 6 | Multi-layer chr() obfuscation | HF malware campaigns | — | ✅ | 1 | 18ms |
-| 7 | JFrog PickleScan Bypass (corrupted) | JFrog Research | — | ✅ | 1 | <1ms |
-| 8 | JFrog PickleScan Bypass (eval) | JFrog Research | — | ✅ | 1 | <1ms |
-| 9 | Sonatype PickleScan Bypass (copyreg) | Sonatype | — | ✅ | 2 | <1ms |
-| 10 | Protocol 4 STACK_GLOBAL | JFrog/SANS | — | ✅ | 1 | <1ms |
-| 11 | SafeTensors metadata C2 injection | Novel technique | — | ✅ | 2 | <1ms |
-| 12 | GGUF metadata shell injection | Novel technique | — | ✅ | 1 | <1ms |
+| 5 | Acronis TRU Credential Stealer | Acronis |  --  | ✅ | 4 | 21ms |
+| 6 | Multi-layer chr() obfuscation | HF malware campaigns |  --  | ✅ | 1 | 18ms |
+| 7 | JFrog PickleScan Bypass (corrupted) | JFrog Research |  --  | ✅ | 1 | <1ms |
+| 8 | JFrog PickleScan Bypass (eval) | JFrog Research |  --  | ✅ | 1 | <1ms |
+| 9 | Sonatype PickleScan Bypass (copyreg) | Sonatype |  --  | ✅ | 2 | <1ms |
+| 10 | Protocol 4 STACK_GLOBAL | JFrog/SANS |  --  | ✅ | 1 | <1ms |
+| 11 | SafeTensors metadata C2 injection | Novel technique |  --  | ✅ | 2 | <1ms |
+| 12 | GGUF metadata shell injection | Novel technique |  --  | ✅ | 1 | <1ms |
 
 **Included red-team suite: 12 fixtures detected**
 **False positives: 0 in this suite only**

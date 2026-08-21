@@ -6,7 +6,7 @@ paths. Verified on 2026-08-08 that Protect AI ModelScan 0.8.8 MISSES timeit
 and importlib (total_issues=0), while this scanner flags them CRITICAL.
 
 If any of these regress to "not detected", we have lost a real competitive
-edge — treat a failure here as a security regression, not a flaky test.
+edge  --  treat a failure here as a security regression, not a flaky test.
 """
 
 import pickle  # noqa: S403

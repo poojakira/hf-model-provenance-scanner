@@ -1,5 +1,5 @@
 """
-Symbolic String Resolver — Resolve dynamically-constructed strings at analysis time.
+Symbolic String Resolver  --  Resolve dynamically-constructed strings at analysis time.
 
 Handles the obfuscation patterns that defeat simple literal matching:
 1. chr(111) + chr(115) → "os"

@@ -1,5 +1,5 @@
 """
-Dynamic IOC Feed System — Fetch, cache, and merge threat intelligence.
+Dynamic IOC Feed System  --  Fetch, cache, and merge threat intelligence.
 
 Features:
 1. Local JSON IOC database (scanner/data/iocs.json) as baseline
@@ -30,7 +30,7 @@ import urllib.request
 from dataclasses import dataclass, field
 
 
-# Cache directory — use platform-appropriate user cache
+# Cache directory  --  use platform-appropriate user cache
 def _get_cache_dir() -> str:
     """Get a writable cache directory for IOC feeds."""
     # Try XDG_CACHE_HOME (Linux), then LOCALAPPDATA (Windows), then fallback
@@ -172,7 +172,7 @@ def fetch_remote_feed(url: str, timeout: int = 10) -> dict | None:
             _write_cache(url, data)
             return data
     except (urllib.error.URLError, json.JSONDecodeError, OSError, ValueError):
-        # Network failure — use cache if available
+        # Network failure  --  use cache if available
         return _read_cached_feed(url)
 
 

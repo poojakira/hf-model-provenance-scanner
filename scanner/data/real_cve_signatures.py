@@ -2,7 +2,7 @@
 Real CVE signatures and malware indicators from published HuggingFace supply chain research.
 
 Each signature is sourced from published advisories, peer-reviewed security research,
-or vendor disclosure reports. No synthetic/hypothetical indicators — every entry here
+or vendor disclosure reports. No synthetic/hypothetical indicators  --  every entry here
 maps to a real-world incident or disclosed vulnerability.
 
 Sources:
@@ -33,7 +33,7 @@ class CVESignature:
 
 
 # =============================================================================
-# 1. CVE-2024-5480 — HuggingFace Hub Remote Code Execution via Pickle
+# 1. CVE-2024-5480  --  HuggingFace Hub Remote Code Execution via Pickle
 # =============================================================================
 # Advisory: https://huntr.com/bounties/423611ee-7a2b-4191-a46b-28dba65875d8
 # The vulnerability allows RCE through malicious pickle files loaded by
@@ -41,8 +41,8 @@ class CVESignature:
 # that use the REDUCE opcode to invoke os.system or subprocess.Popen.
 
 # Pickle opcode constants
-_OP_REDUCE = 0x52  # 'R' — apply callable to argtuple
-_OP_GLOBAL = 0x63  # 'c' — push module.name global
+_OP_REDUCE = 0x52  # 'R'  --  apply callable to argtuple
+_OP_GLOBAL = 0x63  # 'c'  --  push module.name global
 _OP_STACK_GLOBAL = 0x93  # protocol 4 stack-based global
 _OP_SHORT_BINUNICODE = 0x8C  # short string
 _OP_BINUNICODE = 0x58  # unicode string
@@ -99,7 +99,7 @@ CVE_2024_5480 = CVESignature(
 
 
 # =============================================================================
-# 2. JFrog Research 2024 — Malicious PyTorch Models on HuggingFace Hub
+# 2. JFrog Research 2024  --  Malicious PyTorch Models on HuggingFace Hub
 # =============================================================================
 # Source: https://jfrog.com/blog/data-scientists-targeted-by-malicious-hugging-face-ml-models/
 # JFrog discovered ~100 malicious models on HF Hub using torch.load() with
@@ -173,7 +173,7 @@ JFROG_2024 = CVESignature(
 
 
 # =============================================================================
-# 3. Sonatype 2024 — Typosquatted Model Repositories
+# 3. Sonatype 2024  --  Typosquatted Model Repositories
 # =============================================================================
 # Source: https://blog.sonatype.com/hugging-face-poisoned-packages-typosquatting
 # Attackers created HuggingFace orgs with names visually similar to legitimate ones:
@@ -238,7 +238,7 @@ SONATYPE_2024 = CVESignature(
 
 
 # =============================================================================
-# 4. Public Research 2024 — Safetensors Header Injection
+# 4. Public Research 2024  --  Safetensors Header Injection
 # =============================================================================
 # Source: Public disclosure of SafeTensors header injection attack vector
 # Attack vector: SafeTensors files with oversized metadata headers containing
@@ -308,7 +308,7 @@ SAFETENSORS_INJECTION_2024 = CVESignature(
 
 
 # =============================================================================
-# 5. NVIDIA / Trail of Bits 2024 — GGUF Format Buffer Overflow
+# 5. NVIDIA / Trail of Bits 2024  --  GGUF Format Buffer Overflow
 # =============================================================================
 # Source: CVE-2024-25664 (llama.cpp GGUF parsing)
 # https://nvd.nist.gov/vuln/detail/CVE-2024-25664
@@ -325,12 +325,12 @@ GGUF_MAX_TENSOR_ELEMENTS = 2**40  # ~1 trillion elements, beyond any real model
 
 # Specific crafted dimension values found in exploit PoCs
 GGUF_EXPLOIT_DIMENSIONS = [
-    0xFFFFFFFF,  # UINT32_MAX — triggers integer overflow
-    0x7FFFFFFF,  # INT32_MAX — boundary condition
-    0x80000000,  # INT32_MIN as unsigned — sign confusion
-    0xFFFFFFFE,  # UINT32_MAX - 1 — off-by-one exploits
-    0x40000000,  # 2^30 — when multiplied by element size overflows 32-bit
-    0x20000000,  # 2^29 — causes overflow when n_dims > 2
+    0xFFFFFFFF,  # UINT32_MAX  --  triggers integer overflow
+    0x7FFFFFFF,  # INT32_MAX  --  boundary condition
+    0x80000000,  # INT32_MIN as unsigned  --  sign confusion
+    0xFFFFFFFE,  # UINT32_MAX - 1  --  off-by-one exploits
+    0x40000000,  # 2^30  --  when multiplied by element size overflows 32-bit
+    0x20000000,  # 2^29  --  causes overflow when n_dims > 2
 ]
 
 # Byte patterns for GGUF header manipulation (little-endian)

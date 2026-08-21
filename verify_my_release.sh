@@ -83,7 +83,7 @@ fi
 # ── Optional: cosign verification ────────────────────────────────────────────
 echo ""
 if command -v cosign &>/dev/null; then
-    echo "[OPT] cosign found — attempting signature verification..."
+    echo "[OPT] cosign found  --  attempting signature verification..."
     echo "      cosign verify-blob --certificate-identity-regexp '.*' \\"
     echo "        --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \\"
     echo "        ${TARBALL_FILE}"

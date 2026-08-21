@@ -1,5 +1,5 @@
 """
-Temporal Analysis / Rug-Pull Detector — Compare scans over time.
+Temporal Analysis / Rug-Pull Detector  --  Compare scans over time.
 
 Detects:
 1. New malicious files added after initial trust establishment
@@ -233,7 +233,7 @@ def compare_with_baseline(
         norm_path = _normalize_path(path)
         baseline_file = baseline_files.get(norm_path)
         if baseline_file is None:
-            # New file — check if it has findings
+            # New file  --  check if it has findings
             path_findings = [f for f in current_result.findings if f.file_path == path]
             if any(f.severity in (Severity.CRITICAL, Severity.HIGH) for f in path_findings):
                 findings.append(
@@ -242,7 +242,7 @@ def compare_with_baseline(
                     )
                 )
         elif baseline_file.sha256 != current_hash:
-            # File changed — possible rug pull
+            # File changed  --  possible rug pull
             path_findings = [f for f in current_result.findings if f.file_path == path]
             if path_findings:
                 findings.append(

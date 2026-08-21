@@ -1,5 +1,5 @@
 """
-GGUF Format Inspector — Scan GGUF model files for metadata anomalies.
+GGUF Format Inspector  --  Scan GGUF model files for metadata anomalies.
 
 GGUF (GPT-Generated Unified Format) is used by llama.cpp and derivatives.
 Attack surfaces:
@@ -216,7 +216,7 @@ def analyze_gguf_file(file_path: str, data: bytes) -> list[Finding]:
                         metadata_strings.append((key, item))
 
     except (ValueError, struct.error, IndexError):
-        # Partial parse is OK — scan what we have
+        # Partial parse is OK  --  scan what we have
         pass
 
     # Scan collected metadata strings

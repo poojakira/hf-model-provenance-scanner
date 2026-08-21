@@ -1,4 +1,4 @@
-# RUNBOOK — HF Model Provenance Scanner
+# RUNBOOK  --  HF Model Provenance Scanner
 
 ## Prerequisites
 

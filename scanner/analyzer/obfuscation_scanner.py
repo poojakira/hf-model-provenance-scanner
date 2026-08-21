@@ -1,5 +1,5 @@
 """
-Advanced Obfuscation Detection — Unicode homoglyphs, zero-width chars, polyglots.
+Advanced Obfuscation Detection  --  Unicode homoglyphs, zero-width chars, polyglots.
 
 Detects techniques used to bypass visual code review and static analysis:
 1. Unicode confusable characters (Cyrillic а vs Latin a in identifiers)
@@ -239,7 +239,7 @@ def scan_polyglot_header(file_path: str, data: bytes) -> list[Finding]:
             _make_finding(
                 "HFS-067",
                 file_path,
-                "Binary header with embedded script content — possible polyglot attack",
+                "Binary header with embedded script content  --  possible polyglot attack",
             )
         )
 

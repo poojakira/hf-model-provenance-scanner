@@ -1,4 +1,4 @@
-# n8n Workflow Mastery — ML Security Automation
+# n8n Workflow Mastery  --  ML Security Automation
 
 Production-grade n8n workflow orchestration for ML security operations. Three import-ready workflows covering the full incident lifecycle: detection → triage → enrichment → response → containment.
 
@@ -65,10 +65,10 @@ Events receive a 0-100 priority score based on severity × source reliability. S
 
 ### 5. Automated Containment (IAM)
 For IAM findings scoring ≥ 85, the workflow auto-attaches a deny-all permission boundary to the offending role. This is:
-- **Non-destructive** — the role still exists, policies are untouched
-- **Immediately effective** — the boundary caps effective permissions to zero
-- **Reversible** — security team removes the boundary after investigation
-- **Audited** — containment action is logged and Slack-notified
+- **Non-destructive**  --  the role still exists, policies are untouched
+- **Immediately effective**  --  the boundary caps effective permissions to zero
+- **Reversible**  --  security team removes the boundary after investigation
+- **Audited**  --  containment action is logged and Slack-notified
 
 ### 6. Structured Webhook Response
 The webhook returns immediately with the event ID and dedup status (200 or 409), enabling synchronous integration with upstream systems.
@@ -84,7 +84,7 @@ n8n import:workflow --input integrations/n8n-soc-incident-pipeline.json
 
 ### Required Infrastructure
 - **n8n** (Community Edition, self-hosted, free)
-- **Redis** (for deduplication cache — any instance, even `redis:alpine` in Docker)
+- **Redis** (for deduplication cache  --  any instance, even `redis:alpine` in Docker)
 - **Slack webhook** (free)
 - **PagerDuty** (optional, for P1 paging)
 - **Jira** (optional, for ticket creation)

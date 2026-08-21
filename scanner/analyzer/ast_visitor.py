@@ -292,9 +292,9 @@ class ScannerASTVisitor(ast.NodeVisitor):
         # Bypass-hardened: exec/eval with any call as argument
         if call_name in ("exec", "eval") and node.args:
             if isinstance(node.args[0], ast.Call):
-                self.report("HFS-003", node, f"{call_name}(func_call()) — dynamic execution")
+                self.report("HFS-003", node, f"{call_name}(func_call())  --  dynamic execution")
             elif isinstance(node.args[0], ast.Name):
-                self.report("HFS-003", node, f"{call_name}(variable) — executing variable content")
+                self.report("HFS-003", node, f"{call_name}(variable)  --  executing variable content")
 
         self.generic_visit(node)
 

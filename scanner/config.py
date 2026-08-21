@@ -1,7 +1,7 @@
 import os
 
 # ---------------------------------------------------------------------------
-# Security limits — authoritative constants for the entire scanner.
+# Security limits  --  authoritative constants for the entire scanner.
 # Import these from scanner.config rather than hard-coding in individual modules.
 # ---------------------------------------------------------------------------
 

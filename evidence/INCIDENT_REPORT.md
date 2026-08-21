@@ -20,9 +20,9 @@ This incident demonstrates the critical need for automated model provenance scan
 ## Attack Chain (Kill Chain Analysis)
 
 ### Stage 1: Reconnaissance & Social Engineering
-- Created organization name "Open-OSS" — visually similar to "openai"
+- Created organization name "Open-OSS"  --  visually similar to "openai"
 - Copied model card (README.md) verbatim from legitimate OpenAI repository
-- Named model "privacy-filter" — a plausible OpenAI product name
+- Named model "privacy-filter"  --  a plausible OpenAI product name
 
 ### Stage 2: Weaponization
 - Embedded `loader.py` with multi-layer obfuscation
@@ -128,9 +128,9 @@ The simulation reproduces selected techniques from this incident and the include
 
 ## Lessons Learned
 
-1. **Platform scanning is insufficient** — PickleScan has 7+ confirmed bypass vulnerabilities
-2. **Source code analysis is essential** — the attack used Python loaders, not pickle
-3. **Org impersonation is trivial** — no verification required to create similar names
-4. **Speed matters** — 244K downloads in 18h means detection must be pre-download
-5. **Multi-layer defense required** — no single technique catches everything
-6. **Adoption is the bottleneck** — the best scanner is useless if nobody deploys it
+1. **Platform scanning is insufficient**  --  PickleScan has 7+ confirmed bypass vulnerabilities
+2. **Source code analysis is essential**  --  the attack used Python loaders, not pickle
+3. **Org impersonation is trivial**  --  no verification required to create similar names
+4. **Speed matters**  --  244K downloads in 18h means detection must be pre-download
+5. **Multi-layer defense required**  --  no single technique catches everything
+6. **Adoption is the bottleneck**  --  the best scanner is useless if nobody deploys it

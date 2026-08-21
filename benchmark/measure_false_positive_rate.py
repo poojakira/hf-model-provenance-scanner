@@ -10,7 +10,7 @@ from popular, trusted repositories.
 
 The key insight: if the scanner flags config.json or generation_config.json
 from meta-llama, google, mistralai, or microsoft repos, those are false
-positives — these are legitimate models from verified organizations.
+positives  --  these are legitimate models from verified organizations.
 
 Usage:
     python benchmark/measure_false_positive_rate.py --output evidence/fp_rate.json
@@ -159,7 +159,7 @@ KNOWN_GOOD_CONFIGS: dict[str, dict[str, Any]] = {
     },
 }
 
-# Known-good organization names — these should NOT trigger typosquat alerts
+# Known-good organization names  --  these should NOT trigger typosquat alerts
 KNOWN_GOOD_ORGS = [
     "meta-llama",
     "google",
@@ -245,7 +245,7 @@ def run_org_analysis(org_name: str) -> list[dict[str, Any]]:
     # A known-good org should either BE in the protected list or not trigger
     # close-distance matches against other protected orgs
     if org_lower in protected:
-        # It's in the protected list — should never be flagged
+        # It's in the protected list  --  should never be flagged
         return []
 
     # Check if it would trigger a typosquat alert
@@ -325,7 +325,7 @@ def main() -> int:
     args = parser.parse_args()
 
     print("=" * 70)
-    print("HF Model Provenance Scanner — False Positive Rate Measurement")
+    print("HF Model Provenance Scanner  --  False Positive Rate Measurement")
     print("=" * 70)
     print()
 

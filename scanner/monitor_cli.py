@@ -24,7 +24,7 @@ def _slack_escalation(webhook_url: str):
     """Return an on_hit callback that posts detections to a Slack/Discord webhook.
 
     Kept as a closure so the URL is captured once. Failures here must never
-    take down the watchtower — a dead Slack webhook is not a reason to stop
+    take down the watchtower  --  a dead Slack webhook is not a reason to stop
     watching the Hub."""
     import urllib.parse
     import urllib.request
@@ -71,7 +71,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--fail-on",
         default="critical",
         choices=["critical", "high", "medium", "low"],
-        help="severity that counts as a hit (default: critical — "
+        help="severity that counts as a hit (default: critical  --  "
         "Hub-wide watching is noisy at 'high')",
     )
     p.add_argument(

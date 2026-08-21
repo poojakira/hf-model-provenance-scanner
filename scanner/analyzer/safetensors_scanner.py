@@ -1,5 +1,5 @@
 """
-SafeTensors Format Validator — Detect metadata injection and format abuse.
+SafeTensors Format Validator  --  Detect metadata injection and format abuse.
 
 SafeTensors is designed to be safe, but attackers can:
 1. Inject code into oversized metadata headers
@@ -75,7 +75,7 @@ def analyze_safetensors_file(file_path: str, data: bytes) -> list[Finding]:
     # Validate header size
     if header_size == 0:
         findings.append(
-            _make_finding("HFS-055", file_path, "SafeTensors header size is 0 — invalid file")
+            _make_finding("HFS-055", file_path, "SafeTensors header size is 0  --  invalid file")
         )
         return findings
 
@@ -150,7 +150,7 @@ def analyze_safetensors_file(file_path: str, data: bytes) -> list[Finding]:
     actual_remaining = len(data) - expected_data_start
     if actual_remaining < 0:
         findings.append(
-            _make_finding("HFS-055", file_path, "No tensor data region — file is header-only")
+            _make_finding("HFS-055", file_path, "No tensor data region  --  file is header-only")
         )
 
     return findings
@@ -185,7 +185,7 @@ def _scan_metadata(file_path: str, metadata: dict, findings: list[Finding]):
             _make_finding(
                 "HFS-054",
                 file_path,
-                f"Total __metadata__ content: {total_metadata_size:,} bytes — "
+                f"Total __metadata__ content: {total_metadata_size:,} bytes  --  "
                 "excessive for model metadata",
             )
         )

@@ -370,7 +370,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="hf-scanner",
         description="Zero-dependency ML supply chain provenance scanner for "
-        "Hugging Face repositories — v0.2.0 with binary model analysis",
+        "Hugging Face repositories  --  v0.2.0 with binary model analysis",
     )
     parser.add_argument(
         "target", metavar="TARGET", help="Hugging Face repo ID or local directory path"
@@ -486,11 +486,11 @@ def main(argv=None):
         else:
             r = url_result
             print(
-                f"Scanned {r.repo_id} — {r.files_scanned}/{r.files_listed} files, "
+                f"Scanned {r.repo_id}  --  {r.files_scanned}/{r.files_listed} files, "
                 f"{r.to_dict()['megabytes_fetched']} MB fetched (headers only)"
             )
             if r.is_malicious:
-                print(f"VERDICT: MALICIOUS — {len(r.findings)} finding(s)")
+                print(f"VERDICT: MALICIOUS  --  {len(r.findings)} finding(s)")
                 for f in r.findings:
                     print(
                         f"  {f.severity.value.upper()} {f.rule_id} {f.file_path}: {f.evidence[:100]}"
@@ -565,7 +565,7 @@ def main(argv=None):
                 temporal_findings = compare_with_baseline(baseline, result, all_file_hashes)
                 result.findings.extend(temporal_findings)
 
-        # Sandbox execution (optional — runs Python files in restricted subprocess)
+        # Sandbox execution (optional  --  runs Python files in restricted subprocess)
         if getattr(args, "sandbox", False):
             for path, data in artifacts.items():
                 if path.lower().endswith(PYTHON_EXTENSIONS):
@@ -576,7 +576,7 @@ def main(argv=None):
                     except (UnicodeDecodeError, OSError):
                         pass
 
-        # Runtime Protection Mode (v0.3) — Real-time behavioral monitoring
+        # Runtime Protection Mode (v0.3)  --  Real-time behavioral monitoring
         if getattr(args, "protect", False):
             protect_config = {}
             if args.protect_config:

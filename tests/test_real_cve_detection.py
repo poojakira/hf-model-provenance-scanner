@@ -2,7 +2,7 @@
 Tests for real CVE signature detection.
 
 Each test verifies that the scanner correctly identifies indicators from
-published supply chain security research. No synthetic/hypothetical payloads —
+published supply chain security research. No synthetic/hypothetical payloads  -- 
 every test corresponds to a real-world disclosed vulnerability.
 """
 

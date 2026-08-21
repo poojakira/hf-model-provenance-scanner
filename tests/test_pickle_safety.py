@@ -1,5 +1,5 @@
 """
-tests/test_pickle_safety.py — Security-hardening tests for pickle_scanner.py
+tests/test_pickle_safety.py  --  Security-hardening tests for pickle_scanner.py
 
 Three tests mandated by agent/security-hardening-v1:
 
@@ -36,7 +36,7 @@ def _load_scanner_ast() -> ast.Module:
 
 
 # ---------------------------------------------------------------------------
-# Test 1 — AST proof that pickle.loads / pickle.load is never called
+# Test 1  --  AST proof that pickle.loads / pickle.load is never called
 # ---------------------------------------------------------------------------
 
 
@@ -80,7 +80,7 @@ def test_pickle_scanner_rejects_direct_load():
     visitor.visit(tree)
 
     assert visitor.violations == [], (
-        "pickle_scanner.py contains unsafe pickle.loads/load calls — CRITICAL RCE risk!\n"
+        "pickle_scanner.py contains unsafe pickle.loads/load calls  --  CRITICAL RCE risk!\n"
         + "\n".join(visitor.violations)
     )
 
@@ -90,7 +90,7 @@ def test_pickle_module_not_imported():
     """
     pickle_scanner.py should not import the pickle module at all.
 
-    Importing pickle is a yellow flag — the scanner works entirely with raw bytes
+    Importing pickle is a yellow flag  --  the scanner works entirely with raw bytes
     and struct, so no pickle import should be necessary.
     """
     tree = _load_scanner_ast()
@@ -110,7 +110,7 @@ def test_pickle_module_not_imported():
 
 
 # ---------------------------------------------------------------------------
-# Test 2 — Oversized pickle is rejected with a size-limit finding
+# Test 2  --  Oversized pickle is rejected with a size-limit finding
 # ---------------------------------------------------------------------------
 
 
@@ -150,7 +150,7 @@ def test_oversized_pickle_rejected():
 
 def test_oversized_pickle_rejected_via_tempfile():
     """
-    Secondary version of the size test — writes to a real temp file and verifies
+    Secondary version of the size test  --  writes to a real temp file and verifies
     analyze_pickle_file also honours the limit when the caller has already loaded
     the bytes.
     """
@@ -174,7 +174,7 @@ def test_oversized_pickle_rejected_via_tempfile():
 
 
 # ---------------------------------------------------------------------------
-# Test 3 — Malformed pickle bytes do not crash the scanner
+# Test 3  --  Malformed pickle bytes do not crash the scanner
 # ---------------------------------------------------------------------------
 
 
@@ -183,7 +183,7 @@ def test_malformed_pickle_handled():
     Writing garbage bytes to a .pkl file must not cause an unhandled exception.
 
     The scanner wraps PickleScanner.scan() in a try/except so that even
-    completely broken input is handled gracefully — it may produce a
+    completely broken input is handled gracefully  --  it may produce a
     'corrupted pickle' finding but must never raise to the caller.
 
     This tests CWE-248: Uncaught Exception protection.
@@ -206,7 +206,7 @@ def test_malformed_pickle_handled():
     ]
 
     for i, bad_data in enumerate(malformed_inputs):
-        # Must not raise — must return a list (possibly empty, possibly with findings)
+        # Must not raise  --  must return a list (possibly empty, possibly with findings)
         try:
             findings = scan_pickle_bytes(f"malformed_{i}.pkl", bad_data)
             assert isinstance(

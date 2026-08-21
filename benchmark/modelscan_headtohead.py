@@ -31,13 +31,13 @@ from pathlib import Path
 from typing import Any
 
 # ─── Malicious payload constructors ───────────────────────────────────────────
-# Each class, when unpickled, would execute code. We never unpickle them here —
+# Each class, when unpickled, would execute code. We never unpickle them here  -- 
 # we only write them to disk and scan them. The __reduce__ method is what a
 # pickle scanner must catch: it declares (callable, args) to run on load.
 
 
 class _DirectOsSystem:
-    """Baseline: os.system — ModelScan's denylist SHOULD catch this."""
+    """Baseline: os.system  --  ModelScan's denylist SHOULD catch this."""
 
     def __reduce__(self):
         import os
@@ -46,7 +46,7 @@ class _DirectOsSystem:
 
 
 class _SubprocessPopen:
-    """Baseline: subprocess.Popen — ModelScan's denylist SHOULD catch this."""
+    """Baseline: subprocess.Popen  --  ModelScan's denylist SHOULD catch this."""
 
     def __reduce__(self):
         import subprocess as sp
@@ -282,7 +282,7 @@ def main() -> int:
             "Generated real malicious pickle files using documented denylist-bypass "
             "techniques (runpy, timeit, bdb, importlib, builtins-via-getattr). Ran "
             "both scanners as subprocesses and recorded actual detection output. "
-            "No synthetic results — every number reflects a real scan."
+            "No synthetic results  --  every number reflects a real scan."
         ),
         "totals": {
             "payloads": total,

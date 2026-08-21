@@ -1,6 +1,6 @@
 """Benign model loader for the privacy-filter fixture.
 
-Pure, side-effect-free model construction — no shell, no network, no eval.
+Pure, side-effect-free model construction  --  no shell, no network, no eval.
 Used to verify the scanner does not raise false positives on clean loaders.
 """
 

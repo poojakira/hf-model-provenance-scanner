@@ -1,8 +1,8 @@
 """
-Sandbox Execution Engine — Run untrusted code in restricted environments.
+Sandbox Execution Engine  --  Run untrusted code in restricted environments.
 
 Backends:
-- subprocess: EXPERIMENTAL — limited isolation, not a security boundary.
+- subprocess: EXPERIMENTAL  --  limited isolation, not a security boundary.
   Uses Python's subprocess with restricted env and import hooks. Suitable for
   behavioral analysis only; does NOT provide strong isolation.
 - gVisor (runsc): Stronger isolation via ptrace/KVM platform.
@@ -176,7 +176,7 @@ def _sandbox_gvisor(file_path: str, source: str) -> list[Finding]:
                 "HFS-072",
                 file_path,
                 0,
-                "gVisor (runsc) not available — install runsc or set HF_SANDBOX_BACKEND=subprocess",
+                "gVisor (runsc) not available  --  install runsc or set HF_SANDBOX_BACKEND=subprocess",
             )
         )
         return fallback
@@ -286,7 +286,7 @@ def _sandbox_firecracker(file_path: str, source: str) -> list[Finding]:
                 "HFS-072",
                 file_path,
                 0,
-                "Firecracker not available — install firecracker or set HF_SANDBOX_BACKEND=subprocess",
+                "Firecracker not available  --  install firecracker or set HF_SANDBOX_BACKEND=subprocess",
             )
         )
         return fallback
@@ -316,7 +316,7 @@ def _sandbox_firecracker(file_path: str, source: str) -> list[Finding]:
                 "HFS-072",
                 file_path,
                 0,
-                "Firecracker not available — install firecracker or set HF_SANDBOX_BACKEND=subprocess",
+                "Firecracker not available  --  install firecracker or set HF_SANDBOX_BACKEND=subprocess",
             )
         )
         return fallback

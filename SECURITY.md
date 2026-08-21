@@ -1,4 +1,4 @@
-# Security Policy — hf-model-provenance-scanner
+# Security Policy  --  hf-model-provenance-scanner
 
 ## Reporting a Vulnerability
 
@@ -16,7 +16,7 @@ No response-time SLA is currently committed. Critical issues such as scanner-hos
 
 This project prefers coordinated disclosure. Reporter credit is optional and requires reporter consent.
 
-## Scope — In Scope
+## Scope  --  In Scope
 
 - Vulnerabilities in the scanner that allow a crafted model file to achieve code execution on the scanner host
 - Bypass techniques that allow malicious pickle opcodes to pass the allow-list check
@@ -24,9 +24,9 @@ This project prefers coordinated disclosure. Reporter credit is optional and req
 - False-negative bypasses that would allow a CRITICAL-severity finding to be suppressed
 - Dependency vulnerabilities in direct dependencies that are exploitable via this tool's attack surface
 
-## Scope — Out of Scope
+## Scope  --  Out of Scope
 
-- Detection rate debates (false positive / false negative rates) — open a regular issue
+- Detection rate debates (false positive / false negative rates)  --  open a regular issue
 - Vulnerabilities in the Hugging Face API or platform itself
 - Findings in transitive dependencies not exploitable via this tool
 - Theoretical attacks with no practical exploitation path

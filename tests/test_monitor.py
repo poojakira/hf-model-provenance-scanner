@@ -3,7 +3,7 @@ Tests for the polling Hub monitor.
 
 The monitor talks to the live Hub in production, so these tests stub out both
 the "what's new" feed and the per-repo scan. We're testing the WATCHTOWER
-LOGIC — dedup, hit/clean/skip classification, escalation firing — not the
+LOGIC  --  dedup, hit/clean/skip classification, escalation firing  --  not the
 scanner itself (that's covered elsewhere).
 """
 

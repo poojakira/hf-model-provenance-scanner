@@ -1,4 +1,4 @@
-# GitLab CI template — copy to your .gitlab-ci.yml
+# GitLab CI template  --  copy to your .gitlab-ci.yml
 model-security-scan:
   stage: test
   image: python:3.11-slim

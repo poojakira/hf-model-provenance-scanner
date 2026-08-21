@@ -1,5 +1,5 @@
 """
-Weight Fingerprinting Module — SHA-256 tensor hashing for integrity verification.
+Weight Fingerprinting Module  --  SHA-256 tensor hashing for integrity verification.
 
 Generates deterministic fingerprints of model weights to:
 1. Detect unauthorized modifications (weight poisoning, backdoors)

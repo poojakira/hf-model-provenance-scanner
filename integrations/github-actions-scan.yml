@@ -1,4 +1,4 @@
-# Ready-to-use GitHub Actions workflow — copy to your repo's .github/workflows/
+# Ready-to-use GitHub Actions workflow  --  copy to your repo's .github/workflows/
 name: Model Security Scan
 
 on:

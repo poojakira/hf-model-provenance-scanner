@@ -54,7 +54,7 @@ class TestBidiOverrideDetection(unittest.TestCase):
 class TestConfusableDetection(unittest.TestCase):
     def test_cyrillic_a_in_identifier(self):
         """Detect Cyrillic 'а' mixed with Latin in same token."""
-        # "p\u0430ss" — Cyrillic а looks like Latin a
+        # "p\u0430ss"  --  Cyrillic а looks like Latin a
         source = 'p\u0430ss = "secret"  # Cyrillic a in identifier\n'
         findings = scan_unicode_obfuscation("test.py", source)
         rule_ids = [f.rule_id for f in findings]

@@ -6,18 +6,18 @@ Hugging Face API for recently created models, diffs them against local state,
 and scans new arrivals on the next configured poll cycle.
 
 Two ways to run it:
-  1. Poll mode (default) — no HF cooperation needed. We call the public
+  1. Poll mode (default)  --  no HF cooperation needed. We call the public
      /api/models endpoint sorted by creation time, diff against what we've
      already seen, and scan the new arrivals. This is how an independent
      researcher could monitor newly listed Hub repositories.
-  2. Webhook mode — see integrations/huggingface_webhook.py. That's push-based
+  2. Webhook mode  --  see integrations/huggingface_webhook.py. That's push-based
      and lower latency, but the org has to configure the webhook to point at us.
 
 Why polling and not just webhooks: webhooks only fire for repos WE own or are
 subscribed to. To watch the entire Hub for typosquats of openai/meta/etc, we
 have to poll the API ourselves and operate within Hugging Face rate limits.
 
-Zero dependencies — urllib only, same as the rest of the tool.
+Zero dependencies  --  urllib only, same as the rest of the tool.
 """
 
 import json
@@ -54,7 +54,7 @@ class MonitorConfig:
     # and the Hub produces thousands of those an hour. A CI gate on YOUR OWN
     # repo should use 'high' (you want clean code); a firehose watchtower over
     # everyone else's repos should only fire on actual malware. Learned this the
-    # noisy way — see LinuxAdi143/Yt_shorts, a legit repo that tripped 'high'.
+    # noisy way  --  see LinuxAdi143/Yt_shorts, a legit repo that tripped 'high'.
     fail_on: str = "critical"  # severity that counts as a real hit
     only_flagged: bool = True  # print clean repos too, or just hits?
     max_seen_memory: int = 5000  # cap the dedupe set so it can't grow forever
@@ -67,7 +67,7 @@ def _load_seen() -> set:
 
     We keep this so restarting the monitor at 3am doesn't re-flag every model
     that was already cleared yesterday. Corrupt/missing file just means we
-    start fresh — not worth crashing over."""
+    start fresh  --  not worth crashing over."""
     try:
         with open(STATE_FILE, encoding="utf-8") as fh:
             return set(json.load(fh))
@@ -94,7 +94,7 @@ def fetch_newest(cfg: MonitorConfig) -> list[str]:
     """Ask HF for the most recently created models. Returns repo ids, newest first.
 
     We sort by createdAt descending because that's the firehose of brand-new
-    repos — exactly where a typosquat attack shows up first. A transient network
+    repos  --  exactly where a typosquat attack shows up first. A transient network
     blip returns an empty list rather than throwing; the caller just tries again
     next tick."""
     url = f"{HF_API}?sort=createdAt&direction=-1&limit={cfg.page_size}"
@@ -109,7 +109,7 @@ def fetch_newest(cfg: MonitorConfig) -> list[str]:
         with urllib.request.urlopen(req, timeout=20) as resp:  # nosec B310
             payload = json.loads(resp.read())
     except (urllib.error.URLError, OSError, json.JSONDecodeError) as err:
-        # Don't die on a hiccup — a monitor that crashes on the first 503 is
+        # Don't die on a hiccup  --  a monitor that crashes on the first 503 is
         # useless. Log to stderr and let the loop retry.
         print(f"[monitor] fetch failed: {err}", file=sys.stderr)
         return []
@@ -182,14 +182,14 @@ def _format_line(report: dict) -> str:
     if status == "SKIPPED":
         # Say WHY we skipped so the operator knows it wasn't a silent failure.
         reason = report.get("error", "no readable content (empty/gated repo)")
-        return f"[{ts}] SKIP  {repo_id} — {reason[:60]}"
+        return f"[{ts}] SKIP  {repo_id}  --  {reason[:60]}"
 
     risk = report.get("risk", {})
     findings = report.get("findings", [])
     crit = sum(1 for f in findings if f.get("severity") == "critical")
     high = sum(1 for f in findings if f.get("severity") == "high")
     return (
-        f"[{ts}] {status:<5} {repo_id} — "
+        f"[{ts}] {status:<5} {repo_id}  --  "
         f"risk={risk.get('level', '?')}({risk.get('score', 0)}/100) "
         f"crit={crit} high={high} "
         f"https://huggingface.co/{repo_id}"
@@ -207,7 +207,7 @@ def watch(
     cycles instead of blocking forever. In production you leave it None and
     run it under systemd/supervisor.
 
-    `on_hit` is the escalation hook — wire it to Slack, PagerDuty, an abuse
+    `on_hit` is the escalation hook  --  wire it to Slack, PagerDuty, an abuse
     report, whatever. If it's None we just print."""
     seen = _load_seen()
     print(
@@ -230,7 +230,7 @@ def watch(
             report = scan_one(repo_id, cfg)
             status = classify(report)
             if status == "HIT":
-                # A real detection — always surface it and fire the escalation hook.
+                # A real detection  --  always surface it and fire the escalation hook.
                 print(_format_line(report))
                 if on_hit:
                     on_hit(report)

@@ -1,4 +1,4 @@
-# CircleCI template — copy to .circleci/config.yml
+# CircleCI template  --  copy to .circleci/config.yml
 version: 2.1
 
 jobs:

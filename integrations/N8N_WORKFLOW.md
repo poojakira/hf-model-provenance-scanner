@@ -8,9 +8,9 @@ Import-ready n8n workflow for automated model security scanning.
 
 ### What it does
 
-1. **Webhook trigger** — receives POST from HuggingFace Hub, your model registry, or any system that publishes model upload events
-2. **Provenance scan** — calls the scanner API against the uploaded model
-3. **Risk routing** — if HIGH/CRITICAL findings, triggers the incident path; otherwise notifies success
+1. **Webhook trigger**  --  receives POST from HuggingFace Hub, your model registry, or any system that publishes model upload events
+2. **Provenance scan**  --  calls the scanner API against the uploaded model
+3. **Risk routing**  --  if HIGH/CRITICAL findings, triggers the incident path; otherwise notifies success
 4. **Incident path:**
    - Alerts `#ml-security-alerts` Slack channel with structured blocks (repo, risk level, top finding)
    - Quarantines the model via your registry API
@@ -36,7 +36,7 @@ n8n import:workflow --input integrations/n8n-model-scan-pipeline.json
 
 ### Required: Scanner API running
 
-The workflow calls `http://localhost:8000/scan` — the scanner's FastAPI endpoint. Start it:
+The workflow calls `http://localhost:8000/scan`  --  the scanner's FastAPI endpoint. Start it:
 
 ```bash
 uvicorn scanner.api:app --host 0.0.0.0 --port 8000

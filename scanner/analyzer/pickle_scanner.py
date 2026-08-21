@@ -1,5 +1,5 @@
 """
-Pickle Opcode Scanner — Zero-dependency binary analysis of pickle files.
+Pickle Opcode Scanner  --  Zero-dependency binary analysis of pickle files.
 
 Parses pickle bytecode WITHOUT executing it, detecting dangerous opcodes that
 invoke arbitrary functions (REDUCE, INST, OBJ, NEWOBJ, STACK_GLOBAL, BUILD).
@@ -155,7 +155,7 @@ CRITICAL_CALLABLES = {
     "idlelib.pyshell.ModifiedInterpreter.runcode",
 }
 
-# Suspicious but not immediately critical — require context
+# Suspicious but not immediately critical  --  require context
 SUSPICIOUS_CALLABLES = {
     "collections.OrderedDict",  # Often benign in torch, but used in gadget chains
     "torch._utils._rebuild_tensor_v2",  # Legitimate but can be abused
@@ -298,7 +298,7 @@ class PickleScanner:
         try:
             self._parse_opcodes()
         except (IndexError, struct.error, ValueError):
-            # Intentionally corrupted pickle — this itself is suspicious
+            # Intentionally corrupted pickle  --  this itself is suspicious
             # (PickleScan bypass: malware executes before full deserialization)
             if self.globals_found:
                 self.findings.append(
@@ -361,7 +361,7 @@ class PickleScanner:
                     _make_finding(
                         "HFS-052",
                         self.file_path,
-                        "Protocol 5 __reduce_ex__ opcode (OP_REDUCE_EX) detected — PickleScan bypass technique",
+                        "Protocol 5 __reduce_ex__ opcode (OP_REDUCE_EX) detected  --  PickleScan bypass technique",
                     )
                 )
             elif op == OP_PERSID:
@@ -372,7 +372,7 @@ class PickleScanner:
                     _make_finding(
                         "HFS-052",
                         self.file_path,
-                        "PERSID opcode detected — persistent_load bypass technique",
+                        "PERSID opcode detected  --  persistent_load bypass technique",
                     )
                 )
             elif op == OP_BUILD:
@@ -469,7 +469,7 @@ class PickleScanner:
                     _make_finding(
                         "HFS-052",
                         self.file_path,
-                        "EXT4/COPYREG opcode detected — copyreg dispatch_table manipulation bypass",
+                        "EXT4/COPYREG opcode detected  --  copyreg dispatch_table manipulation bypass",
                     )
                 )
             elif op == b"p":
@@ -517,7 +517,7 @@ class PickleScanner:
                 b"s",
                 b"u",
             ):
-                # Stack manipulation and collection opcodes — no payload
+                # Stack manipulation and collection opcodes  --  no payload
                 pass
             elif op == b"I":
                 # INT (protocol 0) - read until \n
@@ -571,7 +571,7 @@ class PickleScanner:
                     "importlib.",
                 )
             ):
-                # Broader check — anything in these modules is suspicious
+                # Broader check  --  anything in these modules is suspicious
                 if normalized not in SAFE_ALLOWLIST:
                     self.findings.append(
                         _make_finding(
@@ -606,12 +606,12 @@ class PickleScanner:
             # Already flagged by _analyze_globals, but add context
             pass
         elif self.reduces_found > 100 and not self.globals_found:
-            # Many REDUCEs but no parseable globals — possibly obfuscated
+            # Many REDUCEs but no parseable globals  --  possibly obfuscated
             self.findings.append(
                 _make_finding(
                     "HFS-051",
                     self.file_path,
-                    f"{self.reduces_found} REDUCE ops with no recognizable globals — possible obfuscation",
+                    f"{self.reduces_found} REDUCE ops with no recognizable globals  --  possible obfuscation",
                 )
             )
 
@@ -670,7 +670,7 @@ def scan_pickle_bytes(file_path: str, data: bytes) -> list[Finding]:
                 "HFS-098",
                 file_path,
                 f"Pickle/model file size {len(data) // (1024 * 1024)} MB exceeds "
-                f"MAX_PICKLE_SIZE_BYTES ({MAX_PICKLE_SIZE_BYTES // (1024 * 1024)} MB) — scan aborted",
+                f"MAX_PICKLE_SIZE_BYTES ({MAX_PICKLE_SIZE_BYTES // (1024 * 1024)} MB)  --  scan aborted",
             )
         )
         return findings
@@ -694,7 +694,7 @@ def scan_pickle_bytes(file_path: str, data: bytes) -> list[Finding]:
     if data[:2] == b"PK":
         try:
             findings.extend(_scan_pytorch_zip(file_path, data))
-        except Exception as exc:  # noqa: BLE001 — top-level safety net
+        except Exception as exc:  # noqa: BLE001  --  top-level safety net
             findings.append(
                 _make_finding(
                     "HFS-098",
@@ -707,7 +707,7 @@ def scan_pickle_bytes(file_path: str, data: bytes) -> list[Finding]:
         try:
             scanner = PickleScanner(file_path, data)
             findings.extend(scanner.scan())
-        except Exception as exc:  # noqa: BLE001 — top-level safety net
+        except Exception as exc:  # noqa: BLE001  --  top-level safety net
             findings.append(
                 _make_finding(
                     "HFS-098",
@@ -716,14 +716,14 @@ def scan_pickle_bytes(file_path: str, data: bytes) -> list[Finding]:
                 )
             )
     else:
-        # Try scanning anyway — some pickle files have no magic
+        # Try scanning anyway  --  some pickle files have no magic
         # Search for pickle opcodes in the first 1MB
         scan_window = data[:1_048_576]
         if OP_GLOBAL in scan_window or OP_STACK_GLOBAL in scan_window:
             try:
                 scanner = PickleScanner(file_path, data)
                 findings.extend(scanner.scan())
-            except Exception as exc:  # noqa: BLE001 — top-level safety net
+            except Exception as exc:  # noqa: BLE001  --  top-level safety net
                 findings.append(
                     _make_finding(
                         "HFS-098",
@@ -761,7 +761,7 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
                         "HFS-098",
                         file_path,
                         f"ZIP archive has {len(all_names)} members, exceeds MAX_ARCHIVE_MEMBERS "
-                        f"({MAX_ARCHIVE_MEMBERS}) — processing first {MAX_ARCHIVE_MEMBERS} only",
+                        f"({MAX_ARCHIVE_MEMBERS})  --  processing first {MAX_ARCHIVE_MEMBERS} only",
                     )
                 )
                 all_names = all_names[:MAX_ARCHIVE_MEMBERS]
@@ -798,7 +798,7 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
                             _make_finding(
                                 "HFS-052",
                                 file_path,
-                                f"CVE-2025-10156: ZIP entry {name} has CRC=0 but readable data ({len(entry_data)} bytes) — CRC bypass",
+                                f"CVE-2025-10156: ZIP entry {name} has CRC=0 but readable data ({len(entry_data)} bytes)  --  CRC bypass",
                             )
                         )
                     except zipfile.BadZipFile:
@@ -806,7 +806,7 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
                             _make_finding(
                                 "HFS-052",
                                 file_path,
-                                f"CVE-2025-10156: ZIP entry {name} has CRC mismatch — PickleScan bypass",
+                                f"CVE-2025-10156: ZIP entry {name} has CRC mismatch  --  PickleScan bypass",
                             )
                         )
                     except Exception:
@@ -827,7 +827,7 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
                     except Exception:
                         pass
     except (zipfile.BadZipFile, Exception):
-        # Not a valid ZIP — might be raw pickle with PK in content
+        # Not a valid ZIP  --  might be raw pickle with PK in content
         scanner = PickleScanner(file_path, data)
         findings.extend(scanner.scan())
 

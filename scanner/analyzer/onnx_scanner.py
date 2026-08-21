@@ -1,5 +1,5 @@
 """
-ONNX Model Scanner — Detect custom operator abuse and graph manipulation.
+ONNX Model Scanner  --  Detect custom operator abuse and graph manipulation.
 
 ONNX models can contain:
 1. Custom operators that load native code (DLLs/shared libraries)

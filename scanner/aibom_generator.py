@@ -1,5 +1,5 @@
 """
-AIBOM Generator — Produce CycloneDX AI Bill of Materials from scan results.
+AIBOM Generator  --  Produce CycloneDX AI Bill of Materials from scan results.
 
 Generates a standards-compliant CycloneDX 1.6 SBOM/AIBOM that includes:
 1. Model component inventory (all files with hashes)

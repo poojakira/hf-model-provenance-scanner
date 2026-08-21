@@ -1,5 +1,5 @@
 """
-HuggingFace Webhook Integration — Auto-scan models on push.
+HuggingFace Webhook Integration  --  Auto-scan models on push.
 
 Deploy this as a serverless function (AWS Lambda, Cloudflare Worker,
 Google Cloud Function) or standalone Flask/FastAPI service.

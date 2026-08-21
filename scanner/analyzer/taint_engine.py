@@ -1,5 +1,5 @@
 """
-Taint Tracking Engine — Intra-procedural dataflow analysis for Python.
+Taint Tracking Engine  --  Intra-procedural dataflow analysis for Python.
 
 Tracks tainted data from SOURCES (untrusted origins) through PROPAGATION
 (variable assignments, function returns, container operations) to SINKS
@@ -251,7 +251,7 @@ class TaintAnalyzer(ast.NodeVisitor):
                 return base_taint
 
         if isinstance(node, ast.Subscript):
-            # dict["exec"] or list[0] — propagate container taint
+            # dict["exec"] or list[0]  --  propagate container taint
             base_taint = self._get_taint(node.value)
             if base_taint:
                 return TaintInfo(
@@ -297,7 +297,7 @@ class TaintAnalyzer(ast.NodeVisitor):
         # Check if calling a tainted callable itself
         func_taint = self._get_taint(node.func)
         if func_taint and TaintLabel.EXEC_CALLABLE in func_taint.labels:
-            # This is a SINK — the exec/eval is being called
+            # This is a SINK  --  the exec/eval is being called
             return None  # handled in visit_Call
 
         # Check user-defined function returns

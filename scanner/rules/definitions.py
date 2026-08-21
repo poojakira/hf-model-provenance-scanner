@@ -430,7 +430,7 @@ RULES: dict[str, Rule] = {
         "temporal-risk-escalation",
         Severity.HIGH,
         "Risk score escalated significantly or security artifacts removed since baseline",
-        "Investigate changes. Security posture degraded since last scan — possible supply chain compromise.",
+        "Investigate changes. Security posture degraded since last scan  --  possible supply chain compromise.",
         "CWE-345",
         ["temporal", "regression"],
     ),
