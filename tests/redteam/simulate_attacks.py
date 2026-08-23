@@ -4,12 +4,12 @@ Red Team Attack Simulation Suite
 Replicates EXACT techniques from documented 2025-2026 incidents:
 
 1. May 2026 Open-OSS/privacy-filter (Rust infostealer via HuggingFace)
-2. CVE-2026-4372 HF Transformers RCE
+2. HF Transformers trust_remote_code RCE
 3. LiteLLM supply chain attack (March 2026)
 4. JFrog PickleScan bypass techniques (7 methods)
 5. Sonatype PickleScan bypass (4 additional methods)
 6. Acronis TRU HuggingFace/ClawHub malware campaign
-7. CVE-2026-46432 LMDeploy trust_remote_code RCE
+7. LMDeploy trust_remote_code bypass
 
 Each simulation is an INERT payload that triggers the same scanner rules
 as the real attack would, proving detection capability without being weaponizable.
@@ -110,12 +110,12 @@ subprocess.Popen(
 """
 
 # ═══════════════════════════════════════════════════════════════════════
-# INCIDENT 2: CVE-2026-4372  --  HuggingFace Transformers RCE
+# INCIDENT 2: HF Transformers trust_remote_code RCE
 # Technique: trust_remote_code loads attacker-controlled Python
 # ═══════════════════════════════════════════════════════════════════════
 
 ATTACK_2_TRANSFORMERS_RCE = """
-# CVE-2026-4372: Loading a model with trust_remote_code=True
+# Transformers trust_remote_code: Loading a model with trust_remote_code=True
 # allows arbitrary code execution via custom modeling file
 from transformers import AutoModel, AutoConfig
 
@@ -195,12 +195,12 @@ ATTACK_6_PICKLE_COPYREG = (
 )
 
 # ═══════════════════════════════════════════════════════════════════════
-# INCIDENT 7: CVE-2026-46432 LMDeploy trust_remote_code
+# INCIDENT 7: LMDeploy trust_remote_code bypass
 # Technique: Hardcoded trust_remote_code enables supply chain RCE
 # ═══════════════════════════════════════════════════════════════════════
 
 ATTACK_7_LMDEPLOY = """
-# CVE-2026-46432: LMDeploy hardcodes trust_remote_code=True
+# LMDeploy trust_remote_code bypass: LMDeploy hardcodes trust_remote_code=True
 # Any HuggingFace model with custom code auto-executes on load
 from transformers import AutoModelForCausalLM
 model = AutoModelForCausalLM.from_pretrained(
@@ -337,10 +337,10 @@ def run_simulation():
             cve=None,
         ),
         AttackSimulation(
-            "CVE-2026-4372 HF Transformers RCE",
+            "Transformers trust_remote_code RCE (2025 research disclosure)",
             ATTACK_2_TRANSFORMERS_RCE,
             "trust_remote_code=True arbitrary execution",
-            cve="CVE-2026-4372",
+            cve=None,
         ),
         AttackSimulation(
             "LiteLLM Supply Chain Attack (March 2026)",
@@ -349,10 +349,10 @@ def run_simulation():
             cve=None,
         ),
         AttackSimulation(
-            "CVE-2026-46432 LMDeploy RCE",
+            "LMDeploy trust_remote_code bypass (2025 research disclosure)",
             ATTACK_7_LMDEPLOY,
             "Hardcoded trust_remote_code enables RCE",
-            cve="CVE-2026-46432",
+            cve=None,
         ),
         AttackSimulation(
             "Acronis TRU Credential Stealer",
@@ -460,7 +460,7 @@ if __name__ == "__main__":
     report, results = run_simulation()
 
     for r in results:
-        status = "\033[92m✅ DETECTED\033[0m" if r.detected else "\033[91m❌ MISSED\033[0m"
+        status = "\033[92m[DETECTED]\033[0m" if r.detected else "\033[91m[MISSED]\033[0m"
         print(f"  {status}  {r.name}")
         print(f"           Technique: {r.technique}")
         if r.cve:

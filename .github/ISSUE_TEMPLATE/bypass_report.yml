@@ -1,0 +1,131 @@
+name: "🔴 Scanner Bypass Report"
+description: Report a technique that evades the scanner's detection
+title: "[BYPASS] "
+labels: ["security", "bypass", "red-team"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ⚠️ Responsible Disclosure
+        If this bypass could be weaponized against production systems, please
+        email security@poojakira.dev **before** filing a public issue.
+        See [SECURITY.md](../../SECURITY.md) for full disclosure policy.
+
+  - type: input
+    id: scanner_version
+    attributes:
+      label: Scanner Version
+      description: "Output of `hf-scanner --version` or commit SHA"
+      placeholder: "e.g. 1.0.0 or commit abc1234"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity Assessment
+      description: How critical is this bypass?
+      options:
+        - "Critical — Allows full RCE to go undetected"
+        - "High — Bypasses a major detection category entirely"
+        - "Medium — Partial evasion under specific conditions"
+        - "Low — Cosmetic or requires unlikely preconditions"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Bypass Category
+      description: Which scanner component is evaded?
+      options:
+        - "Pickle deserialization (pickle/pt/pth)"
+        - "SafeTensors metadata injection"
+        - "GGUF metadata/shell injection"
+        - "Python source analysis (AST/taint/sandbox)"
+        - "Supply-chain detection (trust_remote_code, dependency)"
+        - "Obfuscation evasion (chr, base64, reversed, etc.)"
+        - "Other / Multiple"
+    validations:
+      required: true
+
+  - type: textarea
+    id: technique
+    attributes:
+      label: Attack Technique Description
+      description: |
+        Describe the evasion technique in detail. Include:
+        - What detection rule(s) should have fired
+        - Why the scanner missed it (if known)
+        - Any relevant opcode sequences, AST patterns, or encoding tricks
+      placeholder: "The scanner fails to detect X when Y is used because..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproducer
+    attributes:
+      label: Minimal Reproducer
+      description: |
+        Provide the smallest possible payload that demonstrates the bypass.
+        This can be a Python snippet, pickle bytes, or a fixture file.
+        **Do NOT include actually weaponizable payloads** — use inert markers.
+      placeholder: |
+        ```python
+        # Example: pickle bytes that evade detection
+        payload = b"\x80\x02..."
+        
+        # Or: Python source that should trigger but doesn't
+        import os
+        os.system("echo bypassed")
+        ```
+      render: python
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_vs_actual
+    attributes:
+      label: Expected vs Actual Behavior
+      description: What should the scanner report vs what it actually reports?
+      placeholder: |
+        **Expected:** Scanner reports HFS-050 (dangerous callable) with severity CRITICAL
+        **Actual:** Scanner reports 0 findings — payload passes as clean
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Details
+      description: Any relevant environment info (OS, Python version, etc.)
+      placeholder: |
+        - OS: Ubuntu 22.04
+        - Python: 3.12.1
+        - Scanner installed via: pip install -e .
+    validations:
+      required: false
+
+  - type: textarea
+    id: suggested_fix
+    attributes:
+      label: Suggested Fix (optional)
+      description: If you have ideas on how to patch the detection gap
+      placeholder: "Add opcode pattern matching for..."
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Acknowledgment
+      description: Please confirm the following
+      options:
+        - label: "I have verified this bypass works against the latest `main` branch"
+          required: true
+        - label: "This reproducer is INERT and cannot cause harm if executed"
+          required: true
+        - label: "I consent to being credited in CHANGELOG.md if this is confirmed"
+          required: false

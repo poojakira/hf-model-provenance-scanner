@@ -1,31 +1,14 @@
 # HF Model Provenance Scanner
 
-Model supply-chain scanner with taint engine and symbolic resolver. Detects pickle gadget chains, importlib bypasses, rug-pull signals, and typosquatting across 17 file formats. Fetches kilobytes instead of gigabytes via HTTP Range requests.
+Scans Hugging Face model repositories for pickle exploits, supply-chain signals, and provenance issues without downloading full model weights.
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue)](https://www.python.org/)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
 [![Tests](https://github.com/poojakira/hf-model-provenance-scanner/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/hf-model-provenance-scanner/actions/workflows/ci.yml)
-[![CI](https://github.com/poojakira/hf-model-provenance-scanner/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/hf-model-provenance-scanner/actions/workflows/ci.yml)
 
-## Key Numbers
+## Status
 
-| Metric | Value |
-|--------|-------|
-| File formats supported | 17 |
-| Malicious fixtures (pickle/safetensors/GGUF/py) | 11 |
-| False positives | 0/5 |
-| Total scan time (12 fixtures) | 116 ms |
-| Bandwidth reduction | 99.9% |
-| GPT-2 scan: bytes fetched | 0.5 MB (vs 500 MB download) |
-| CVEs detected | CVE-2026-4372, CVE-2026-46432 |
-| Pickle protocols covered | 0, 1, 2, 3, 4, 5 |
-| Attack vectors | 9 distinct |
-| Output formats | CycloneDX 1.5, SARIF, MITRE ATT&CK v19 |
-| CI templates | 5 platforms |
-
-## Overview
-
-Model files on Hugging Face Hub can contain arbitrary code execution payloads disguised as serialized tensors. Existing scanners miss importlib bypass techniques and memoized-global exec patterns. This scanner uses deep opcode analysis with a taint engine and symbolic resolver to catch what others miss, while fetching only the first 512KB of each file via HTTP Range requests instead of downloading full model weights.
+Alpha. This scanner is functional and passes its test suite (262 tests), but has not been deployed at scale or audited by third parties. Use it as one signal among many in your model security workflow, not as a sole gatekeeper.
 
 ## Architecture
 
@@ -102,21 +85,6 @@ Hugging Face Model Repository
 - Temporal baseline diffing for rug-pull detection (file hashes change after publication without version bump)
 - Author/org name similarity to known publishers
 
-## Comparison with ModelScan
-
-| Capability | This Scanner | ModelScan 0.8.8 |
-|-----------|-------------|-----------------|
-| Pickle Protocol 0-5 | ✅ | ✅ |
-| importlib bypass detection | ✅ | ❌ |
-| Memoized-global exec | ✅ | ❌ |
-| SafeTensors header inspection | ✅ | Partial |
-| Typosquat detection | ✅ | ❌ |
-| Rug-pull / temporal diffing | ✅ | ❌ |
-| 99.9% bandwidth reduction | ✅ | ❌ |
-| CycloneDX 1.5 SBOM | ✅ | ❌ |
-| MITRE ATT&CK v19 mapping | ✅ | ❌ |
-| Multi-layer obfuscation decode | ✅ | ❌ |
-
 ## Quick Start
 
 ```bash
@@ -130,8 +98,8 @@ hf-scanner bert-base-uncased --format text
 # SARIF output
 hf-scanner bert-base-uncased --format sarif --output findings.sarif
 
-# Batch scan from manifest
-hf-scanner --manifest manifest.txt --fail-on critical    # manifest.txt: one repo ID per line
+# Fail CI on critical findings
+hf-scanner bert-base-uncased --fail-on critical
 ```
 
 ## Sample Output
@@ -166,7 +134,7 @@ Malicious model detected:
     "sink": "builtins.exec",
     "resolved_call": "os.system",
     "obfuscation_layers": ["base64.b64decode", "chr() concat"],
-    "cve": "CVE-2026-4372",
+    "cve": "CVE-2024-5480",
     "mitre_attack": "T1059.006"
   }
 }
@@ -187,14 +155,16 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install scanner
-        run: pip install hf-model-provenance-scanner
+        run: pip install -e .
 
       - name: Scan model files
         run: |
-          hf-scanner --manifest manifest.txt \
+          hf-scanner ${{ env.MODEL_REPO }} \
             --format sarif \
             --output findings.sarif \
             --fail-on critical
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
 
       - name: Upload SARIF
         if: always()
@@ -206,23 +176,7 @@ jobs:
 
 ## Performance
 
-### Bandwidth Comparison
-
-| Model | Traditional Download | This Scanner | Reduction |
-|-------|---------------------|--------------|-----------|
-| GPT-2 (500 MB) | 500 MB | 0.5 MB | 99.9% |
-| bert-base-uncased (440 MB) | 440 MB | 487 KB | 99.9% |
-| llama-2-7b (13 GB) | 13 GB | 1.2 MB | 99.99% |
-
-HTTP Range requests fetch only the first 512KB of opcodes and metadata headers (up to 16MB for large SafeTensors). Tensor weight data is never downloaded.
-
-### Scan Speed
-
-| Benchmark | Time |
-|-----------|------|
-| 12 attack fixtures (total) | 116 ms |
-| Single model scan (bert-base-uncased) | 89 ms |
-| Batch scan (10 models) | < 3 s |
+Uses HTTP Range requests to fetch only file headers (typically <1MB) instead of downloading full model weights.
 
 ## Standards Coverage
 

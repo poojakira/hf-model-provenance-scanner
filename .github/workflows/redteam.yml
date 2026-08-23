@@ -1,0 +1,158 @@
+name: Red Team Security Suite
+
+on:
+  schedule:
+    # Run weekly on Monday at 03:00 UTC
+    - cron: '0 3 * * 1'
+  pull_request:
+    paths:
+      - 'scanner/**'
+      - 'tests/redteam/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: redteam-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  redteam-simulation:
+    name: Red Team Attack Simulation
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Set up Python
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run red-team simulation suite
+        id: simulate
+        run: |
+          echo "## 🔴 Red Team Simulation Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          python tests/redteam/simulate_attacks.py 2>&1 | tee simulation_output.txt
+          # Check for 100% detection rate
+          if grep -q "missed.*[1-9]" simulation_output.txt 2>/dev/null; then
+            echo "::error::Red team simulation detected missed attacks!"
+            echo "❌ **FAILED** — One or more attacks went undetected!" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          echo "✅ **All attacks detected successfully**" >> $GITHUB_STEP_SUMMARY
+
+      - name: Run pytest red-team tests
+        id: pytest
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🧪 Red Team Pytest Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          pytest tests/redteam/ -v --tb=short 2>&1 | tee pytest_output.txt
+          RESULT=$?
+          # Extract summary line
+          SUMMARY=$(tail -5 pytest_output.txt | grep -E "passed|failed" | head -1)
+          echo "**Result:** \`${SUMMARY}\`" >> $GITHUB_STEP_SUMMARY
+          exit $RESULT
+
+      - name: Post PR comment with results
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
+        with:
+          script: |
+            const fs = require('fs');
+            let simOutput = '';
+            let pytestOutput = '';
+            try {
+              simOutput = fs.readFileSync('simulation_output.txt', 'utf8');
+              pytestOutput = fs.readFileSync('pytest_output.txt', 'utf8');
+            } catch (e) {
+              simOutput = 'Simulation output not available';
+              pytestOutput = 'Pytest output not available';
+            }
+
+            // Truncate outputs for comment size limits
+            const maxLen = 3000;
+            if (simOutput.length > maxLen) simOutput = simOutput.slice(-maxLen);
+            if (pytestOutput.length > maxLen) pytestOutput = pytestOutput.slice(-maxLen);
+
+            const body = `## 🔴 Red Team Security Suite Results
+
+            <details>
+            <summary>Attack Simulation Output</summary>
+
+            \`\`\`
+            ${simOutput}
+            \`\`\`
+
+            </details>
+
+            <details>
+            <summary>Pytest Red Team Output</summary>
+
+            \`\`\`
+            ${pytestOutput}
+            \`\`\`
+
+            </details>
+
+            ---
+            *Automated by [redteam.yml](../.github/workflows/redteam.yml)*`;
+
+            // Find existing comment to update
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('Red Team Security Suite Results')
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+      - name: Upload simulation report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: redteam-report
+          path: |
+            simulation_output.txt
+            pytest_output.txt
+            tests/redteam/redteam_report.json
+          retention-days: 30
+
+      - name: Fail if any attack was missed
+        if: steps.simulate.outcome == 'failure' || steps.pytest.outcome == 'failure'
+        run: |
+          echo "::error::Red team suite detected gaps in scanner coverage!"
+          echo "One or more attack techniques went undetected."
+          echo "See the simulation report for details."
+          exit 1

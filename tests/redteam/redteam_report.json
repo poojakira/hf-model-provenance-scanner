@@ -1,12 +1,12 @@
 {
   "title": "Red Team Attack Simulation Report",
-  "timestamp": "2026-07-10T23:53:03Z",
+  "timestamp": "2026-08-23T00:10:40Z",
   "summary": {
     "total_attacks": 12,
     "detected": 12,
     "missed": 0,
     "detection_rate_percent": 100.0,
-    "total_time_ms": 189.2
+    "total_time_ms": 1916.2
   },
   "attacks": [
     {
@@ -15,7 +15,7 @@
       "cve": null,
       "detected": true,
       "findings_count": 10,
-      "detection_time_ms": 20.9,
+      "detection_time_ms": 316.5,
       "findings": [
         {
           "rule_id": "HFS-001",
@@ -48,6 +48,12 @@
           "evidence": "subprocess.Popen creationflags=134217728"
         },
         {
+          "rule_id": "HFS-001",
+          "severity": "critical",
+          "message": "subprocess or shell execution whose args contain powershell, cmd.exe, or pwsh",
+          "evidence": "subprocess.Popen creationflags=134217728"
+        },
+        {
           "rule_id": "HFS-003",
           "severity": "critical",
           "message": "base64 string decoded and result passed to exec, eval, subprocess, or os.system",
@@ -70,22 +76,16 @@
           "severity": "critical",
           "message": "Symbolically resolved obfuscated string contains dangerous content",
           "evidence": "Resolved argument: 'https://jsonkeeper.com/b/PAYLOAD'"
-        },
-        {
-          "rule_id": "HFS-072",
-          "severity": "critical",
-          "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
-          "evidence": "Sandbox: code crashed accessing blocked module 'urllib': Traceback (most recent call last):\n  File \"/tmp/tmplypt0hia.py\", line 39, in <module>\n    import urllib.request\n  File \"<frozen importlib._boot"
         }
       ]
     },
     {
-      "name": "CVE-2026-4372 HF Transformers RCE",
+      "name": "Transformers trust_remote_code RCE (2025 research disclosure)",
       "technique": "trust_remote_code=True arbitrary execution",
-      "cve": "CVE-2026-4372",
+      "cve": null,
       "detected": true,
       "findings_count": 4,
-      "detection_time_ms": 54.3,
+      "detection_time_ms": 305.5,
       "findings": [
         {
           "rule_id": "HFS-031",
@@ -118,30 +118,24 @@
       "technique": "API key exfiltration via webhook.site",
       "cve": null,
       "detected": true,
-      "findings_count": 2,
-      "detection_time_ms": 19.7,
+      "findings_count": 1,
+      "detection_time_ms": 333.8,
       "findings": [
         {
           "rule_id": "HFS-012",
           "severity": "high",
           "message": "except: or except Exception: pass wrapping suspicious loader behavior",
           "evidence": "except: pass"
-        },
-        {
-          "rule_id": "HFS-072",
-          "severity": "critical",
-          "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
-          "evidence": "Sandbox: code crashed accessing blocked module 'urllib': Traceback (most recent call last):\n  File \"/tmp/tmpixaydw8d.py\", line 38, in <module>\n    import urllib.request\n  File \"<frozen importlib._boot"
         }
       ]
     },
     {
-      "name": "CVE-2026-46432 LMDeploy RCE",
+      "name": "LMDeploy trust_remote_code bypass (2025 research disclosure)",
       "technique": "Hardcoded trust_remote_code enables RCE",
-      "cve": "CVE-2026-46432",
+      "cve": null,
       "detected": true,
       "findings_count": 2,
-      "detection_time_ms": 55.4,
+      "detection_time_ms": 318.0,
       "findings": [
         {
           "rule_id": "HFS-031",
@@ -162,26 +156,14 @@
       "technique": "Browser cookie theft + requestbin exfil",
       "cve": null,
       "detected": true,
-      "findings_count": 3,
-      "detection_time_ms": 19.8,
+      "findings_count": 1,
+      "detection_time_ms": 310.4,
       "findings": [
         {
           "rule_id": "HFS-012",
           "severity": "high",
           "message": "except: or except Exception: pass wrapping suspicious loader behavior",
           "evidence": "except: pass"
-        },
-        {
-          "rule_id": "HFS-072",
-          "severity": "critical",
-          "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
-          "evidence": "Sandbox: exec() with: <code object <module> at 0x7fed04077290, file \"/root/.pyenv/versions/3.11.15/lib/python3.11/sqlite3/__init__.py\", line 1>"
-        },
-        {
-          "rule_id": "HFS-072",
-          "severity": "critical",
-          "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
-          "evidence": "Sandbox: exec() with: <code object <module> at 0x2298ee80, file \"/root/.pyenv/versions/3.11.15/lib/python3.11/base64.py\", line 1>"
         }
       ]
     },
@@ -191,13 +173,13 @@
       "cve": null,
       "detected": true,
       "findings_count": 1,
-      "detection_time_ms": 18.9,
+      "detection_time_ms": 332.1,
       "findings": [
         {
-          "rule_id": "HFS-072",
+          "rule_id": "HFS-001",
           "severity": "critical",
-          "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
-          "evidence": "Sandbox: exec() with: import os; os.system( 'whoname')"
+          "message": "subprocess or shell execution whose args contain powershell, cmd.exe, or pwsh",
+          "evidence": "exec"
         }
       ]
     },
@@ -207,7 +189,7 @@
       "cve": null,
       "detected": true,
       "findings_count": 1,
-      "detection_time_ms": 0.1,
+      "detection_time_ms": 0.0,
       "findings": [
         {
           "rule_id": "HFS-050",
@@ -277,7 +259,7 @@
       "cve": null,
       "detected": true,
       "findings_count": 2,
-      "detection_time_ms": 0.1,
+      "detection_time_ms": 0.0,
       "findings": [
         {
           "rule_id": "HFS-053",

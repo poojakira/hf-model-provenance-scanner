@@ -9,9 +9,9 @@ The HF Model Provenance Scanner was tested against **12 documented real-world at
 | # | Attack | Source | CVE | Detected | Findings | Time |
 |---|--------|--------|-----|----------|----------|------|
 | 1 | May 2026 Open-OSS/privacy-filter | MLHive, CSO Online |  --  | ✅ | 9 | 22ms |
-| 2 | HF Transformers RCE | DigitalWarfare | CVE-2026-4372 | ✅ | 4 | 18ms |
+| 2 | HF Transformers RCE | DigitalWarfare | -- | ✅ | 4 | 18ms |
 | 3 | LiteLLM Supply Chain | StartupFortune |  --  | ✅ | 1 | 18ms |
-| 4 | LMDeploy trust_remote_code | SentinelOne | CVE-2026-46432 | ✅ | 2 | 18ms |
+| 4 | LMDeploy trust_remote_code | SentinelOne | -- | ✅ | 2 | 18ms |
 | 5 | Acronis TRU Credential Stealer | Acronis |  --  | ✅ | 4 | 21ms |
 | 6 | Multi-layer chr() obfuscation | HF malware campaigns |  --  | ✅ | 1 | 18ms |
 | 7 | JFrog PickleScan Bypass (corrupted) | JFrog Research |  --  | ✅ | 1 | <1ms |
@@ -42,7 +42,7 @@ See `tests/redteam/redteam_report.json` for the full structured output.
 | Attack | PickleScan | ModelScan | Protect AI Guardian | **This Scanner** |
 |--------|:---:|:---:|:---:|:---:|
 | #1 Privacy Filter (source code) | ❌ | ❌ | ❌ | ✅ |
-| #2 CVE-2026-4372 | ❌ | ❌ | ❌ | ✅ |
+| #2 Transformers RCE | ❌ | ❌ | ❌ | ✅ |
 | #3 LiteLLM supply chain | ❌ | ❌ | ❌ | ✅ |
 | #7 Corrupted pickle bypass | ❌ | ❌ | ❌ | ✅ |
 | #8 builtins.eval bypass | ❌ | Partial | Partial | ✅ |

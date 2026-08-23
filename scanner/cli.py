@@ -42,6 +42,7 @@ from scanner.provenance import (
 from scanner.risk import compute_risk
 from scanner.rules.definitions import get_rule
 from scanner.runtime_policy import format_runtime_policy
+from scanner.telemetry import init_telemetry
 from scanner.utils.file_filter import walk_files
 from scanner.utils.hf_api import HFApiClient
 
@@ -459,6 +460,23 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Run as daemon protecting all model processes (requires root)",
     )
+    # Telemetry flags
+    parser.add_argument(
+        "--log-file",
+        metavar="FILE",
+        help="Write structured JSON telemetry logs to FILE (default: stderr)",
+    )
+    parser.add_argument(
+        "--log-level",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        default="WARNING",
+        help="Telemetry log level (default: WARNING)",
+    )
+    parser.add_argument(
+        "--no-telemetry",
+        action="store_true",
+        help="Disable telemetry and structured logging",
+    )
     return parser
 
 
@@ -467,6 +485,15 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     out_format = args.format or ("text" if sys.stdout.isatty() else "json")
+
+    # ── Initialize telemetry ──────────────────────────────────────────────────
+    telemetry_enabled = not getattr(args, "no_telemetry", False)
+    tm = init_telemetry(
+        enabled=telemetry_enabled,
+        log_file=getattr(args, "log_file", None),
+        log_level=getattr(args, "log_level", "WARNING"),
+    )
+    scan_metrics = tm.start_scan(model_id=args.target)
 
     # ── Real-time URL scan ────────────────────────────────────────────────────
     # If the target is a HuggingFace URL, scan it BEFORE downloading weights:
@@ -701,7 +728,29 @@ def main(argv=None):
         severity_order = {"critical": 5, "high": 4, "medium": 3, "low": 2, "info": 1}
         threshold_val = severity_order.get(fail_threshold_str, 4)
         if any(severity_order.get(f.severity.value, 0) >= threshold_val for f in result.findings):
+            # Emit telemetry summary before exit
+            if scan_metrics is not None:
+                scan_metrics.files_analyzed = result.files_scanned
+                scan_metrics.findings_count = len(result.findings)
+                scan_metrics.findings_by_severity = {
+                    s.value: sum(1 for f in result.findings if f.severity == s)
+                    for s in Severity
+                    if any(f.severity == s for f in result.findings)
+                }
+            tm.finish_scan()
             return 1
+
+    # ── Emit telemetry summary ────────────────────────────────────────────────
+    if scan_metrics is not None:
+        scan_metrics.files_analyzed = result.files_scanned
+        scan_metrics.findings_count = len(result.findings)
+        scan_metrics.findings_by_severity = {
+            s.value: sum(1 for f in result.findings if f.severity == s)
+            for s in Severity
+            if any(f.severity == s for f in result.findings)
+        }
+    tm.finish_scan()
+
     return 0
 
 

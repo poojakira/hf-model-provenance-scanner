@@ -1,0 +1,2059 @@
+{
+  "scan_timestamp": "2026-08-22T23:44:43.330972+00:00",
+  "scan_completed": "2026-08-23T00:06:57.093001+00:00",
+  "scan_duration_seconds": 1333.8,
+  "total_models_scanned": 100,
+  "total_models_failed": 0,
+  "total_models_attempted": 100,
+  "total_findings": 83,
+  "total_findings_by_severity": {
+    "critical": 70,
+    "high": 3,
+    "medium": 1,
+    "low": 9,
+    "info": 0
+  },
+  "total_bytes_fetched": 165015487,
+  "models_flagged_malicious": 37,
+  "risk_distribution": {
+    "CRITICAL": 6,
+    "HIGH": 29,
+    "MEDIUM": 1,
+    "LOW": 64
+  },
+  "per_model_results": [
+    {
+      "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+      "status": "scanned",
+      "risk_score": 44,
+      "risk_level": "HIGH",
+      "findings_count": 3,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 2,
+        "info": 0
+      },
+      "scan_duration_ms": 4396,
+      "bytes_fetched": 1598588,
+      "files_listed": 30,
+      "files_scanned": 8,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "google-bert/bert-base-uncased",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3404,
+      "bytes_fetched": 1073250,
+      "files_listed": 16,
+      "files_scanned": 5,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "cross-encoder/ms-marco-MiniLM-L6-v2",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 4277,
+      "bytes_fetched": 1587086,
+      "files_listed": 23,
+      "files_scanned": 6,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "BAAI/bge-small-en-v1.5",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 2794,
+      "bytes_fetched": 547795,
+      "files_listed": 14,
+      "files_scanned": 5,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "google/electra-base-discriminator",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 1843,
+      "bytes_fetched": 525002,
+      "files_listed": 10,
+      "files_scanned": 3,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 4280,
+      "bytes_fetched": 1596689,
+      "files_listed": 28,
+      "files_scanned": 7,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "amazon/chronos-2",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 1559,
+      "bytes_fetched": 20883,
+      "files_listed": 4,
+      "files_scanned": 2,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "BAAI/bge-m3",
+      "status": "scanned",
+      "risk_score": 80,
+      "risk_level": "CRITICAL",
+      "findings_count": 2,
+      "findings_by_severity": {
+        "critical": 2,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3292,
+      "bytes_fetched": 1055285,
+      "files_listed": 30,
+      "files_scanned": 8,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "lpiccinelli/unidepth-v2-vitl14",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 2829,
+      "bytes_fetched": 587568,
+      "files_listed": 5,
+      "files_scanned": 3,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "sentence-transformers/all-mpnet-base-v2",
+      "status": "scanned",
+      "risk_score": 44,
+      "risk_level": "HIGH",
+      "findings_count": 3,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 2,
+        "info": 0
+      },
+      "scan_duration_ms": 4629,
+      "bytes_fetched": 1609015,
+      "files_listed": 28,
+      "files_scanned": 8,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "Qwen/Qwen3-0.6B",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 1989,
+      "bytes_fetched": 46257,
+      "files_listed": 10,
+      "files_scanned": 4,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "google-t5/t5-small",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3014,
+      "bytes_fetched": 543501,
+      "files_listed": 20,
+      "files_scanned": 5,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "openai/clip-vit-base-patch32",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 1571,
+      "bytes_fetched": 529066,
+      "files_listed": 12,
+      "files_scanned": 3,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "timm/mobilenetv3_small_100.lamb_in1k",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 2540,
+      "bytes_fetched": 546642,
+      "files_listed": 5,
+      "files_scanned": 3,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "BAAI/bge-reranker-v2-m3",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 1658,
+      "bytes_fetched": 50712,
+      "files_listed": 13,
+      "files_scanned": 3,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "FacebookAI/xlm-roberta-base",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 2855,
+      "bytes_fetched": 549468,
+      "files_listed": 11,
+      "files_scanned": 4,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "Comfy-Org/MiniMax-H3",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 32179,
+      "bytes_fetched": 1771504,
+      "files_listed": 30,
+      "files_scanned": 28,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "nomic-ai/nomic-embed-text-v1.5",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 2156,
+      "bytes_fetched": 15591,
+      "files_listed": 20,
+      "files_scanned": 4,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "trl-internal-testing/tiny-Qwen2ForCausalLM-2.5",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 2474,
+      "bytes_fetched": 8405,
+      "files_listed": 12,
+      "files_scanned": 4,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "facebook/opt-125m",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 2032,
+      "bytes_fetched": 525761,
+      "files_listed": 12,
+      "files_scanned": 4,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "Qwen/Qwen3-8B",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 6564,
+      "bytes_fetched": 56755,
+      "files_listed": 15,
+      "files_scanned": 8,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "openai-community/gpt2",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 4096,
+      "bytes_fetched": 540626,
+      "files_listed": 26,
+      "files_scanned": 8,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "Qwen/Qwen3.5-9B",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 5438,
+      "bytes_fetched": 114300,
+      "files_listed": 16,
+      "files_scanned": 6,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "BAAI/bge-large-en-v1.5",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3700,
+      "bytes_fetched": 570592,
+      "files_listed": 14,
+      "files_scanned": 5,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "Qwen/Qwen3.6-35B-A3B-FP8",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 54520,
+      "bytes_fetched": 8926608,
+      "files_listed": 56,
+      "files_scanned": 45,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "hexgrad/Kokoro-82M",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 47364,
+      "bytes_fetched": 28791348,
+      "files_listed": 72,
+      "files_scanned": 56,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "nvidia/Qwen3.6-35B-A3B-NVFP4",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 8387,
+      "bytes_fetched": 16832494,
+      "files_listed": 17,
+      "files_scanned": 6,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "intfloat/multilingual-e5-small",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 4791,
+      "bytes_fetched": 1073434,
+      "files_listed": 43,
+      "files_scanned": 8,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 208,
+      "bytes_fetched": 0,
+      "files_listed": 33,
+      "files_scanned": 0,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "BAAI/bge-base-en-v1.5",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3233,
+      "bytes_fetched": 548077,
+      "files_listed": 14,
+      "files_scanned": 5,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "Qwen/Qwen2.5-7B-Instruct",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 5795,
+      "bytes_fetched": 47075,
+      "files_listed": 14,
+      "files_scanned": 7,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "FacebookAI/roberta-base",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3117,
+      "bytes_fetched": 549004,
+      "files_listed": 13,
+      "files_scanned": 4,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "argmaxinc/whisperkit-coreml",
+      "status": "scanned",
+      "risk_score": 100,
+      "risk_level": "CRITICAL",
+      "findings_count": 5,
+      "findings_by_severity": {
+        "critical": 5,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 196789,
+      "bytes_fetched": 43367237,
+      "files_listed": 550,
+      "files_scanned": 322,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "FacebookAI/roberta-large",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 2897,
+      "bytes_fetched": 572934,
+      "files_listed": 12,
+      "files_scanned": 4,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "Comfy-Org/stable-diffusion-v1-5-archive",
+      "status": "scanned",
+      "risk_score": 37,
+      "risk_level": "MEDIUM",
+      "findings_count": 3,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 2,
+        "medium": 1,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 4284,
+      "bytes_fetched": 513314,
+      "files_listed": 5,
+      "files_scanned": 3,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 5013,
+      "bytes_fetched": 1596763,
+      "files_listed": 27,
+      "files_scanned": 7,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "Bingsu/adetailer",
+      "status": "scanned",
+      "risk_score": 100,
+      "risk_level": "CRITICAL",
+      "findings_count": 26,
+      "findings_by_severity": {
+        "critical": 26,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 11101,
+      "bytes_fetched": 6291456,
+      "files_listed": 14,
+      "files_scanned": 12,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "pyannote/speaker-diarization-3.1",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 301,
+      "bytes_fetched": 0,
+      "files_listed": 24,
+      "files_scanned": 0,
+      "is_malicious": false,
+      "errors": [
+        "handler.py: HTTP Error 401: Unauthorized"
+      ]
+    },
+    {
+      "model_id": "Qwen/Qwen2.5-1.5B-Instruct",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 1901,
+      "bytes_fetched": 46743,
+      "files_listed": 10,
+      "files_scanned": 4,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "Qwen/Qwen3.6-27B-FP8",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 81506,
+      "bytes_fetched": 271930,
+      "files_listed": 80,
+      "files_scanned": 69,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "Qwen/Qwen2.5-VL-7B-Instruct",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 6249,
+      "bytes_fetched": 88540,
+      "files_listed": 16,
+      "files_scanned": 8,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "google/gemma-4-26B-A4B-it",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3375,
+      "bytes_fetched": 144609,
+      "files_listed": 12,
+      "files_scanned": 5,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "google/gemma-4-31B-it",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3231,
+      "bytes_fetched": 168407,
+      "files_listed": 12,
+      "files_scanned": 5,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "autogluon/chronos-bolt-small",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 1562,
+      "bytes_fetched": 17881,
+      "files_listed": 4,
+      "files_scanned": 2,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "coqui/XTTS-v2",
+      "status": "scanned",
+      "risk_score": 100,
+      "risk_level": "CRITICAL",
+      "findings_count": 3,
+      "findings_by_severity": {
+        "critical": 3,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3426,
+      "bytes_fetched": 1578299,
+      "files_listed": 18,
+      "files_scanned": 5,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "cross-encoder/ms-marco-MiniLM-L4-v2",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 5002,
+      "bytes_fetched": 1583386,
+      "files_listed": 23,
+      "files_scanned": 6,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "facebook/contriever",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 1814,
+      "bytes_fetched": 525228,
+      "files_listed": 8,
+      "files_scanned": 3,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "meta-llama/Llama-3.2-1B-Instruct",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 960,
+      "bytes_fetched": 0,
+      "files_listed": 13,
+      "files_scanned": 0,
+      "is_malicious": false,
+      "errors": [
+        "config.json: HTTP Error 401: Unauthorized",
+        "generation_config.json: HTTP Error 401: Unauthorized",
+        "model.safetensors: HTTP Error 401: Unauthorized",
+        "original/consolidated.00.pth: HTTP Error 401: Unauthorized",
+        "tokenizer_config.json: HTTP Error 401: Unauthorized"
+      ]
+    },
+    {
+      "model_id": "jonatasgrosman/wav2vec2-large-xlsr-53-japanese",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 1417,
+      "bytes_fetched": 525855,
+      "files_listed": 8,
+      "files_scanned": 2,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "openai/whisper-large-v3-turbo",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 2188,
+      "bytes_fetched": 356575,
+      "files_listed": 13,
+      "files_scanned": 4,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "Qwen/Qwen3.5-4B",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3067,
+      "bytes_fetched": 110111,
+      "files_listed": 14,
+      "files_scanned": 4,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "laion/clap-htsat-fused",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3336,
+      "bytes_fetched": 592214,
+      "files_listed": 11,
+      "files_scanned": 4,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "intfloat/multilingual-e5-large",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 5745,
+      "bytes_fetched": 1096519,
+      "files_listed": 44,
+      "files_scanned": 8,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "openai/gpt-oss-20b",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 7486,
+      "bytes_fetched": 619199,
+      "files_listed": 18,
+      "files_scanned": 9,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "Qwen/Qwen2.5-3B-Instruct",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3626,
+      "bytes_fetched": 57824,
+      "files_listed": 12,
+      "files_scanned": 5,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "Qwen/Qwen3-Embedding-0.6B",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3641,
+      "bytes_fetched": 44255,
+      "files_listed": 12,
+      "files_scanned": 5,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "distilbert/distilbert-base-uncased",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 2739,
+      "bytes_fetched": 537467,
+      "files_listed": 12,
+      "files_scanned": 4,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "farbodtavakkoli/OTel-2.0-LLM-31B-IT",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 20099,
+      "bytes_fetched": 103143,
+      "files_listed": 21,
+      "files_scanned": 16,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 2022,
+      "bytes_fetched": 40494,
+      "files_listed": 10,
+      "files_scanned": 4,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "pyannote/wespeaker-voxceleb-resnet34-LM",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 980,
+      "bytes_fetched": 524288,
+      "files_listed": 4,
+      "files_scanned": 1,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "meta-llama/Llama-3.1-8B-Instruct",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3350,
+      "bytes_fetched": 0,
+      "files_listed": 17,
+      "files_scanned": 0,
+      "is_malicious": false,
+      "errors": [
+        "config.json: HTTP Error 401: Unauthorized",
+        "generation_config.json: HTTP Error 401: Unauthorized",
+        "model-00001-of-00004.safetensors: HTTP Error 401: Unauthorized",
+        "model-00002-of-00004.safetensors: HTTP Error 401: Unauthorized",
+        "model-00003-of-00004.safetensors: HTTP Error 401: Unauthorized",
+        "model-00004-of-00004.safetensors: HTTP Error 401: Unauthorized",
+        "original/consolidated.00.pth: HTTP Error 401: Unauthorized",
+        "tokenizer_config.json: HTTP Error 401: Unauthorized"
+      ]
+    },
+    {
+      "model_id": "Qwen/Qwen3.6-27B",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 19232,
+      "bytes_fetched": 171724,
+      "files_listed": 29,
+      "files_scanned": 18,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "openai/clip-vit-large-patch14",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 2639,
+      "bytes_fetched": 601568,
+      "files_listed": 13,
+      "files_scanned": 4,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "unsloth/Qwen3.8-27B-GGUF",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 1490,
+      "bytes_fetched": 3760,
+      "files_listed": 33,
+      "files_scanned": 1,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "Comfy-Org/z_image_turbo",
+      "status": "scanned",
+      "risk_score": 15,
+      "risk_level": "LOW",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 1,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 13776,
+      "bytes_fetched": 600341,
+      "files_listed": 11,
+      "files_scanned": 9,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "Qwen/Qwen2.5-VL-3B-Instruct",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 4074,
+      "bytes_fetched": 99315,
+      "files_listed": 14,
+      "files_scanned": 5,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "pyannote/segmentation-3.0",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 451,
+      "bytes_fetched": 0,
+      "files_listed": 6,
+      "files_scanned": 0,
+      "is_malicious": false,
+      "errors": [
+        "pytorch_model.bin: HTTP Error 401: Unauthorized"
+      ]
+    },
+    {
+      "model_id": "autogluon/chronos-2",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 2153,
+      "bytes_fetched": 20883,
+      "files_listed": 4,
+      "files_scanned": 2,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "intfloat/multilingual-e5-base",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 4657,
+      "bytes_fetched": 1073576,
+      "files_listed": 23,
+      "files_scanned": 8,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "deepseek-ai/DeepSeek-R1",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 236322,
+      "bytes_fetched": 11979456,
+      "files_listed": 174,
+      "files_scanned": 168,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "Qwen/Qwen3.6-35B-A3B",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 32920,
+      "bytes_fetched": 151974,
+      "files_listed": 40,
+      "files_scanned": 29,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "answerdotai/ModernBERT-base",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 2850,
+      "bytes_fetched": 560395,
+      "files_listed": 16,
+      "files_scanned": 4,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "FacebookAI/xlm-roberta-large",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 4854,
+      "bytes_fetched": 575054,
+      "files_listed": 17,
+      "files_scanned": 6,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "google/gemma-4-E4B-it",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 2989,
+      "bytes_fetched": 289483,
+      "files_listed": 9,
+      "files_scanned": 4,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "pyannote/speaker-diarization-community-1",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 1571,
+      "bytes_fetched": 0,
+      "files_listed": 10,
+      "files_scanned": 0,
+      "is_malicious": false,
+      "errors": [
+        "embedding/pytorch_model.bin: HTTP Error 401: Unauthorized",
+        "segmentation/pytorch_model.bin: HTTP Error 401: Unauthorized"
+      ]
+    },
+    {
+      "model_id": "Qwen/Qwen3-VL-8B-Instruct",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 6184,
+      "bytes_fetched": 104731,
+      "files_listed": 16,
+      "files_scanned": 7,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "Qwen/Qwen3-1.7B",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3231,
+      "bytes_fetched": 46481,
+      "files_listed": 12,
+      "files_scanned": 5,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "Qwen/Qwen3-4B",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 4446,
+      "bytes_fetched": 56505,
+      "files_listed": 13,
+      "files_scanned": 6,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "jonatasgrosman/wav2vec2-large-xlsr-53-portuguese",
+      "status": "scanned",
+      "risk_score": 50,
+      "risk_level": "HIGH",
+      "findings_count": 6,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 5,
+        "info": 0
+      },
+      "scan_duration_ms": 3653,
+      "bytes_fetched": 532263,
+      "files_listed": 24,
+      "files_scanned": 3,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "Comfy-Org/Wan_2.2_ComfyUI_Repackaged",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 61593,
+      "bytes_fetched": 5891056,
+      "files_listed": 45,
+      "files_scanned": 43,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "google/gemma-3-1b-it",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3193,
+      "bytes_fetched": 0,
+      "files_listed": 10,
+      "files_scanned": 0,
+      "is_malicious": false,
+      "errors": [
+        "config.json: HTTP Error 401: Unauthorized",
+        "generation_config.json: HTTP Error 401: Unauthorized",
+        "model.safetensors: HTTP Error 401: Unauthorized",
+        "tokenizer_config.json: HTTP Error 401: Unauthorized"
+      ]
+    },
+    {
+      "model_id": "ibm-granite/granite-embedding-small-english-r2",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 4952,
+      "bytes_fetched": 553750,
+      "files_listed": 11,
+      "files_scanned": 5,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "microsoft/mdeberta-v3-base",
+      "status": "scanned",
+      "risk_score": 80,
+      "risk_level": "CRITICAL",
+      "findings_count": 2,
+      "findings_by_severity": {
+        "critical": 2,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3419,
+      "bytes_fetched": 1049207,
+      "files_listed": 9,
+      "files_scanned": 4,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "amazon/chronos-bolt-small",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 1660,
+      "bytes_fetched": 17881,
+      "files_listed": 4,
+      "files_scanned": 2,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "facebook/dinov2-small",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 2586,
+      "bytes_fetched": 548491,
+      "files_listed": 6,
+      "files_scanned": 3,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "openai/gpt-oss-120b",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 25331,
+      "bytes_fetched": 662627,
+      "files_listed": 37,
+      "files_scanned": 27,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "ProsusAI/finbert",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 2236,
+      "bytes_fetched": 525298,
+      "files_listed": 9,
+      "files_scanned": 3,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "google/vit-base-patch16-224",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3462,
+      "bytes_fetched": 617181,
+      "files_listed": 8,
+      "files_scanned": 3,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "BAAI/bge-small-zh-v1.5",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3807,
+      "bytes_fetched": 533493,
+      "files_listed": 13,
+      "files_scanned": 5,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "ornith-ai/Ornith-1.0-9B-GGUF",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 179,
+      "bytes_fetched": 0,
+      "files_listed": 9,
+      "files_scanned": 0,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "Qwen/Qwen3-ASR-1.7B",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 6093,
+      "bytes_fetched": 105519,
+      "files_listed": 12,
+      "files_scanned": 5,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "openai/whisper-large-v3",
+      "status": "scanned",
+      "risk_score": 100,
+      "risk_level": "CRITICAL",
+      "findings_count": 3,
+      "findings_by_severity": {
+        "critical": 3,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 8029,
+      "bytes_fetched": 2160570,
+      "files_listed": 21,
+      "files_scanned": 9,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "dphn/dolphin-2.9.1-yi-1.5-34b",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 22940,
+      "bytes_fetched": 66059,
+      "files_listed": 24,
+      "files_scanned": 18,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "meta-llama/Prompt-Guard-86M",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 724,
+      "bytes_fetched": 0,
+      "files_listed": 11,
+      "files_scanned": 0,
+      "is_malicious": false,
+      "errors": [
+        "config.json: HTTP Error 401: Unauthorized",
+        "model.safetensors: HTTP Error 401: Unauthorized",
+        "tokenizer_config.json: HTTP Error 401: Unauthorized"
+      ]
+    },
+    {
+      "model_id": "nomic-ai/nomic-embed-text-v1",
+      "status": "scanned",
+      "risk_score": 40,
+      "risk_level": "HIGH",
+      "findings_count": 1,
+      "findings_by_severity": {
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 4199,
+      "bytes_fetched": 539354,
+      "files_listed": 15,
+      "files_scanned": 5,
+      "is_malicious": true,
+      "errors": []
+    },
+    {
+      "model_id": "Qwen/Qwen2.5-7B-Instruct-AWQ",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 4440,
+      "bytes_fetched": 90757,
+      "files_listed": 12,
+      "files_scanned": 5,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "datasocietyco/bge-base-en-v1.5-course-recommender-v5",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 2638,
+      "bytes_fetched": 24646,
+      "files_listed": 12,
+      "files_scanned": 4,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "google-bert/bert-base-multilingual-uncased",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 3750,
+      "bytes_fetched": 549037,
+      "files_listed": 10,
+      "files_scanned": 4,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "pyannote/voice-activity-detection",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 159,
+      "bytes_fetched": 0,
+      "files_listed": 3,
+      "files_scanned": 0,
+      "is_malicious": false,
+      "errors": []
+    },
+    {
+      "model_id": "pyannote/segmentation",
+      "status": "scanned",
+      "risk_score": 0,
+      "risk_level": "LOW",
+      "findings_count": 0,
+      "findings_by_severity": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "scan_duration_ms": 628,
+      "bytes_fetched": 0,
+      "files_listed": 28,
+      "files_scanned": 0,
+      "is_malicious": false,
+      "errors": [
+        "pytorch_model.bin: HTTP Error 401: Unauthorized"
+      ]
+    }
+  ]
+}

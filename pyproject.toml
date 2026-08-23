@@ -3,22 +3,24 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "hf-scanner"
+name = "hf-model-provenance-scanner"
 version = "1.0.0"
-description = "ML supply chain provenance scanner for Hugging Face repositories"
+description = "Scan Hugging Face model repos for pickle exploits, supply-chain signals, and provenance issues without downloading full weights"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
 authors = [{name = "Pooja Kiran"}]
-keywords = ["security", "ml", "huggingface", "supply-chain", "provenance", "sarif"]
+keywords = ["security", "ml", "huggingface", "supply-chain", "provenance", "sarif", "pickle", "model-security"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
     "Topic :: Security",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
 ]
 dependencies = [
     "psutil>=5.9",

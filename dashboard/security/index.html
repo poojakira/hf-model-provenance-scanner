@@ -192,9 +192,9 @@ updateClock();setInterval(updateClock,1000);
 // Attack data
 var attacks=[
 {name:"May 2026 Open-OSS/privacy-filter",technique:"SSL bypass + base64 PowerShell + jsonkeeper C2",cve:"",detected:true,severity:"critical",time:"22.4ms",findings:9},
-{name:"CVE-2026-4372 HF Transformers RCE",technique:"trust_remote_code=True execution",cve:"CVE-2026-4372",detected:true,severity:"critical",time:"18.2ms",findings:4},
+{name:"HF Transformers trust_remote_code RCE",technique:"trust_remote_code=True execution",cve:null,detected:true,severity:"critical",time:"18.2ms",findings:4},
 {name:"LiteLLM Supply Chain (March 2026)",technique:"API key exfil via webhook.site",cve:"",detected:true,severity:"high",time:"18.3ms",findings:1},
-{name:"CVE-2026-46432 LMDeploy RCE",technique:"Hardcoded trust_remote_code",cve:"CVE-2026-46432",detected:true,severity:"critical",time:"17.7ms",findings:2},
+{name:"LMDeploy trust_remote_code bypass",technique:"Hardcoded trust_remote_code",cve:null,detected:true,severity:"critical",time:"17.7ms",findings:2},
 {name:"Acronis TRU Credential Stealer",technique:"Browser cookies + requestbin",cve:"",detected:true,severity:"high",time:"20.9ms",findings:4},
 {name:"Multi-layer chr() obfuscation",technique:"reversed + chr list + exec",cve:"",detected:true,severity:"critical",time:"17.9ms",findings:1},
 {name:"JFrog Bypass: Corrupted pickle",technique:"No STOP opcode, exec before deser",cve:"",detected:true,severity:"critical",time:"<1ms",findings:1},
