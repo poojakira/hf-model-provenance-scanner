@@ -19,21 +19,28 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from scanner.provenance.ledger import (
-    GENESIS_HASH,
-    VALID_EVENT_TYPES,
-    LedgerEntry,
-    ProvenanceLedger,
-)
-from scanner.provenance.query import (
-    full_history,
-    query_by_actor,
-    query_by_model,
-    query_by_time_range,
-    who_modified,
-)
-from scanner.provenance.verifier import verify_ledger
-from scanner.signing.ed25519 import ModelSigner
+try:
+    from scanner.provenance.ledger import (
+        GENESIS_HASH,
+        VALID_EVENT_TYPES,
+        LedgerEntry,
+        ProvenanceLedger,
+    )
+    from scanner.provenance.query import (
+        full_history,
+        query_by_actor,
+        query_by_model,
+        query_by_time_range,
+        who_modified,
+    )
+    from scanner.provenance.verifier import verify_ledger
+    from scanner.signing.ed25519 import ModelSigner
+
+    _HAS_CRYPTO = True
+except ImportError:
+    _HAS_CRYPTO = False
+
+pytestmark = pytest.mark.skipif(not _HAS_CRYPTO, reason="cryptography package not installed")
 
 
 @pytest.fixture

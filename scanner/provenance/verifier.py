@@ -16,7 +16,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from scanner.signing.ed25519 import ModelSigner
+try:
+    from scanner.signing.ed25519 import ModelSigner
+
+    _HAS_SIGNING = True
+except ImportError:
+    _HAS_SIGNING = False
+    ModelSigner = None  # type: ignore[assignment,misc]
 
 from .ledger import GENESIS_HASH, VALID_EVENT_TYPES
 
