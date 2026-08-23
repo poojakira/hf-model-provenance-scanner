@@ -121,7 +121,7 @@ from scanner.signing.ed25519 import ModelSigner
 private_pem, public_pem = ModelSigner.generate_keypair()
 ledger = ProvenanceLedger("audit.jsonl", private_key_pem=private_pem, public_key_pem=public_pem)
 ledger.append_event("model_deployed", actor="ci-bot", subject="bert-base-uncased", details={"env": "prod"})
-# Every entry is signed and hash-chained — tampering is detectable
+# Every entry is signed and hash-chained  -  tampering is detectable
 ```
 
 ## Quick Start

@@ -192,4 +192,4 @@ Input → Format Detection → Format-Specific Parser → Detection Engines → 
 
 ## Questions?
 
-Open a discussion on GitHub or reach out to the maintainers. We welcome all skill levels — from first-time contributors to experienced security researchers.
+Open a discussion on GitHub or reach out to the maintainers. We welcome all skill levels  -  from first-time contributors to experienced security researchers.
