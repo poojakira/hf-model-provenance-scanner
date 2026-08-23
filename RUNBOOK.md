@@ -36,7 +36,7 @@ hf-scanner bert-base-uncased --format sarif --output findings.sarif
 hf-scanner bert-base-uncased --format json --output results.json
 
 # With severity threshold (exit code 1 if findings >= threshold)
-hf-scanner microsoft/phi-2 --fail-on critical
+hf-scanner bert-base-uncased --fail-on critical
 
 # With telemetry logging
 hf-scanner bert-base-uncased --format text --log-level INFO
