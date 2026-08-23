@@ -106,9 +106,9 @@ class TestCVE2024_5480_PickleRCE:  # noqa: N801
             # Wrap pattern in minimal pickle frame
             payload = b"\x80\x04" + pattern + b"R."
             matches = detect_pickle_rce(payload)
-            assert any(m["cve"] == "CVE-2024-5480" for m in matches), (
-                f"Pattern not detected: {pattern!r}"
-            )
+            assert any(
+                m["cve"] == "CVE-2024-5480" for m in matches
+            ), f"Pattern not detected: {pattern!r}"
 
 
 class TestJFrog2024_MaliciousPyTorchModels:  # noqa: N801

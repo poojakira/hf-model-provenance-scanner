@@ -41,9 +41,9 @@ class TestAllAttackTechniques:
                 assert has_finding, f"Attack '{attack_technique.name}' not detected at all"
             else:
                 high_sev = any(s in ("critical", "high") for s in severities)
-                assert high_sev, (
-                    f"Attack '{attack_technique.name}' detected but severity too low: {severities}"
-                )
+                assert (
+                    high_sev
+                ), f"Attack '{attack_technique.name}' detected but severity too low: {severities}"
 
 
 class TestPickleAttacks:
