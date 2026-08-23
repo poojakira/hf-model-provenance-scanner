@@ -9,9 +9,7 @@ across pickle, safetensors, GGUF, and Python source categories.
 """
 
 from tests.redteam.conftest import (
-    ATTACK_TECHNIQUES,
     AttackTechnique,
-    get_techniques_by_category,
     run_detection,
 )
 
@@ -40,9 +38,7 @@ class TestAllAttackTechniques:
             # as they indicate risk rather than confirmed malicious behavior
             if attack_technique.category == "supply_chain":
                 has_finding = len(findings) > 0
-                assert has_finding, (
-                    f"Attack '{attack_technique.name}' not detected at all"
-                )
+                assert has_finding, f"Attack '{attack_technique.name}' not detected at all"
             else:
                 high_sev = any(s in ("critical", "high") for s in severities)
                 assert high_sev, (

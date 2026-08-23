@@ -6,8 +6,6 @@ import os
 import tempfile
 import time
 
-import pytest
-
 from scanner.telemetry import (
     JSONFormatter,
     ScanMetrics,
@@ -148,7 +146,7 @@ class TestTelemetryManager:
             for handler in tm.logger.handlers:
                 handler.flush()
 
-            with open(log_path, "r", encoding="utf-8") as f:
+            with open(log_path, encoding="utf-8") as f:
                 lines = [line.strip() for line in f if line.strip()]
 
             assert len(lines) >= 2  # at least start and finish
@@ -180,7 +178,7 @@ class TestNoTelemetry:
             for handler in tm.logger.handlers:
                 handler.flush()
 
-            with open(log_path, "r", encoding="utf-8") as f:
+            with open(log_path, encoding="utf-8") as f:
                 content = f.read()
 
             assert content == ""
@@ -230,7 +228,7 @@ class TestLogLevelFiltering:
             for handler in tm.logger.handlers:
                 handler.flush()
 
-            with open(log_path, "r", encoding="utf-8") as f:
+            with open(log_path, encoding="utf-8") as f:
                 lines = [line.strip() for line in f if line.strip()]
 
             messages = [json.loads(line)["message"] for line in lines]
@@ -254,7 +252,7 @@ class TestLogLevelFiltering:
             for handler in tm.logger.handlers:
                 handler.flush()
 
-            with open(log_path, "r", encoding="utf-8") as f:
+            with open(log_path, encoding="utf-8") as f:
                 lines = [line.strip() for line in f if line.strip()]
 
             messages = [json.loads(line)["message"] for line in lines]
@@ -278,7 +276,7 @@ class TestLogLevelFiltering:
             for handler in tm.logger.handlers:
                 handler.flush()
 
-            with open(log_path, "r", encoding="utf-8") as f:
+            with open(log_path, encoding="utf-8") as f:
                 lines = [line.strip() for line in f if line.strip()]
 
             messages = [json.loads(line)["message"] for line in lines]

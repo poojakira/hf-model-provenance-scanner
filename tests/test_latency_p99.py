@@ -82,12 +82,12 @@ class TestLatencyAndFalsePositives:
         """GPT-2 scan P99 latency stays under 200 ms."""
         timings = [_scan_once(GPT2_SAFETENSORS, GPT2_CONFIG, "gpt2") for _ in range(N_RUNS)]
         p99 = _p99(timings)
-        print(f"\n  GPT-2 P99={p99:.1f}ms mean={sum(timings)/len(timings):.1f}ms")
+        print(f"\n  GPT-2 P99={p99:.1f}ms mean={sum(timings) / len(timings):.1f}ms")
         assert p99 < P99_LIMIT_MS, f"GPT-2 P99 {p99:.1f}ms > {P99_LIMIT_MS}ms"
 
     def test_llama3_8b_p99_under_200ms(self):
         """Llama-3-8B scan P99 latency stays under 200 ms."""
         timings = [_scan_once(LLAMA3_SAFETENSORS, LLAMA3_CONFIG, "llama3") for _ in range(N_RUNS)]
         p99 = _p99(timings)
-        print(f"\n  Llama-3-8B P99={p99:.1f}ms mean={sum(timings)/len(timings):.1f}ms")
+        print(f"\n  Llama-3-8B P99={p99:.1f}ms mean={sum(timings) / len(timings):.1f}ms")
         assert p99 < P99_LIMIT_MS, f"Llama-3-8B P99 {p99:.1f}ms > {P99_LIMIT_MS}ms"

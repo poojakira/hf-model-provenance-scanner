@@ -166,9 +166,9 @@ def test_oversized_pickle_rejected_via_tempfile():
     try:
         findings = analyze_pickle_file(tf_path, oversized_data)
         rule_ids = {f.rule_id for f in findings}
-        assert (
-            "HFS-098" in rule_ids
-        ), f"analyze_pickle_file did not return HFS-098 for oversized data; got: {rule_ids}"
+        assert "HFS-098" in rule_ids, (
+            f"analyze_pickle_file did not return HFS-098 for oversized data; got: {rule_ids}"
+        )
     finally:
         os.unlink(tf_path)
 
@@ -209,9 +209,9 @@ def test_malformed_pickle_handled():
         # Must not raise  --  must return a list (possibly empty, possibly with findings)
         try:
             findings = scan_pickle_bytes(f"malformed_{i}.pkl", bad_data)
-            assert isinstance(
-                findings, list
-            ), f"scan_pickle_bytes returned non-list for input {i}: {type(findings)}"
+            assert isinstance(findings, list), (
+                f"scan_pickle_bytes returned non-list for input {i}: {type(findings)}"
+            )
         except Exception as exc:
             pytest.fail(
                 f"scan_pickle_bytes raised unhandled {type(exc).__name__} for malformed input {i}: {exc}\n"
