@@ -136,10 +136,10 @@ class RuntimeInterceptor:
             """Intercepted torch.load that scans before loading."""
             findings = []
 
-            if isinstance(f, (str, os.PathLike)):
+            if isinstance(f, str | os.PathLike):
                 findings = interceptor._scan_file(f)
                 source = str(f)
-            elif isinstance(f, (io.BufferedReader, io.FileIO)):
+            elif isinstance(f, io.BufferedReader | io.FileIO):
                 # Read content, scan, then seek back
                 if hasattr(f, "name"):
                     findings = interceptor._scan_file(f.name)

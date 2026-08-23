@@ -21,7 +21,7 @@ from scanner.models import Finding, Severity
 from scanner.runtime.interceptor import RuntimeInterceptor, SecurityError
 from scanner.runtime.policy_engine import (
     PolicyEngine,
-    PolicyViolation,
+    PolicyViolationError,
     RuntimePolicy,
     load_policy,
 )
@@ -278,7 +278,7 @@ class TestPolicyEngine(unittest.TestCase):
             os.unlink(policy_path)
 
     def test_network_block_non_allowlisted(self):
-        """Connections to non-allowlisted endpoints should raise PolicyViolation."""
+        """Connections to non-allowlisted endpoints should raise PolicyViolationError."""
         policy = RuntimePolicy(
             allowed_endpoints=["api.huggingface.co:443"],
             network_action="block",
@@ -289,7 +289,7 @@ class TestPolicyEngine(unittest.TestCase):
         engine.check_network_connection("api.huggingface.co", 443)
 
         # Non-allowlisted endpoint raises
-        with self.assertRaises(PolicyViolation) as ctx:
+        with self.assertRaises(PolicyViolationError) as ctx:
             engine.check_network_connection("evil-server.com", 4444)
         self.assertIn("not_allowlisted", ctx.exception.rule)
 
@@ -315,7 +315,7 @@ class TestPolicyEngine(unittest.TestCase):
         )
         engine = PolicyEngine(policy=policy)
 
-        with self.assertRaises(PolicyViolation) as ctx:
+        with self.assertRaises(PolicyViolationError) as ctx:
             engine.check_child_process("/usr/bin/curl", ["curl", "http://evil.com"])
         self.assertIn("child_spawn_blocked", ctx.exception.rule)
 
@@ -332,7 +332,7 @@ class TestPolicyEngine(unittest.TestCase):
         engine.check_child_process("/usr/bin/python", ["python", "-c", "print('hi')"])
 
         # Disallowed should raise
-        with self.assertRaises(PolicyViolation):
+        with self.assertRaises(PolicyViolationError):
             engine.check_child_process("/usr/bin/curl", ["curl", "http://evil.com"])
 
     def test_file_write_outside_allowed_dirs(self):
@@ -347,7 +347,7 @@ class TestPolicyEngine(unittest.TestCase):
         engine.check_file_write(os.path.join(tempfile.gettempdir(), "test.txt"))
 
         # Write outside is blocked
-        with self.assertRaises(PolicyViolation) as ctx:
+        with self.assertRaises(PolicyViolationError) as ctx:
             engine.check_file_write("/etc/shadow")
         self.assertIn("not_allowlisted", ctx.exception.rule)
 
@@ -359,7 +359,7 @@ class TestPolicyEngine(unittest.TestCase):
         )
         engine = PolicyEngine(policy=policy)
 
-        with self.assertRaises(PolicyViolation) as ctx:
+        with self.assertRaises(PolicyViolationError) as ctx:
             engine.check_file_write("/etc/passwd")
         self.assertIn("blocked_path", ctx.exception.rule)
 
@@ -375,7 +375,7 @@ class TestPolicyEngine(unittest.TestCase):
         engine.check_memory_usage(512)
 
         # Over limit raises
-        with self.assertRaises(PolicyViolation) as ctx:
+        with self.assertRaises(PolicyViolationError) as ctx:
             engine.check_memory_usage(2048)
         self.assertIn("memory_exceeded", ctx.exception.rule)
 

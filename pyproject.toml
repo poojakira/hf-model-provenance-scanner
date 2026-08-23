@@ -71,6 +71,7 @@ ignore = [
     "S603",
     "S110",
     "S112",
+    "S311",
 ]
 
 [tool.pytest.ini_options]

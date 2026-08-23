@@ -30,7 +30,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-class PolicyViolation(Exception):
+class PolicyViolationError(Exception):
     """Raised when a policy violation occurs and action is 'block'."""
 
     def __init__(self, message: str, rule: str, details: dict | None = None):
@@ -213,7 +213,7 @@ class PolicyEngine:
             remote_port: The remote port number.
 
         Raises:
-            PolicyViolation: If the connection is blocked by policy.
+            PolicyViolationError: If the connection is blocked by policy.
         """
         endpoint = f"{remote_host}:{remote_port}"
 
@@ -245,7 +245,7 @@ class PolicyEngine:
             cmdline: Full command line arguments.
 
         Raises:
-            PolicyViolation: If the process spawn is blocked by policy.
+            PolicyViolationError: If the process spawn is blocked by policy.
         """
         if self.policy.allow_child_processes:
             # Check if executable is in allowed list
@@ -276,7 +276,7 @@ class PolicyEngine:
             file_path: Path to the file being written.
 
         Raises:
-            PolicyViolation: If the write is blocked by policy.
+            PolicyViolationError: If the write is blocked by policy.
         """
         path = Path(file_path).resolve()
         path_str = str(path)
@@ -319,7 +319,7 @@ class PolicyEngine:
             memory_mb: Current memory usage in megabytes.
 
         Raises:
-            PolicyViolation: If memory exceeds limit and action is 'block'.
+            PolicyViolationError: If memory exceeds limit and action is 'block'.
         """
         if memory_mb > self.policy.max_memory_mb:
             self._handle_violation(
@@ -375,7 +375,7 @@ class PolicyEngine:
             logger.warning("Policy ALERT [%s]: %s", rule, message)
         elif action == "block":
             logger.error("Policy BLOCK [%s]: %s", rule, message)
-            raise PolicyViolation(message, rule=rule, details=details)
+            raise PolicyViolationError(message, rule=rule, details=details)
 
     def _monitor_loop(self, interval: float) -> None:
         """Background monitoring loop checking for policy violations."""
@@ -446,7 +446,7 @@ class PolicyEngine:
                     remote_port = conn.raddr.port
                     try:
                         self.check_network_connection(remote_host, remote_port)
-                    except PolicyViolation:
+                    except PolicyViolationError:
                         # In monitor loop, downgrade block to alert to avoid crashing
                         pass
         except (psutil.AccessDenied, psutil.NoSuchProcess):
