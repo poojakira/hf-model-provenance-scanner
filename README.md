@@ -107,6 +107,8 @@ Checks accuracy, bias, and drift without ML dependencies:
 from scanner.quality import ModelQualityEvaluator
 evaluator = ModelQualityEvaluator()
 report = evaluator.evaluate(predictions, labels, groups=demographic_groups)
+print(f"Bias passed: {report.bias_report.passed}")
+print(f"Drift: {report.drift_report.severity}")
 ```
 
 ### Cryptographic Provenance Ledger
@@ -114,8 +116,11 @@ Append-only, hash-chained, Ed25519-signed event log tracking who did what when:
 
 ```python
 from scanner.provenance import ProvenanceLedger
-ledger = ProvenanceLedger("audit.jsonl", private_key_pem=key)
-ledger.append("model_deployed", actor="ci-bot", subject="bert-base-uncased", details={"env": "prod"})
+from scanner.signing.ed25519 import ModelSigner
+
+private_pem, public_pem = ModelSigner.generate_keypair()
+ledger = ProvenanceLedger("audit.jsonl", private_key_pem=private_pem, public_key_pem=public_pem)
+ledger.append_event("model_deployed", actor="ci-bot", subject="bert-base-uncased", details={"env": "prod"})
 # Every entry is signed and hash-chained — tampering is detectable
 ```
 
