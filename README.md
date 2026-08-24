@@ -101,7 +101,7 @@ Hugging Face Hub (HTTP API)
 | `scanner/attack_mapping/` | Maps findings to MITRE ATT&CK v19 technique IDs |
 | `scanner/provenance/` | Hash-chained, Ed25519-signed event ledger |
 | `scanner/signing/` | Ed25519 key generation, signing, and verification |
-| `scanner/quality/` | Model quality evaluation (bias, drift, accuracy monitoring) |
+| `scanner/quality/` | Model quality evaluation (bias, drift, accuracy monitoring) — **experimental, optional**; not part of the core security scanning pipeline |
 | `scanner/runtime/` | Runtime interception of `torch.load()` and `from_pretrained()` |
 | `scanner/sbom/` | CycloneDX 1.5 SBOM generation |
 | `scanner/formatters/` | SARIF, JSON, text output formatting |
@@ -244,6 +244,8 @@ ledger.append_event("model_deployed", actor="ci-bot", subject="bert-base-uncased
 ```
 
 ### Model Quality Evaluation
+
+> **Note:** The quality module is experimental and optional. It is not part of the core security scanning pipeline. The scanner's primary focus is detecting malicious code execution vectors (pickle exploits, supply-chain manipulation, provenance gaps). Quality/bias evaluation is provided as a convenience for teams that want a lightweight check alongside security scanning, but it should not be considered a production-grade fairness or drift monitoring solution.
 
 ```python
 from scanner.quality import ModelQualityEvaluator

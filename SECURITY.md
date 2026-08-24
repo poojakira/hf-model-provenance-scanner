@@ -33,4 +33,4 @@ This project prefers coordinated disclosure. Reporter credit is optional and req
 
 ## Security Assumptions
 
-See `LIMITATIONS.md` for current boundaries and unsupported cases. A complete threat model is not yet published, so this repository must not be described as production-ready.
+See the "Limitations" section of `README.md` for current boundaries and unsupported cases. A complete threat model is not yet published, so this repository must not be described as production-ready.
