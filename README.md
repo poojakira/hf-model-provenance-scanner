@@ -85,7 +85,7 @@ Hugging Face Hub (HTTP API)
 | `scanner/attack_mapping/` | Maps findings to MITRE ATT&CK v19 technique IDs |
 | `scanner/provenance/` | Hash-chained, Ed25519-signed event ledger |
 | `scanner/signing/` | Ed25519 key generation, signing, and verification |
-| `scanner/quality/` | Model quality evaluation (bias, drift, accuracy monitoring) — **experimental, optional**; not part of the core security scanning pipeline |
+| `scanner/quality/` | Model quality evaluation (bias, drift, accuracy monitoring) -- **experimental, optional**; not part of the core security scanning pipeline |
 | `scanner/runtime/` | Runtime interception of `torch.load()` and `from_pretrained()` |
 | `scanner/sbom/` | CycloneDX 1.5 SBOM generation |
 | `scanner/formatters/` | SARIF, JSON, text output formatting |
@@ -192,10 +192,10 @@ hf-scanner bert-base-uncased --format sarif --output findings.sarif
 hf-scanner bert-base-uncased --fail-on critical
 
 # Generate an AI Bill of Materials
-hf-scanner bert-base-uncased --aibom --output model-sbom.json
+hf-scanner bert-base-uncased --aibom model-sbom.json
 
 # Scan with a custom policy
-hf-scanner bert-base-uncased --policy ./policy.yaml
+hf-scanner bert-base-uncased --config ./policy.yaml
 ```
 
 ### Runtime Protection
@@ -312,7 +312,7 @@ docker run --rm hf-scanner bert-base-uncased --format text
 - 12 purpose-built attack fixtures covering known exploit patterns
 - 5 benign models (bert-base-uncased, gpt2, etc.) as negative controls
 - Top 100 most-downloaded HuggingFace models scanned for false-positive measurement
-- 350 automated tests covering static scanning, runtime interception, model quality evaluation, and cryptographic provenance
+- 357 automated tests covering static scanning, runtime interception, model quality evaluation, and cryptographic provenance
 
 ### Results
 
@@ -338,7 +338,7 @@ docker run --rm hf-scanner bert-base-uncased --format text
 
 | Criterion | Status |
 |-----------|--------|
-| Test coverage | 350 tests passing (Python 3.10/3.11/3.12) |
+| Test coverage | 357 tests passing (Python 3.10/3.11/3.12) |
 | CI pipeline | GitHub Actions, green on all supported Python versions |
 | Linting | Ruff with security-focused rule selection |
 | Output standards | SARIF 2.1, CycloneDX 1.5 |
