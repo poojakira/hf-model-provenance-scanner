@@ -106,3 +106,11 @@ Known limits:
 - Security scans are build targets; dependency advisories can change after this local snapshot.
 - No production-readiness or benchmark-certification claim is made from local checks alone.
 <!-- /engineering-update-2026-07-27 -->
+
+## Additional Documentation
+
+- [INCIDENT_RUNBOOK.md](INCIDENT_RUNBOOK.md) - incident response for supply-chain scanner
+- [docs/API_VERSIONING.md](docs/API_VERSIONING.md) - CLI and API stability guarantees
+- [docs/PERFORMANCE_BASELINE.md](docs/PERFORMANCE_BASELINE.md) - scan performance baselines
+- [enchmarks/scan_perf.py](benchmarks/scan_perf.py) - performance regression gate
+- [	ests/test_integration_hf.py](tests/test_integration_hf.py) - end-to-end integration tests
