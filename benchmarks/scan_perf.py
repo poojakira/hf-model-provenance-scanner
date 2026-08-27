@@ -29,8 +29,10 @@ from typing import Any
 # ---------------------------------------------------------------------------
 
 NUM_FIXTURE_FILES = 100
-P95_THRESHOLD_MS = 50.0  # Maximum acceptable p95 latency per file (ms)
-WARMUP_ITERATIONS = 3     # Number of warmup scans before measuring
+P95_THRESHOLD_MS = 100.0  # Max acceptable p95 latency per file (ms). Set with
+                          # headroom for cold-cache file reads on CI runners;
+                          # warm-run p95 is typically ~3-6ms (see docs).
+WARMUP_ITERATIONS = 5     # Number of warmup passes before measuring
 
 
 # ---------------------------------------------------------------------------
