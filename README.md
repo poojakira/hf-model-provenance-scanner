@@ -35,7 +35,7 @@ This repository contains scanner code and regression fixtures for known model su
 ### Export ATT&CK Navigator Layer
 
 ```bash
-python -m attack_mapping.reporter --output navigator_layer.json
+python -m scanner.attack_mapping.reporter --output navigator_layer.json
 ```
 
 Open in [ATT&CK Navigator](https://mitre-attack.github.io/attack-navigator/) to visualize coverage. Layers generated with Navigator v4.9 format (attack: "19").
