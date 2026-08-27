@@ -53,3 +53,4 @@ __pycache__/
 .coverage
 test_env/
 *.egg-info
+.venv
