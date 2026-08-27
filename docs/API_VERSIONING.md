@@ -19,7 +19,7 @@ The following CLI behaviors are guaranteed stable:
 
 | Feature | Guarantee |
 |---------|-----------|
-| `hf-scanner scan <path>` | Always accepts a path argument |
+| `hf-scanner <path>` | Always accepts a positional path/target argument |
 | `--format json` | JSON output schema is versioned (see §3) |
 | `--format sarif` | SARIF 2.1.0 compliant output |
 | `--format text` | Human-readable output (format may change cosmetically) |

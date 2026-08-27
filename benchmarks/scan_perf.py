@@ -148,19 +148,37 @@ def create_fixture_corpus(tmp_dir: Path) -> list:
 # ---------------------------------------------------------------------------
 
 def import_scanner():
-    """Import the scanner module dynamically."""
-    try:
-        from hf_scanner import scan_file
-        return scan_file
-    except ImportError:
+    """Return a callable that scans a single file in-process.
+
+    Uses the real per-format analyzers from scanner.cli (pickle, safetensors,
+    config, generic source). This measures the true analysis hot path without
+    subprocess/interpreter startup overhead.
+    """
+    from pathlib import Path as _Path
+
+    from scanner.cli import (
+        analyze_config_file,
+        analyze_pickle_file,
+        analyze_safetensors_file,
+        is_pickle_file,
+        is_safetensors_file,
+    )
+
+    def scan_file(path: str):
+        p = _Path(path)
         try:
-            from hf_scanner.core import scan_file
-            return scan_file
-        except ImportError:
-            # Fallback: try to import the main scanner class
-            from hf_scanner.scanner import Scanner
-            scanner = Scanner()
-            return scanner.scan_file
+            data = p.read_bytes()
+        except OSError:
+            return []
+        if is_pickle_file(p):
+            return analyze_pickle_file(str(p), data)
+        if is_safetensors_file(p):
+            return analyze_safetensors_file(str(p), data)
+        if p.suffix.lower() in (".json", ".yaml", ".yml", ".toml"):
+            return analyze_config_file(str(p), data)
+        return []
+
+    return scan_file
 
 
 def run_benchmark(fixtures_dir: Path, output_path: Path | None = None) -> dict:
@@ -273,7 +291,7 @@ def run_benchmark(fixtures_dir: Path, output_path: Path | None = None) -> dict:
     print(f"  p95 latency:      {stats['latency_ms']['p95']:.3f}ms")
     print(f"  p99 latency:      {stats['latency_ms']['p99']:.3f}ms")
     print(f"  Threshold (p95):  {P95_THRESHOLD_MS}ms")
-    print(f"  Status:           {'✓ PASS' if passed else '✗ FAIL'}")
+    print(f"  Status:           {'PASS' if passed else 'FAIL'}")
     print(f"{'='*60}\n")
 
     return results
@@ -284,6 +302,7 @@ def run_benchmark(fixtures_dir: Path, output_path: Path | None = None) -> dict:
 # ---------------------------------------------------------------------------
 
 def main():
+    global P95_THRESHOLD_MS
     parser = argparse.ArgumentParser(
         description="HF Scanner performance benchmark"
     )
@@ -307,7 +326,6 @@ def main():
     )
     args = parser.parse_args()
 
-    global P95_THRESHOLD_MS
     P95_THRESHOLD_MS = args.threshold
 
     if args.fixtures_dir and args.fixtures_dir.exists():

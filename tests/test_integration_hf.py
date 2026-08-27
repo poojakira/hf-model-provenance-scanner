@@ -160,9 +160,9 @@ class TestIntegrationHFScanner:
         Returns parsed JSON output or raw result dict.
         """
         cmd = [
-            sys.executable, "-m", "hf_scanner",
-            "scan",
+            sys.executable, "-m", "scanner.cli",
             str(target_path),
+            "-m", "local",
             "--format", output_format,
             "--no-network",  # Ensure no external calls
         ]
@@ -235,7 +235,10 @@ class TestIntegrationHFScanner:
         findings = parsed.get("findings", parsed.get("results", []))
         flagged_files = set()
         for f in findings:
-            file_path = f.get("file", f.get("path", f.get("location", {}).get("file", "")))
+            file_path = f.get(
+                "file_path",
+                f.get("file", f.get("path", f.get("location", {}).get("file", ""))),
+            )
             flagged_files.add(Path(file_path).name)
 
         # Both malicious files should be flagged
@@ -354,7 +357,7 @@ class TestCLISmokeTests:
     def test_version_flag(self):
         """Scanner should respond to --version."""
         result = subprocess.run(
-            [sys.executable, "-m", "hf_scanner", "--version"],
+            [sys.executable, "-m", "scanner.cli", "--version"],
             capture_output=True,
             text=True,
             timeout=10,
@@ -365,18 +368,21 @@ class TestCLISmokeTests:
     def test_help_flag(self):
         """Scanner should respond to --help."""
         result = subprocess.run(
-            [sys.executable, "-m", "hf_scanner", "--help"],
+            [sys.executable, "-m", "scanner.cli", "--help"],
             capture_output=True,
             text=True,
             timeout=10,
         )
         assert result.returncode == 0
-        assert "scan" in result.stdout.lower()
+        assert "usage" in result.stdout.lower()
 
     def test_nonexistent_path_error(self):
         """Scanner should error gracefully for non-existent paths."""
         result = subprocess.run(
-            [sys.executable, "-m", "hf_scanner", "scan", "/nonexistent/path/xyz"],
+            [
+                sys.executable, "-m", "scanner.cli",
+                "/nonexistent/path/xyz", "-m", "local", "--no-network",
+            ],
             capture_output=True,
             text=True,
             timeout=10,
