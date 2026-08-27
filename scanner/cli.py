@@ -464,6 +464,14 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Run as daemon protecting all model processes (requires root)",
     )
+    parser.add_argument(
+        "--enforce",
+        action="store_true",
+        help=(
+            "Enforce mode: fail on incomplete/indeterminate scans in addition to "
+            "severity threshold. Use in CI/CD gates to prevent partial scans from passing."
+        ),
+    )
     return parser
 
 
@@ -614,13 +622,14 @@ def main(argv=None):
 
     result.scan_duration_seconds = time.time() - start_time
 
-    # ── Completeness: PARTIAL != CLEAN ─────────────────────────────────────
+    # ── Completeness: PARTIAL != CLEAN, INDETERMINATE != CLEAN ───────────────
     # If any file was skipped (oversized, unsupported, errored), mark the
     # scan PARTIAL.  Downstream consumers MUST NOT treat this as a clean bill
     # of health.  The skipped files are already recorded as HFS-098 findings.
+    # If errors prevented scanning, mark INDETERMINATE.
     from scanner.models import Completeness
     if result.error:
-        result.completeness = Completeness.UNKNOWN
+        result.completeness = Completeness.INDETERMINATE
     elif result.files_skipped > 0:
         result.completeness = Completeness.PARTIAL
     elif result.files_scanned == 0 and result.files_skipped == 0:
@@ -671,13 +680,24 @@ def main(argv=None):
         else:
             print(out_content)
 
+    # Determine exit code
     fail_threshold_str = config.get("scanner", {}).get("fail_on", args.fail_on).lower()
+    severity_fail = False
     if fail_threshold_str != "never":
         severity_order = {"critical": 5, "high": 4, "medium": 3, "low": 2, "info": 1}
         threshold_val = severity_order.get(fail_threshold_str, 4)
         if any(severity_order.get(f.severity.value, 0) >= threshold_val for f in result.findings):
-            return 1
-    return 0
+            severity_fail = True
+
+    # Enforce mode: also fail on incomplete/indeterminate scans
+    enforce_fail = False
+    if args.enforce:
+        if result.completeness in (Completeness.PARTIAL, Completeness.INDETERMINATE, Completeness.UNKNOWN):
+            enforce_fail = True
+            if not args.quiet:
+                print(f"ENFORCE FAIL: Scan completeness is {result.completeness.value}", file=sys.stderr)
+
+    return 1 if (severity_fail or enforce_fail) else 0
 
 
 if __name__ == "__main__":

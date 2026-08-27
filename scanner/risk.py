@@ -1,6 +1,6 @@
 """Risk score computation for scan results."""
 
-from scanner.models import RiskSummary, ScanResult, Severity
+from scanner.models import RiskSummary, ScanResult, Severity, Completeness
 
 SEVERITY_POINTS = {
     Severity.CRITICAL: 40,
@@ -24,7 +24,7 @@ HIGH_SIGNAL_BONUS = 10
 
 
 def compute_risk(result: ScanResult) -> RiskSummary:
-    """Compute a 0-100 risk score from scan findings.
+    """Compute a 0-100 risk score from scan results.
 
     Scoring:
     - CRITICAL: 40 points each
@@ -34,6 +34,9 @@ def compute_risk(result: ScanResult) -> RiskSummary:
     - INFO: 0 points
     - High-signal rules add a bonus of 10 per occurrence
     - Score is capped at 100
+
+    IMPORTANT: If scan completeness is PARTIAL or INDETERMINATE,
+    the risk level is elevated regardless of findings.
     """
     score = 0
     reasons: list[str] = []
@@ -70,5 +73,29 @@ def compute_risk(result: ScanResult) -> RiskSummary:
 
     if any(f.rule_id in HIGH_SIGNAL_RULES for f in result.findings):
         reasons.append("High-signal active threat indicators detected")
+
+    # CRITICAL: Adjust risk level based on scan completeness
+    # INCOMPLETE SCAN != CLEAN
+    completeness = result.completeness
+    if completeness == Completeness.PARTIAL:
+        # Partial scan: cannot guarantee clean bill of health
+        if level == "LOW":
+            level = "MEDIUM"  # Elevate clean to at least MEDIUM
+            reasons.append("Scan incomplete (PARTIAL) - skipped files may contain threats")
+        elif level in ("MEDIUM", "HIGH"):
+            level = "HIGH"  # Elevate further
+            reasons.append("Scan incomplete (PARTIAL) - actual risk may be higher")
+        # CRITICAL stays CRITICAL
+    elif completeness == Completeness.INDETERMINATE:
+        # Indeterminate: errors prevented scanning
+        if level in ("LOW", "MEDIUM"):
+            level = "HIGH"
+            reasons.append("Scan indeterminate (INDETERMINATE) - errors prevented complete inspection")
+        # HIGH and CRITICAL stay as-is
+    elif completeness == Completeness.UNKNOWN:
+        # Unknown: completeness could not be determined
+        if level == "LOW":
+            level = "MEDIUM"
+            reasons.append("Scan completeness unknown - cannot verify coverage")
 
     return RiskSummary(score=score, level=level, reasons=reasons)
