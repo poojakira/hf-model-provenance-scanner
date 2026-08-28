@@ -10,7 +10,7 @@
 
 ## 1. What Is This?
 
-A zero-dependency Python tool (stdlib only, 3.9+) that scans Hugging Face model repositories for supply-chain attacks. It examines source code, binary model files, configuration, and provenance artifacts before a user loads or deploys a model.
+A Python tool with a single runtime dependency (`psutil`), targeting Python 3.10+, that scans Hugging Face model repositories for supply-chain attacks. It examines source code, binary model files, configuration, and provenance artifacts before a user loads or deploys a model.
 
 **In plain terms:** It's a malware scanner specifically designed for ML model repositories — the same way antivirus scans executables, this scans model packages.
 
@@ -55,7 +55,7 @@ HuggingFace uses **PickleScan** as its primary defense. PickleScan:
 | Catch all known PickleScan bypasses | 7 documented bypass techniques | ✅ Achieved (7/7) |
 | Cover all major model binary formats | Pickle, SafeTensors, GGUF, ONNX, Keras | ✅ Achieved (6 formats) |
 | Catch obfuscated source code attacks | Novel chr()/rot13/ctypes/getattr evasion | ✅ Achieved (sandbox catches all) |
-| Zero runtime dependencies | Deployable anywhere without install conflicts | ✅ Achieved (stdlib only) |
+| Minimal runtime dependencies | Deployable with a single dependency (psutil) | ✅ Achieved (one runtime dependency) |
 | CI/CD integration | GitHub Actions, GitLab, Azure, Jenkins, Docker | ✅ Achieved (7 platforms) |
 | EU AI Act compliance output | CycloneDX AIBOM generation | ✅ Achieved |
 | Zero false positives on legitimate code | Test against real ML codebases | ✅ Achieved |
@@ -74,7 +74,7 @@ The scanner uses five independent detection engines in parallel. An attacker mus
 | **AST Pattern Matching** | Parses Python source into Abstract Syntax Trees, matches known dangerous patterns (exec, eval, subprocess, SSL bypass) | Known malware patterns, base64 decode chains, recursive multi-layer encoding | Only catches patterns we've written rules for |
 | **Taint Tracking** | Tracks data flow from untrusted sources (decode functions, __import__, module access) through variable assignments to dangerous sinks (exec, eval, os.system) | Indirect flows: variable indirection, container lookups, return value propagation, lambda+map chains | Intra-procedural only (doesn't follow across function calls deeply) |
 | **Symbolic String Resolution** | Statically evaluates constant expressions: chr(111)+chr(115) → "os", ''.join([chr(x) for x in [...]]) | String-building obfuscation that hides dangerous module/function names | Only resolves expressions composed entirely of constants |
-| **Sandbox Execution** | Instruments untrusted code with hooks (replaces exec/eval/import/open with logging stubs), runs in restricted subprocess, captures attempted operations | ANYTHING that eventually calls exec/eval/import at runtime, regardless of obfuscation technique | 5-second timeout; complex initialization code may not reach the payload in time |
+| **Sandbox Execution** | Instruments untrusted code with hooks (replaces exec/eval/import/open with logging stubs), runs in restricted subprocess, captures attempted operations | ANYTHING that eventually calls exec/eval/import at runtime, regardless of obfuscation technique | 30-second timeout; complex initialization code may not reach the payload in time |
 | **Binary Format Parsers** | Zero-execution parsing of pickle opcodes, SafeTensors headers, GGUF metadata, ONNX protobuf, Keras H5 | Pickle RCE payloads, metadata injection, format abuse, malformed files designed to bypass other scanners | Cannot detect semantic backdoors in weight values |
 
 ### 4.2 Provenance & Identity Verification
@@ -95,7 +95,7 @@ The scanner uses five independent detection engines in parallel. An attacker mus
 | SARIF 2.1.0 | GitHub Code Scanning integration |
 | CycloneDX AIBOM | EU AI Act Article 53 compliance artifact |
 | Runtime policy JSON | Docker/Kubernetes security context generation |
-| Exit codes (0/1/2) | CI/CD pipeline fail gates |
+| Exit codes (0/1/2/3) | CI/CD pipeline fail gates (0 clean, 1 findings at/above threshold, 2 scanner error, 3 invalid arguments) |
 
 ---
 
@@ -146,14 +146,14 @@ I write this section as a security engineer who has seen too many tools oversell
 
 The project's `LIMITATIONS.md` was written before the taint engine and sandbox were added. It says "lambda + map + __builtins__" is not detectable — but it now IS (via sandbox). The documentation is inconsistent with current capabilities. **This is a code quality issue, not a security issue, but it erodes credibility.**
 
-### 6.2 The pyproject.toml Has Wrong Version
+### 6.2 The pyproject.toml Version Is Consistent
 
-The file says `version = "0.1.0"` but the CLI reports `0.2.0`. The `requires-python = ">=3.10"` conflicts with README claiming 3.9+ support. These are packaging bugs that would cause confusion during pip install. **Minor but sloppy.**
+The file says `version = "0.2.0"` and the CLI reports `0.2.0` (consistent). The `requires-python = ">=3.10"` matches the README's Python 3.10+ support.
 
 ### 6.3 Sandbox Execution Has Real-World Constraints
 
-The sandbox runs code for 5 seconds max. Real-world model loading code often:
-- Downloads large files (takes >5s on slow networks)
+The sandbox runs code for 30 seconds max. Real-world model loading code often:
+- Downloads large files (may take >30s on slow networks)
 - Imports heavy frameworks (PyTorch import alone takes 2-3s)
 - Has conditional logic that only triggers under specific conditions
 
@@ -209,7 +209,7 @@ Despite the criticisms above:
 
 1. **Novel architecture**: No other tool combines 5 analysis engines (AST + taint + symbolic + sandbox + binary). This is genuinely new in the ML security space.
 
-2. **Zero-dependency design**: Real engineering advantage. No supply chain risk in the scanner itself. Deploys anywhere Python runs.
+2. **Minimal-dependency design**: Real engineering advantage. Only one runtime dependency (`psutil`), so minimal supply chain risk in the scanner itself. Deploys anywhere Python runs.
 
 3. **Catches what competitors miss**: Source code analysis of model loaders is a blind spot for PickleScan/ModelScan/Guardian. This tool fills that gap conclusively.
 
@@ -230,7 +230,7 @@ Despite the criticisms above:
 ### Would this stop a BETTER attacker?
 
 **Mostly yes, with caveats.** The sandbox is the backstop — any code that eventually calls exec/eval/subprocess/import(dangerous) will be caught regardless of obfuscation. The exception is:
-- Code that takes >5 seconds to reach the payload
+- Code that takes >30 seconds to reach the payload
 - Code gated behind environmental conditions not present in the sandbox
 - Pure social engineering without code execution
 - Semantic model backdoors (weights, not code)
@@ -241,7 +241,7 @@ Despite the criticisms above:
 
 ### Is this tool worth deploying?
 
-**Unambiguously yes.** Even with its limitations, it provides defense-in-depth that no competitor offers. The zero-dependency design means there is essentially no cost or risk to deploying it. The question is not "is it perfect?" but "is it better than nothing?" — and the answer is it's dramatically better than the status quo.
+**Unambiguously yes.** Even with its limitations, it provides defense-in-depth that no competitor offers. The minimal-dependency design (a single runtime dependency, `psutil`) means there is very little cost or risk to deploying it. The question is not "is it perfect?" but "is it better than nothing?" — and the answer is it's dramatically better than the status quo.
 
 ### What should be done next?
 
@@ -268,14 +268,14 @@ Despite the criticisms above:
 | Temporal rug-pull detection | ❌ | ❌ | ❌ | ❌ | ✅ |
 | AIBOM generation | ❌ | ❌ | ❌ | ❌ | ✅ |
 | Runtime policy generation | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Zero dependencies | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Minimal dependencies (1: psutil) | ❌ | ❌ | ❌ | ❌ | ✅ |
 | Open source | ✅ | ✅ | ❌ | ❌ | ✅ |
 
 ---
 
 ## 10. Conclusion
 
-This is a **genuinely novel** and **practically useful** tool that addresses a real and growing threat. It would have prevented the May 2026 incident. It catches attacks that no competitor detects. Its zero-dependency design eliminates deployment friction.
+This is a **genuinely novel** and **practically useful** tool that addresses a real and growing threat. It would have prevented the May 2026 incident. It catches attacks that no competitor detects. Its minimal-dependency design (one runtime dependency, `psutil`) keeps deployment friction low.
 
 It is NOT a silver bullet. No tool is. The remaining gaps (adoption, real-world scale testing, environmental gating, social engineering) are real. The "100% detection" claim is true but should be qualified.
 

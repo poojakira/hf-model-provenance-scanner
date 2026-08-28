@@ -112,5 +112,5 @@ Known limits:
 - [INCIDENT_RUNBOOK.md](INCIDENT_RUNBOOK.md) - incident response for supply-chain scanner
 - [docs/API_VERSIONING.md](docs/API_VERSIONING.md) - CLI and API stability guarantees
 - [docs/PERFORMANCE_BASELINE.md](docs/PERFORMANCE_BASELINE.md) - scan performance baselines
-- [enchmarks/scan_perf.py](benchmarks/scan_perf.py) - performance regression gate
-- [	ests/test_integration_hf.py](tests/test_integration_hf.py) - end-to-end integration tests
+- [benchmarks/scan_perf.py](benchmarks/scan_perf.py) - performance regression gate
+- [tests/test_integration_hf.py](tests/test_integration_hf.py) - end-to-end integration tests

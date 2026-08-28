@@ -14,7 +14,7 @@ This is a **security scanner** for AI/ML models downloaded from HuggingFace. Bef
 
 ## Prerequisites
 
-You need **Python 3.9 or newer** installed. That's it. No other software required.
+You need **Python 3.10 or newer** installed. That's it. No other software required.
 
 ### Check if Python is installed:
 
@@ -32,7 +32,7 @@ python --version
 python3 --version
 ```
 
-If you see `Python 3.9` or higher (3.10, 3.11, 3.12, etc.), you're good.
+If you see `Python 3.10` or higher (3.11, 3.12, etc.), you're good.
 
 If Python is not installed:
 - **Windows**: Download from https://python.org/downloads — check "Add to PATH" during install

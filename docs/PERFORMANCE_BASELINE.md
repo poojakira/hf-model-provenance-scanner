@@ -15,7 +15,7 @@ This document defines the performance baselines for the HuggingFace Model Proven
 | Throughput | > 500 files/sec | > 200 files/sec | `benchmarks/scan_perf.py` |
 | Memory usage (per file) | < 50MB | < 200MB | Manual profiling |
 | Scanner startup time | < 200ms | < 500ms | `time hf-scanner --version` |
-| Rule loading time (189 rules) | < 50ms | < 100ms | Instrumented in benchmark |
+| Rule loading time (151 rules) | < 50ms | < 100ms | Instrumented in benchmark |
 
 ### File Size Categories
 
@@ -95,8 +95,7 @@ python benchmarks/scan_perf.py --threshold 50 --output results.json
 # Using pre-existing fixture directory
 python benchmarks/scan_perf.py --fixtures-dir ./test-corpus --output results.json
 
-# Compare two benchmark runs
-python benchmarks/compare.py baseline.json current.json
+# Compare two benchmark runs manually (inspect the JSON outputs)
 ```
 
 ### Profiling
@@ -124,9 +123,12 @@ kernprof -l -v benchmarks/scan_perf.py
 
 ### Automated Regression Detection
 
-The CI pipeline (`.github/workflows/ci.yml`) runs the benchmark on every push to `main` and on every PR:
+The performance benchmark (`benchmarks/scan_perf.py`) is **not** currently wired
+into `.github/workflows/ci.yml`. Run it manually (or add a dedicated workflow
+step) to check for regressions:
 
 ```yaml
+# Example step for a benchmark workflow (not currently in ci.yml)
 - name: Run performance benchmark
   run: |
     python benchmarks/scan_perf.py \
@@ -219,11 +221,8 @@ All accepted regressions require:
 
 | Version | Date | p95 (ms) | Throughput (files/sec) | Notes |
 |---------|------|-----------|----------------------|-------|
-| 1.0.0 | 2026-03-15 | 2.8 | 580 | Initial release |
-| 1.1.0 | 2026-05-01 | 3.0 | 560 | +20 new rules |
-| 1.2.0 | 2026-06-20 | 3.1 | 550 | Added safetensors support |
-| 1.3.0 | 2026-08-01 | 3.2 | 555 | +15 rules, optimized parser |
-| 1.4.0 | 2026-08-27 | TBD | TBD | Current (benchmark pending) |
+| 0.1.0 | 2026-03-15 | 2.8 | 580 | Initial release |
+| 0.2.0 | 2026-08-27 | TBD | TBD | Current (benchmark pending) |
 
 ---
 

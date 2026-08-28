@@ -24,8 +24,6 @@ The following CLI behaviors are guaranteed stable:
 | `--format sarif` | SARIF 2.1.0 compliant output |
 | `--format text` | Human-readable output (format may change cosmetically) |
 | `--no-network` | Fully offline operation |
-| `--rules-dir <path>` | Custom rules directory |
-| `--severity <level>` | Filter by minimum severity |
 | `--version` | Print version and exit |
 | `--help` | Print usage and exit |
 | Exit code 0 | No findings at or above severity threshold |
@@ -57,7 +55,7 @@ All rules follow the format `HFS-XXX` where XXX is a zero-padded integer:
 HFS-001  Pickle GLOBAL opcode with os module
 HFS-002  Pickle GLOBAL opcode with subprocess module
 ...
-HFS-189  (current latest)
+HFS-189  (highest assigned ID; 151 rules defined, IDs are sparse up to HFS-189)
 ```
 
 ### Guarantees
@@ -132,7 +130,7 @@ Scanner-specific extensions use the `properties` bag as per SARIF spec:
 |-------|-----------|
 | `$schema` | Changes only with SARIF spec updates |
 | `version` | Always `"2.1.0"` until SARIF 2.2 adoption |
-| `runs[].tool.driver.name` | Always `"hf-model-provenance-scanner"` |
+| `runs[].tool.driver.name` | Always `"hf-scanner"` |
 | `runs[].tool.driver.version` | Scanner version string |
 | `runs[].results[].ruleId` | Matches `HFS-XXX` rule ID |
 | `runs[].results[].level` | One of: `error`, `warning`, `note` |
@@ -186,23 +184,29 @@ The native JSON format is versioned independently:
 
 ### Public API Surface
 
-The following Python imports are considered public and stable:
+> Note: The package is named `scanner`. The current supported interface is the
+> CLI (`python -m scanner.cli <TARGET> -m local`, or `hf-scanner`). A stable
+> importable Python API is aspirational and not yet exported from the package;
+> import paths below describe the intended future surface under the `scanner`
+> namespace.
+
+The following Python imports are the intended public and stable surface:
 
 ```python
-from hf_scanner import scan_file, scan_directory, Scanner
-from hf_scanner.rules import load_rules, RuleSet
-from hf_scanner.findings import Finding, Severity
-from hf_scanner.formats import to_sarif, to_json
+from scanner import scan_file, scan_directory, Scanner
+from scanner.rules import load_rules, RuleSet
+from scanner.findings import Finding, Severity
+from scanner.formats import to_sarif, to_json
 ```
 
 ### Stability Tiers
 
 | Tier | Import Path | Guarantee |
 |------|-------------|-----------|
-| **Stable** | `hf_scanner.*` (top-level) | SemVer: breaking changes only in MAJOR |
-| **Public** | `hf_scanner.rules.*`, `hf_scanner.findings.*`, `hf_scanner.formats.*` | SemVer: breaking changes only in MAJOR |
-| **Internal** | `hf_scanner._internal.*`, `hf_scanner.core._*` | May change in any release |
-| **Plugins** | `hf_scanner.plugins.*` | Stable interface, plugin implementations may vary |
+| **Stable** | `scanner.*` (top-level) | SemVer: breaking changes only in MAJOR |
+| **Public** | `scanner.rules.*`, `scanner.findings.*`, `scanner.formats.*` | SemVer: breaking changes only in MAJOR |
+| **Internal** | `scanner._internal.*`, `scanner.core._*` | May change in any release |
+| **Plugins** | `scanner.plugins.*` | Stable interface, plugin implementations may vary |
 
 ### Type Annotations
 
@@ -258,8 +262,8 @@ def old_function():
 
 | Version | Status | Support Until |
 |---------|--------|--------------|
-| 1.x (current) | Active | Until 2.0 + 6 months |
-| 0.x | Legacy | Unsupported |
+| 0.2.0 (current, 0.x) | Active | Until 1.0 + 6 months |
+| < 0.2.0 | Legacy | Unsupported |
 
 - Only the latest MINOR release receives PATCH updates
 - Security fixes may be backported to previous MINOR on request

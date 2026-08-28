@@ -22,7 +22,7 @@ This runbook covers incident response procedures for the HuggingFace Model Prove
 1. **Confirm the bypass**
    - Reproduce the bypass with a minimal proof-of-concept
    - Determine which pickle opcodes / serialization tricks are used
-   - Verify against the current rule set (`rules/` directory)
+   - Verify against the current rule set (`Rule()` objects in `scanner/rules/definitions.py`)
    - Document: What is the attack vector? Which rule(s) should have caught it?
 
 2. **Assess blast radius**
@@ -45,13 +45,13 @@ This runbook covers incident response procedures for the HuggingFace Model Prove
 5. **Test emergency rule**
    ```bash
    # Run against the PoC
-   python -m hf_scanner scan --rules-dir ./rules poc_bypass.pkl
+   python -m scanner.cli poc_bypass.pkl -m local
 
    # Run full test suite to check for regressions
    pytest tests/ -x --timeout=60
 
-   # Run against known-good models for false positive check
-   python benchmarks/false_positive_check.py
+   # Run against known-good models for a false positive check
+   python -m scanner.cli ./known-good-models -m local --fail-on never --verbose
    ```
 
 6. **Peer review**
@@ -83,28 +83,19 @@ This runbook covers incident response procedures for the HuggingFace Model Prove
 
 ### Steps
 
-1. **Create rule file** in `rules/` directory:
-   ```yaml
-   id: HFS-190
-   name: Detect pickle INST opcode with dangerous module
-   severity: CRITICAL
-   description: >
-     The INST opcode instantiates a class, which can be abused to
-     execute arbitrary code during deserialization.
-   pattern:
-     opcode: INST
-     module_allowlist_violation: true
-     dangerous_modules:
-       - os
-       - subprocess
-       - sys
-       - builtins
-       - nt
-       - posix
-   references:
-     - https://blog.example.com/pickle-exploit
-   created: 2026-08-27
-   author: security-team
+1. **Add a `Rule()` object** in `scanner/rules/definitions.py`:
+   ```python
+   Rule(
+       id="HFS-190",
+       name="Detect pickle INST opcode with dangerous module",
+       severity="CRITICAL",
+       description=(
+           "The INST opcode instantiates a class, which can be abused to "
+           "execute arbitrary code during deserialization."
+       ),
+       dangerous_modules=["os", "subprocess", "sys", "builtins", "nt", "posix"],
+       references=["https://blog.example.com/pickle-exploit"],
+   )
    ```
 
 2. **Write test cases** in `tests/rules/`:
@@ -117,16 +108,16 @@ This runbook covers incident response procedures for the HuggingFace Model Prove
    python benchmarks/scan_perf.py --output before.json
    # Apply rule
    python benchmarks/scan_perf.py --output after.json
-   python benchmarks/compare.py before.json after.json
+   # Compare before.json and after.json manually or with your own diff tooling
    ```
 
 4. **Submit PR** with:
-   - Rule file
+   - Updated `scanner/rules/definitions.py`
    - Test files (minimum 5 test cases)
    - Performance comparison
    - CHANGELOG entry
 
-5. **Rule ID Registry**: Update `docs/RULE_REGISTRY.md` — IDs are never reused.
+5. **Rule ID Registry**: Rule IDs are tracked in `scanner/rules/definitions.py` — IDs are never reused.
 
 ---
 
@@ -146,8 +137,7 @@ This runbook covers incident response procedures for the HuggingFace Model Prove
 
 2. **Add rule + minimal tests**:
    ```bash
-   # Add rule
-   cp emergency_rule.yaml rules/HFS-XXX.yaml
+   # Add the new Rule() to scanner/rules/definitions.py
 
    # Run smoke tests
    pytest tests/ -k "test_HFS" --timeout=30
@@ -160,8 +150,7 @@ This runbook covers incident response procedures for the HuggingFace Model Prove
 
 4. **Release**:
    ```bash
-   # Bump patch version
-   python scripts/bump_version.py patch
+   # Bump the version in pyproject.toml (edit the version field directly)
 
    # Tag and push
    git tag vX.Y.(Z+1)
@@ -186,8 +175,7 @@ If the emergency rule causes widespread false positives:
 # Revert the rule
 git revert <commit-hash>
 
-# Immediate patch release
-python scripts/bump_version.py patch
+# Immediate patch release: bump the version field in pyproject.toml
 git tag vX.Y.(Z+2)
 git push origin main --tags
 ```
@@ -201,7 +189,7 @@ git push origin main --tags
 1. **Receive report** via GitHub issue or security contact
 2. **Reproduce locally**:
    ```bash
-   python -m hf_scanner scan <reported_model_path> --verbose --format json > report.json
+   python -m scanner.cli <reported_model_path> -m local --verbose --format json > report.json
    ```
 3. **Classify**:
    - **True false positive**: Rule is overly broad → fix rule

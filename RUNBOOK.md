@@ -2,16 +2,16 @@
 
 **Repository:** https://github.com/poojakira/hf-model-provenance-scanner  
 **Description:** Scan Hugging Face model repos for provenance, impersonation, pickle-risk, and supply-chain signals  
-**License:** MIT  
+**License:** Apache-2.0  
 **Default Branch:** main
 
 ---
 
 ## Prerequisites
 
-- Python 3.11+
+- Python 3.10+
 - Git
-- No runtime dependencies (stdlib only)
+- One runtime dependency (`psutil`); see `requirements.txt`
 
 ---
 
@@ -25,12 +25,15 @@ cd hf-model-provenance-scanner
 # Install in development mode
 pip install -e ".[dev]"
 
-# Scan a Hugging Face model
-python -m hf_scanner scan --repo-id microsoft/phi-2
+# Scan a local model directory or file
+python -m scanner.cli <TARGET> -m local
 
-# Scan local model file
-python -m hf_scanner scan --local-path ./model.safetensors
+# Scan a Hugging Face repo (remote)
+python -m scanner.cli org/model-name -m remote
 ```
+
+`<TARGET>` is a positional argument: a local path (with `-m local`) or a
+HuggingFace repo id such as `org/model-name` (with `-m remote`).
 
 ---
 
@@ -48,83 +51,61 @@ pip install --upgrade pip
 pip install -e ".[dev]"
 ```
 
-### 2. Configuration
-
-The scanner works offline with zero runtime dependencies. Optional configuration:
+### 2. Verify Installation
 
 ```bash
-# Copy example config
-cp config.example.yaml config.yaml
+# Print version (should report hf-scanner 0.2.0)
+python -m scanner.cli --version
 
-# Edit config.yaml for custom rules:
-# - Custom pickle opcodes to flag
-# - Trusted organization list
-# - Output format preferences
-```
-
-### 3. Verify Installation
-
-```bash
 # Run tests
 pytest tests/ -v
 
-# Run smoke test
-./smoke_test.sh
-
 # Quick scan test
-python -m hf_scanner scan --repo-id microsoft/phi-2 --format json
+python -m scanner.cli <TARGET> -m local --format json
 ```
 
 ---
 
 ## Usage
 
-### Scan Hugging Face Repository
+### Scan a Local Model Directory or File
 
 ```bash
-# Basic scan
-python -m hf_scanner scan --repo-id <org/model-name>
+# Basic local scan
+python -m scanner.cli ./model -m local
+
+# Scan a single file
+python -m scanner.cli ./model.pkl -m local
 
 # With JSON output
-python -m hf_scanner scan --repo-id microsoft/phi-2 --format json --output results.json
+python -m scanner.cli ./model -m local --format json --output results.json
 
 # With SARIF output for CI
-python -m hf_scanner scan --repo-id microsoft/phi-2 --format sarif --output results.sarif
+python -m scanner.cli ./model -m local --format sarif --output results.sarif
 
 # Verbose output
-python -m hf_scanner scan --repo-id microsoft/phi-2 -v
+python -m scanner.cli ./model -m local --verbose
+
+# Strongest detection (runs each Python file in a sandbox subprocess)
+python -m scanner.cli ./model -m local --sandbox
 ```
 
-### Scan Local Model Files
+### Scan a Hugging Face Repository (remote)
 
 ```bash
-# Scan .safetensors file
-python -m hf_scanner scan --local-path ./model.safetensors
-
-# Scan .pkl/.pt file
-python -m hf_scanner scan --local-path ./model.pkl
-
-# Scan directory of models
-python -m hf_scanner scan --local-path ./models/ --recursive
+python -m scanner.cli org/model-name -m remote
+python -m scanner.cli org/model-name -m remote --format sarif --output results.sarif
 ```
 
-### Python API
+### Command-line Entry Points
 
-```python
-from hf_scanner import scan_repo, scan_local
+There are two equivalent ways to run the scanner:
 
-# Scan HF repo
-result = scan_repo("microsoft/phi-2")
-print(result.summary)
+- `python -m scanner.cli <TARGET> -m local`
+- `hf-scanner <TARGET> -m local` (after `pip install -e .`)
 
-# Scan local file
-result = scan_local("./model.safetensors")
-print(result.findings)
-
-# Get detailed findings
-for finding in result.findings:
-    print(f"{finding.severity}: {finding.message}")
-```
+The scanner is driven entirely through this CLI; there is no separate
+top-level Python function API to import.
 
 ---
 
@@ -132,12 +113,12 @@ for finding in result.findings:
 
 | Check | Description |
 |-------|-------------|
-| **Pickle Opcode Analysis** | AST-walk detection of dangerous opcodes (REDUCE, GLOBAL, BUILD) |
-| **SafeTensors Validation** | Validates SafeTensors format integrity |
+| **Pickle Opcode Analysis** | Zero-execution parsing of pickle opcodes (REDUCE, GLOBAL, BUILD, INST) |
+| **SafeTensors / GGUF / ONNX / Keras** | Binary format validation and metadata inspection |
+| **Source Code Analysis** | AST patterns, taint tracking, symbolic string resolution, optional sandbox execution |
 | **Org Impersonation** | Detects typosquatting and impersonation attempts |
-| **Metadata Analysis** | Suspicious metadata, missing provenance |
-| **Signature Verification** | Ed25519 signature verification |
-| **SLSA Provenance** | Checks for SLSA v1.0 provenance attestation |
+| **Provenance / SBOM** | Missing signature, SBOM, and provenance markers are flagged as risk signals |
+| **Temporal Baselining** | Compares scan snapshots over time to detect rug-pulls |
 
 ---
 
@@ -146,36 +127,45 @@ for finding in result.findings:
 ### Using Makefile
 
 ```bash
-# Show all targets
-make help
+# Install runtime + dev tooling
+make install
+
+# Install the ATT&CK core dependency
+make install-core
+
+# Download ATT&CK data
+make data
+
+# Lint
+make lint
+
+# Format code
+make format
 
 # Run tests
 make test
 
-# Run linting
-make lint
-
-# Type checking
-make typecheck
-
-# Security scan
-make security
-
 # Build package
 make build
 
-# Clean
-make clean
+# Security scan (bandit + pip-audit)
+make security
+
+# Serve the realtime dashboard
+make dashboard
+
+# Full verification (lint + test + build + security)
+make verify
 ```
 
 ### Direct Commands
 
 ```bash
-# Run tests
-pytest tests/ -v --cov=hf_scanner --cov-fail-under=80
+# Run tests with coverage gate
+pytest tests/ -v --cov=scanner --cov-fail-under=80
 
 # Run specific test
-pytest tests/test_pickle_scan.py -v
+pytest tests/test_pickle_scanner.py -v
 
 # Format code
 ruff format .
@@ -191,20 +181,21 @@ ruff check .
 ### JSON Output
 ```json
 {
-  "repo_id": "microsoft/phi-2",
-  "scan_date": "2026-08-16T12:00:00Z",
+  "target": "/path/to/model",
+  "scan_timestamp": "2026-08-16T12:00:00Z",
+  "findings": [],
   "summary": {
-    "pickle_risk": "LOW",
-    "impersonation_risk": "NONE",
-    "provenance_verified": true,
-    "safetensors_valid": true
-  },
-  "findings": []
+    "total_files": 5,
+    "files_scanned": 5,
+    "findings_count": 0,
+    "max_severity": "NONE"
+  }
 }
 ```
 
 ### SARIF Output
-Standards-compliant SARIF for GitHub Advanced Security integration.
+Standards-compliant SARIF 2.1.0 for GitHub Advanced Security integration
+(SARIF `tool.driver.name` is `hf-scanner`).
 
 ### Text Output
 Human-readable summary with color-coded severity.
@@ -217,9 +208,9 @@ Human-readable summary with color-coded severity.
 ```yaml
 - name: Scan Model
   run: |
-    python -m hf_scanner scan --repo-id ${{ inputs.model }} \
+    python -m scanner.cli ${{ inputs.model }} -m remote \
       --format sarif --output results.sarif
-    
+
 - name: Upload SARIF
   uses: github/codeql-action/upload-sarif@v3
   with:
@@ -233,10 +224,9 @@ Human-readable summary with color-coded severity.
   hooks:
     - id: hf-scan
       name: HF Model Scan
-      entry: python -m hf_scanner scan
+      entry: python -m scanner.cli
       language: system
       types: [file]
-      args: [--local-path, --format, sarif]
 ```
 
 ---
@@ -248,13 +238,13 @@ Human-readable summary with color-coded severity.
 pytest tests/ -v
 
 # Run with coverage
-pytest tests/ --cov=hf_scanner --cov-report=html --cov-fail-under=80
+pytest tests/ --cov=scanner --cov-report=html --cov-fail-under=80
 
 # Run specific test modules
-pytest tests/test_pickle_scan.py -v
-pytest tests/test_safetensors.py -v
-pytest tests/test_impersonation.py -v
-pytest tests/test_provenance.py -v
+pytest tests/test_pickle_scanner.py -v
+pytest tests/test_safetensors_scanner.py -v
+pytest tests/test_integration_hf.py -v
+pytest tests/test_cli.py -v
 ```
 
 ---
@@ -265,19 +255,16 @@ pytest tests/test_provenance.py -v
 
 | Issue | Solution |
 |-------|----------|
-| `ModuleNotFoundError: hf_scanner` | Run `pip install -e .` |
-| Network timeout on HF API | Use `--offline` flag for local files only |
+| `ModuleNotFoundError: scanner` | Run `pip install -e .` from the repo root |
+| Network timeout on HF API | Scan local files with `-m local` |
 | Permission denied | Ensure read access to model files |
-| Large model memory issues | Use streaming mode: `--streaming` |
+| Sandbox scan is slow | Each Python file runs in a subprocess (30s timeout); omit `--sandbox` for faster scans |
 
 ### Debug Mode
 
 ```bash
-# Enable debug logging
-python -m hf_scanner scan --repo-id microsoft/phi-2 -vvv
-
-# Dry run (no network calls)
-python -m hf_scanner scan --repo-id microsoft/phi-2 --dry-run
+# Verbose output (includes info-level findings)
+python -m scanner.cli <TARGET> -m local --verbose
 ```
 
 ---
@@ -287,22 +274,25 @@ python -m hf_scanner scan --repo-id microsoft/phi-2 --dry-run
 ```
 hf-model-provenance-scanner/
 ├── .github/workflows/     # CI/CD pipelines
-├── hf_scanner/            # Main package
+├── scanner/               # Main package
 │   ├── __init__.py
 │   ├── cli.py             # Command-line interface
-│   ├── pickle_scan.py     # Pickle opcode analysis
-│   ├── safetensors.py     # SafeTensors validation
-│   ├── impersonation.py   # Org impersonation detection
-│   ├── provenance.py      # Provenance verification
-│   └── output.py          # Output formatters
+│   ├── analyzer/          # Analysis engines (pickle_scanner.py, safetensors_scanner.py, ...)
+│   ├── rules/
+│   │   └── definitions.py # Rule() objects (HFS-XXX detections)
+│   ├── formatters/        # sarif_formatter.py, json_formatter.py, html_formatter.py
+│   ├── attack_mapping/    # ATT&CK enrichment
+│   ├── utils/             # helpers (hf_api.py, entropy.py, levenshtein.py, ...)
+│   ├── provenance.py
+│   ├── risk.py
+│   └── models.py
 ├── tests/                 # Test suite
-├── config.example.yaml
+├── benchmarks/            # scan_perf.py
 ├── pyproject.toml
+├── requirements.txt
 ├── README.md
 ├── LICENSE
 ├── Makefile
-├── requirements-dev.txt
-├── smoke_test.sh
 └── CHANGELOG.md
 ```
 
@@ -320,9 +310,10 @@ hf-model-provenance-scanner/
 
 - [ ] Repository clones successfully
 - [ ] `pip install -e .` completes
-- [ ] `pytest tests/` passes with coverage ≥80%
-- [ ] Scan HF repo: `python -m hf_scanner scan --repo-id microsoft/phi-2`
-- [ ] Scan local file works
+- [ ] `python -m scanner.cli --version` reports `hf-scanner 0.2.0`
+- [ ] `pytest tests/` passes with coverage ≥80% (`--cov=scanner`)
+- [ ] Scan local target: `python -m scanner.cli <TARGET> -m local`
+- [ ] Scan remote repo works
 - [ ] JSON output valid
 - [ ] SARIF output valid
 - [ ] No false positives on known-good models
@@ -330,5 +321,5 @@ hf-model-provenance-scanner/
 
 ---
 
-*Last updated: 2026-08-16*  
-*Tested on: Ubuntu 22.04, Python 3.11, 3.12, macOS 14, Windows 11 (WSL2)*
+*Last updated: 2026-08-27*  
+*Tested on: Ubuntu 22.04, Python 3.10–3.12, macOS 14, Windows 11 (WSL2)*

@@ -1,6 +1,6 @@
 # Changelog - hf-model-provenance-scanner
 
-## [1.0.0] - 2026-07-22
+## [0.2.0] - 2026-07-22
 
 ### Changed - ATT&CK v19 Migration
 
