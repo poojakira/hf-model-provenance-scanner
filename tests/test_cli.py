@@ -9,7 +9,6 @@ from unittest.mock import patch
 
 from scanner import cli
 
-
 # Fake SHA used by FakeClient — 40 hex chars, deterministic
 FAKE_COMMIT_SHA = "a" * 40
 
@@ -28,8 +27,12 @@ class FakeClient:
         self.token = token
 
     def get_model_info(self, repo_id, revision=None):
-        return {"id": repo_id, "downloads": 244000, "createdAt": "2020-01-01T00:00:00.000Z",
-                "sha": FAKE_COMMIT_SHA}
+        return {
+            "id": repo_id,
+            "downloads": 244000,
+            "createdAt": "2020-01-01T00:00:00.000Z",
+            "sha": FAKE_COMMIT_SHA,
+        }
 
     def resolve_to_commit_sha(self, repo_id: str, revision: str = "main") -> str:
         """Return a deterministic fake SHA for tests."""

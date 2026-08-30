@@ -23,6 +23,7 @@ class Completeness(Enum):
 
     RULE: PARTIAL != CLEAN. INDETERMINATE != CLEAN. Callers must surface this distinction.
     """
+
     COMPLETE = "COMPLETE"
     PARTIAL = "PARTIAL"
     INDETERMINATE = "INDETERMINATE"
@@ -79,6 +80,7 @@ class ScanResult:
     def __post_init__(self):
         if self.skipped_files_detail is None:
             object.__setattr__(self, "skipped_files_detail", [])
+
     # Completeness tracks whether all files were scanned.
     # MUST be set to PARTIAL when any file is skipped.
     # MUST be set to INDETERMINATE when errors prevented scanning.

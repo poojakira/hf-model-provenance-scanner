@@ -5,16 +5,13 @@ Tests that INCOMPLETE SCAN != CLEAN and INDETERMINATE != CLEAN.
 
 from __future__ import annotations
 
-import json
-import tempfile
-from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 import pytest
 
-from scanner.models import ScanResult, Finding, Severity, Completeness
-from scanner.risk import compute_risk
 from scanner.cli import main
+from scanner.models import Completeness, Finding, ScanResult, Severity
+from scanner.risk import compute_risk
 
 
 class TestCompletenessInvariant:
@@ -46,7 +43,17 @@ class TestCompletenessInvariant:
             scan_mode="local",
             scanner_version="0.2.0",
             findings=[
-                Finding("HFS-010", Severity.MEDIUM, "test.py", 1, 0, "medium finding", "evidence", "fix", None)
+                Finding(
+                    "HFS-010",
+                    Severity.MEDIUM,
+                    "test.py",
+                    1,
+                    0,
+                    "medium finding",
+                    "evidence",
+                    "fix",
+                    None,
+                )
             ],
             files_scanned=10,
             files_skipped=1,
@@ -62,9 +69,39 @@ class TestCompletenessInvariant:
             scan_mode="local",
             scanner_version="0.2.0",
             findings=[
-                Finding("HFS-010", Severity.MEDIUM, "test1.py", 1, 0, "medium finding 1", "evidence", "fix", None),
-                Finding("HFS-010", Severity.MEDIUM, "test2.py", 1, 0, "medium finding 2", "evidence", "fix", None),
-                Finding("HFS-010", Severity.MEDIUM, "test3.py", 1, 0, "medium finding 3", "evidence", "fix", None),
+                Finding(
+                    "HFS-010",
+                    Severity.MEDIUM,
+                    "test1.py",
+                    1,
+                    0,
+                    "medium finding 1",
+                    "evidence",
+                    "fix",
+                    None,
+                ),
+                Finding(
+                    "HFS-010",
+                    Severity.MEDIUM,
+                    "test2.py",
+                    1,
+                    0,
+                    "medium finding 2",
+                    "evidence",
+                    "fix",
+                    None,
+                ),
+                Finding(
+                    "HFS-010",
+                    Severity.MEDIUM,
+                    "test3.py",
+                    1,
+                    0,
+                    "medium finding 3",
+                    "evidence",
+                    "fix",
+                    None,
+                ),
             ],
             files_scanned=10,
             files_skipped=1,
@@ -82,8 +119,28 @@ class TestCompletenessInvariant:
             scan_mode="local",
             scanner_version="0.2.0",
             findings=[
-                Finding("HFS-002", Severity.HIGH, "test1.py", 1, 0, "high finding 1", "evidence", "fix", None),
-                Finding("HFS-003", Severity.HIGH, "test2.py", 1, 0, "high finding 2", "evidence", "fix", None),
+                Finding(
+                    "HFS-002",
+                    Severity.HIGH,
+                    "test1.py",
+                    1,
+                    0,
+                    "high finding 1",
+                    "evidence",
+                    "fix",
+                    None,
+                ),
+                Finding(
+                    "HFS-003",
+                    Severity.HIGH,
+                    "test2.py",
+                    1,
+                    0,
+                    "high finding 2",
+                    "evidence",
+                    "fix",
+                    None,
+                ),
             ],
             files_scanned=10,
             files_skipped=1,
@@ -100,8 +157,28 @@ class TestCompletenessInvariant:
             scan_mode="local",
             scanner_version="0.2.0",
             findings=[
-                Finding("HFS-001", Severity.CRITICAL, "test1.py", 1, 0, "critical finding 1", "evidence", "fix", None),
-                Finding("HFS-001", Severity.CRITICAL, "test2.py", 1, 0, "critical finding 2", "evidence", "fix", None),
+                Finding(
+                    "HFS-001",
+                    Severity.CRITICAL,
+                    "test1.py",
+                    1,
+                    0,
+                    "critical finding 1",
+                    "evidence",
+                    "fix",
+                    None,
+                ),
+                Finding(
+                    "HFS-001",
+                    Severity.CRITICAL,
+                    "test2.py",
+                    1,
+                    0,
+                    "critical finding 2",
+                    "evidence",
+                    "fix",
+                    None,
+                ),
             ],
             files_scanned=10,
             files_skipped=1,
@@ -133,7 +210,17 @@ class TestCompletenessInvariant:
             scan_mode="local",
             scanner_version="0.2.0",
             findings=[
-                Finding("HFS-010", Severity.MEDIUM, "test.py", 1, 0, "medium finding", "evidence", "fix", None)
+                Finding(
+                    "HFS-010",
+                    Severity.MEDIUM,
+                    "test.py",
+                    1,
+                    0,
+                    "medium finding",
+                    "evidence",
+                    "fix",
+                    None,
+                )
             ],
             files_scanned=10,
             files_skipped=0,
@@ -151,7 +238,17 @@ class TestCompletenessInvariant:
             scan_mode="local",
             scanner_version="0.2.0",
             findings=[
-                Finding("HFS-001", Severity.HIGH, "test.py", 1, 0, "high finding", "evidence", "fix", None)
+                Finding(
+                    "HFS-001",
+                    Severity.HIGH,
+                    "test.py",
+                    1,
+                    0,
+                    "high finding",
+                    "evidence",
+                    "fix",
+                    None,
+                )
             ],
             files_scanned=10,
             files_skipped=0,
@@ -169,8 +266,28 @@ class TestCompletenessInvariant:
             scan_mode="local",
             scanner_version="0.2.0",
             findings=[
-                Finding("HFS-001", Severity.CRITICAL, "test1.py", 1, 0, "critical finding 1", "evidence", "fix", None),
-                Finding("HFS-001", Severity.CRITICAL, "test2.py", 1, 0, "critical finding 2", "evidence", "fix", None),
+                Finding(
+                    "HFS-001",
+                    Severity.CRITICAL,
+                    "test1.py",
+                    1,
+                    0,
+                    "critical finding 1",
+                    "evidence",
+                    "fix",
+                    None,
+                ),
+                Finding(
+                    "HFS-001",
+                    Severity.CRITICAL,
+                    "test2.py",
+                    1,
+                    0,
+                    "critical finding 2",
+                    "evidence",
+                    "fix",
+                    None,
+                ),
             ],
             files_scanned=10,
             files_skipped=0,
@@ -208,7 +325,9 @@ class TestCompletenessInvariant:
         )
         risk = compute_risk(result)
         assert risk.level == "LOW"
-        assert not any("PARTIAL" in r or "INDETERMINATE" in r or "unknown" in r.lower() for r in risk.reasons)
+        assert not any(
+            "PARTIAL" in r or "INDETERMINATE" in r or "unknown" in r.lower() for r in risk.reasons
+        )
 
 
 class TestEnforceMode:
@@ -235,14 +354,20 @@ max_file_size_kb = 0
 """)
 
         # Run with --enforce
-        exit_code = main([
-            str(tmp_path),
-            "--mode", "local",
-            "--config", str(config_file),
-            "--enforce",
-            "--fail-on", "critical",  # Only fail on critical findings
-            "--format", "json"
-        ])
+        exit_code = main(
+            [
+                str(tmp_path),
+                "--mode",
+                "local",
+                "--config",
+                str(config_file),
+                "--enforce",
+                "--fail-on",
+                "critical",  # Only fail on critical findings
+                "--format",
+                "json",
+            ]
+        )
         # Should fail due to incomplete scan (enforce mode)
         assert exit_code == 1
 
@@ -251,13 +376,18 @@ max_file_size_kb = 0
         test_file = tmp_path / "test.py"
         test_file.write_text("print('hello')")
 
-        exit_code = main([
-            str(tmp_path),
-            "--mode", "local",
-            "--enforce",
-            "--fail-on", "critical",
-            "--format", "json"
-        ])
+        exit_code = main(
+            [
+                str(tmp_path),
+                "--mode",
+                "local",
+                "--enforce",
+                "--fail-on",
+                "critical",
+                "--format",
+                "json",
+            ]
+        )
         # Should pass - complete scan, no critical findings
         assert exit_code == 0
 
@@ -269,11 +399,11 @@ class TestCliCompleteness:
         """Scanner error should set INDETERMINATE completeness."""
         # Create a directory that doesn't exist to trigger error
         nonexistent = tmp_path / "nonexistent"
-        
+
         # We can't easily test this without mocking, but we can verify
         # the logic in the code by checking the model
-        from scanner.models import ScanResult, Completeness
-        
+        from scanner.models import Completeness, ScanResult
+
         result = ScanResult(
             scan_target="test",
             scan_mode="local",
@@ -286,8 +416,8 @@ class TestCliCompleteness:
 
     def test_skipped_files_sets_partial(self):
         """Skipped files should set PARTIAL completeness."""
-        from scanner.models import ScanResult, Completeness
-        
+        from scanner.models import Completeness, ScanResult
+
         result = ScanResult(
             scan_target="test",
             scan_mode="local",
@@ -312,6 +442,7 @@ class TestCompletenessEnum:
     def test_no_duplicate_definitions(self):
         """Ensure only one Completeness enum definition exists."""
         from scanner.models import Completeness
+
         # Just verify we can import and use it
         members = list(Completeness)
         assert len(members) == 4

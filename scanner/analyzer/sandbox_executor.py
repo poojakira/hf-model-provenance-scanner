@@ -536,19 +536,25 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Sandbox executor for untrusted code")
     parser.add_argument("file", help="Python file to execute in sandbox")
-    parser.add_argument("--backend", choices=["subprocess", "gvisor", "firecracker"], default="subprocess", help="Sandbox backend")
+    parser.add_argument(
+        "--backend",
+        choices=["subprocess", "gvisor", "firecracker"],
+        default="subprocess",
+        help="Sandbox backend",
+    )
     parser.add_argument("--timeout", type=int, default=30, help="Timeout in seconds")
     args = parser.parse_args()
 
     os.environ["HF_SANDBOX_BACKEND"] = args.backend
     os.environ["HF_SCANNER_SANDBOX_TIMEOUT"] = str(args.timeout)
 
-    with open(args.file, "r") as f:
+    with open(args.file) as f:
         source = f.read()
 
     findings = sandbox_execute(args.file, source)
 
     import json
+
     output = {
         "file": args.file,
         "backend": args.backend,
@@ -564,7 +570,10 @@ if __name__ == "__main__":
     }
     print(json.dumps(output, indent=2))
 
-    if any((f.severity.value if hasattr(f.severity, "value") else f.severity) in {"critical", "high"} for f in findings):
+    if any(
+        (f.severity.value if hasattr(f.severity, "value") else f.severity) in {"critical", "high"}
+        for f in findings
+    ):
         sys.exit(1)
     else:
         sys.exit(0)

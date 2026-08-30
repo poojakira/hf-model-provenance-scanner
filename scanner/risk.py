@@ -1,6 +1,6 @@
 """Risk score computation for scan results."""
 
-from scanner.models import RiskSummary, ScanResult, Severity, Completeness
+from scanner.models import Completeness, RiskSummary, ScanResult, Severity
 
 SEVERITY_POINTS = {
     Severity.CRITICAL: 40,
@@ -90,7 +90,9 @@ def compute_risk(result: ScanResult) -> RiskSummary:
         # Indeterminate: errors prevented scanning
         if level in ("LOW", "MEDIUM"):
             level = "HIGH"
-            reasons.append("Scan indeterminate (INDETERMINATE) - errors prevented complete inspection")
+            reasons.append(
+                "Scan indeterminate (INDETERMINATE) - errors prevented complete inspection"
+            )
         # HIGH and CRITICAL stay as-is
     elif completeness == Completeness.UNKNOWN:
         # Unknown: completeness could not be determined

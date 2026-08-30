@@ -7,20 +7,17 @@ calls are made — all fixtures are generated locally.
 """
 
 import json
-import os
-import pickle
 import struct
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # Fixture helpers
 # ---------------------------------------------------------------------------
+
 
 def _craft_malicious_pickle() -> bytes:
     """
@@ -35,26 +32,27 @@ def _craft_malicious_pickle() -> bytes:
     a string argument, which the scanner MUST flag as CRITICAL.
     """
     # Pickle opcodes (protocol 2)
-    PROTO = b'\x80\x02'          # protocol 2 header
-    GLOBAL = b'\x63'             # GLOBAL opcode
-    MARK = b'('                  # MARK
-    SHORT_BINUNICODE = b'\x8c'   # SHORT_BINUNICODE
-    TUPLE1 = b'\x85'             # TUPLE1
-    REDUCE = b'\x52'             # REDUCE
-    STOP = b'.'                  # STOP
+    PROTO = b"\x80\x02"  # protocol 2 header
+    GLOBAL = b"\x63"  # GLOBAL opcode
+    MARK = b"("  # MARK
+    SHORT_BINUNICODE = b"\x8c"  # SHORT_BINUNICODE
+    TUPLE1 = b"\x85"  # TUPLE1
+    REDUCE = b"\x52"  # REDUCE
+    STOP = b"."  # STOP
 
     # Construct: os.system("echo pwned")
-    module_name = b'os\nsystem\n'
-    arg = b'echo pwned'
+    module_name = b"os\nsystem\n"
+    arg = b"echo pwned"
 
     payload = (
         PROTO
-        + GLOBAL + module_name           # push os.system onto stack
+        + GLOBAL
+        + module_name  # push os.system onto stack
         + SHORT_BINUNICODE
-        + struct.pack('<B', len(arg))
-        + arg                            # push argument string
-        + TUPLE1                         # wrap in tuple
-        + REDUCE                         # call os.system("echo pwned")
+        + struct.pack("<B", len(arg))
+        + arg  # push argument string
+        + TUPLE1  # wrap in tuple
+        + REDUCE  # call os.system("echo pwned")
         + STOP
     )
     return payload
@@ -66,19 +64,17 @@ def _craft_clean_safetensors_config() -> dict:
     all scanner checks without any findings.
     """
     return {
-        "_metadata": {
-            "format": "pt"
-        },
+        "_metadata": {"format": "pt"},
         "model.embed_tokens.weight": {
             "dtype": "F32",
             "shape": [32000, 4096],
-            "data_offsets": [0, 524288000]
+            "data_offsets": [0, 524288000],
         },
         "model.layers.0.self_attn.q_proj.weight": {
             "dtype": "F32",
             "shape": [4096, 4096],
-            "data_offsets": [524288000, 591396864]
-        }
+            "data_offsets": [524288000, 591396864],
+        },
     }
 
 
@@ -105,11 +101,11 @@ def _create_model_repo(tmp_path: Path) -> tuple:
 
     # Add config for realism
     config = malicious_dir / "config.json"
-    config.write_text(json.dumps({
-        "model_type": "llama",
-        "architectures": ["LlamaForCausalLM"],
-        "hidden_size": 4096
-    }))
+    config.write_text(
+        json.dumps(
+            {"model_type": "llama", "architectures": ["LlamaForCausalLM"], "hidden_size": 4096}
+        )
+    )
 
     # --- Clean model directory ---
     clean_dir = tmp_path / "clean-model"
@@ -121,17 +117,21 @@ def _create_model_repo(tmp_path: Path) -> tuple:
 
     # Write a minimal config.json
     clean_config = clean_dir / "config.json"
-    clean_config.write_text(json.dumps({
-        "model_type": "llama",
-        "architectures": ["LlamaForCausalLM"],
-        "hidden_size": 4096,
-        "torch_dtype": "float32"
-    }))
+    clean_config.write_text(
+        json.dumps(
+            {
+                "model_type": "llama",
+                "architectures": ["LlamaForCausalLM"],
+                "hidden_size": 4096,
+                "torch_dtype": "float32",
+            }
+        )
+    )
 
     # Write a dummy safetensors file (just header, no real tensor data)
     safetensors_file = clean_dir / "model.safetensors"
     header = json.dumps({"__metadata__": {"format": "pt"}}).encode()
-    header_size = struct.pack('<Q', len(header))
+    header_size = struct.pack("<Q", len(header))
     safetensors_file.write_bytes(header_size + header)
 
     return malicious_dir, clean_dir
@@ -140,6 +140,7 @@ def _create_model_repo(tmp_path: Path) -> tuple:
 # ---------------------------------------------------------------------------
 # Integration Tests
 # ---------------------------------------------------------------------------
+
 
 class TestIntegrationHFScanner:
     """
@@ -160,10 +161,14 @@ class TestIntegrationHFScanner:
         Returns parsed JSON output or raw result dict.
         """
         cmd = [
-            sys.executable, "-m", "scanner.cli",
+            sys.executable,
+            "-m",
+            "scanner.cli",
             str(target_path),
-            "-m", "local",
-            "--format", output_format,
+            "-m",
+            "local",
+            "--format",
+            output_format,
             "--no-network",  # Ensure no external calls
         ]
 
@@ -204,10 +209,7 @@ class TestIntegrationHFScanner:
         assert len(findings) > 0, "Should have at least one finding"
 
         # At least one finding must be CRITICAL
-        severities = [
-            f.get("severity", f.get("level", "")).upper()
-            for f in findings
-        ]
+        severities = [f.get("severity", f.get("level", "")).upper() for f in findings]
         assert "CRITICAL" in severities, (
             f"Expected CRITICAL severity finding for os.system in pickle. "
             f"Got severities: {severities}"
@@ -215,13 +217,12 @@ class TestIntegrationHFScanner:
 
         # Verify the finding references the dangerous import
         critical_findings = [
-            f for f in findings
-            if f.get("severity", f.get("level", "")).upper() == "CRITICAL"
+            f for f in findings if f.get("severity", f.get("level", "")).upper() == "CRITICAL"
         ]
         finding_text = json.dumps(critical_findings).lower()
-        assert "os" in finding_text or "system" in finding_text, (
-            "Critical finding should reference the dangerous module (os.system)"
-        )
+        assert (
+            "os" in finding_text or "system" in finding_text
+        ), "Critical finding should reference the dangerous module (os.system)"
 
     def test_malicious_pickle_identifies_correct_file(self):
         """
@@ -242,9 +243,9 @@ class TestIntegrationHFScanner:
             flagged_files.add(Path(file_path).name)
 
         # Both malicious files should be flagged
-        assert "model.pkl" in flagged_files or "pytorch_model.bin" in flagged_files, (
-            f"Scanner should flag the malicious pickle files. Flagged: {flagged_files}"
-        )
+        assert (
+            "model.pkl" in flagged_files or "pytorch_model.bin" in flagged_files
+        ), f"Scanner should flag the malicious pickle files. Flagged: {flagged_files}"
 
     def test_clean_safetensors_no_findings(self):
         """
@@ -277,9 +278,9 @@ class TestIntegrationHFScanner:
         assert parsed is not None, "Should produce valid SARIF JSON"
 
         # Validate SARIF structure
-        assert parsed.get("$schema") or parsed.get("version"), (
-            "SARIF output should have schema or version field"
-        )
+        assert parsed.get("$schema") or parsed.get(
+            "version"
+        ), "SARIF output should have schema or version field"
         assert "runs" in parsed, "SARIF output must contain 'runs' array"
         assert len(parsed["runs"]) > 0, "SARIF should have at least one run"
 
@@ -313,23 +314,32 @@ class TestIntegrationHFScanner:
         multi_danger_dir.mkdir()
 
         # Craft pickle with os.system AND subprocess.call
-        PROTO = b'\x80\x02'
-        GLOBAL = b'\x63'
-        SHORT_BINUNICODE = b'\x8c'
-        TUPLE1 = b'\x85'
-        REDUCE = b'\x52'
-        POP = b'0'
-        STOP = b'.'
+        PROTO = b"\x80\x02"
+        GLOBAL = b"\x63"
+        SHORT_BINUNICODE = b"\x8c"
+        TUPLE1 = b"\x85"
+        REDUCE = b"\x52"
+        POP = b"0"
+        STOP = b"."
 
-        arg = b'whoami'
+        arg = b"whoami"
         payload = (
             PROTO
-            + GLOBAL + b'os\nsystem\n'
-            + SHORT_BINUNICODE + struct.pack('<B', len(arg)) + arg
-            + TUPLE1 + REDUCE + POP
-            + GLOBAL + b'subprocess\ncall\n'
-            + SHORT_BINUNICODE + struct.pack('<B', len(arg)) + arg
-            + TUPLE1 + REDUCE
+            + GLOBAL
+            + b"os\nsystem\n"
+            + SHORT_BINUNICODE
+            + struct.pack("<B", len(arg))
+            + arg
+            + TUPLE1
+            + REDUCE
+            + POP
+            + GLOBAL
+            + b"subprocess\ncall\n"
+            + SHORT_BINUNICODE
+            + struct.pack("<B", len(arg))
+            + arg
+            + TUPLE1
+            + REDUCE
             + STOP
         )
 
@@ -342,14 +352,15 @@ class TestIntegrationHFScanner:
 
         findings = parsed.get("findings", parsed.get("results", []))
         # Should detect both dangerous imports
-        assert len(findings) >= 2, (
-            f"Expected at least 2 findings for 2 dangerous imports. Got {len(findings)}"
-        )
+        assert (
+            len(findings) >= 2
+        ), f"Expected at least 2 findings for 2 dangerous imports. Got {len(findings)}"
 
 
 # ---------------------------------------------------------------------------
 # CLI Smoke Tests
 # ---------------------------------------------------------------------------
+
 
 class TestCLISmokeTests:
     """Basic CLI invocation tests to verify the scanner binary works."""
@@ -380,8 +391,13 @@ class TestCLISmokeTests:
         """Scanner should error gracefully for non-existent paths."""
         result = subprocess.run(
             [
-                sys.executable, "-m", "scanner.cli",
-                "/nonexistent/path/xyz", "-m", "local", "--no-network",
+                sys.executable,
+                "-m",
+                "scanner.cli",
+                "/nonexistent/path/xyz",
+                "-m",
+                "local",
+                "--no-network",
             ],
             capture_output=True,
             text=True,

@@ -6,7 +6,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from pathlib import Path
 
 import pytest
 
@@ -18,6 +17,7 @@ def _severity_value(finding):
 def test_sandbox_executor_module_import():
     """Test that the sandbox executor module can be imported."""
     from scanner.analyzer import sandbox_executor
+
     assert hasattr(sandbox_executor, "sandbox_execute")
 
 
@@ -86,7 +86,9 @@ s.connect(("8.8.8.8", 53))
         os.environ["HF_SANDBOX_BACKEND"] = "subprocess"
         findings = sandbox_execute(tmp, malicious_code)
         # Should detect network access
-        network_findings = [f for f in findings if "socket" in f.evidence.lower() or "connect" in f.evidence.lower()]
+        network_findings = [
+            f for f in findings if "socket" in f.evidence.lower() or "connect" in f.evidence.lower()
+        ]
         assert len(network_findings) > 0, "Should detect network access"
     finally:
         os.unlink(tmp)
@@ -117,7 +119,6 @@ eval("__import__('os').system('ls')")
 @pytest.mark.skipif(shutil.which("runsc") is None, reason="gVisor not available")
 def test_sandbox_gvisor_isolation():
     """Test that gVisor properly isolates network and syscalls."""
-    import shutil
     from scanner.analyzer.sandbox_executor import sandbox_execute
 
     malicious_code = """
@@ -134,8 +135,16 @@ socket.create_connection(("8.8.8.8", 53))
         os.environ["HF_SANDBOX_BACKEND"] = "gvisor"
         findings = sandbox_execute(tmp, malicious_code)
         # gVisor should block or crash on these attempts
-        blocked_findings = [f for f in findings if "blocked" in f.evidence.lower() or "crashed" in f.evidence.lower() or "killed" in f.evidence.lower()]
-        assert len(blocked_findings) > 0 or len(findings) > 0, "gVisor should block or detect malicious activity"
+        blocked_findings = [
+            f
+            for f in findings
+            if "blocked" in f.evidence.lower()
+            or "crashed" in f.evidence.lower()
+            or "killed" in f.evidence.lower()
+        ]
+        assert (
+            len(blocked_findings) > 0 or len(findings) > 0
+        ), "gVisor should block or detect malicious activity"
     finally:
         os.unlink(tmp)
 
@@ -151,7 +160,14 @@ def test_sandbox_cli():
     try:
         # Run via module
         result = subprocess.run(
-            [sys.executable, "-m", "scanner.analyzer.sandbox_executor", tmp, "--backend", "subprocess"],
+            [
+                sys.executable,
+                "-m",
+                "scanner.analyzer.sandbox_executor",
+                tmp,
+                "--backend",
+                "subprocess",
+            ],
             capture_output=True,
             text=True,
             timeout=30,

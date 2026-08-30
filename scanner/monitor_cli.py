@@ -50,8 +50,7 @@ def _slack_escalation(webhook_url: str):
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="hf-scan-monitor",
-        description="Polling watchtower: periodically scan newly-published "
-        "Hugging Face models.",
+        description="Polling watchtower: periodically scan newly-published " "Hugging Face models.",
     )
     p.add_argument(
         "--interval", type=int, default=60, help="seconds between polls of the Hub (default: 60)"

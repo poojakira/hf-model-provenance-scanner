@@ -305,7 +305,10 @@ def scan_local(
 
 
 def scan_remote_files(
-    result: ScanResult, repo_id: str, client: HFApiClient, config: dict,
+    result: ScanResult,
+    repo_id: str,
+    client: HFApiClient,
+    config: dict,
     revision: str = "main",
 ) -> tuple[dict[str, bytes], dict[str, bytes], dict[str, tuple[str, int]]]:
     """Scan remote files including binary model scanning.
@@ -628,6 +631,7 @@ def main(argv=None):
     # of health.  The skipped files are already recorded as HFS-098 findings.
     # If errors prevented scanning, mark INDETERMINATE.
     from scanner.models import Completeness
+
     if result.error:
         result.completeness = Completeness.INDETERMINATE
     elif result.files_skipped > 0:
@@ -692,10 +696,17 @@ def main(argv=None):
     # Enforce mode: also fail on incomplete/indeterminate scans
     enforce_fail = False
     if args.enforce:
-        if result.completeness in (Completeness.PARTIAL, Completeness.INDETERMINATE, Completeness.UNKNOWN):
+        if result.completeness in (
+            Completeness.PARTIAL,
+            Completeness.INDETERMINATE,
+            Completeness.UNKNOWN,
+        ):
             enforce_fail = True
             if not args.quiet:
-                print(f"ENFORCE FAIL: Scan completeness is {result.completeness.value}", file=sys.stderr)
+                print(
+                    f"ENFORCE FAIL: Scan completeness is {result.completeness.value}",
+                    file=sys.stderr,
+                )
 
     return 1 if (severity_fail or enforce_fail) else 0
 

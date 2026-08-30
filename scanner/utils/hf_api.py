@@ -25,8 +25,8 @@ import random
 import threading
 import time
 import urllib.error
-import urllib.request
 import urllib.parse
+import urllib.request
 
 MAX_DOWNLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 MAX_RETRIES = 3
@@ -36,26 +36,30 @@ BASE_RETRY_DELAY = 1.0
 # All must be accessed over HTTPS only.
 # Authorization header is forwarded ONLY to huggingface.co and *.hf.co.
 # For CDN hosts it is stripped to avoid token leakage.
-HF_ALLOWED_HOSTS: frozenset[str] = frozenset({
-    "huggingface.co",
-    "www.huggingface.co",
-    # HF CDN — large file downloads redirect here
-    "cdn-lfs.huggingface.co",
-    "cdn-lfs-us-1.huggingface.co",
-    "cdn-lfs-eu-1.huggingface.co",
-    # S3 presigned URLs issued by HF for private repos
-    "s3.amazonaws.com",
-    # hf.co shorthand aliases
-    "hf.co",
-})
+HF_ALLOWED_HOSTS: frozenset[str] = frozenset(
+    {
+        "huggingface.co",
+        "www.huggingface.co",
+        # HF CDN — large file downloads redirect here
+        "cdn-lfs.huggingface.co",
+        "cdn-lfs-us-1.huggingface.co",
+        "cdn-lfs-eu-1.huggingface.co",
+        # S3 presigned URLs issued by HF for private repos
+        "s3.amazonaws.com",
+        # hf.co shorthand aliases
+        "hf.co",
+    }
+)
 
 # Hosts to which the Authorization header may be forwarded.
 # CDN and S3 hosts must NOT receive the bearer token.
-HF_AUTH_FORWARD_HOSTS: frozenset[str] = frozenset({
-    "huggingface.co",
-    "www.huggingface.co",
-    "hf.co",
-})
+HF_AUTH_FORWARD_HOSTS: frozenset[str] = frozenset(
+    {
+        "huggingface.co",
+        "www.huggingface.co",
+        "hf.co",
+    }
+)
 
 
 class _SafeRedirectHandler(urllib.request.HTTPRedirectHandler):
@@ -231,7 +235,7 @@ class HFApiClient:
                 if 400 <= e.code < 500 and e.code != 429:
                     raise
                 if attempt < MAX_RETRIES - 1:
-                    delay = BASE_RETRY_DELAY * (2 ** attempt) + random.uniform(0, 0.5)
+                    delay = BASE_RETRY_DELAY * (2**attempt) + random.uniform(0, 0.5)  # noqa: S311
                     if e.code == 429:
                         retry_after = e.headers.get("Retry-After", "")
                         if retry_after.isdigit():
@@ -241,12 +245,10 @@ class HFApiClient:
             except (urllib.error.URLError, OSError) as e:
                 last_error = e
                 if attempt < MAX_RETRIES - 1:
-                    delay = BASE_RETRY_DELAY * (2 ** attempt) + random.uniform(0, 0.5)
+                    delay = BASE_RETRY_DELAY * (2**attempt) + random.uniform(0, 0.5)  # noqa: S311
                     time.sleep(delay)
 
-        raise RuntimeError(
-            f"Request failed after {MAX_RETRIES} retries: {last_error}"
-        )
+        raise RuntimeError(f"Request failed after {MAX_RETRIES} retries: {last_error}")
 
     # ── Repository metadata ──────────────────────────────────────────────────
 

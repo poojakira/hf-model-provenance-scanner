@@ -14,11 +14,10 @@ Covers:
 Run with: pytest tests/test_p0_security_regressions.py -v
 """
 
-import io
 import struct
 import urllib.error
 import urllib.request
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -26,8 +25,6 @@ from scanner.analyzer.pickle_scanner import PickleScanner, scan_pickle_bytes
 from scanner.models import Completeness, ScanResult
 from scanner.utils.hf_api import (
     HFApiClient,
-    HF_ALLOWED_HOSTS,
-    HF_AUTH_FORWARD_HOSTS,
     _SafeRedirectHandler,
 )
 
@@ -74,9 +71,7 @@ class TestImmutableRevision:
     def test_list_repo_files_accepts_valid_sha(self):
         """A valid 40-char SHA should not raise at validation time (network may fail)."""
         # Patch _request to avoid real network call
-        self.client._request = MagicMock(
-            return_value=b'{"siblings": [{"rfilename": "model.pkl"}]}'
-        )
+        self.client._request = MagicMock(return_value=b'{"siblings": [{"rfilename": "model.pkl"}]}')
         files = self.client.list_repo_files("org/model", commit_sha=VALID_SHA)
         assert files == ["model.pkl"]
         # Verify the SHA was used in the URL, not "main"
@@ -141,12 +136,12 @@ class TestRedirectSecurity:
         new_req = handler._build_redirected_request(
             req, "https://cdn-lfs.huggingface.co/repos/ab/cd/model.pkl"
         )
-        assert "Authorization" not in new_req.headers, (
-            "Authorization MUST be stripped when redirecting to CDN host"
-        )
-        assert "authorization" not in {k.lower() for k in new_req.headers}, (
-            "Authorization (any case) MUST be stripped on cross-origin redirect"
-        )
+        assert (
+            "Authorization" not in new_req.headers
+        ), "Authorization MUST be stripped when redirecting to CDN host"
+        assert "authorization" not in {
+            k.lower() for k in new_req.headers
+        }, "Authorization (any case) MUST be stripped on cross-origin redirect"
 
     def test_auth_forwarded_on_same_origin_redirect(self):
         """Authorization header IS forwarded when redirecting within huggingface.co."""
@@ -155,12 +150,10 @@ class TestRedirectSecurity:
             "https://huggingface.co/org/model",
             headers={"Authorization": "Bearer my-token"},
         )
-        new_req = handler._build_redirected_request(
-            req, "https://huggingface.co/org/model/v2"
-        )
-        assert "Authorization" in new_req.headers, (
-            "Authorization should be forwarded within huggingface.co"
-        )
+        new_req = handler._build_redirected_request(req, "https://huggingface.co/org/model/v2")
+        assert (
+            "Authorization" in new_req.headers
+        ), "Authorization should be forwarded within huggingface.co"
 
     def test_auth_stripped_on_s3_redirect(self):
         """Authorization must NOT be forwarded to s3.amazonaws.com."""
@@ -170,8 +163,7 @@ class TestRedirectSecurity:
             headers={"Authorization": "Bearer secret"},
         )
         new_req = handler._build_redirected_request(
-            req,
-            "https://s3.amazonaws.com/hf-private-bucket/model.pkl?X-Amz-Signature=sig"
+            req, "https://s3.amazonaws.com/hf-private-bucket/model.pkl?X-Amz-Signature=sig"
         )
         assert "Authorization" not in new_req.headers
 
@@ -236,9 +228,9 @@ class TestUnknownPickleOpcode:
         scanner = PickleScanner("test.pkl", data)
         findings = scanner.scan()
         rule_ids = {f.rule_id for f in findings}
-        assert "HFS-099" in rule_ids, (
-            f"HFS-099 (INDETERMINATE) must be emitted for unknown opcode. Got: {rule_ids}"
-        )
+        assert (
+            "HFS-099" in rule_ids
+        ), f"HFS-099 (INDETERMINATE) must be emitted for unknown opcode. Got: {rule_ids}"
 
     def test_unknown_opcode_increments_counter(self):
         data = self._build_pickle_with_unknown_opcode()
@@ -249,13 +241,14 @@ class TestUnknownPickleOpcode:
     def test_clean_pickle_no_unknown_opcode_finding(self):
         """A completely benign pickle should not trigger HFS-099."""
         import pickle
+
         data = pickle.dumps({"key": "value"})
         scanner = PickleScanner("benign.pkl", data)
         findings = scanner.scan()
         rule_ids = {f.rule_id for f in findings}
-        assert "HFS-099" not in rule_ids, (
-            f"HFS-099 must NOT fire for a known-clean pickle. Got: {rule_ids}"
-        )
+        assert (
+            "HFS-099" not in rule_ids
+        ), f"HFS-099 must NOT fire for a known-clean pickle. Got: {rule_ids}"
         assert scanner.unknown_opcode_count == 0
 
 
@@ -321,13 +314,14 @@ class TestDelayedPayloadRegression:
         data = self._build_delayed_payload(padding_size=513_000)
         findings = scan_pickle_bytes("boundary_payload.pkl", data)
         rule_ids = {f.rule_id for f in findings}
-        assert "HFS-050" in rule_ids, (
-            "HFS-050 must fire for os.system at 513KB — old 512KB limit was the bug."
-        )
+        assert (
+            "HFS-050" in rule_ids
+        ), "HFS-050 must fire for os.system at 513KB — old 512KB limit was the bug."
 
     def test_clean_data_with_large_string_no_finding(self):
         """A pickle with a large benign string but no dangerous GLOBAL must be clean."""
         import pickle
+
         # pickle.dumps uses protocol 4+ for large objects, which is fine
         data = pickle.dumps({"big": "B" * 700_000})
         findings = scan_pickle_bytes("large_benign.pkl", data)
