@@ -190,23 +190,23 @@ jobs:
       - name: Verify gVisor isolation
         run: |
           python -c "
-import os, subprocess, tempfile
-os.environ['HF_SANDBOX_BACKEND'] = 'gvisor'
-code = '''
-import subprocess, socket
-subprocess.run(['ls'])
-socket.create_connection(('8.8.8.8', 53))
-'''
-with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-    f.write(code)
-    tmp = f.name
-result = subprocess.run(['python', '-m', 'scanner.analyzer.sandbox_executor', tmp], capture_output=True, text=True, timeout=30)
-print('STDOUT:', result.stdout[:500])
-print('STDERR:', result.stderr[:500])
-print('Return code:', result.returncode)
-assert 'blocked' in result.stdout.lower() or 'crashed' in result.stderr.lower(), 'gVisor should block network/syscalls'
-print('SUCCESS: gVisor isolation verified')
-"
+          import os, subprocess, tempfile
+          os.environ['HF_SANDBOX_BACKEND'] = 'gvisor'
+          code = '''
+          import subprocess, socket
+          subprocess.run(['ls'])
+          socket.create_connection(('8.8.8.8', 53))
+          '''
+          with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+              f.write(code)
+              tmp = f.name
+          result = subprocess.run(['python', '-m', 'scanner.analyzer.sandbox_executor', tmp], capture_output=True, text=True, timeout=30)
+          print('STDOUT:', result.stdout[:500])
+          print('STDERR:', result.stderr[:500])
+          print('Return code:', result.returncode)
+          assert 'blocked' in result.stdout.lower() or 'crashed' in result.stderr.lower(), 'gVisor should block network/syscalls'
+          print('SUCCESS: gVisor isolation verified')
+          "
 
   test:
     name: Unit Tests (Python ${{ matrix.python-version }})
