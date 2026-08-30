@@ -181,17 +181,26 @@ ruff check .
 ### JSON Output
 ```json
 {
-  "target": "/path/to/model",
-  "scan_timestamp": "2026-08-16T12:00:00Z",
+  "scan_target": "/path/to/model",
+  "scan_mode": "local",
+  "scanner_version": "0.2.0",
   "findings": [],
-  "summary": {
-    "total_files": 5,
-    "files_scanned": 5,
-    "findings_count": 0,
-    "max_severity": "NONE"
-  }
+  "org_check": null,
+  "risk": {
+    "score": 0,
+    "level": "LOW",
+    "reasons": []
+  },
+  "files_scanned": 5,
+  "files_skipped": 0,
+  "scan_duration_seconds": 0.09,
+  "error": null
 }
 ```
+
+The top-level keys are `scan_target`, `scan_mode`, `scanner_version`,
+`findings` (array), `org_check`, `risk` (`{score, level, reasons}`),
+`files_scanned`, `files_skipped`, `scan_duration_seconds`, and `error`.
 
 ### SARIF Output
 Standards-compliant SARIF 2.1.0 for GitHub Advanced Security integration
