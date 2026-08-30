@@ -10,6 +10,20 @@ import tempfile
 import pytest
 
 
+@pytest.fixture(autouse=True)
+def _restore_sandbox_backend_env():
+    """Prevent HF_SANDBOX_BACKEND set by these tests from leaking into other
+    test modules and causing ordering-dependent failures."""
+    saved = os.environ.get("HF_SANDBOX_BACKEND")
+    try:
+        yield
+    finally:
+        if saved is None:
+            os.environ.pop("HF_SANDBOX_BACKEND", None)
+        else:
+            os.environ["HF_SANDBOX_BACKEND"] = saved
+
+
 def _severity_value(finding):
     return finding.severity.value if hasattr(finding.severity, "value") else finding.severity
 
