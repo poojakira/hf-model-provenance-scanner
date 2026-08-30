@@ -32,7 +32,7 @@ def build_runtime_policy(target: str) -> dict:
             },
             "filesystem": {
                 "readOnlyPaths": ["/model", "/usr", "/lib"],
-                "writablePaths": ["/tmp", "/output"],
+                "writablePaths": ["/tmp", "/output"],  # nosec B108 - sandbox policy config
                 "blockedPaths": ["/proc/kcore", "/sys"],
             },
             "resources": {

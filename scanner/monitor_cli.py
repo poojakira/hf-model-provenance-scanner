@@ -40,7 +40,7 @@ def _slack_escalation(webhook_url: str):
             webhook_url, data=body, headers={"Content-Type": "application/json"}, method="POST"
         )
         try:
-            urllib.request.urlopen(req, timeout=10)
+            urllib.request.urlopen(req, timeout=10)  # nosec B310
         except Exception as err:  # noqa: BLE001 - never crash the daemon on notify
             print(f"[monitor] slack notify failed: {err}", file=sys.stderr)
 

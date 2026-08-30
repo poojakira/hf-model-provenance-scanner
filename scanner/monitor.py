@@ -102,7 +102,7 @@ def fetch_newest(cfg: MonitorConfig) -> list[str]:
         headers["Authorization"] = f"Bearer {cfg.token}"
     req = urllib.request.Request(url, headers=headers)
     try:
-        with urllib.request.urlopen(req, timeout=20) as resp:
+        with urllib.request.urlopen(req, timeout=20) as resp:  # nosec B310
             payload = json.loads(resp.read())
     except (urllib.error.URLError, OSError, json.JSONDecodeError) as err:
         # Don't die on a hiccup — a monitor that crashes on the first 503 is

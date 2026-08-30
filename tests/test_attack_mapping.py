@@ -1,7 +1,12 @@
 import pytest
-from attack_v19_core import ATTACKIndex, ATTACKLoader
 
-from scanner.attack_mapping.enricher import ATTACKEnricher
+# The ATT&CK enrichment tests require the optional attack-v19-core package,
+# which is checked out separately in CI. Skip cleanly when it is unavailable.
+attack_v19_core = pytest.importorskip("attack_v19_core")
+ATTACKIndex = attack_v19_core.ATTACKIndex
+ATTACKLoader = attack_v19_core.ATTACKLoader
+
+from scanner.attack_mapping.enricher import ATTACKEnricher  # noqa: E402
 
 
 @pytest.fixture

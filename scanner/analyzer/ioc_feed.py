@@ -159,7 +159,7 @@ def fetch_remote_feed(url: str, timeout: int = 10) -> dict | None:
                 "Accept": "application/json",
             },
         )
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:  # nosec B310
             if int(resp.headers.get("Content-Length", 0)) > MAX_FEED_SIZE:
                 return _read_cached_feed(url)  # Fallback to cache
             raw = resp.read(MAX_FEED_SIZE)

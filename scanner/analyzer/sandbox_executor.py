@@ -33,11 +33,11 @@ FIRECRACKER_RUNTIME = os.environ.get("FIRECRACKER_RUNTIME", "firecracker")
 # Environment configurations to test against (catches gated payloads)
 SANDBOX_ENV_CONFIGS = [
     # Default: minimal environment
-    {"PATH": "", "HOME": "/tmp", "PYTHONDONTWRITEBYTECODE": "1"},
+    {"PATH": "", "HOME": "/tmp", "PYTHONDONTWRITEBYTECODE": "1"},  # nosec B108 - sandbox env, not a real temp file
     # Windows-like: triggers platform.system() == "Windows" gates
     {
         "PATH": "",
-        "HOME": "/tmp",
+        "HOME": "/tmp",  # nosec B108 - sandbox env config
         "PYTHONDONTWRITEBYTECODE": "1",
         "OS": "Windows_NT",
         "SYSTEMROOT": "C:\\Windows",
@@ -46,7 +46,7 @@ SANDBOX_ENV_CONFIGS = [
     # CI environment: triggers CI-detection gates
     {
         "PATH": "",
-        "HOME": "/tmp",
+        "HOME": "/tmp",  # nosec B108 - sandbox env config
         "PYTHONDONTWRITEBYTECODE": "1",
         "CI": "true",
         "GITHUB_ACTIONS": "true",
