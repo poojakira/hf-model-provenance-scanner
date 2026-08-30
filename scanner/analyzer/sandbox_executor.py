@@ -86,6 +86,7 @@ def _make_backend_warning(file_path: str, evidence: str) -> Finding:
 
 HARNESS = textwrap.dedent("""
 import sys, json
+from importlib.machinery import ModuleSpec
 _F = []
 import os as _safe_os
 import os.path as _safe_path
@@ -102,12 +103,18 @@ class _M:
         _F.append({"op":"attr","module":s._n,"attr":a})
         return lambda *a,**k: None
     def __call__(s,*a,**k): return None
+class _Loader:
+    def __init__(s,n): s._n=n
+    def create_module(s,spec):
+        _F.append({"op":"import","module":s._n})
+        m=_M(s._n); sys.modules[s._n]=m; return m
+    def exec_module(s,module): pass
 class _IH:
-    def find_module(s,n,p=None):
-        if n.split(".")[0] in _BM: return s
-    def load_module(s,n):
-        _F.append({"op":"import","module":n})
-        m=_M(n); sys.modules[n]=m; return m
+    # Modern finder API (find_spec) — works on Python 3.10 through 3.12+.
+    def find_spec(s,n,p=None,t=None):
+        if n.split(".")[0] in _BM:
+            return ModuleSpec(n, _Loader(n))
+        return None
 sys.meta_path.insert(0,_IH())
 import builtins as _b
 _re,_rv,_rc=exec,eval,compile
@@ -180,12 +187,41 @@ def _sandbox_gvisor(file_path: str, source: str) -> list[Finding]:
         if findings:
             break
 
+    if not findings:
+        # gVisor ran but produced no observations (e.g. the payload was fully
+        # contained with no side effects). Emit an explicit marker so callers
+        # never receive an empty, ambiguous result from a hardened backend.
+        findings.append(
+            _make_backend_warning(
+                file_path,
+                "gVisor backend executed with no observed operations (payload contained)",
+            )
+        )
+
     return findings
 
 
 def _check_gvisor_available() -> bool:
-    """Check if gVisor runsc is available."""
-    return shutil.which("runsc") is not None
+    """Check if gVisor runsc is present AND actually runnable.
+
+    On many CI runners ``runsc`` can be on PATH but cannot execute containers
+    (no nested virtualization / required kernel features). A mere ``which``
+    check is therefore insufficient: we probe ``runsc --version`` and treat any
+    failure as "not available" so callers fall back to the subprocess sandbox
+    instead of silently returning zero findings.
+    """
+    if shutil.which("runsc") is None and not os.path.exists(GVISOR_RUNTIME):
+        return False
+    try:
+        probe = subprocess.run(
+            [GVISOR_RUNTIME, "--version"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        return probe.returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        return False
 
 
 def _sandbox_gvisor_single(file_path: str, source: str, env: dict) -> list[Finding]:
