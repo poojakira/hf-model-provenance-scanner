@@ -36,7 +36,26 @@ except ImportError:
                     elif v == "false":
                         v = False
                     elif v.startswith("[") and v.endswith("]"):
-                        v = []  # lists not fully supported in fallback
+                        # Parse a simple single-line array of scalars, e.g.
+                        # approved_publishers = ["openai", "meta-llama"]
+                        inner = v[1:-1].strip()
+                        if not inner:
+                            v = []
+                        else:
+                            items = []
+                            for item in inner.split(","):
+                                item = item.strip().strip('"').strip("'")
+                                if not item:
+                                    continue
+                                if item.isdigit():
+                                    items.append(int(item))
+                                elif item == "true":
+                                    items.append(True)
+                                elif item == "false":
+                                    items.append(False)
+                                else:
+                                    items.append(item)
+                            v = items
                     current_section[k.strip('"')] = v
             return config
 
