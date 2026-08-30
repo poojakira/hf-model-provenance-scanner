@@ -26,7 +26,7 @@ env:
   BANDIT_VERSION: "1.8.3"
   PIP_AUDIT_VERSION: "2.10.1"
   CYCLONEDX_VERSION: "5.1.1"
-  GVISOR_VERSION: "20240220"
+  GVISOR_VERSION: "latest"
   FIRECRACKER_VERSION: "v1.5.0"
   PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
 
@@ -69,7 +69,6 @@ jobs:
         with:
           repository: poojakira/attack-v19-core
           path: attack-v19-core
-          token: ${{ secrets.ATTACK_CORE_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
@@ -91,9 +90,9 @@ jobs:
       - name: Run Pyright
         run: |
           if [ -d "attack-v19-core" ]; then
-            PYTHONPATH=.:attack-v19-core pyright scanner tests
+            PYTHONPATH=.:attack-v19-core pyright scanner
           else
-            pyright scanner tests
+            pyright scanner
           fi
 
   security:
@@ -166,7 +165,7 @@ jobs:
       - name: Install gVisor (runsc)
         run: |
           set -o pipefail
-          curl -fsSL https://storage.googleapis.com/gvisor/releases/release/${{ env.GVISOR_VERSION }}/runsc -o /usr/local/bin/runsc
+          curl -fsSL https://storage.googleapis.com/gvisor/releases/release/${{ env.GVISOR_VERSION }}/x86_64/runsc -o /usr/local/bin/runsc
           chmod +x /usr/local/bin/runsc
           runsc version
 
@@ -227,7 +226,6 @@ jobs:
         with:
           repository: poojakira/attack-v19-core
           path: attack-v19-core
-          token: ${{ secrets.ATTACK_CORE_TOKEN }}
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
@@ -251,7 +249,7 @@ jobs:
       - name: Run tests with coverage
         run: |
           if [ -d "attack-v19-core" ]; then
-            PYTHONPATH=.:attack-v19-core pytest tests/ -v --tb=short \
+            PYTHONPATH=.:attack-v19-core pytest tests/ -v --tb=short -p pytest_cov \
               --cov=scanner \
               --cov-report=term-missing \
               --cov-report=xml:coverage.xml \
@@ -259,7 +257,7 @@ jobs:
               -W error::DeprecationWarning \
               -W error::PendingDeprecationWarning
           else
-            pytest tests/ -v --tb=short \
+            pytest tests/ -v --tb=short -p pytest_cov \
               --cov=scanner \
               --cov-report=term-missing \
               --cov-report=xml:coverage.xml \
@@ -331,7 +329,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.30.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
