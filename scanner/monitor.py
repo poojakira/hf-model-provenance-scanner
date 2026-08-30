@@ -143,6 +143,7 @@ def scan_one(repo_id: str, cfg: MonitorConfig) -> dict:
         # A single malformed repo must not take down the whole watchtower.
         return {"repo_id": repo_id, "error": str(err), "exit_code": 2}
 
+    report: dict[str, object]
     try:
         report = json.loads(buf.getvalue())
     except json.JSONDecodeError:

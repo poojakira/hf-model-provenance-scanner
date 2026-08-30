@@ -10,15 +10,14 @@ from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from pathlib import Path
 
-try:
-    import psutil
-
-    PSUTIL_AVAILABLE = True
-except ImportError:
-    PSUTIL_AVAILABLE = False
+# psutil is a hard runtime dependency (declared in pyproject.toml). Import it
+# directly so static analysis and runtime agree it is always available.
+import psutil
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
+
+PSUTIL_AVAILABLE = True
 
 
 @dataclass
@@ -274,7 +273,9 @@ class RuntimeMonitor:
 
     def _check_anomalies(self):
         """Statistical anomaly detection against baseline."""
-        if not self.baseline or self.baseline.sample_count < 10:
+        if not self.baseline:
+            return
+        if self.baseline.sample_count < 10:
             self.baseline.sample_count += 1
             return
 
@@ -369,10 +370,12 @@ class ContainerEscapeDetector:
                                 cwe=get_rule("HFS-102").cwe,
                             )
                         )
-            # Check capabilities
+            # Check capabilities. psutil has no portable capabilities API, so
+            # probe for it dynamically and degrade gracefully when unavailable.
             try:
-                caps = proc.get_capabilities()
-                effective = caps.effective if hasattr(caps, "effective") else []
+                get_caps = getattr(proc, "get_capabilities", None)
+                caps = get_caps() if callable(get_caps) else None
+                effective = getattr(caps, "effective", []) if caps is not None else []
                 for cap in ContainerEscapeDetector.ESCAPE_INDICATORS["capabilities"]:
                     if cap in effective:
                         findings.append(

@@ -298,36 +298,6 @@ def _sandbox_firecracker(file_path: str, source: str) -> list[Finding]:
     return _sandbox_subprocess(file_path, source)
 
 
-def _sandbox_firecracker(file_path: str, source: str) -> list[Finding]:
-    """Execute code in Firecracker microVM for strongest isolation."""
-    findings: list[Finding] = []
-
-    if not _check_firecracker_available():
-        fallback = _sandbox_subprocess(file_path, source)
-        fallback.append(
-            _make_finding(
-                "HFS-072",
-                file_path,
-                0,
-                "Firecracker not available — install firecracker or set HF_SANDBOX_BACKEND=subprocess",
-            )
-        )
-        return fallback
-
-    # Firecracker requires a pre-configured microVM image
-    # This is a simplified implementation - production would use a pre-built microVM
-    findings.append(
-        _make_finding(
-            "HFS-072",
-            file_path,
-            0,
-            "Firecracker backend: requires pre-configured microVM image (kernel + rootfs). "
-            "See docs/firecracker-setup.md. Falling back to subprocess.",
-        )
-    )
-    return _sandbox_subprocess(file_path, source)
-
-
 def _check_firecracker_available() -> bool:
     """Check if Firecracker is available."""
     return shutil.which("firecracker") is not None
@@ -401,32 +371,6 @@ def _sandbox_single_run(file_path: str, source: str, env: dict) -> list[Finding]
             os.unlink(tmp)
         except OSError:
             pass
-    return findings
-
-
-def _sandbox_subprocess(file_path: str, source: str) -> list[Finding]:
-    """Legacy subprocess-based sandbox with multiple env configs."""
-    findings: list[Finding] = []
-    seen_evidence = set()
-
-    for env_config in SANDBOX_ENV_CONFIGS:
-        env_findings = _sandbox_single_run(file_path, source, env_config)
-        for f in env_findings:
-            key = (f.rule_id, f.evidence[:100])
-            if key not in seen_evidence:
-                seen_evidence.add(key)
-                findings.append(f)
-        if findings:
-            break
-
-    # Add warning about legacy sandbox
-    findings.append(
-        _make_backend_warning(
-            file_path,
-            "Sandbox: using legacy subprocess backend — set HF_SANDBOX_BACKEND=gvisor for stronger isolation",
-        )
-    )
-
     return findings
 
 

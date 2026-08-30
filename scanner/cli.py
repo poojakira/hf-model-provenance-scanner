@@ -31,7 +31,7 @@ from scanner.config import load_config
 from scanner.formatters.html_formatter import format_html
 from scanner.formatters.json_formatter import format_json
 from scanner.formatters.sarif_formatter import json_to_sarif
-from scanner.models import Finding, ScanResult, Severity
+from scanner.models import Completeness, Finding, ScanResult, Severity
 from scanner.provenance import (
     is_sbom_file,
     is_signature_file,
@@ -321,12 +321,11 @@ def scan_remote_files(
         commit_sha = client.resolve_to_commit_sha(repo_id, revision)
     except Exception as exc:
         result.error = f"Could not resolve {repo_id}@{revision} to immutable SHA: {exc}"
-        result.completeness = "UNKNOWN"
+        result.completeness = Completeness.UNKNOWN
         return {}, {}, {}
 
     # Record the pinned SHA in the result for evidence / provenance
-    if not hasattr(result, "artifact_revision"):
-        result.artifact_revision = commit_sha
+    result.artifact_revision = commit_sha
 
     files = client.list_repo_files(repo_id, commit_sha)
     add_remote_policy_findings(result, repo_id, files, config)
@@ -630,8 +629,6 @@ def main(argv=None):
     # scan PARTIAL.  Downstream consumers MUST NOT treat this as a clean bill
     # of health.  The skipped files are already recorded as HFS-098 findings.
     # If errors prevented scanning, mark INDETERMINATE.
-    from scanner.models import Completeness
-
     if result.error:
         result.completeness = Completeness.INDETERMINATE
     elif result.files_skipped > 0:

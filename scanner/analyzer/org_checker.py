@@ -111,7 +111,12 @@ def check_organization(
         if age_hours < 72 and downloads > 10000:
             findings.append(_emit("HFS-022", f"Age: {age_hours:.1f} hours, Downloads: {downloads}"))
 
-    target_card = client.get_model_card(repo_id)
+    target_card = None
+    try:
+        target_sha = client.resolve_to_commit_sha(repo_id)
+        target_card = client.get_model_card(repo_id, target_sha)
+    except Exception:
+        target_card = None
     max_sim = 0.0
     if target_card:
         candidates = [org for org, _ in levenshtein_matches] or [
@@ -120,7 +125,11 @@ def check_organization(
         comparison_available = False
         for candidate_org in candidates:
             protected_repo = f"{candidate_org}/{model_name}"
-            protected_card = client.get_model_card(protected_repo)
+            try:
+                protected_sha = client.resolve_to_commit_sha(protected_repo)
+                protected_card = client.get_model_card(protected_repo, protected_sha)
+            except Exception:
+                protected_card = None
             if not protected_card:
                 continue
             comparison_available = True

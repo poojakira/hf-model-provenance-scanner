@@ -51,8 +51,8 @@ class OrgCheckResult:
     is_verified: bool
     levenshtein_matches: list
     model_card_similarity_score: float
-    age_hours: float
-    download_velocity: int
+    age_hours: float | None
+    download_velocity: float | None
 
 
 @dataclass
@@ -74,12 +74,6 @@ class ScanResult:
     files_skipped: int = 0
     scan_duration_seconds: float = 0.0
     error: str | None = None
-    completeness: str = "UNKNOWN"
-    skipped_files_detail: list = None
-
-    def __post_init__(self):
-        if self.skipped_files_detail is None:
-            object.__setattr__(self, "skipped_files_detail", [])
 
     # Completeness tracks whether all files were scanned.
     # MUST be set to PARTIAL when any file is skipped.
@@ -87,6 +81,8 @@ class ScanResult:
     # Callers MUST NOT treat (verdict=CLEAN, completeness=PARTIAL|INDETERMINATE) as safe.
     completeness: Completeness = Completeness.UNKNOWN
     skipped_files_detail: list[str] = field(default_factory=list)
+    # Immutable commit SHA the scan was pinned to (provenance / evidence).
+    artifact_revision: str | None = None
 
     @property
     def highest_severity(self) -> Severity | None:
