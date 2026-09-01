@@ -1,31 +1,62 @@
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+*.egg
 *.egg-info/
 .eggs/
-
-# Build artifacts
 dist/
 build/
 *.whl
 *.tar.gz
+MANIFEST
 
-# Coverage
+# Virtual environments — NEVER commit these
+venv/
+.venv/
+env/
+.env/
+test_env/
+virtualenv/
+.virtualenv/
+ENV/
+env.bak/
+venv.bak/
+
+# Coverage & test artifacts
 .coverage
 .coverage.*
 htmlcov/
-pytest_cache/
+.pytest_cache/
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# Build / packaging
+*.mo
+*.pot
+*.pyc
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# Agent/task directories
+# Agent/task directories (Kiro)
 .agents/
 
 # Model artifacts (use DVC/LFS instead)
@@ -38,19 +69,34 @@ Thumbs.db
 *.onnx
 *.safetensors
 *.gguf
+*.h5
+*.hdf5
 
 # Logs
 *.log
 logs/
+install.log
 
-# Temp
+# HTML scan reports (generated output, not source)
+report*.html
+
+# Temp files
 tmp/
 temp/
-*.tmpvenv/
-.pytest_cache/
-__pycache__/
-*.pyc
-.coverage
-test_env/
-*.egg-info
-.venv
+*.tmp
+*.bak
+
+# Secrets
+.env
+*.env
+.env.*
+secrets/
+credentials/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# pyright
+pyrightconfig.json
