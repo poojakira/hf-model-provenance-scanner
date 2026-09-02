@@ -226,5 +226,60 @@ def test_sandbox_env_configs():
     assert "GITHUB_ACTIONS" in SANDBOX_ENV_CONFIGS[2]
 
 
+def test_sandbox_does_not_inherit_secret_env():
+    """Verify that subprocess calls from the sandbox executor do NOT inherit
+    secret environment variables from the parent process.
+
+    CWE-526: Cleartext Storage of Sensitive Information in an Environment
+    Variable — a malicious pickle that achieves code execution in the
+    subprocess sandbox must not be able to read credentials (AWS keys,
+    HF tokens, OpenAI keys, etc.) that happen to be set in the CI runner or
+    developer shell.
+
+    Strategy: inject a canary secret into os.environ, mock subprocess.run so
+    we can inspect the ``env`` kwarg it receives, trigger the gVisor probe
+    path (which calls subprocess.run directly), and assert the canary is
+    absent from every ``env`` dict passed to the mock.
+    """
+    from unittest.mock import MagicMock, patch
+
+    import scanner.analyzer.sandbox_executor as _mod
+
+    # Plant a canary secret in the parent environment.
+    secret_key = "TEST_SECRET_12345"
+    secret_val = "shouldnotleak"
+    os.environ[secret_key] = secret_val
+
+    try:
+        captured_envs = []
+
+        def _fake_run(cmd, **kwargs):
+            captured_envs.append(kwargs.get("env"))
+            mock_result = MagicMock()
+            mock_result.returncode = 0
+            mock_result.stdout = "[]"
+            mock_result.stderr = ""
+            return mock_result
+
+        with patch.object(_mod.subprocess, "run", side_effect=_fake_run):
+            # Force the gvisor probe path by temporarily making runsc "visible"
+            # so _check_gvisor_available() calls subprocess.run.
+            with patch.object(_mod.shutil, "which", return_value="/usr/bin/runsc"):
+                _mod._check_gvisor_available()
+
+        # Every env dict passed to subprocess.run must NOT contain the secret.
+        assert len(captured_envs) > 0, "subprocess.run was never called — test setup is broken"
+        for env in captured_envs:
+            assert env is not None, (
+                "subprocess.run was called without an explicit env= argument; "
+                "this means the child inherits the full parent environment including secrets."
+            )
+            assert secret_key not in env, (
+                f"Secret '{secret_key}' leaked into subprocess env: {list(env.keys())}"
+            )
+    finally:
+        os.environ.pop(secret_key, None)
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

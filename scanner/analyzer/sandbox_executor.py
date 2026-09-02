@@ -1,6 +1,17 @@
 """
 Sandbox Execution Engine — Run untrusted code in restricted environments.
 Supports: subprocess (fallback), gVisor (runsc), Firecracker microVMs.
+
+Subprocess env isolation: without env={} or an explicit allowlist, child
+processes inherit the full parent environment including AWS_SECRET_ACCESS_KEY,
+OPENAI_API_KEY, HF_TOKEN and any other secrets present in the CI/CD runner or
+developer shell. A malicious pickle that triggers code execution would have
+immediate access to all these credentials.
+
+All subprocess calls in this module therefore use ``_SANDBOX_ENV`` — a minimal
+allowlist containing only PATH and PYTHONPATH from the parent — so that
+sandboxed code cannot read credentials even if it escapes the Python-level
+harness.
 """
 
 import json
@@ -29,6 +40,15 @@ GVISOR_FLAGS = [
 
 # Firecracker microVM (requires pre-configured microVM)
 FIRECRACKER_RUNTIME = os.environ.get("FIRECRACKER_RUNTIME", "firecracker")
+
+# Minimal env allowlist for subprocess calls that need basic execution context
+# (e.g., probing tool availability). Contains only PATH and PYTHONPATH so that
+# secrets like AWS_SECRET_ACCESS_KEY, HF_TOKEN, and OPENAI_API_KEY present in
+# the parent process are never forwarded to child processes.
+_SANDBOX_ENV = {
+    "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
+    "PYTHONPATH": os.environ.get("PYTHONPATH", ""),
+}
 
 # Environment configurations to test against (catches gated payloads)
 SANDBOX_ENV_CONFIGS = [
@@ -218,6 +238,7 @@ def _check_gvisor_available() -> bool:
             capture_output=True,
             text=True,
             timeout=10,
+            env=_SANDBOX_ENV,
         )
         return probe.returncode == 0
     except (OSError, subprocess.SubprocessError):
