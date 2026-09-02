@@ -25,6 +25,11 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
+# Windows consoles default to cp1252, which cannot encode the status emoji used
+# below. Force UTF-8 so this report runs identically on Windows/macOS/Linux.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 from scanner.analyzer.ast_visitor import analyze_python_source
 from scanner.analyzer.gguf_scanner import analyze_gguf_file
 from scanner.analyzer.pickle_scanner import scan_pickle_bytes

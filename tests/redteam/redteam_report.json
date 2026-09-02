@@ -1,12 +1,12 @@
 {
   "title": "Red Team Attack Simulation Report",
-  "timestamp": "2026-07-10T23:53:03Z",
+  "timestamp": "2026-09-02T22:48:54Z",
   "summary": {
     "total_attacks": 12,
     "detected": 12,
     "missed": 0,
     "detection_rate_percent": 100.0,
-    "total_time_ms": 189.2
+    "total_time_ms": 1904.5
   },
   "attacks": [
     {
@@ -14,8 +14,8 @@
       "technique": "SSL bypass + base64 PowerShell + jsonkeeper C2",
       "cve": null,
       "detected": true,
-      "findings_count": 10,
-      "detection_time_ms": 20.9,
+      "findings_count": 11,
+      "detection_time_ms": 445.7,
       "findings": [
         {
           "rule_id": "HFS-001",
@@ -48,6 +48,12 @@
           "evidence": "subprocess.Popen creationflags=134217728"
         },
         {
+          "rule_id": "HFS-001",
+          "severity": "critical",
+          "message": "subprocess or shell execution whose args contain powershell, cmd.exe, or pwsh",
+          "evidence": "subprocess.Popen creationflags=134217728"
+        },
+        {
           "rule_id": "HFS-003",
           "severity": "critical",
           "message": "base64 string decoded and result passed to exec, eval, subprocess, or os.system",
@@ -72,10 +78,10 @@
           "evidence": "Resolved argument: 'https://jsonkeeper.com/b/PAYLOAD'"
         },
         {
-          "rule_id": "HFS-072",
-          "severity": "critical",
-          "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
-          "evidence": "Sandbox: code crashed accessing blocked module 'urllib': Traceback (most recent call last):\n  File \"/tmp/tmplypt0hia.py\", line 39, in <module>\n    import urllib.request\n  File \"<frozen importlib._boot"
+          "rule_id": "HFS-SANDBOX-BACKEND",
+          "severity": "info",
+          "message": "Sandbox backend capability warning",
+          "evidence": "Sandbox: using legacy subprocess backend \u2014 set HF_SANDBOX_BACKEND=gvisor for stronger isolation"
         }
       ]
     },
@@ -84,8 +90,8 @@
       "technique": "trust_remote_code=True arbitrary execution",
       "cve": "CVE-2026-4372",
       "detected": true,
-      "findings_count": 4,
-      "detection_time_ms": 54.3,
+      "findings_count": 5,
+      "detection_time_ms": 320.7,
       "findings": [
         {
           "rule_id": "HFS-031",
@@ -110,6 +116,12 @@
           "severity": "low",
           "message": "from_pretrained('org/model') without revision= pointing to a full 40-char SHA",
           "evidence": "from_pretrained revision=None"
+        },
+        {
+          "rule_id": "HFS-SANDBOX-BACKEND",
+          "severity": "info",
+          "message": "Sandbox backend capability warning",
+          "evidence": "Sandbox: using legacy subprocess backend \u2014 set HF_SANDBOX_BACKEND=gvisor for stronger isolation"
         }
       ]
     },
@@ -119,7 +131,7 @@
       "cve": null,
       "detected": true,
       "findings_count": 2,
-      "detection_time_ms": 19.7,
+      "detection_time_ms": 250.3,
       "findings": [
         {
           "rule_id": "HFS-012",
@@ -128,10 +140,10 @@
           "evidence": "except: pass"
         },
         {
-          "rule_id": "HFS-072",
-          "severity": "critical",
-          "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
-          "evidence": "Sandbox: code crashed accessing blocked module 'urllib': Traceback (most recent call last):\n  File \"/tmp/tmpixaydw8d.py\", line 38, in <module>\n    import urllib.request\n  File \"<frozen importlib._boot"
+          "rule_id": "HFS-SANDBOX-BACKEND",
+          "severity": "info",
+          "message": "Sandbox backend capability warning",
+          "evidence": "Sandbox: using legacy subprocess backend \u2014 set HF_SANDBOX_BACKEND=gvisor for stronger isolation"
         }
       ]
     },
@@ -140,8 +152,8 @@
       "technique": "Hardcoded trust_remote_code enables RCE",
       "cve": "CVE-2026-46517",
       "detected": true,
-      "findings_count": 2,
-      "detection_time_ms": 55.4,
+      "findings_count": 3,
+      "detection_time_ms": 285.0,
       "findings": [
         {
           "rule_id": "HFS-031",
@@ -154,6 +166,12 @@
           "severity": "low",
           "message": "from_pretrained('org/model') without revision= pointing to a full 40-char SHA",
           "evidence": "from_pretrained revision=None"
+        },
+        {
+          "rule_id": "HFS-SANDBOX-BACKEND",
+          "severity": "info",
+          "message": "Sandbox backend capability warning",
+          "evidence": "Sandbox: using legacy subprocess backend \u2014 set HF_SANDBOX_BACKEND=gvisor for stronger isolation"
         }
       ]
     },
@@ -162,8 +180,8 @@
       "technique": "Browser cookie theft + requestbin exfil",
       "cve": null,
       "detected": true,
-      "findings_count": 3,
-      "detection_time_ms": 19.8,
+      "findings_count": 2,
+      "detection_time_ms": 301.3,
       "findings": [
         {
           "rule_id": "HFS-012",
@@ -172,16 +190,10 @@
           "evidence": "except: pass"
         },
         {
-          "rule_id": "HFS-072",
-          "severity": "critical",
-          "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
-          "evidence": "Sandbox: exec() with: <code object <module> at 0x7fed04077290, file \"/root/.pyenv/versions/3.11.15/lib/python3.11/sqlite3/__init__.py\", line 1>"
-        },
-        {
-          "rule_id": "HFS-072",
-          "severity": "critical",
-          "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
-          "evidence": "Sandbox: exec() with: <code object <module> at 0x2298ee80, file \"/root/.pyenv/versions/3.11.15/lib/python3.11/base64.py\", line 1>"
+          "rule_id": "HFS-SANDBOX-BACKEND",
+          "severity": "info",
+          "message": "Sandbox backend capability warning",
+          "evidence": "Sandbox: using legacy subprocess backend \u2014 set HF_SANDBOX_BACKEND=gvisor for stronger isolation"
         }
       ]
     },
@@ -190,14 +202,20 @@
       "technique": "reversed() + chr() list + exec(f-string)",
       "cve": null,
       "detected": true,
-      "findings_count": 1,
-      "detection_time_ms": 18.9,
+      "findings_count": 2,
+      "detection_time_ms": 301.5,
       "findings": [
         {
-          "rule_id": "HFS-072",
+          "rule_id": "HFS-001",
           "severity": "critical",
-          "message": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)",
-          "evidence": "Sandbox: exec() with: import os; os.system( 'whoname')"
+          "message": "subprocess or shell execution whose args contain powershell, cmd.exe, or pwsh",
+          "evidence": "exec"
+        },
+        {
+          "rule_id": "HFS-SANDBOX-BACKEND",
+          "severity": "info",
+          "message": "Sandbox backend capability warning",
+          "evidence": "Sandbox: using legacy subprocess backend \u2014 set HF_SANDBOX_BACKEND=gvisor for stronger isolation"
         }
       ]
     },
@@ -206,14 +224,20 @@
       "technique": "Truncated pickle executes before deserialization completes",
       "cve": null,
       "detected": true,
-      "findings_count": 1,
-      "detection_time_ms": 0.1,
+      "findings_count": 2,
+      "detection_time_ms": 0.0,
       "findings": [
         {
           "rule_id": "HFS-050",
           "severity": "critical",
           "message": "Pickle file contains opcode invoking dangerous callable (os.system, subprocess, exec, eval, etc.)",
           "evidence": "CRITICAL callable in pickle: os.system"
+        },
+        {
+          "rule_id": "HFS-096",
+          "severity": "medium",
+          "message": "Pickle stream could not be fully analyzed (truncated, corrupt, or unknown opcode). Scan is INDETERMINATE - unanalyzed code-execution paths may remain. Do NOT treat as clean.",
+          "evidence": "1 unknown pickle opcode(s) encountered - scan is INDETERMINATE. The stream may contain unanalysed code execution paths. Do not treat as clean."
         }
       ]
     },
@@ -277,7 +301,7 @@
       "cve": null,
       "detected": true,
       "findings_count": 2,
-      "detection_time_ms": 0.1,
+      "detection_time_ms": 0.0,
       "findings": [
         {
           "rule_id": "HFS-053",

@@ -44,12 +44,36 @@ HF_ALLOWED_HOSTS: frozenset[str] = frozenset(
         "cdn-lfs.huggingface.co",
         "cdn-lfs-us-1.huggingface.co",
         "cdn-lfs-eu-1.huggingface.co",
+        # HF Xet-backed CDN (current default for large weights, 2026)
+        "us.aws.cdn.hf.co",
+        "eu.aws.cdn.hf.co",
         # S3 presigned URLs issued by HF for private repos
         "s3.amazonaws.com",
         # hf.co shorthand aliases
         "hf.co",
     }
 )
+
+# HF-owned CDN domain suffixes. A host is allowed if it exactly matches
+# HF_ALLOWED_HOSTS *or* ends with one of these suffixes. This covers HF's
+# regional Xet/LFS CDN hosts (e.g. "<region>.aws.cdn.hf.co",
+# "cdn-lfs-<n>.huggingface.co") without pinning every region by hand, while
+# still refusing arbitrary attacker hosts. Auth is stripped for all CDN hosts
+# (see HF_AUTH_FORWARD_HOSTS), so suffix-allowing HF's own CDN is safe.
+HF_ALLOWED_HOST_SUFFIXES: tuple[str, ...] = (
+    ".cdn.hf.co",
+    ".hf.co",
+    ".huggingface.co",
+)
+
+
+def _host_allowed(host: str) -> bool:
+    """Return True if host is an allowed HF / HF-CDN host (exact or suffix)."""
+    host = host.lower()
+    if host in HF_ALLOWED_HOSTS:
+        return True
+    return any(host.endswith(suffix) for suffix in HF_ALLOWED_HOST_SUFFIXES)
+
 
 # Hosts to which the Authorization header may be forwarded.
 # CDN and S3 hosts must NOT receive the bearer token.
@@ -91,12 +115,12 @@ class _SafeRedirectHandler(urllib.request.HTTPRedirectHandler):
 
         # Normalise: strip port from comparison (HF uses standard 443)
         host_lower = host.lower()
-        if host_lower not in HF_ALLOWED_HOSTS:
+        if not _host_allowed(host_lower):
             raise urllib.error.URLError(
                 f"Redirect security violation: target host '{host_lower}' is not "
                 f"in the HF allowed-hosts list. Refusing redirect to {newurl!r}. "
                 f"If this is a legitimate HF CDN host, add it to HF_ALLOWED_HOSTS "
-                f"after verification."
+                f"(or HF_ALLOWED_HOST_SUFFIXES) after verification."
             )
 
     def _build_redirected_request(

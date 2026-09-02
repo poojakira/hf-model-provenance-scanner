@@ -49,6 +49,13 @@ def format_json(result: ScanResult) -> str:
         },
         "files_scanned": result.files_scanned,
         "files_skipped": result.files_skipped,
+        # Completeness makes "PARTIAL != CLEAN" and "INDETERMINATE != CLEAN"
+        # machine-readable for CI gates. COMPLETE means every file was scanned;
+        # PARTIAL means files were skipped; INDETERMINATE means errors or an
+        # unanalyzable stream (e.g. truncated pickle) prevented full inspection.
+        "completeness": result.completeness.value,
+        "skipped_files_detail": result.skipped_files_detail,
+        "artifact_revision": result.artifact_revision,
         "scan_duration_seconds": result.scan_duration_seconds,
         "error": result.error,
     }

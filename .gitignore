@@ -15,6 +15,7 @@ MANIFEST
 # Virtual environments — NEVER commit these
 venv/
 .venv/
+.venv-audit/
 env/
 .env/
 test_env/

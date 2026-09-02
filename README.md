@@ -34,6 +34,13 @@ This repository contains scanner code and regression fixtures for known model su
 
 ### Export ATT&CK Navigator Layer
 
+> **Prerequisite:** the ATT&CK mapping/enrichment code depends on the sibling
+> package `attack-v19-core` (the `attack` optional extra). Install it first with
+> `make install-core` (installs from `../attack-v19-core`) or
+> `pip install -e ".[attack]"`. Without it, `scanner.attack_mapping.*` raises
+> `ModuleNotFoundError: attack_v19_core` — the core file/pickle/binary scanning
+> in `scanner.cli` does **not** require this package.
+
 ```bash
 python -m scanner.attack_mapping.reporter --output navigator_layer.json
 ```

@@ -253,6 +253,22 @@ class ScannerASTVisitor(ast.NodeVisitor):
         ):
             self.report("HFS-023", node, call_text)
 
+        # Raw network primitives are suspicious in ANY model file (not just
+        # loaders). Direct socket / DNS-resolution calls are a common
+        # exfiltration vector (e.g. DNS-tunnelling a stolen token, raw ICMP
+        # sockets). Legitimate model inference does not need raw network I/O.
+        if any(
+            call_name == prim or call_name.endswith("." + prim)
+            for prim in (
+                "socket.socket",
+                "socket.getaddrinfo",
+                "socket.create_connection",
+                "socket.gethostbyname",
+                "socket.gethostbyname_ex",
+            )
+        ) or call_name in ("socket", "getaddrinfo", "create_connection"):
+            self.report("HFS-095", node, call_text)
+
         if call_name.endswith("from_pretrained"):
             revision = None
             for kw in node.keywords:

@@ -31,6 +31,12 @@ jobs:
     name: Scan HF Model Repository
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      risk_level: ${{ steps.parse.outputs.risk_level }}
+      risk_score: ${{ steps.parse.outputs.risk_score }}
+      findings_count: ${{ steps.parse.outputs.findings_count }}
+      critical_count: ${{ steps.parse.outputs.critical_count }}
+      high_count: ${{ steps.parse.outputs.high_count }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -118,17 +124,18 @@ jobs:
             const critical_count = "${{ steps.parse.outputs.critical_count }}";
             const high_count = "${{ steps.parse.outputs.high_count }}";
             
-            const body = `## 🔍 HF Model Security Scan Results
-            
-**Repository:** \`${repo_id}\`
-**Risk Level:** ${risk_level} (${risk_score}/100)
-**Total Findings:** ${findings_count}
-**Critical:** ${critical_count} | **High:** ${high_count}
-            
-**Scan Details:** [View Artifact](${github.server_url}/${github.repository}/actions/runs/${github.run_id})
-            
-*Triggered by HuggingFace webhook on model push.*
-`;
+            const body = [
+              `## 🔍 HF Model Security Scan Results`,
+              ``,
+              `**Repository:** \`${repo_id}\``,
+              `**Risk Level:** ${risk_level} (${risk_score}/100)`,
+              `**Total Findings:** ${findings_count}`,
+              `**Critical:** ${critical_count} | **High:** ${high_count}`,
+              ``,
+              `**Scan Details:** [View Artifact](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`,
+              ``,
+              `*Triggered by HuggingFace webhook on model push.*`,
+            ].join('\n');
             
             // Create or update issue with scan results
             const { data: issues } = await github.rest.issues.listForRepo({
@@ -182,51 +189,26 @@ jobs:
     needs: scan
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: github.event_name == 'repository_dispatch' && env.HF_TOKEN != ''
+    # Only runs for webhook-triggered scans. The HF Hub post is best-effort:
+    # if secrets.HF_TOKEN is unset or lacks discussion-write scope, the step
+    # logs and continues (see the try/except in the script below).
+    if: github.event_name == 'repository_dispatch'
     steps:
       - name: Post scan results to HF Hub discussion
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          REPO_ID: ${{ github.event.client_payload.repo_id }}
+          RISK_LEVEL: ${{ needs.scan.outputs.risk_level }}
+          RISK_SCORE: ${{ needs.scan.outputs.risk_score }}
+          FINDINGS: ${{ needs.scan.outputs.findings_count }}
+          CRITICAL: ${{ needs.scan.outputs.critical_count }}
+          HIGH: ${{ needs.scan.outputs.high_count }}
         run: |
-          REPO_ID="${{ github.event.client_payload.repo_id }}"
-          RISK_LEVEL="${{ needs.scan.outputs.risk_level }}"
-          RISK_SCORE="${{ needs.scan.outputs.risk_score }}"
-          FINDINGS="${{ needs.scan.outputs.findings_count }}"
-          CRITICAL="${{ needs.scan.outputs.critical_count }}"
-          HIGH="${{ needs.scan.outputs.high_count }}"
-          
-          # Create a discussion comment on the HF repo (requires HF API)
-          python -c "
-import os, json, urllib.request
-token = os.environ['HF_TOKEN']
-repo_id = os.environ['REPO_ID']
-risk_level = os.environ['RISK_LEVEL']
-risk_score = os.environ['RISK_SCORE']
-findings = os.environ['FINDINGS']
-critical = os.environ['CRITICAL']
-high = os.environ['HIGH']
-
-body = f'''## 🔍 Automated Security Scan Results
-
-**Risk Level:** {risk_level} ({risk_score}/100)
-**Total Findings:** {findings}
-**Critical:** {critical} | **High:** {high}
-
-This scan was triggered automatically on model push via GitHub Actions.
-View full results in the [GitHub Actions run](${os.environ.get('GITHUB_SERVER_URL', '')}/${os.environ.get('GITHUB_REPOSITORY', '')}/actions/runs/${os.environ.get('GITHUB_RUN_ID', '')}).
-
----
-*Scan performed by hf-model-provenance-scanner with gVisor sandbox validation.*
-'''
-
-# Use HF API to create discussion/comment
-# Note: This requires the HF_TOKEN to have write access to the repo discussions
-url = f'https://huggingface.co/api/models/{repo_id}/discussions'
-data = json.dumps({'title': f'Security Scan: {risk_level} risk', 'content': body}).encode()
-req = urllib.request.Request(url, data=data, headers={'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}, method='POST')
-try:
-    urllib.request.urlopen(req, timeout=10)
-    print('Posted to HF Hub discussion')
-except Exception as e:
-    print(f'Could not post to HF Hub: {e}')
-"
+          if [ -z "${HF_TOKEN}" ]; then
+            echo "HF_TOKEN not configured; skipping HF Hub discussion post."
+            exit 0
+          fi
+          # Best-effort: post scan summary to the HF repo discussions API.
+          # Requires HF_TOKEN with discussion-write scope; failures are logged,
+          # not fatal (this is a notification, not a security gate).
+          python .github/scripts/post_hf_discussion.py

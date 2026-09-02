@@ -1,7 +1,7 @@
 PYTHON ?= python
 PIP ?= $(PYTHON) -m pip
 ATTACK_CORE_PATH ?= ../attack-v19-core
-SRC := scanner attack_mapping tests
+SRC := scanner tests benchmarks
 
 .PHONY: install install-core data lint format test build security dashboard verify
 
@@ -30,7 +30,7 @@ build:
 	$(PYTHON) -m build
 
 security:
-	$(PYTHON) -m bandit -r scanner attack_mapping -ll
+	$(PYTHON) -m bandit -r scanner -ll
 	$(PYTHON) -m pip_audit -r requirements.txt
 
 dashboard:

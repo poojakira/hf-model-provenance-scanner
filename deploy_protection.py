@@ -43,8 +43,7 @@ class ProtectedModelServer:
         self.config = config
         self.model_hash = self._compute_model_hash()
         self.monitor = RuntimeMonitor(
-            model_hash=self.model_hash,
-            allowlist_config=config.get("runtime", {})
+            model_hash=self.model_hash, allowlist_config=config.get("runtime", {})
         )
         self.profiler = BehavioralProfiler()
         self.side_channel = SideChannelDetector()
@@ -53,13 +52,26 @@ class ProtectedModelServer:
     def _compute_model_hash(self) -> str:
         """Compute SHA-256 of model artifacts for baseline tracking."""
         import hashlib
+
         hasher = hashlib.sha256()
         for root, _, files in os.walk(self.model_path):
             for f in sorted(files):
-                if f.endswith(('.bin', '.safetensors', '.gguf', '.onnx', '.pt', '.pth', '.pkl', '.py', '.json')):
+                if f.endswith(
+                    (
+                        ".bin",
+                        ".safetensors",
+                        ".gguf",
+                        ".onnx",
+                        ".pt",
+                        ".pth",
+                        ".pkl",
+                        ".py",
+                        ".json",
+                    )
+                ):
                     filepath = os.path.join(root, f)
                     try:
-                        with open(filepath, 'rb') as fp:
+                        with open(filepath, "rb") as fp:
                             while chunk := fp.read(8192):
                                 hasher.update(chunk)
                     except Exception:
@@ -71,14 +83,18 @@ class ProtectedModelServer:
         print(f"[STATIC] Scanning {self.model_path}...")
         args = [
             self.model_path,
-            "--mode", "local",
-            "--format", "json",
-            "--fail-on", "never",
-            "--quiet"
+            "--mode",
+            "local",
+            "--format",
+            "json",
+            "--fail-on",
+            "never",
+            "--quiet",
         ]
         # Capture output
         import io
         from contextlib import redirect_stderr, redirect_stdout
+
         stdout = io.StringIO()
         stderr = io.StringIO()
         try:
@@ -101,13 +117,16 @@ class ProtectedModelServer:
 
         print(f"[RUNTIME] Starting protection for PID {target_pid}")
         print(f"[RUNTIME] Model hash: {self.model_hash}")
-        print(f"[RUNTIME] Allowed egress: {self.config.get('runtime', {}).get('egress_allowlist', [])}")
+        print(
+            f"[RUNTIME] Allowed egress: {self.config.get('runtime', {}).get('egress_allowlist', [])}"
+        )
 
         self.monitor.start_monitoring(target_pid)
         self._running = True
 
         # Start monitoring loop in background
         import threading
+
         self._monitor_thread = threading.Thread(target=self._protection_loop, daemon=True)
         self._monitor_thread.start()
 
@@ -133,6 +152,7 @@ class ProtectedModelServer:
     def _profile_behavior(self):
         """Collect behavioral features for anomaly detection."""
         import psutil
+
         try:
             proc = psutil.Process(os.getpid())
             features = [
@@ -210,9 +230,9 @@ def create_production_config() -> dict:
         },
         "runtime": {
             "egress_allowlist": [
-                "10.0.0.0/8",      # Private
+                "10.0.0.0/8",  # Private
                 "192.168.0.0/16",  # Private
-                "172.16.0.0/12",   # Private
+                "172.16.0.0/12",  # Private
                 "api.trusted-inference.com",  # Specific allowlist
             ],
             "enable_container_escape_detection": True,
@@ -264,8 +284,8 @@ def main():
     print(f"Risk Level: {result.get('risk_level', 'N/A')}")
     print(f"Findings: {len(result.get('findings', []))}")
 
-    critical = [f for f in result.get('findings', []) if f.get('severity') == 'critical']
-    high = [f for f in result.get('findings', []) if f.get('severity') == 'high']
+    critical = [f for f in result.get("findings", []) if f.get("severity") == "critical"]
+    high = [f for f in result.get("findings", []) if f.get("severity") == "high"]
     if critical or high:
         print(f"\n[BLOCK] Deployment blocked: {len(critical)} critical, {len(high)} high findings")
         for f in critical + high:

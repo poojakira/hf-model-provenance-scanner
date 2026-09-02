@@ -4,12 +4,33 @@
 
 The values below are fixture-suite results, not real-world detection-rate or false-positive-rate claims. They must not be quoted without the exact commit, command, fixture hash, environment, and raw result artifact.
 
+Regenerate locally with:
+`python tests/redteam/simulate_attacks.py` and `python tests/redteam/extended_attacks.py`
+(guarded in CI by `tests/redteam/test_detection_counts.py`).
+
 | Suite | Attacks | Detected | False Positives |
 |---|---|---|---|
 | Core real-world incidents | 12 | 12 (100%) | 0 |
 | Extended variants (env gating, decorators, generators, DNS exfil) | 18 | 18 (100%) | 0 |
 | Large-scale (multi-MB files, 300+ line code) | 3 | 3 (100%) | 0 |
 | Real models (GPT-2 downloaded, Llama-3-8B 288-tensor structure) | — | 0 findings | 0 |
+
+**How "detected" and "false positive" are counted:** only *actionable*
+(non-INFO) findings count. INFO-level capability notices such as
+`HFS-SANDBOX-BACKEND` (which merely reports the legacy subprocess sandbox
+backend is in use) are **not** detections and are excluded from both the
+detection and false-positive tallies. Counting them would both inflate the
+detection rate on real attacks and inflate the false-positive rate on benign
+code; excluding them gives the honest number in the table above.
+
+## Fail-Loud on Unanalyzable Streams
+
+A truncated or corrupt pickle, or one containing an unknown opcode, is reported
+as `HFS-096` and drives the scan `completeness` to `INDETERMINATE` — it is
+**never** silently reported as clean. INDETERMINATE elevates risk to at least
+HIGH, and `--enforce` turns it into a non-zero exit code. This closes the
+classic "malware executes before deserialization completes" bypass, where a
+truncated payload could otherwise slip through as a zero-finding scan.
 
 ## What Each Engine Catches
 
@@ -24,6 +45,7 @@ The values below are fixture-suite results, not real-world detection-rate or fal
 | codecs.decode(rot_13) | — |
 | __import__ with dynamic arg | — |
 | compile() + exec() | — |
+| raw socket / DNS primitives (socket.socket, getaddrinfo, create_connection) in any file → HFS-095 | — |
 
 ### Engine 2: Taint Tracking
 | Catches | Misses |

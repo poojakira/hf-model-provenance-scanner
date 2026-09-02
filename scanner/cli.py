@@ -5,6 +5,7 @@ import os
 import sys
 import time
 
+from scanner.aibom_generator import format_aibom
 from scanner.analyzer.ast_visitor import analyze_python_source
 from scanner.analyzer.config_scanner import analyze_config_file
 from scanner.analyzer.dependency_scanner import analyze_dependency_source
@@ -39,7 +40,7 @@ from scanner.provenance import (
     verify_sbom_artifacts,
 )
 from scanner.risk import compute_risk
-from scanner.rules.definitions import get_rule
+from scanner.rules.definitions import INDETERMINATE_RULE_IDS, get_rule
 from scanner.runtime_policy import format_runtime_policy
 from scanner.utils.file_filter import walk_files
 from scanner.utils.hf_api import HFApiClient
@@ -629,7 +630,17 @@ def main(argv=None):
     # scan PARTIAL.  Downstream consumers MUST NOT treat this as a clean bill
     # of health.  The skipped files are already recorded as HFS-098 findings.
     # If errors prevented scanning, mark INDETERMINATE.
-    if result.error:
+    #
+    # A file-level INDETERMINATE finding (e.g. a truncated/corrupt pickle that
+    # emitted HFS-096) must also drive the whole scan to INDETERMINATE - an
+    # unanalyzable stream is unknown-risk, never clean.
+    has_indeterminate_finding = any(f.rule_id in INDETERMINATE_RULE_IDS for f in result.findings)
+    # Record which files were skipped (HFS-098) so JSON consumers get concrete
+    # detail behind the files_skipped count, not just a number.
+    result.skipped_files_detail = [
+        f"{f.file_path}: {f.evidence}" for f in result.findings if f.rule_id == "HFS-098"
+    ]
+    if result.error or has_indeterminate_finding:
         result.completeness = Completeness.INDETERMINATE
     elif result.files_skipped > 0:
         result.completeness = Completeness.PARTIAL
@@ -644,6 +655,16 @@ def main(argv=None):
     if args.save_baseline:
         baseline = create_baseline(result, all_file_hashes)
         save_baseline(baseline, args.save_baseline)
+
+    # Generate CycloneDX AIBOM if requested
+    if args.aibom:
+        aibom_dir = os.path.dirname(os.path.abspath(args.aibom))
+        if aibom_dir:
+            os.makedirs(aibom_dir, exist_ok=True)
+        with open(args.aibom, "w", encoding="utf-8") as f:
+            f.write(format_aibom(result, all_file_hashes))
+        if not args.quiet:
+            print(f"AIBOM written to {args.aibom}", file=sys.stderr)
 
     if not args.quiet:
         if out_format == "json":

@@ -122,6 +122,21 @@ class TestRedirectSecurity:
         # Should not raise
         handler._check_redirect_target("https://cdn-lfs.huggingface.co/repos/ab/cd/file")
 
+    def test_xet_aws_cdn_host_accepted(self):
+        """Current HF Xet/AWS CDN hosts (region.aws.cdn.hf.co) must be allowed."""
+        handler = self._make_handler()
+        handler._check_redirect_target("https://us.aws.cdn.hf.co/xet-bridge-us/abc/def")
+        handler._check_redirect_target("https://eu.aws.cdn.hf.co/xet-bridge-eu/abc/def")
+
+    def test_hf_cdn_suffix_but_not_lookalike(self):
+        """Suffix allow covers *.cdn.hf.co but a lookalike domain must be rejected."""
+        handler = self._make_handler()
+        # legitimate HF-owned subdomain
+        handler._check_redirect_target("https://ap.aws.cdn.hf.co/file")
+        # attacker lookalike that merely contains the string must be rejected
+        with pytest.raises(urllib.error.URLError, match="not in the HF allowed-hosts"):
+            handler._check_redirect_target("https://cdn.hf.co.evil.com/exfil")
+
     def test_s3_presigned_allowed(self):
         handler = self._make_handler()
         handler._check_redirect_target("https://s3.amazonaws.com/hf-bucket/file?X-Amz-Signature=x")
@@ -211,7 +226,7 @@ class TestScanResultCompleteness:
 
 
 class TestUnknownPickleOpcode:
-    """Unknown opcodes must produce HFS-099 INDETERMINATE finding, not silent pass."""
+    """Unknown opcodes must produce HFS-096 INDETERMINATE finding, not silent pass."""
 
     def _build_pickle_with_unknown_opcode(self) -> bytes:
         """Construct a minimal pickle2 stream with an injected unknown opcode (0xFF)."""
@@ -229,8 +244,8 @@ class TestUnknownPickleOpcode:
         findings = scanner.scan()
         rule_ids = {f.rule_id for f in findings}
         assert (
-            "HFS-099" in rule_ids
-        ), f"HFS-099 (INDETERMINATE) must be emitted for unknown opcode. Got: {rule_ids}"
+            "HFS-096" in rule_ids
+        ), f"HFS-096 (INDETERMINATE) must be emitted for unknown opcode. Got: {rule_ids}"
 
     def test_unknown_opcode_increments_counter(self):
         data = self._build_pickle_with_unknown_opcode()
@@ -239,7 +254,7 @@ class TestUnknownPickleOpcode:
         assert scanner.unknown_opcode_count > 0
 
     def test_clean_pickle_no_unknown_opcode_finding(self):
-        """A completely benign pickle should not trigger HFS-099."""
+        """A completely benign pickle should not trigger HFS-096."""
         import pickle
 
         data = pickle.dumps({"key": "value"})
@@ -247,8 +262,8 @@ class TestUnknownPickleOpcode:
         findings = scanner.scan()
         rule_ids = {f.rule_id for f in findings}
         assert (
-            "HFS-099" not in rule_ids
-        ), f"HFS-099 must NOT fire for a known-clean pickle. Got: {rule_ids}"
+            "HFS-096" not in rule_ids
+        ), f"HFS-096 must NOT fire for a known-clean pickle. Got: {rule_ids}"
         assert scanner.unknown_opcode_count == 0
 
 
@@ -327,3 +342,129 @@ class TestDelayedPayloadRegression:
         findings = scan_pickle_bytes("large_benign.pkl", data)
         critical = [f for f in findings if f.rule_id == "HFS-050"]
         assert not critical, f"False positive: HFS-050 on benign large pickle. Got: {critical}"
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# FINDING-005: Truncated / corrupt pickle must FAIL LOUD (INDETERMINATE), never
+#              silently clean — even when zero globals were parsed.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class TestTruncatedPickleFailsLoud:
+    """A truncated or corrupt pickle must emit HFS-096 (INDETERMINATE)."""
+
+    def test_truncated_short_binunicode_emits_indeterminate(self):
+        """SHORT_BINUNICODE claims 200 bytes but only 3 present -> HFS-096."""
+        # proto 4 header + \x8c (SHORT_BINUNICODE) len=0xc8 (200) + only 3 bytes
+        data = b"\x80\x04" + b"\x8c\xc8abc"
+        scanner = PickleScanner("truncated.pkl", data)
+        findings = scanner.scan()
+        rule_ids = {f.rule_id for f in findings}
+        assert "HFS-096" in rule_ids, (
+            "Truncated pickle must emit HFS-096 (INDETERMINATE), never be silently "
+            f"clean. Got: {rule_ids}"
+        )
+        assert scanner.parse_error is not None
+
+    def test_truncated_with_no_globals_still_flags(self):
+        """The critical silent-clean case: truncation before any global parsed."""
+        # proto 4 header + BINUNICODE (X) claiming 5000 bytes (under the 10MB
+        # safety cap) but only 2 bytes present -> _checked_len raises -> HFS-096.
+        data = b"\x80\x04X" + struct.pack("<I", 5000) + b"ab"
+        findings = scan_pickle_bytes("trunc2.pkl", data)
+        rule_ids = {f.rule_id for f in findings}
+        assert (
+            "HFS-096" in rule_ids
+        ), f"Truncation with no globals must NOT be silently clean. Got: {rule_ids}"
+
+    def test_valid_pickle_is_not_flagged_indeterminate(self):
+        """A well-formed pickle must not be marked INDETERMINATE."""
+        import pickle
+
+        data = pickle.dumps({"a": 1, "b": [1, 2, 3], "c": "hello"})
+        findings = scan_pickle_bytes("ok.pkl", data)
+        rule_ids = {f.rule_id for f in findings}
+        assert (
+            "HFS-096" not in rule_ids
+        ), f"Well-formed pickle must not be flagged INDETERMINATE. Got: {rule_ids}"
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# FINDING-006: CLI must propagate a file-level INDETERMINATE finding (HFS-096)
+#              into the whole-scan completeness, drive risk up, and fail --enforce.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class TestCliCompletenessPropagation:
+    """End-to-end: scanning a truncated pickle via the CLI sets INDETERMINATE."""
+
+    def _write(self, tmp_path, name, data):
+        p = tmp_path / name
+        p.write_bytes(data)
+        return str(p)
+
+    def test_cli_truncated_pickle_sets_indeterminate(self, tmp_path, capsys):
+        from scanner.cli import main
+
+        target = self._write(tmp_path, "truncated.pkl", b"\x80\x04\x8c\xc8abc")
+        rc = main([target, "-m", "local", "--format", "json"])
+        out = capsys.readouterr().out
+        import json as _json
+
+        report = _json.loads(out)
+        assert (
+            report["completeness"] == "INDETERMINATE"
+        ), f"Truncated pickle must yield INDETERMINATE completeness. Got: {report['completeness']}"
+        assert report["risk"]["level"] == "HIGH", (
+            "INDETERMINATE must elevate risk to at least HIGH so a truncated file "
+            f"is never reported LOW/clean. Got: {report['risk']['level']}"
+        )
+        # Default fail-on=high should NOT be affected by a MEDIUM HFS-096 alone,
+        # but the risk elevation and completeness must be visible.
+        assert rc in (0, 1)
+
+    def test_cli_enforce_fails_on_indeterminate(self, tmp_path):
+        from scanner.cli import main
+
+        target = self._write(tmp_path, "unknownop.pkl", b"\x80\x04\xff\xff\xff")
+        rc = main([target, "-m", "local", "--quiet", "--enforce"])
+        assert rc == 1, (
+            "--enforce must exit 1 when scan completeness is INDETERMINATE "
+            f"(fail closed). Got exit {rc}"
+        )
+
+    def test_cli_clean_pickle_is_complete(self, tmp_path, capsys):
+        import json as _json
+        import pickle
+
+        from scanner.cli import main
+
+        target = self._write(tmp_path, "clean.pkl", pickle.dumps({"ok": True}))
+        rc = main([target, "-m", "local", "--format", "json"])
+        report = _json.loads(capsys.readouterr().out)
+        assert (
+            report["completeness"] == "COMPLETE"
+        ), f"A clean pickle must scan COMPLETE (no false INDETERMINATE). Got: {report['completeness']}"
+        assert rc == 0
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# FINDING-007: completeness / skipped_files_detail / artifact_revision must be
+#              present in JSON output so CI gates can read them.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class TestJsonSurfacesCompleteness:
+    def test_json_contains_completeness_keys(self):
+        from scanner.formatters.json_formatter import format_json
+
+        result = ScanResult("t", "local", "0.2.0")
+        result.completeness = Completeness.PARTIAL
+        result.skipped_files_detail = ["big.bin: too large"]
+        result.artifact_revision = VALID_SHA
+        import json as _json
+
+        payload = _json.loads(format_json(result))
+        assert payload["completeness"] == "PARTIAL"
+        assert payload["skipped_files_detail"] == ["big.bin: too large"]
+        assert payload["artifact_revision"] == VALID_SHA

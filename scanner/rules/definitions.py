@@ -544,6 +544,29 @@ RULES: dict[str, Rule] = {
         "CWE-94",
         ["keras", "lambda"],
     ),
+    "HFS-095": Rule(
+        "HFS-095",
+        "raw-network-primitive",
+        Severity.MEDIUM,
+        "Direct socket / DNS-resolution primitive (socket.socket, getaddrinfo, "
+        "create_connection, raw socket) in model code — a common data-exfiltration vector",
+        "Model code should not open raw sockets or resolve arbitrary hosts. Review the "
+        "destination and purpose; legitimate model inference does not require raw network I/O.",
+        "CWE-506",
+        ["network", "exfiltration"],
+    ),
+    "HFS-096": Rule(
+        "HFS-096",
+        "pickle-scan-indeterminate",
+        Severity.MEDIUM,
+        "Pickle stream could not be fully analyzed (truncated, corrupt, or unknown opcode). "
+        "Scan is INDETERMINATE - unanalyzed code-execution paths may remain. Do NOT treat as clean.",
+        "Do not load this file. A pickle that cannot be fully parsed may execute code before "
+        "deserialization completes (a known PickleScan bypass). Obtain the artifact from a verified "
+        "source in SafeTensors format, or scan with --enforce to fail closed on indeterminate results.",
+        "CWE-502",
+        ["pickle", "integrity", "indeterminate"],
+    ),
     "HFS-097": Rule(
         "HFS-097",
         "card-comparison-unavailable",
@@ -1391,3 +1414,11 @@ RULES: dict[str, Rule] = {
 
 def get_rule(rule_id: str) -> Rule:
     return RULES[rule_id]
+
+
+# Rule IDs that indicate a scan could NOT fully analyze a file's contents.
+# When ANY of these is present, the overall scan completeness MUST be
+# elevated to INDETERMINATE (never COMPLETE / CLEAN). This closes the
+# "corrupt/truncated pickle -> silent clean" gap: an unanalyzable stream is
+# treated as unknown-risk, not safe.
+INDETERMINATE_RULE_IDS: frozenset[str] = frozenset({"HFS-096"})

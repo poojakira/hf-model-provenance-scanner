@@ -80,9 +80,7 @@ def process_webhook_request(headers: dict, body_stream, handler):
 
 def verify_signature(payload: bytes, signature: str, secret: str) -> bool:
     """Verify HuggingFace webhook HMAC-SHA256 signature."""
-    expected = hmac.new(
-        secret.encode(), payload, hashlib.sha256
-    ).hexdigest()
+    expected = hmac.new(secret.encode(), payload, hashlib.sha256).hexdigest()
     return hmac.compare_digest(f"sha256={expected}", signature)
 
 
@@ -95,13 +93,19 @@ def scan_repo(repo_id: str) -> dict:
 
     stdout = io.StringIO()
     with redirect_stdout(stdout):
-        exit_code = main([
-            repo_id,
-            "--mode", "remote",
-            "--format", "json",
-            "--fail-on", os.environ.get("FAIL_ON", "high"),
-            "--token", os.environ.get("HF_TOKEN", ""),
-        ])
+        exit_code = main(
+            [
+                repo_id,
+                "--mode",
+                "remote",
+                "--format",
+                "json",
+                "--fail-on",
+                os.environ.get("FAIL_ON", "high"),
+                "--token",
+                os.environ.get("HF_TOKEN", ""),
+            ]
+        )
 
     try:
         result = json.loads(stdout.getvalue())
@@ -195,9 +199,20 @@ def handle_webhook(event: dict) -> dict:
 
 # === Standalone HTTP server (for testing/small deployments) ===
 
-def run_server(host: str = "0.0.0.0", port: int = 8080):
-    """Run a simple HTTP server for webhook testing."""
+
+def run_server(host: str | None = None, port: int = 8080):
+    """Run a simple HTTP server for webhook testing.
+
+    Security: binds to 127.0.0.1 (localhost) by default so the test server is
+    not exposed on all interfaces. To listen on all interfaces (e.g. inside a
+    container behind a reverse proxy), set WEBHOOK_BIND_HOST explicitly, e.g.
+    ``WEBHOOK_BIND_HOST=0.0.0.0``. This is a testing/small-deployment helper,
+    not a hardened production server.
+    """
     from http.server import BaseHTTPRequestHandler, HTTPServer
+
+    if host is None:
+        host = os.environ.get("WEBHOOK_BIND_HOST", "127.0.0.1")
 
     class Handler(BaseHTTPRequestHandler):
         def do_POST(self):

@@ -14,7 +14,6 @@ Exit codes:
 
 import argparse
 import json
-import os
 import pickle
 import statistics
 import struct
@@ -22,7 +21,6 @@ import sys
 import tempfile
 import time
 from pathlib import Path
-from typing import Any
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -30,14 +28,15 @@ from typing import Any
 
 NUM_FIXTURE_FILES = 100
 P95_THRESHOLD_MS = 100.0  # Max acceptable p95 latency per file (ms). Set with
-                          # headroom for cold-cache file reads on CI runners;
-                          # warm-run p95 is typically ~3-6ms (see docs).
-WARMUP_ITERATIONS = 5     # Number of warmup passes before measuring
+# headroom for cold-cache file reads on CI runners;
+# warm-run p95 is typically ~3-6ms (see docs).
+WARMUP_ITERATIONS = 5  # Number of warmup passes before measuring
 
 
 # ---------------------------------------------------------------------------
 # Fixture Generation
 # ---------------------------------------------------------------------------
+
 
 def generate_benign_pickle(index: int) -> bytes:
     """Generate a benign pickle file with realistic model-like structure."""
@@ -61,46 +60,52 @@ def generate_benign_pickle(index: int) -> bytes:
 
 def generate_malicious_pickle(index: int) -> bytes:
     """Generate a pickle with dangerous GLOBAL opcodes for scanner to detect."""
-    PROTO = b'\x80\x02'
-    GLOBAL = b'\x63'
-    SHORT_BINUNICODE = b'\x8c'
-    TUPLE1 = b'\x85'
-    REDUCE = b'\x52'
-    STOP = b'.'
+    PROTO = b"\x80\x02"
+    GLOBAL = b"\x63"
+    SHORT_BINUNICODE = b"\x8c"
+    TUPLE1 = b"\x85"
+    REDUCE = b"\x52"
+    STOP = b"."
 
     dangerous_modules = [
-        b'os\nsystem\n',
-        b'subprocess\ncall\n',
-        b'builtins\neval\n',
-        b'nt\nsystem\n',
-        b'posix\nsystem\n',
+        b"os\nsystem\n",
+        b"subprocess\ncall\n",
+        b"builtins\neval\n",
+        b"nt\nsystem\n",
+        b"posix\nsystem\n",
     ]
 
     module = dangerous_modules[index % len(dangerous_modules)]
-    arg = b'echo test'
+    arg = b"echo test"
 
     return (
         PROTO
-        + GLOBAL + module
-        + SHORT_BINUNICODE + struct.pack('<B', len(arg)) + arg
-        + TUPLE1 + REDUCE
+        + GLOBAL
+        + module
+        + SHORT_BINUNICODE
+        + struct.pack("<B", len(arg))
+        + arg
+        + TUPLE1
+        + REDUCE
         + STOP
     )
 
 
 def generate_safetensors_file(index: int) -> bytes:
     """Generate a minimal safetensors-format file."""
-    header = json.dumps({
-        "__metadata__": {"format": "pt"},
-        f"model.layer.{index}.weight": {
-            "dtype": "F32",
-            "shape": [1024, 1024],
-            "data_offsets": [0, 4194304]
+    header = json.dumps(
+        {
+            "__metadata__": {"format": "pt"},
+            f"model.layer.{index}.weight": {
+                "dtype": "F32",
+                "shape": [1024, 1024],
+                "data_offsets": [0, 4194304],
+            },
         }
-    }).encode()
-    header_size = struct.pack('<Q', len(header))
+    ).encode()
+    header_size = struct.pack("<Q", len(header))
     # Add some dummy tensor data
-    dummy_data = b'\x00' * 1024
+    dummy_data = b"\x00" * 1024
     return header_size + header + dummy_data
 
 
@@ -133,13 +138,17 @@ def create_fixture_corpus(tmp_dir: Path) -> list:
 
     for i in range(10):
         fp = tmp_dir / f"config_{i:03d}.json"
-        fp.write_text(json.dumps({
-            "model_type": "llama",
-            "architectures": ["LlamaForCausalLM"],
-            "hidden_size": 4096,
-            "num_layers": 32,
-            "index": i,
-        }))
+        fp.write_text(
+            json.dumps(
+                {
+                    "model_type": "llama",
+                    "architectures": ["LlamaForCausalLM"],
+                    "hidden_size": 4096,
+                    "num_layers": 32,
+                    "index": i,
+                }
+            )
+        )
         files.append(fp)
 
     return files
@@ -148,6 +157,7 @@ def create_fixture_corpus(tmp_dir: Path) -> list:
 # ---------------------------------------------------------------------------
 # Benchmark Runner
 # ---------------------------------------------------------------------------
+
 
 def import_scanner():
     """Return a callable that scans a single file in-process.
@@ -219,12 +229,14 @@ def run_benchmark(fixtures_dir: Path, output_path: Path | None = None) -> dict:
         elapsed_ms = (time.perf_counter() - start) * 1000.0
 
         timings.append(elapsed_ms)
-        file_results.append({
-            "file": filepath.name,
-            "elapsed_ms": round(elapsed_ms, 3),
-            "success": success,
-            "error": error,
-        })
+        file_results.append(
+            {
+                "file": filepath.name,
+                "elapsed_ms": round(elapsed_ms, 3),
+                "success": success,
+                "error": error,
+            }
+        )
 
     # --- Calculate statistics ---
     timings_sorted = sorted(timings)
@@ -284,7 +296,7 @@ def run_benchmark(fixtures_dir: Path, output_path: Path | None = None) -> dict:
 
     # --- Summary ---
     print(f"\n{'='*60}")
-    print(f"  SCAN PERFORMANCE BENCHMARK RESULTS")
+    print("  SCAN PERFORMANCE BENCHMARK RESULTS")
     print(f"{'='*60}")
     print(f"  Files scanned:    {stats['num_files']}")
     print(f"  Total time:       {stats['total_time_seconds']:.3f}s")
@@ -303,11 +315,10 @@ def run_benchmark(fixtures_dir: Path, output_path: Path | None = None) -> dict:
 # Main
 # ---------------------------------------------------------------------------
 
+
 def main():
     global P95_THRESHOLD_MS
-    parser = argparse.ArgumentParser(
-        description="HF Scanner performance benchmark"
-    )
+    parser = argparse.ArgumentParser(description="HF Scanner performance benchmark")
     parser.add_argument(
         "--fixtures-dir",
         type=Path,
@@ -315,7 +326,8 @@ def main():
         help="Directory containing fixture files (generated if not provided)",
     )
     parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         type=Path,
         default=None,
         help="Output path for JSON results",

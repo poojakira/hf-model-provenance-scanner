@@ -15,6 +15,11 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
+# Windows consoles default to cp1252, which cannot encode the status emoji used
+# below. Force UTF-8 so this report runs identically on Windows/macOS/Linux.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 from scanner.analyzer.ast_visitor import analyze_python_source
 from scanner.analyzer.sandbox_executor import sandbox_execute
 from scanner.analyzer.symbolic_resolver import resolve_strings_in_source
@@ -28,6 +33,20 @@ def full_scan(source):
     findings.extend(resolve_strings_in_source("test.py", source))
     findings.extend(sandbox_execute("test.py", source))
     return findings
+
+
+def _actionable(findings):
+    """Return only findings that represent an actual detection.
+
+    INFO-severity notices (e.g. HFS-SANDBOX-BACKEND, which merely reports that
+    the legacy subprocess sandbox backend is in use) are capability warnings,
+    not detections of malicious behaviour. Counting them as "caught" would
+    inflate the false-positive rate on benign code, so they are excluded from
+    the detected/false-positive decision.
+    """
+    from scanner.models import Severity
+
+    return [f for f in findings if f.severity != Severity.INFO]
 
 
 EXTENDED_ATTACKS = [
@@ -295,7 +314,7 @@ def train_step(model, batch):
 ]
 
 
-def run_extended():
+def run_extended(write_report: bool = False):
     print("=" * 70)
     print("  EXTENDED RED TEAM SUITE — 30+ Attack Variants")
     print("=" * 70)
@@ -311,7 +330,8 @@ def run_extended():
         start = time.time()
         findings = full_scan(source)
         elapsed = round((time.time() - start) * 1000, 1)
-        is_caught = len(findings) > 0
+        actionable = _actionable(findings)
+        is_caught = len(actionable) > 0
 
         if expect_malicious:
             total_attacks += 1
@@ -359,11 +379,12 @@ def run_extended():
         "results": results,
     }
     report_path = os.path.join(os.path.dirname(__file__), "extended_report.json")
-    with open(report_path, "w") as f:
-        json.dump(report, f, indent=2)
-    print(f"\n  Report: {report_path}")
+    if write_report:
+        with open(report_path, "w") as f:
+            json.dump(report, f, indent=2)
+        print(f"\n  Report: {report_path}")
     return report
 
 
 if __name__ == "__main__":
-    run_extended()
+    run_extended(write_report=True)

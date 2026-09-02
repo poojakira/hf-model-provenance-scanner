@@ -283,12 +283,32 @@ class PickleScanner:
         # Tracks opcodes we did not recognise - any unknown opcode
         # causes the scan result to be INDETERMINATE, not CLEAN.
         self.unknown_opcode_count: int = 0
+        # Set to the exception text when opcode parsing aborts on a truncated /
+        # corrupt stream. Used to drive INDETERMINATE (fail-loud) semantics.
+        self.parse_error: str | None = None
         # Recursion depth for nested pickle-in-bytes payloads. An attacker can
         # hide a malicious pickle inside a BINBYTES payload of an outer pickle
         # (a two-stage / staged loader). We capture such payloads and rescan
         # them, bounded by _MAX_NESTED_DEPTH to avoid unbounded recursion.
         self._depth = _depth
         self.nested_payloads: list[bytes] = []
+
+    def _checked_len(self, str_len: int, pos: int) -> int:
+        """Validate that ``str_len`` bytes are actually present starting at ``pos``.
+
+        Raises ValueError on truncation so scan() emits an INDETERMINATE (HFS-096)
+        finding rather than silently reading a short (truncated) buffer and
+        treating the stream as clean. A length-prefixed opcode that claims more
+        bytes than the file contains is a hallmark of a truncated payload.
+        """
+        if str_len < 0:
+            raise ValueError(f"negative length {str_len} at pos {pos}")
+        if pos + str_len > len(self.data):
+            raise ValueError(
+                f"declared length {str_len} at pos {pos} exceeds data size {len(self.data)} "
+                "(truncated pickle)"
+            )
+        return str_len
 
     def _maybe_capture_nested(self, payload: bytes) -> None:
         """Capture a byte-string payload if it plausibly holds a nested pickle.
@@ -328,28 +348,42 @@ class PickleScanner:
 
         try:
             self._parse_opcodes()
-        except (IndexError, struct.error, ValueError):
-            # Intentionally corrupted pickle - this itself is suspicious
-            # (PickleScan bypass: malware executes before full deserialization)
+        except (IndexError, struct.error, ValueError) as exc:
+            # Corrupt / truncated pickle. This is INDETERMINATE, never CLEAN:
+            # a malformed stream can execute code before deserialization finishes
+            # (a known PickleScan bypass). We MUST fail loud even when zero
+            # globals were parsed before the error - a truncated header alone is
+            # unanalyzable, not safe.
+            self.parse_error = str(exc) or exc.__class__.__name__
             if self.globals_found:
                 self.findings.append(
                     _make_finding(
                         "HFS-052",
                         self.file_path,
-                        f"Corrupted pickle with {len(self.globals_found)} globals parsed before error: {self.globals_found[:5]}",
+                        f"Corrupted pickle with {len(self.globals_found)} globals parsed "
+                        f"before error: {self.globals_found[:5]}",
                     )
                 )
+            self.findings.append(
+                _make_finding(
+                    "HFS-096",
+                    self.file_path,
+                    f"Pickle parse aborted ({self.parse_error}) - stream is truncated or "
+                    "corrupt. Scan is INDETERMINATE; unanalyzed opcodes may remain. "
+                    "Do not treat as clean.",
+                )
+            )
 
         # Post-scan analysis
         self._analyze_globals()
         self._check_reduce_count()
         # If unknown opcodes were encountered the stream could not be
-        # fully analysed.  Emit an INDETERMINATE finding so callers
+        # fully analysed.  Emit an INDETERMINATE (HFS-096) finding so callers
         # cannot treat this scan as clean.
         if self.unknown_opcode_count > 0:
             self.findings.append(
                 _make_finding(
-                    "HFS-099",
+                    "HFS-096",
                     self.file_path,
                     f"{self.unknown_opcode_count} unknown pickle opcode(s) encountered - "
                     "scan is INDETERMINATE. The stream may contain unanalysed code "
@@ -435,6 +469,7 @@ class PickleScanner:
             elif op == OP_SHORT_BINUNICODE:
                 # "\x8c" opcode: 1-byte length + string
                 str_len, self.pos = _read_uint1(data, self.pos)
+                self._checked_len(str_len, self.pos)
                 s = data[self.pos : self.pos + str_len].decode("utf-8", errors="replace")
                 self.pos += str_len
                 self.string_stack.append(s)
@@ -443,6 +478,7 @@ class PickleScanner:
                 str_len, self.pos = _read_uint4(data, self.pos)
                 if str_len > 10_000_000:  # Safety limit
                     break
+                self._checked_len(str_len, self.pos)
                 s = data[self.pos : self.pos + str_len].decode("utf-8", errors="replace")
                 self.pos += str_len
                 self.string_stack.append(s)

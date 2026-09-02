@@ -55,9 +55,9 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 # Pickle opcode constants are intentionally uppercase to match the pickle spec.
 "tests/test_integration_hf.py" = ["N806"]
+"benchmarks/scan_perf.py" = ["N806"]
 
 [tool.pytest.ini_options]
-asyncio_default_fixture_loop_scope = "function"
 filterwarnings = [
-    'ignore:The configuration option "asyncio_default_fixture_loop_scope" is unset:pytest.PytestDeprecationWarning',
+    "error::DeprecationWarning:scanner",
 ]

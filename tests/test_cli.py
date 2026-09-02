@@ -61,6 +61,33 @@ MALICIOUS_FIXTURE = FIXTURES_DIR / "malicious"
 BENIGN_FIXTURE = FIXTURES_DIR / "benign"
 
 
+class FailingClient:
+    """Test double whose SHA resolution fails, simulating a network error.
+
+    Used to verify that a remote scan which cannot resolve the target to an
+    immutable commit SHA fails LOUD (INDETERMINATE completeness), never
+    silently reporting a clean bill of health.
+    """
+
+    def __init__(self, token=None):
+        self.token = token
+
+    def resolve_to_commit_sha(self, repo_id: str, revision: str = "main") -> str:
+        raise ConnectionError("simulated network failure resolving revision")
+
+    def get_model_info(self, repo_id, revision=None):
+        raise ConnectionError("simulated network failure")
+
+    def get_model_card(self, repo_id, commit_sha=None):
+        raise ConnectionError("simulated network failure")
+
+    def list_repo_files(self, repo_id, commit_sha=None):
+        raise ConnectionError("simulated network failure")
+
+    def download_file(self, repo_id, filename, commit_sha=None):
+        raise ConnectionError("simulated network failure")
+
+
 class TestCli(unittest.TestCase):
     def test_local_fail_on_high_returns_1(self):
         code = cli.main([str(MALICIOUS_FIXTURE), "--mode", "local", "--quiet", "--fail-on", "high"])
@@ -124,6 +151,71 @@ class TestCli(unittest.TestCase):
             self.assertIn("HFS-034", {finding["rule_id"] for finding in report["findings"]})
         finally:
             os.unlink(config_path)
+
+    @patch("scanner.cli.HFApiClient", FailingClient)
+    def test_remote_network_failure_is_indeterminate_not_clean(self):
+        """A remote scan that cannot resolve a commit SHA must fail LOUD.
+
+        completeness MUST be INDETERMINATE and the error surfaced; --enforce
+        MUST exit 1. This prevents a network outage from silently passing as a
+        clean scan.
+        """
+        stdout = io.StringIO()
+        with redirect_stdout(stdout):
+            code = cli.main(
+                [
+                    "some-org/some-model",
+                    "--mode",
+                    "remote",
+                    "--format",
+                    "json",
+                    "--fail-on",
+                    "never",
+                ]
+            )
+        report = json.loads(stdout.getvalue())
+        self.assertEqual(report["completeness"], "INDETERMINATE")
+        self.assertIsNotNone(report["error"])
+        # Default (no enforce) exit is 0, but the report is honestly INDETERMINATE.
+        self.assertEqual(code, 0)
+        # With --enforce the gate must fail closed.
+        code_enforce = cli.main(
+            [
+                "some-org/some-model",
+                "--mode",
+                "remote",
+                "--quiet",
+                "--fail-on",
+                "never",
+                "--enforce",
+            ]
+        )
+        self.assertEqual(code_enforce, 1)
+
+    def test_aibom_output(self):
+        with tempfile.NamedTemporaryFile("r", encoding="utf-8", suffix=".json", delete=False) as f:
+            aibom_path = f.name
+        try:
+            code = cli.main(
+                [
+                    str(BENIGN_FIXTURE),
+                    "--mode",
+                    "local",
+                    "--quiet",
+                    "--fail-on",
+                    "never",
+                    "--aibom",
+                    aibom_path,
+                ]
+            )
+            self.assertEqual(code, 0)
+            with open(aibom_path, encoding="utf-8") as f:
+                bom = json.load(f)
+            self.assertEqual(bom["bomFormat"], "CycloneDX")
+            self.assertEqual(bom["specVersion"], "1.6")
+            self.assertGreaterEqual(len(bom["components"]), 1)
+        finally:
+            os.unlink(aibom_path)
 
     def test_runtime_policy_output(self):
         with tempfile.NamedTemporaryFile("r", encoding="utf-8", suffix=".json", delete=False) as f:
