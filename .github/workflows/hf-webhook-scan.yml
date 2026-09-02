@@ -38,7 +38,9 @@ jobs:
       - name: Install gVisor (runsc) for sandbox validation
         run: |
           set -o pipefail
-          curl -fsSL https://storage.googleapis.com/gvisor/releases/release/${{ env.GVISOR_VERSION }}/runsc -o /usr/local/bin/runsc
+          ARCH="$(uname -m)"
+          URL="https://storage.googleapis.com/gvisor/releases/release/${{ env.GVISOR_VERSION }}/${ARCH}"
+          curl -fsSL "${URL}/runsc" -o /usr/local/bin/runsc
           chmod +x /usr/local/bin/runsc
           runsc version
 
