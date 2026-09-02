@@ -246,8 +246,8 @@ def test_sandbox_does_not_inherit_secret_env():
     import scanner.analyzer.sandbox_executor as _mod
 
     # Plant a canary secret in the parent environment.
-    secret_key = "TEST_SECRET_12345"
-    secret_val = "shouldnotleak"
+    secret_key = "TEST_SECRET_12345"  # noqa: S105 - canary env var name for a sandbox leak test, not a credential
+    secret_val = "shouldnotleak"  # noqa: S105 - canary value asserted to be absent from the sandboxed child env
     os.environ[secret_key] = secret_val
 
     try:
@@ -274,9 +274,9 @@ def test_sandbox_does_not_inherit_secret_env():
                 "subprocess.run was called without an explicit env= argument; "
                 "this means the child inherits the full parent environment including secrets."
             )
-            assert secret_key not in env, (
-                f"Secret '{secret_key}' leaked into subprocess env: {list(env.keys())}"
-            )
+            assert (
+                secret_key not in env
+            ), f"Secret '{secret_key}' leaked into subprocess env: {list(env.keys())}"
     finally:
         os.environ.pop(secret_key, None)
 
