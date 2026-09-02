@@ -1,5 +1,5 @@
 """
-Pickle Opcode Scanner — Zero-dependency binary analysis of pickle files.
+Pickle Opcode Scanner - Zero-dependency binary analysis of pickle files.
 
 Parses pickle bytecode WITHOUT executing it, detecting dangerous opcodes that
 invoke arbitrary functions (REDUCE, INST, OBJ, NEWOBJ, STACK_GLOBAL, BUILD).
@@ -23,6 +23,12 @@ from scanner.rules.definitions import get_rule
 # Pickle protocol opcodes relevant to security analysis
 # See: https://docs.python.org/3/library/pickletools.html
 PICKLE_MAGIC = b"\x80"  # Protocol header (protocol 2+)
+# Maximum recursion depth when rescanning pickle payloads embedded inside
+# another pickle's byte-string opcodes (staged / nested-pickle evasion).
+_MAX_NESTED_DEPTH = 3
+# A captured byte payload is only worth rescanning if it plausibly contains
+# pickle opcodes; scanning arbitrary binary blobs would be wasteful.
+_MIN_NESTED_PAYLOAD = 3
 
 # Opcodes that can invoke arbitrary callables
 OP_REDUCE = b"R"  # Apply callable to args tuple on stack
@@ -154,7 +160,7 @@ CRITICAL_CALLABLES = {
     "idlelib.pyshell.ModifiedInterpreter.runcode",
 }
 
-# Suspicious but not immediately critical — require context
+# Suspicious but not immediately critical - require context
 SUSPICIOUS_CALLABLES = {
     "collections.OrderedDict",  # Often benign in torch, but used in gadget chains
     "torch._utils._rebuild_tensor_v2",  # Legitimate but can be abused
@@ -265,7 +271,7 @@ class PickleScanner:
     what functions are being called via REDUCE/INST/OBJ/NEWOBJ.
     """
 
-    def __init__(self, file_path: str, data: bytes):
+    def __init__(self, file_path: str, data: bytes, _depth: int = 0):
         self.file_path = file_path
         self.data = data
         self.pos = 0
@@ -274,9 +280,38 @@ class PickleScanner:
         self.reduces_found: int = 0
         self.string_stack: list[str] = []
         self.protocol = 0
-        # Tracks opcodes we did not recognise — any unknown opcode
+        # Tracks opcodes we did not recognise - any unknown opcode
         # causes the scan result to be INDETERMINATE, not CLEAN.
         self.unknown_opcode_count: int = 0
+        # Recursion depth for nested pickle-in-bytes payloads. An attacker can
+        # hide a malicious pickle inside a BINBYTES payload of an outer pickle
+        # (a two-stage / staged loader). We capture such payloads and rescan
+        # them, bounded by _MAX_NESTED_DEPTH to avoid unbounded recursion.
+        self._depth = _depth
+        self.nested_payloads: list[bytes] = []
+
+    def _maybe_capture_nested(self, payload: bytes) -> None:
+        """Capture a byte-string payload if it plausibly holds a nested pickle.
+
+        A staged-loader attack embeds a second pickle inside a BINBYTES payload
+        of the outer pickle. The outer opcodes look benign; the malicious
+        REDUCE/GLOBAL lives in the inner blob. We queue such payloads so scan()
+        can rescan them (bounded by _MAX_NESTED_DEPTH).
+        """
+        if self._depth >= _MAX_NESTED_DEPTH:
+            return
+        if not payload or len(payload) < _MIN_NESTED_PAYLOAD:
+            return
+        # Only rescan blobs that look like a pickle: a protocol-2+ header, or
+        # the presence of the opcodes that actually trigger code execution.
+        if (
+            payload[:1] == PICKLE_MAGIC
+            or OP_GLOBAL in payload
+            or OP_STACK_GLOBAL in payload
+            or OP_REDUCE in payload
+            or OP_INST in payload
+        ):
+            self.nested_payloads.append(payload)
 
     def scan(self) -> list[Finding]:
         """Main scan entry point."""
@@ -294,7 +329,7 @@ class PickleScanner:
         try:
             self._parse_opcodes()
         except (IndexError, struct.error, ValueError):
-            # Intentionally corrupted pickle — this itself is suspicious
+            # Intentionally corrupted pickle - this itself is suspicious
             # (PickleScan bypass: malware executes before full deserialization)
             if self.globals_found:
                 self.findings.append(
@@ -316,11 +351,21 @@ class PickleScanner:
                 _make_finding(
                     "HFS-099",
                     self.file_path,
-                    f"{self.unknown_opcode_count} unknown pickle opcode(s) encountered — "
+                    f"{self.unknown_opcode_count} unknown pickle opcode(s) encountered - "
                     "scan is INDETERMINATE. The stream may contain unanalysed code "
                     "execution paths. Do not treat as clean.",
                 )
             )
+        # Rescan any pickle payloads embedded inside byte-string opcodes.
+        # This closes the staged/nested-pickle evasion where the outer pickle
+        # is benign but a second pickle is hidden inside a BINBYTES payload.
+        for payload in self.nested_payloads:
+            nested = PickleScanner(self.file_path, payload, _depth=self._depth + 1)
+            for finding in nested.scan():
+                if "[nested pickle]" not in finding.message:
+                    finding.message = f"[nested pickle] {finding.message}"
+                self.findings.append(finding)
+
         return self.findings
 
     def _parse_opcodes(self):
@@ -370,7 +415,7 @@ class PickleScanner:
                     _make_finding(
                         "HFS-052",
                         self.file_path,
-                        "Protocol 5 __reduce_ex__ opcode (OP_REDUCE_EX) detected — PickleScan bypass technique",
+                        "Protocol 5 __reduce_ex__ opcode (OP_REDUCE_EX) detected - PickleScan bypass technique",
                     )
                 )
             elif op == OP_PERSID:
@@ -381,7 +426,7 @@ class PickleScanner:
                     _make_finding(
                         "HFS-052",
                         self.file_path,
-                        "PERSID opcode detected — persistent_load bypass technique",
+                        "PERSID opcode detected - persistent_load bypass technique",
                     )
                 )
             elif op == OP_BUILD:
@@ -426,16 +471,19 @@ class PickleScanner:
                 str_len, self.pos = _read_uint4(data, self.pos)
                 if str_len > 10_000_000:
                     break
+                self._maybe_capture_nested(data[self.pos : self.pos + str_len])
                 self.pos += str_len
             elif op == b"C":
                 # SHORT_BINBYTES (1-byte length)
                 str_len, self.pos = _read_uint1(data, self.pos)
+                self._maybe_capture_nested(data[self.pos : self.pos + str_len])
                 self.pos += str_len
             elif op == b"\x8e":
                 # BINBYTES8 (8-byte length)
                 str_len, self.pos = _read_uint8(data, self.pos)
                 if str_len > 100_000_000:
                     break
+                self._maybe_capture_nested(data[self.pos : self.pos + str_len])
                 self.pos += str_len
             elif op == b"\x8d":
                 # BINUNICODE8 (8-byte length)
@@ -477,7 +525,7 @@ class PickleScanner:
                     _make_finding(
                         "HFS-052",
                         self.file_path,
-                        "EXT4/COPYREG opcode detected — copyreg dispatch_table manipulation bypass",
+                        "EXT4/COPYREG opcode detected - copyreg dispatch_table manipulation bypass",
                     )
                 )
             elif op == b"p":
@@ -519,7 +567,7 @@ class PickleScanner:
                 b"s",
                 b"u",
             ):
-                # Stack manipulation and collection opcodes — no payload
+                # Stack manipulation and collection opcodes - no payload
                 pass
             elif op == b"I":
                 # INT (protocol 0) - read until \n
@@ -542,7 +590,7 @@ class PickleScanner:
                 # Nested protocol header
                 self.pos += 1  # Skip version byte
             else:
-                # Unknown opcode — we cannot reason about the pickle stream
+                # Unknown opcode - we cannot reason about the pickle stream
                 # beyond this point. Increment counter and stop parsing.
                 # The caller will check unknown_opcode_count > 0 and
                 # set the scan verdict to INDETERMINATE.
@@ -577,7 +625,7 @@ class PickleScanner:
                     "importlib.",
                 )
             ):
-                # Broader check — anything in these modules is suspicious
+                # Broader check - anything in these modules is suspicious
                 if normalized not in SAFE_ALLOWLIST:
                     self.findings.append(
                         _make_finding(
@@ -612,12 +660,12 @@ class PickleScanner:
             # Already flagged by _analyze_globals, but add context
             pass
         elif self.reduces_found > 100 and not self.globals_found:
-            # Many REDUCEs but no parseable globals — possibly obfuscated
+            # Many REDUCEs but no parseable globals - possibly obfuscated
             self.findings.append(
                 _make_finding(
                     "HFS-051",
                     self.file_path,
-                    f"{self.reduces_found} REDUCE ops with no recognizable globals — possible obfuscation",
+                    f"{self.reduces_found} REDUCE ops with no recognizable globals - possible obfuscation",
                 )
             )
 
@@ -690,7 +738,7 @@ def scan_pickle_bytes(file_path: str, data: bytes) -> list[Finding]:
         scanner = PickleScanner(file_path, data)
         findings.extend(scanner.scan())
     else:
-        # Try scanning anyway — some pickle files have no magic
+        # Try scanning anyway - some pickle files have no magic
         # Search for pickle opcodes in the first 1MB
         scan_window = data[:1_048_576]
         if OP_GLOBAL in scan_window or OP_STACK_GLOBAL in scan_window:
@@ -749,7 +797,7 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
                             _make_finding(
                                 "HFS-052",
                                 file_path,
-                                f"CVE-2025-10156: ZIP entry {name} has CRC=0 but readable data ({len(entry_data)} bytes) — CRC bypass",
+                                f"CVE-2025-10156: ZIP entry {name} has CRC=0 but readable data ({len(entry_data)} bytes) - CRC bypass",
                             )
                         )
                     except zipfile.BadZipFile:
@@ -757,7 +805,7 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
                             _make_finding(
                                 "HFS-052",
                                 file_path,
-                                f"CVE-2025-10156: ZIP entry {name} has CRC mismatch — PickleScan bypass",
+                                f"CVE-2025-10156: ZIP entry {name} has CRC mismatch - PickleScan bypass",
                             )
                         )
                     except Exception:
@@ -778,7 +826,7 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
                     except Exception:
                         pass
     except (zipfile.BadZipFile, Exception):
-        # Not a valid ZIP — might be raw pickle with PK in content
+        # Not a valid ZIP - might be raw pickle with PK in content
         scanner = PickleScanner(file_path, data)
         findings.extend(scanner.scan())
 

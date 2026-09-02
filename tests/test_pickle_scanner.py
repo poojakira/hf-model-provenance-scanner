@@ -170,5 +170,37 @@ class TestCliBypassRegressions(unittest.TestCase):
             self.assertIn("HFS-001", [f["rule_id"] for f in data["findings"]])
 
 
+class TestNestedPickleEvasion(unittest.TestCase):
+    """Staged/nested pickle: malicious pickle hidden inside a BINBYTES payload.
+
+    Regression guard for the evasion where an outer benign pickle carries an
+    inner malicious pickle as a bytes value; the outer opcodes look clean but
+    the inner blob contains the dangerous REDUCE/GLOBAL.
+    """
+
+    def test_nested_malicious_pickle_detected(self):
+        import pickle
+
+        class _Evil:
+            def __reduce__(self):
+                return (os.system, ("echo pwned",))
+
+        outer = pickle.dumps({"blob": pickle.dumps(_Evil())})
+        findings = scan_pickle_bytes("nested.pkl", outer)
+        rule_ids = [f.rule_id for f in findings]
+        self.assertIn("HFS-050", rule_ids)
+        self.assertTrue(
+            any("[nested pickle]" in f.message for f in findings),
+            "nested finding should be tagged",
+        )
+
+    def test_benign_nested_pickle_clean(self):
+        import pickle
+
+        outer = pickle.dumps({"blob": pickle.dumps({"x": [1, 2, 3], "y": "ok"})})
+        findings = scan_pickle_bytes("benign.pkl", outer)
+        self.assertEqual(findings, [])
+
+
 if __name__ == "__main__":
     unittest.main()

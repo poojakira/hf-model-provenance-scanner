@@ -3,10 +3,11 @@ Integration tests for HuggingFace Model Provenance Scanner.
 
 These tests simulate scanning a local model repository containing both
 malicious pickle files and clean safetensors configurations. No network
-calls are made — all fixtures are generated locally.
+calls are made - all fixtures are generated locally.
 """
 
 import json
+import os
 import struct
 import subprocess
 import sys
@@ -172,12 +173,25 @@ class TestIntegrationHFScanner:
             "--no-network",  # Ensure no external calls
         ]
 
+        # The scanner is invoked as `python -m scanner.cli` from within a
+        # temporary working directory (self.tmp_path). Because the temp dir is
+        # not on sys.path, the `scanner` package would not be importable unless
+        # we explicitly point PYTHONPATH at the repository root (the parent of
+        # this tests/ directory). This mirrors how the CLI is run in CI/CD.
+        repo_root = Path(__file__).resolve().parent.parent
+        env = os.environ.copy()
+        existing_pp = env.get("PYTHONPATH", "")
+        env["PYTHONPATH"] = (
+            f"{repo_root}{os.pathsep}{existing_pp}" if existing_pp else str(repo_root)
+        )
+
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
             timeout=60,
             cwd=str(self.tmp_path),
+            env=env,
         )
 
         return {
