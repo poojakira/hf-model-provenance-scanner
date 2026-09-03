@@ -57,7 +57,7 @@ coverage.xml
 ehthumbs.db
 Thumbs.db
 
-# Agent/task directories (Kiro)
+# Agent/task working directories
 .agents/
 
 # Model artifacts (use DVC/LFS instead)
