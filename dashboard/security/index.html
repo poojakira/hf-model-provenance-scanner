@@ -57,29 +57,34 @@ tr:hover{background:rgba(56,139,253,.05)}
 <div class="header">
 <h1>HF Model Provenance Scanner</h1>
 <span class="badge">v0.2.0</span>
-<span class="badge badge-green">33/33 Attacks Blocked</span>
+<span class="badge badge-green">33/33 red-team fixtures detected</span>
 <span style="margin-left:auto;color:var(--muted);font-size:.8rem" id="clock"></span>
+</div>
+
+<div style="background:rgba(210,153,34,.12);border-bottom:1px solid var(--medium);padding:.6rem 2rem;font-size:.78rem;color:var(--text)">
+<strong style="color:var(--medium)">Scope:</strong> All numbers on this page describe the committed internal red-team
+<strong>fixture suite</strong> (12 documented incident reproductions + 18 extended attack variants + 3 large-scale fixtures = 33 fixtures), reproducible via <code>tests/redteam/</code>. They are <strong>not</strong> a measured detection rate against arbitrary Hugging Face models. Fixture pass rates must not be generalized to real-world detection rates. Data below is static and sourced from the committed <code>tests/redteam/*_report.json</code> artifacts.
 </div>
 
 <div class="grid">
 
 <div class="card">
-<h3>Detection Rate</h3>
-<div class="stat stat-green">100%</div>
+<h3>Fixture-Suite Detection</h3>
+<div class="stat stat-green">33/33</div>
 <div class="progress"><div class="progress-fill" style="width:100%"></div></div>
-<p style="color:var(--muted);font-size:.75rem;margin-top:.5rem">33 real-world attacks tested (12 core + 18 extended + 3 large-scale)</p>
+<p style="color:var(--muted);font-size:.75rem;margin-top:.5rem">33/33 documented red-team fixtures detected in the internal suite (12 incident reproductions + 18 extended variants + 3 large-scale). Source: tests/redteam/*_report.json. Not a rate against arbitrary HF models.</p>
 </div>
 
 <div class="card">
-<h3>False Positives</h3>
+<h3>False Positives (fixture suite)</h3>
 <div class="stat stat-green">0</div>
-<p style="color:var(--muted);font-size:.75rem;margin-top:.5rem">Tested on 4 legitimate ML samples + real GPT-2 from HuggingFace</p>
+<p style="color:var(--muted);font-size:.75rem;margin-top:.5rem">0 actionable (non-INFO) findings on the 4 benign ML samples in the extended red-team suite. No broad clean-model benchmark is committed, so no general 0% FP rate is claimed.</p>
 </div>
 
 <div class="card">
-<h3>Avg Detection Time</h3>
-<div class="stat stat-blue">9.6ms</div>
-<p style="color:var(--muted);font-size:.75rem;margin-top:.5rem">Per payload (static engines). Sandbox adds ~50ms.</p>
+<h3>Per-Fixture Scan Time</h3>
+<div class="stat stat-blue">&lt;1ms&ndash;446ms</div>
+<p style="color:var(--muted);font-size:.75rem;margin-top:.5rem">Range across the 12 core fixtures (source: redteam_report.json). Binary/pickle parse-only paths are &lt;1ms; source-code fixtures include a sandbox subprocess (up to ~446ms). Not a hardware-normalized benchmark.</p>
 </div>
 
 <div class="card">
@@ -131,8 +136,8 @@ tr:hover{background:rgba(56,139,253,.05)}
 </div>
 
 <div class="card full-width">
-<h3>Live Code Scanner</h3>
-<p style="color:var(--muted);font-size:.8rem;margin-bottom:.5rem">Paste Python code below to check if it would be flagged. This runs the AST engine client-side (pattern matching only — full scan requires CLI).</p>
+<h3>Client-Side Code Pattern Check</h3>
+<p style="color:var(--muted);font-size:.8rem;margin-bottom:.5rem">Paste Python code below to check if it would be flagged. This runs a small regex pattern set in your browser (pattern matching only — it is <strong>not</strong> the scanner engine; full scan requires the CLI).</p>
 <div class="scan-area">
 <textarea id="code-input" placeholder="Paste Python code here to check for suspicious patterns...
 Example:
@@ -147,11 +152,12 @@ subprocess.run(['powershell', '-enc', payload.decode()])"></textarea>
 <div class="card">
 <h3>Findings by Severity</h3>
 <div class="severity-bar">
-<div style="flex:8;background:var(--critical)">8 CRITICAL</div>
-<div style="flex:4;background:var(--high)">4 HIGH</div>
-<div style="flex:3;background:var(--medium)">3 MEDIUM</div>
+<div style="flex:12;background:var(--critical)">12 CRITICAL</div>
+<div style="flex:9;background:var(--high)">9 HIGH</div>
+<div style="flex:1;background:var(--medium)">1 MED</div>
+<div style="flex:6;background:var(--low)">6 LOW</div>
 </div>
-<p style="color:var(--muted);font-size:.75rem;margin-top:.8rem">Across 12 core attack simulations</p>
+<p style="color:var(--muted);font-size:.75rem;margin-top:.8rem">28 actionable findings (12 crit / 9 high / 1 med / 6 low) across the 12 core fixtures; 6 INFO notices excluded. Source: tests/redteam/redteam_report.json.</p>
 </div>
 
 <div class="card">
@@ -189,15 +195,16 @@ subprocess.run(['powershell', '-enc', payload.decode()])"></textarea>
 function updateClock(){document.getElementById("clock").textContent=new Date().toISOString().slice(0,19)+"Z";}
 updateClock();setInterval(updateClock,1000);
 
-// Attack data
+// Attack data — values sourced verbatim from tests/redteam/redteam_report.json
+// (findings_count and detection_time_ms). Static snapshot, not live.
 var attacks=[
-{name:"May 2026 Open-OSS/privacy-filter",technique:"SSL bypass + base64 PowerShell + jsonkeeper C2",cve:"",detected:true,severity:"critical",time:"22.4ms",findings:9},
-{name:"CVE-2026-4372 HF Transformers RCE",technique:"trust_remote_code=True execution",cve:"CVE-2026-4372",detected:true,severity:"critical",time:"18.2ms",findings:4},
-{name:"LiteLLM Supply Chain (March 2026)",technique:"API key exfil via webhook.site",cve:"",detected:true,severity:"high",time:"18.3ms",findings:1},
-{name:"CVE-2026-46517 LMDeploy RCE",technique:"Hardcoded trust_remote_code",cve:"CVE-2026-46517",detected:true,severity:"critical",time:"17.7ms",findings:2},
-{name:"Acronis TRU Credential Stealer",technique:"Browser cookies + requestbin",cve:"",detected:true,severity:"high",time:"20.9ms",findings:4},
-{name:"Multi-layer chr() obfuscation",technique:"reversed + chr list + exec",cve:"",detected:true,severity:"critical",time:"17.9ms",findings:1},
-{name:"JFrog Bypass: Corrupted pickle",technique:"No STOP opcode, exec before deser",cve:"",detected:true,severity:"critical",time:"<1ms",findings:1},
+{name:"May 2026 Open-OSS/privacy-filter",technique:"SSL bypass + base64 PowerShell + jsonkeeper C2",cve:"",detected:true,severity:"critical",time:"445.7ms",findings:11},
+{name:"CVE-2026-4372 HF Transformers RCE",technique:"trust_remote_code=True execution",cve:"CVE-2026-4372",detected:true,severity:"low",time:"320.7ms",findings:5},
+{name:"LiteLLM Supply Chain (March 2026)",technique:"API key exfil via webhook.site",cve:"",detected:true,severity:"high",time:"250.3ms",findings:2},
+{name:"CVE-2026-46517 LMDeploy RCE",technique:"Hardcoded trust_remote_code",cve:"CVE-2026-46517",detected:true,severity:"low",time:"285.0ms",findings:3},
+{name:"Acronis TRU Credential Stealer",technique:"Browser cookies + requestbin",cve:"",detected:true,severity:"high",time:"301.3ms",findings:2},
+{name:"Multi-layer chr() obfuscation",technique:"reversed + chr list + exec",cve:"",detected:true,severity:"critical",time:"301.5ms",findings:2},
+{name:"JFrog Bypass: Corrupted pickle",technique:"No STOP opcode, exec before deser",cve:"",detected:true,severity:"critical",time:"<1ms",findings:2},
 {name:"JFrog Bypass: builtins.eval pickle",technique:"Direct eval via GLOBAL opcode",cve:"",detected:true,severity:"critical",time:"<1ms",findings:1},
 {name:"Sonatype Bypass: copyreg chain",technique:"getattr(__import__('os'),'system')",cve:"",detected:true,severity:"critical",time:"<1ms",findings:2},
 {name:"Pickle protocol 4 STACK_GLOBAL",technique:"builtins.eval + __import__",cve:"",detected:true,severity:"critical",time:"<1ms",findings:1},

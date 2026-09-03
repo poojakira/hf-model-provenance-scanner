@@ -1,6 +1,6 @@
 {
   "suite": "extended_red_team",
-  "timestamp": "2026-09-02T22:49:01Z",
+  "timestamp": "2026-09-03T06:18:47Z",
   "total_attacks": 18,
   "detected": 18,
   "missed": 0,
@@ -12,154 +12,154 @@
       "expected_malicious": true,
       "detected": true,
       "findings_count": 3,
-      "time_ms": 268.0
+      "time_ms": 317.1
     },
     {
       "name": "Gated: os.environ check",
       "expected_malicious": true,
       "detected": true,
       "findings_count": 4,
-      "time_ms": 240.2
+      "time_ms": 349.4
     },
     {
       "name": "Gated: hasattr check on module",
       "expected_malicious": true,
       "detected": true,
       "findings_count": 3,
-      "time_ms": 271.9
+      "time_ms": 316.2
     },
     {
       "name": "Multi-stage: define class then call",
       "expected_malicious": true,
       "detected": true,
       "findings_count": 3,
-      "time_ms": 239.5
+      "time_ms": 303.3
     },
     {
       "name": "Multi-stage: decorator-based execution",
       "expected_malicious": true,
       "detected": true,
       "findings_count": 2,
-      "time_ms": 266.0
+      "time_ms": 337.3
     },
     {
       "name": "Multi-stage: generator-based lazy eval",
       "expected_malicious": true,
       "detected": true,
       "findings_count": 3,
-      "time_ms": 249.2
+      "time_ms": 317.9
     },
     {
       "name": "Encoding: hex string decode",
       "expected_malicious": true,
       "detected": true,
       "findings_count": 3,
-      "time_ms": 234.3
+      "time_ms": 395.9
     },
     {
       "name": "Encoding: list(map(ord,...)) reversed",
       "expected_malicious": true,
       "detected": true,
       "findings_count": 2,
-      "time_ms": 301.0
+      "time_ms": 375.0
     },
     {
       "name": "Encoding: unicode_escape",
       "expected_malicious": true,
       "detected": true,
       "findings_count": 3,
-      "time_ms": 242.0
+      "time_ms": 395.3
     },
     {
       "name": "Framework: torch.load with map_location exec",
       "expected_malicious": true,
       "detected": true,
       "findings_count": 3,
-      "time_ms": 241.6
+      "time_ms": 275.9
     },
     {
       "name": "Framework: custom Dataset __getitem__ backdoor",
       "expected_malicious": true,
       "detected": true,
       "findings_count": 3,
-      "time_ms": 238.0
+      "time_ms": 283.1
     },
     {
       "name": "Exfil: DNS-based exfiltration",
       "expected_malicious": true,
       "detected": true,
       "findings_count": 2,
-      "time_ms": 237.8
+      "time_ms": 281.2
     },
     {
       "name": "Exfil: ICMP/raw socket attempt",
       "expected_malicious": true,
       "detected": true,
       "findings_count": 2,
-      "time_ms": 300.4
+      "time_ms": 280.0
     },
     {
       "name": "Persistence: crontab modification",
       "expected_malicious": true,
       "detected": true,
       "findings_count": 3,
-      "time_ms": 222.0
+      "time_ms": 342.2
     },
     {
       "name": "Persistence: systemd service creation",
       "expected_malicious": true,
       "detected": true,
       "findings_count": 2,
-      "time_ms": 252.7
+      "time_ms": 353.5
     },
     {
       "name": "Evasion: time.sleep delay before payload",
       "expected_malicious": true,
       "detected": true,
       "findings_count": 3,
-      "time_ms": 365.3
+      "time_ms": 300.1
     },
     {
       "name": "Evasion: type() to construct class dynamically",
       "expected_malicious": true,
       "detected": true,
       "findings_count": 3,
-      "time_ms": 367.0
+      "time_ms": 266.1
     },
     {
       "name": "Evasion: globals()/locals() manipulation",
       "expected_malicious": true,
       "detected": true,
       "findings_count": 3,
-      "time_ms": 353.8
+      "time_ms": 286.1
     },
     {
       "name": "LEGIT: Standard PyTorch model definition",
       "expected_malicious": false,
       "detected": false,
       "findings_count": 1,
-      "time_ms": 346.6
+      "time_ms": 295.6
     },
     {
       "name": "LEGIT: Data preprocessing pipeline",
       "expected_malicious": false,
       "detected": false,
       "findings_count": 1,
-      "time_ms": 381.3
+      "time_ms": 257.2
     },
     {
       "name": "LEGIT: Configuration loading",
       "expected_malicious": false,
       "detected": false,
       "findings_count": 1,
-      "time_ms": 349.3
+      "time_ms": 291.3
     },
     {
       "name": "LEGIT: Logging and metrics",
       "expected_malicious": false,
       "detected": false,
       "findings_count": 1,
-      "time_ms": 350.2
+      "time_ms": 270.0
     }
   ]
 }

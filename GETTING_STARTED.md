@@ -282,4 +282,4 @@ Total scan time for a typical model repo: **under 1 second** (without sandbox).
 - Read [INTEGRATION.md](INTEGRATION.md) to add scanning to your CI/CD pipeline
 - Read [LIMITATIONS.md](LIMITATIONS.md) to understand what the scanner can and cannot do
 - Open `dashboard/security/index.html` in a browser to see the visual dashboard
-- Run `python3 tests/redteam/simulate_attacks.py` to see the scanner catch 12 real-world attacks live
+- Run `python3 tests/redteam/simulate_attacks.py` to reproduce the scanner detecting the 12 core red-team incident fixtures

@@ -1,12 +1,12 @@
 {
   "title": "Red Team Attack Simulation Report",
-  "timestamp": "2026-09-02T22:48:54Z",
+  "timestamp": "2026-09-03T06:18:40Z",
   "summary": {
     "total_attacks": 12,
     "detected": 12,
     "missed": 0,
     "detection_rate_percent": 100.0,
-    "total_time_ms": 1904.5
+    "total_time_ms": 2676.9
   },
   "attacks": [
     {
@@ -15,7 +15,7 @@
       "cve": null,
       "detected": true,
       "findings_count": 11,
-      "detection_time_ms": 445.7,
+      "detection_time_ms": 949.3,
       "findings": [
         {
           "rule_id": "HFS-001",
@@ -91,7 +91,7 @@
       "cve": "CVE-2026-4372",
       "detected": true,
       "findings_count": 5,
-      "detection_time_ms": 320.7,
+      "detection_time_ms": 347.9,
       "findings": [
         {
           "rule_id": "HFS-031",
@@ -131,7 +131,7 @@
       "cve": null,
       "detected": true,
       "findings_count": 2,
-      "detection_time_ms": 250.3,
+      "detection_time_ms": 317.2,
       "findings": [
         {
           "rule_id": "HFS-012",
@@ -153,7 +153,7 @@
       "cve": "CVE-2026-46517",
       "detected": true,
       "findings_count": 3,
-      "detection_time_ms": 285.0,
+      "detection_time_ms": 332.9,
       "findings": [
         {
           "rule_id": "HFS-031",
@@ -181,7 +181,7 @@
       "cve": null,
       "detected": true,
       "findings_count": 2,
-      "detection_time_ms": 301.3,
+      "detection_time_ms": 351.5,
       "findings": [
         {
           "rule_id": "HFS-012",
@@ -203,7 +203,7 @@
       "cve": null,
       "detected": true,
       "findings_count": 2,
-      "detection_time_ms": 301.5,
+      "detection_time_ms": 378.1,
       "findings": [
         {
           "rule_id": "HFS-001",

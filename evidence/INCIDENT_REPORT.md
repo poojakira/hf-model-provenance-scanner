@@ -116,7 +116,9 @@ cd hf-model-provenance-scanner
 python3 tests/redteam/simulate_attacks.py
 ```
 
-The simulation replicates the **exact techniques** from this incident and confirms 100% detection.
+The simulation replicates the **exact techniques** from this incident and detects this
+reproduction fixture (1 of the 12 core red-team fixtures). This is fixture-suite coverage,
+not a measured detection rate against arbitrary Hugging Face models.
 
 ## References
 
