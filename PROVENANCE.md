@@ -38,3 +38,14 @@ Evidence considered in this pass included:
 - previously verified academic/publication evidence, used only as background unless a direct lineage could be established.
 
 **Audit date:** 2026-09-21
+
+## Commit-identity audit
+
+The reachable commit history was also reviewed for author/committer identities.
+
+Three commits are authored and committed by **Rhutvik Prashant Panchghare**:
+- [`a57fba57e4ff`](https://github.com/poojakira/hf-model-provenance-scanner/commit/a57fba57e4ff422faeb32dcbfd03c37843dc2111) — CI / attack-v19-core / Trivy fixes
+- [`f766debbb12c`](https://github.com/poojakira/hf-model-provenance-scanner/commit/f766debbb12caf163caf09155e07120da4a96947) — .gitignore fix
+- [`c7e2d4e3d9af`](https://github.com/poojakira/hf-model-provenance-scanner/commit/c7e2d4e3d9af75d9d9ba5d286e7c4d9f3a12da92) — CI optional-dependency/action-pinning changes
+
+These are real historical contributions and are preserved. They do not alter the repository's earliest defensible year of 2026.
