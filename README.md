@@ -24,6 +24,8 @@ This repository maps all security findings to [MITRE ATT&CK v19](https://attack.
 
 This repository contains scanner code and regression fixtures for known model supply-chain risk patterns. Public claims must stay within the committed evidence:
 
+For the current test, coverage, and red-team counts used in résumé/portfolio claims, see [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md).
+
 | Area | Current status | Boundary |
 |--------|-------|----------|
 | Scanner formats | Python, shell/config/dependency files, pickle-derived files, SafeTensors, GGUF, ONNX, and Keras paths are implemented in code | Format support does not imply complete attack coverage |
