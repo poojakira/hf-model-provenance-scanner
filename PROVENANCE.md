@@ -43,12 +43,12 @@ Evidence considered in this pass included:
 
 The reachable commit history was also reviewed for author/committer identities.
 
-Three commits were created through my historical alternate Git identity, `sanco4370-a11y`, whose local Git configuration recorded the name **Rhutvik Prashant Panchghare**:
+Three historical commits used an older maintainer identity:
 - [`a57fba57e4ff`](https://github.com/poojakira/hf-model-provenance-scanner/commit/a57fba57e4ff422faeb32dcbfd03c37843dc2111) — CI / attack-v19-core / Trivy fixes
 - [`f766debbb12c`](https://github.com/poojakira/hf-model-provenance-scanner/commit/f766debbb12caf163caf09155e07120da4a96947) — .gitignore fix
 - [`c7e2d4e3d9af`](https://github.com/poojakira/hf-model-provenance-scanner/commit/c7e2d4e3d9af75d9d9ba5d286e7c4d9f3a12da92) — CI optional-dependency/action-pinning changes
 
-That historical identity belongs to **Pooja Kiran / @poojakira** and is normalized through the repository's `.mailmap`. The original commit objects remain intact; the mapping clarifies maintainer identity without changing dates or content.
+Those commits belong to **Pooja Kiran / @poojakira** and are normalized through the repository's `.mailmap`. The original commit objects remain intact so dates and file history stay auditable.
 
 
 ## Expanded proof matrix
