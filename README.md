@@ -26,6 +26,8 @@ This repository contains scanner code and regression fixtures for known model su
 
 For the current test, coverage, and red-team counts used in résumé/portfolio claims, see [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md).
 
+For the frozen resume snapshot, including the documented 195-test historical validation and its reconciliation with newer 199-test CI, see [`RESUME_EVIDENCE.md`](RESUME_EVIDENCE.md).
+
 | Area | Current status | Boundary |
 |--------|-------|----------|
 | Scanner formats | Python, shell/config/dependency files, pickle-derived files, SafeTensors, GGUF, ONNX, and Keras paths are implemented in code | Format support does not imply complete attack coverage |
