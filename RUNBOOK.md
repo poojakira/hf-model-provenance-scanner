@@ -379,8 +379,8 @@ that run; re-run to confirm on your platform.
 - [x] Repository clones successfully
 - [x] `pip install -e ".[dev]"` completes
 - [x] `python -m scanner.cli --version` reports `hf-scanner 0.2.0`
-- [x] `pytest tests/` is green: **195 passed, 2 skipped, 6 subtests passed**
-- [x] Coverage gate: `pytest tests/ --cov=scanner --cov-fail-under=55` passes (line coverage **~64%**)
+- [x] `pytest tests/` is green: **199 passed, 1 skipped, 6 subtests passed**
+- [x] Coverage gate: `pytest tests/ --cov=scanner --cov-fail-under=55` passes (line coverage **65.89%**)
 - [x] Scan a local target: `python -m scanner.cli <TARGET> -m local`
 - [x] JSON output is valid and includes `completeness` / `skipped_files_detail`
 - [x] SARIF output is valid (`tool.driver.name = hf-scanner`)
