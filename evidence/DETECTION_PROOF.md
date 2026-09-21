@@ -66,20 +66,13 @@ regression (or re-inflation via INFO notices) fails CI.
 See `tests/redteam/redteam_report.json` and `tests/redteam/extended_report.json` for the
 full structured output.
 
-## Comparison with Existing Tools
+## Comparative-efficacy boundary
 
-| Attack | PickleScan | ModelScan | Protect AI Guardian | **This Scanner** |
-|--------|:---:|:---:|:---:|:---:|
-| #1 Privacy Filter (source code) | ❌ | ❌ | ❌ | ✅ |
-| #2 CVE-2026-4372 | ❌ | ❌ | ❌ | ✅ |
-| #3 LiteLLM supply chain | ❌ | ❌ | ❌ | ✅ |
-| #7 Corrupted pickle bypass | ❌ | ❌ | ❌ | ✅ |
-| #8 builtins.eval bypass | ❌ | Partial | Partial | ✅ |
-| #9 copyreg gadget chain | ❌ | Partial | Partial | ✅ |
-| #11 SafeTensors injection | ❌ | ❌ | ❌ | ✅ |
-| #12 GGUF injection | ❌ | ❌ | ❌ | ✅ |
+This repository does not claim comparative superiority over third-party scanners from
+the internal fixture suite alone. A defensible product comparison would require
+running explicitly versioned third-party tools against the same committed corpus,
+using the same execution environment and counting rules, and publishing the raw
+outputs. No such current cross-tool benchmark is committed here.
 
-PickleScan has 7+ confirmed bypass vulnerabilities (JFrog + Sonatype research).
-This scanner catches ALL of them because it parses pickle opcodes directly,
-plus it analyzes Python source code, configs, and shell scripts — which no
-competitor does.
+The supported claim is limited to this scanner's own reproducible fixture results
+documented above.
