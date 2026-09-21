@@ -167,7 +167,7 @@ make verify
 
 ```bash
 # Run tests with the same coverage gate CI enforces (line coverage is
-# currently ~64%; the CI gate is --cov-fail-under=55, not 80).
+# currently 65.89%; the CI gate is --cov-fail-under=55, not 80).
 pytest tests/ -v --cov=scanner --cov-fail-under=55
 
 # Run specific test
@@ -301,7 +301,7 @@ To try it manually: Actions → "HF Hub Webhook Scan" → Run workflow → enter
 # Run all tests
 pytest tests/ -v
 
-# Run with coverage (CI gate is 55%; actual line coverage ~64%)
+# Run with coverage (CI gate is 55%; verified line coverage 65.89%)
 pytest tests/ --cov=scanner --cov-report=html --cov-fail-under=55
 
 # Run specific test modules
