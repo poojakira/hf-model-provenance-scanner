@@ -267,7 +267,7 @@ def old_function():
 
 - Only the latest MINOR release receives PATCH updates
 - Security fixes may be backported to previous MINOR on request
-- LTS versions may be designated for enterprise consumers (TBD)
+- No LTS version is currently designated. Any future LTS policy must be documented in a released version before consumers rely on it.
 
 ---
 
