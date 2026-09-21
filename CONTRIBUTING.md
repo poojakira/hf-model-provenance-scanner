@@ -1,6 +1,6 @@
 # Contributing to hf-model-provenance-scanner
 
-We welcome contributions to the `hf-model-provenance-scanner` project! By participating, you agree to abide by our Code of Conduct.
+We welcome contributions to the `hf-model-provenance-scanner` project. Please keep reviews and discussions technical, respectful, and focused on reproducible evidence.
 
 ## How to Contribute
 
@@ -51,8 +51,8 @@ If your changes affect the functionality or usage, please update the relevant do
 
 Push your changes to your forked repository and open a pull request to the `main` branch of the original repository. Please provide a clear description of your changes and why they are necessary.
 
-## Code of Conduct
+## Contribution Conduct
 
-We are committed to fostering an open and welcoming environment. Please refer to our [Code of Conduct](CODE_OF_CONDUCT.md) (if available) for more details.
+Use respectful, technical communication. Security reports should follow the repository's incident/security guidance rather than public threads when disclosure could increase risk.
 
 Thank you for contributing!
