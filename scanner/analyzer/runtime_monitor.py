@@ -70,7 +70,7 @@ class BaselineProfile:
 
 class RuntimeMonitor:
     """
-    Production-grade runtime monitor for model inference.
+    Runtime monitor for model-inference security experiments.
     Detects: process injection, container escape, egress, side-channels,
     privilege escalation, anti-debug, ROP, cryptominers, firmware access,
     behavioral anomalies, supply-chain webhooks, model extraction,
