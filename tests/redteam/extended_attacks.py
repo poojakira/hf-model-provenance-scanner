@@ -3,7 +3,7 @@ Extended Red Team Suite — 30+ attack variants beyond the core 12.
 
 Tests conditional payloads, environmental gating, large file patterns,
 framework-specific vectors, and complex multi-stage attacks to validate
-that the "100% detection" claim holds under broader conditions.
+fixture detection across a broader committed set of attack variants.
 
 Run: python3 tests/redteam/extended_attacks.py
 """
