@@ -10,10 +10,10 @@ Regenerate locally with:
 
 | Suite | Attacks | Detected | False Positives |
 |---|---|---|---|
-| Core real-world incidents | 12 | 12 (100%) | 0 |
-| Extended variants (env gating, decorators, generators, DNS exfil) | 18 | 18 (100%) | 0 |
-| Large-scale (multi-MB files, 300+ line code) | 3 | 3 (100%) | 0 |
-| Real models (GPT-2 downloaded, Llama-3-8B 288-tensor structure) | — | 0 findings | 0 |
+| Core incident-reproduction fixtures | 12 | 12/12 | N/A for malicious-only core set |
+| Extended malicious variants (env gating, decorators, generators, DNS exfil) | 18 | 18/18 | 0 actionable findings across 4 separate benign samples |
+| Large-scale committed fixtures (multi-MB files, 300+ line code) | 3 | 3/3 | N/A for malicious-only set |
+| Historical real-model smoke checks | — | See committed reports if reproducing | Not a broad benign-model benchmark |
 
 **How "detected" and "false positive" are counted:** only *actionable*
 (non-INFO) findings count. INFO-level capability notices such as
