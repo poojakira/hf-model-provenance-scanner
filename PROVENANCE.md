@@ -49,3 +49,26 @@ Three commits are authored and committed by **Rhutvik Prashant Panchghare**:
 - [`c7e2d4e3d9af`](https://github.com/poojakira/hf-model-provenance-scanner/commit/c7e2d4e3d9af75d9d9ba5d286e7c4d9f3a12da92) — CI optional-dependency/action-pinning changes
 
 These are real historical contributions and are preserved. They do not alter the repository's earliest defensible year of 2026.
+
+
+## Expanded proof matrix
+
+| Evidence source | What was checked | Result |
+|---|---|---|
+| Reachable Git history | Earliest reachable commit on `main` | **2026-07-10** — [`7099591d86f5`](https://github.com/poojakira/hf-model-provenance-scanner/commit/7099591d86f5e82d787d8934c52eb4e2b24f6918) — `Initial commit` |
+| Repository files/docs | README, changelog, reports, embedded date labels, provenance files, and high-visibility docs | No dated file reviewed establishes this repository or a clearly identifiable direct precursor before **2026**. |
+| Course/project references | Course codes, academic project references, publication links, and research-period references present in or connected to the repository | No course/publication reference reviewed proves this repository existed before **2026**. Earlier academic work remains a separate provenance track unless direct lineage is documented. |
+| Internal evidence | Repository-local evidence files and previously audited connected-source metadata | Supports the documented 2026 development/research period; no direct pre-2026 same-project artifact was established. |
+| Commit identity/history integrity | Historical author/committer objects and existing timestamps | Preserved as-is. No commits were backdated, timestamp-rewritten, or replaced to manufacture an older timeline. |
+
+### Repository-specific evidence notes
+
+- References to 2025 incidents, CVEs, and attack research are source-event dates, not repository-origin evidence.
+
+### Provenance confidence
+
+**High for the mapped year (2026).** The reachable Git history is direct evidence. Any earlier year would require a dated source artifact that can be tied to this exact repository or a clearly identifiable direct precursor.
+
+### History policy
+
+This audit records provenance **without rewriting Git history**. If stronger pre-Git evidence is discovered later, document it as pre-Git lineage with the artifact date and source; do not alter historical commit timestamps.
