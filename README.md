@@ -4,7 +4,7 @@
 [![Python >=3.10](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-## MITRE ATT&CK v19 Coverage
+## MITRE ATT&CK v19 Mapping
 
 This repository maps all security findings to [MITRE ATT&CK v19](https://attack.mitre.org/).
 
