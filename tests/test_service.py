@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import time
+
 from fastapi.testclient import TestClient
 
 from scanner import service
@@ -111,3 +113,33 @@ def test_security_findings_block(monkeypatch):
         json={"repo_id": "org/model"},
     )
     assert response.json()["decision"] == "BLOCK"
+
+
+def test_ready_rejects_short_key(monkeypatch):
+    monkeypatch.setenv("API_KEY", "short")
+    assert client.get("/ready").status_code == 503
+
+
+def test_scan_timeout_fails_closed(monkeypatch):
+    key = "service-key-at-least-32-characters-long"
+    monkeypatch.setenv("API_KEY", key)
+    monkeypatch.setattr(service, "_SCAN_TIMEOUT_SECONDS", 0.01)
+
+    def slow_scan(payload):
+        time.sleep(0.05)
+        return 0, {
+            "artifact_revision": "d" * 40,
+            "completeness": "COMPLETE",
+            "risk": {},
+            "findings": [],
+            "error": None,
+        }
+
+    monkeypatch.setattr(service, "_scan_sync", slow_scan)
+    response = client.post(
+        "/scan",
+        headers={"X-API-Key": key},
+        json={"repo_id": "org/model"},
+    )
+    assert response.status_code == 504
+    assert "timed out" in response.json()["detail"].lower()
