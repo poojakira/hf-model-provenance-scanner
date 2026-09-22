@@ -8,7 +8,7 @@ When configured as a HuggingFace webhook, it will:
 1. Receive push events for model repositories
 2. Automatically scan the pushed model
 3. Post results back as a comment/discussion on the repo
-11. Optionally block downloads if CRITICAL findings detected
+4. Return a signed-request scan decision to the calling integration
 
 Setup:
 1. Go to https://huggingface.co/settings/webhooks
@@ -203,31 +203,47 @@ def handle_webhook(event: dict) -> dict:
 def run_server(host: str | None = None, port: int = 8080):
     """Run a simple HTTP server for webhook testing.
 
-    Security: binds to 127.0.0.1 (localhost) by default so the test server is
-    not exposed on all interfaces. To listen on all interfaces (e.g. inside a
-    container behind a reverse proxy), set WEBHOOK_BIND_HOST explicitly, e.g.
-    ``WEBHOOK_BIND_HOST=0.0.0.0``. This is a testing/small-deployment helper,
-    not a hardened production server.
+    Security: WEBHOOK_SECRET is mandatory. The helper binds to 127.0.0.1 by
+    default; an operator must explicitly choose a non-loopback bind address.
+    This server remains a small-deployment adapter, not the scanner's trust
+    boundary: every accepted request is HMAC verified before scanning.
     """
     from http.server import BaseHTTPRequestHandler, HTTPServer
 
     if host is None:
         host = os.environ.get("WEBHOOK_BIND_HOST", "127.0.0.1")
+    if not os.environ.get("WEBHOOK_SECRET"):
+        raise RuntimeError("WEBHOOK_SECRET is required; unsigned webhook mode is disabled")
 
     class Handler(BaseHTTPRequestHandler):
         def do_POST(self):
-            content_length = int(self.headers.get("Content-Length", 0))
+            if self.path != "/scan":
+                self.send_response(404)
+                self.end_headers()
+                return
+            try:
+                content_length = int(self.headers.get("Content-Length", "0"))
+            except ValueError:
+                self.send_response(400)
+                self.end_headers()
+                return
+            if content_length <= 0 or content_length > MAX_CONTENT_LENGTH:
+                self.send_response(413 if content_length > MAX_CONTENT_LENGTH else 400)
+                self.end_headers()
+                return
             body = self.rfile.read(content_length)
+            if len(body) > MAX_CONTENT_LENGTH:
+                self.send_response(413)
+                self.end_headers()
+                return
 
-            # Verify signature if secret is set
-            secret = os.environ.get("WEBHOOK_SECRET")
-            if secret:
-                signature = self.headers.get("X-Webhook-Secret", "")
-                if not verify_signature(body, signature, secret):
-                    self.send_response(401)
-                    self.end_headers()
-                    self.wfile.write(b'{"error": "invalid signature"}')
-                    return
+            secret = os.environ["WEBHOOK_SECRET"]
+            signature = self.headers.get("X-Webhook-Secret", "")
+            if not verify_signature(body, signature, secret):
+                self.send_response(401)
+                self.end_headers()
+                self.wfile.write(b'{"error": "invalid signature"}')
+                return
 
             try:
                 event = json.loads(body)
@@ -236,10 +252,11 @@ def run_server(host: str | None = None, port: int = 8080):
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 self.wfile.write(json.dumps(result).encode())
-            except Exception as e:
+            except Exception:
                 self.send_response(500)
+                self.send_header("Content-Type", "application/json")
                 self.end_headers()
-                self.wfile.write(json.dumps({"error": str(e)}).encode())
+                self.wfile.write(b'{"error":"internal server error"}')
 
         def log_message(self, format, *args):
             print(f"[webhook] {args[0]}")
