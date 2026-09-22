@@ -42,7 +42,6 @@ class TestWebhookSecurityRejects(unittest.TestCase):
         self.assertEqual(status, 413)
         self.assertEqual(result, {"error": "payload too large"})
 
-
     def test_webhook_rejects_oversized_body_without_content_length(self):
         body = b"A" * (webhook.MAX_CONTENT_LENGTH + 1)
         with patch.dict(os.environ, {"WEBHOOK_SECRET": "secret"}, clear=True):
@@ -92,7 +91,6 @@ class TestWebhookSecurityRejects(unittest.TestCase):
                 result = webhook.handle_webhook({"repo": {"name": repo_id, "type": "model"}})
             self.assertEqual(result, {"status": "ignored", "reason": "invalid repo_id"})
 
-
     def test_webhook_rejects_model_event_without_immutable_revision(self):
         with patch.object(webhook, "scan_repo", side_effect=AssertionError("scan_repo called")):
             result = webhook.handle_webhook(
@@ -129,7 +127,6 @@ class TestWebhookSecurityRejects(unittest.TestCase):
         self.assertEqual(result["status"], "admitted")
         self.assertEqual(result["revision"], revision)
         self.assertTrue(result["admitted"])
-
 
 
 class TestMaliciousFixtureSafety(unittest.TestCase):
