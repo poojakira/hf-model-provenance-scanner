@@ -9,7 +9,7 @@ Replicates EXACT techniques from documented 2025-2026 incidents:
 4. JFrog PickleScan bypass techniques (7 methods)
 5. Sonatype PickleScan bypass (4 additional methods)
 6. Acronis TRU HuggingFace/ClawHub malware campaign
-7. CVE-2026-46517 LMDeploy trust_remote_code RCE
+7. CVE-2026-46517 LMDeploy unsafe trust_remote_code load path
 
 Each simulation is an INERT payload that triggers the same scanner rules
 as the real attack would, proving detection capability without being weaponizable.
@@ -201,7 +201,7 @@ ATTACK_6_PICKLE_COPYREG = (
 
 # ═══════════════════════════════════════════════════════════════════════
 # INCIDENT 7: CVE-2026-46517 LMDeploy trust_remote_code
-# Technique: Hardcoded trust_remote_code enables supply chain RCE
+# Technique: Hardcoded trust_remote_code=True creates an unsafe remote-code load path
 # ═══════════════════════════════════════════════════════════════════════
 
 ATTACK_7_LMDEPLOY = """
@@ -356,7 +356,7 @@ def run_simulation():
         AttackSimulation(
             "CVE-2026-46517 LMDeploy RCE",
             ATTACK_7_LMDEPLOY,
-            "Hardcoded trust_remote_code enables RCE",
+            "Hardcoded trust_remote_code=True creates an unsafe remote-code load path",
             cve="CVE-2026-46517",
         ),
         AttackSimulation(
