@@ -42,6 +42,16 @@ class TestWebhookSecurityRejects(unittest.TestCase):
         self.assertEqual(status, 413)
         self.assertEqual(result, {"error": "payload too large"})
 
+
+    def test_webhook_rejects_oversized_body_without_content_length(self):
+        body = b"A" * (webhook.MAX_CONTENT_LENGTH + 1)
+        with patch.dict(os.environ, {"WEBHOOK_SECRET": "secret"}, clear=True):
+            status, result = webhook.process_webhook_request(
+                {}, io.BytesIO(body), handler=lambda event: event
+            )
+        self.assertEqual(status, 413)
+        self.assertEqual(result, {"error": "payload too large"})
+
     def test_webhook_returns_generic_500_without_exception_text(self):
         body = json.dumps({"repo": {"name": "org/model", "type": "model"}}).encode()
         with patch.dict(os.environ, {"WEBHOOK_SECRET": "secret"}, clear=True):
