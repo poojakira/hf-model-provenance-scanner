@@ -1,14 +1,14 @@
 """
-Production Deployment: Real-Time Model Inference Protection
+Experimental Deployment Reference: Runtime Model Monitoring
 =============================================================
 
 This script demonstrates how to deploy the HF Model Provenance Scanner
-with real-time runtime protection for production ML inference services.
+with an experimental runtime-monitoring reference for ML inference services.
 
 Architecture:
 1. Pre-deployment: Static scan (pickle, safetensors, GGUF, ONNX, code)
-2. Runtime: Behavioral monitoring via eBPF/syscall tracing
-3. Response: Automated blocking, alerting, quarantine
+2. Runtime: Behavioral monitoring using the capabilities implemented by RuntimeMonitor
+3. Response: Experimental alerting/quarantine hooks; validate enforcement in your environment
 
 Usage:
     python deploy_protection.py --model-path ./model --serve --port 8080
@@ -221,7 +221,7 @@ class ProtectedModelServer:
 
 
 def create_production_config() -> dict:
-    """Production-ready configuration."""
+    """Example configuration for the experimental deployment reference."""
     return {
         "static": {
             "fail_on": "high",
