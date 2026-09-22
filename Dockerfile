@@ -1,25 +1,34 @@
-FROM python:3.11-slim
+FROM python:3.12-slim AS builder
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /build
+COPY pyproject.toml ./
+COPY scanner ./scanner
+
+RUN python -m pip install --no-cache-dir --upgrade pip build \
+    && python -m build --wheel --outdir /wheels
+
+FROM python:3.12-slim AS runtime
 
 LABEL org.opencontainers.image.title="HF Model Provenance Scanner"
-LABEL org.opencontainers.image.description="Zero-dependency ML supply chain security scanner"
+LABEL org.opencontainers.image.description="ML model supply-chain admission scanner"
 LABEL org.opencontainers.image.source="https://github.com/poojakira/hf-model-provenance-scanner"
 LABEL org.opencontainers.image.authors="Pooja Kiran <poojakira>"
 
-WORKDIR /scanner
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
-# Copy scanner source (zero dependencies, no pip install needed)
-COPY scanner/ /scanner/scanner/
-COPY pyproject.toml /scanner/
+RUN groupadd --system scanner \
+    && useradd --system --gid scanner --create-home --home-dir /home/scanner scanner
 
-# Install for entry point
-RUN pip install --no-cache-dir -e . && \
-    # Verify installation
-    hf-scanner --version
+COPY --from=builder /wheels /wheels
+RUN python -m pip install --no-cache-dir /wheels/*.whl \
+    && rm -rf /wheels \
+    && hf-scanner --version
 
-# Non-root user for security
-RUN useradd -m -s /bin/bash scanner
 USER scanner
-
 WORKDIR /workspace
 
 ENTRYPOINT ["hf-scanner"]
