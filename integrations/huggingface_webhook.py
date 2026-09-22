@@ -27,6 +27,7 @@ import hashlib
 import hmac
 import json
 import os
+import re
 import sys
 import urllib.request
 
@@ -87,8 +88,15 @@ def verify_signature(payload: bytes, signature: str, secret: str) -> bool:
     return hmac.compare_digest(f"sha256={expected}", signature)
 
 
-def scan_repo(repo_id: str) -> dict:
-    """Run the scanner against a HuggingFace repo."""
+def scan_repo(repo_id: str, revision: str) -> dict:
+    """Run the scanner against one immutable Hugging Face repository revision."""
+    if not re.fullmatch(r"[0-9a-fA-F]{40,64}", revision):
+        return {
+            "error": "Webhook event did not provide a valid immutable revision",
+            "exit_code": 2,
+            "admitted": False,
+            "completeness": "INDETERMINATE",
+        }
     import io
     from contextlib import redirect_stdout
 
@@ -105,6 +113,8 @@ def scan_repo(repo_id: str) -> dict:
                 "json",
                 "--fail-on",
                 os.environ.get("FAIL_ON", "high"),
+                "--revision",
+                revision,
                 "--enforce",
                 "--token",
                 os.environ.get("HF_TOKEN", ""),
@@ -190,8 +200,20 @@ def handle_webhook(event: dict) -> dict:
     if repo_id.count("/") != 1:
         return {"status": "ignored", "reason": "invalid repo_id"}
 
-    # Run scan
-    result = scan_repo(repo_id)
+    # Pin admission to the immutable repository head supplied by the webhook.
+    # Hugging Face webhook deliveries are asynchronous and may arrive out of
+    # order; scanning a mutable branch name here would introduce a TOCTOU race.
+    revision = repo.get("headSha", "")
+    if not isinstance(revision, str) or not re.fullmatch(r"[0-9a-fA-F]{40,64}", revision):
+        return {
+            "status": "rejected",
+            "reason": "missing_or_invalid_immutable_revision",
+            "repo_id": repo_id,
+            "admitted": False,
+        }
+
+    # Run scan against that exact revision.
+    result = scan_repo(repo_id, revision)
 
     # Send notification if findings
     send_notification(repo_id, result)
@@ -199,6 +221,7 @@ def handle_webhook(event: dict) -> dict:
     return {
         "status": "admitted" if result.get("admitted") else "rejected",
         "repo_id": repo_id,
+        "revision": revision,
         "admitted": bool(result.get("admitted")),
         "risk_level": result.get("risk", {}).get("level", "UNKNOWN"),
         "risk_score": result.get("risk", {}).get("score", 0),
@@ -218,7 +241,7 @@ def run_server(host: str | None = None, port: int = 8080):
     This server remains a small-deployment adapter, not the scanner's trust
     boundary: every accepted request is HMAC verified before scanning.
     """
-    from http.server import BaseHTTPRequestHandler, HTTPServer
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
     if host is None:
         host = os.environ.get("WEBHOOK_BIND_HOST", "127.0.0.1")
@@ -271,7 +294,7 @@ def run_server(host: str | None = None, port: int = 8080):
         def log_message(self, format, *args):
             print(f"[webhook] {args[0]}")
 
-    server = HTTPServer((host, port), Handler)
+    server = ThreadingHTTPServer((host, port), Handler)
     print(f"Webhook server running on {host}:{port}")
     print(f"Configure HuggingFace webhook to POST to http://{host}:{port}/scan")
     server.serve_forever()
