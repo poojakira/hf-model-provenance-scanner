@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import hmac
 import io
 import json
@@ -20,6 +21,13 @@ from scanner.cli import main as scanner_main
 _REPO_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}/[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 _REVISION = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]{0,199}$")
 _FAIL_ON = {"critical", "high", "medium", "low", "info"}
+_SCAN_TIMEOUT_SECONDS = float(os.environ.get("SCAN_TIMEOUT_SECONDS", "120"))
+_MAX_CONCURRENT_SCANS = int(os.environ.get("MAX_CONCURRENT_SCANS", "4"))
+if _SCAN_TIMEOUT_SECONDS <= 0:
+    raise RuntimeError("SCAN_TIMEOUT_SECONDS must be positive")
+if _MAX_CONCURRENT_SCANS < 1 or _MAX_CONCURRENT_SCANS > 64:
+    raise RuntimeError("MAX_CONCURRENT_SCANS must be between 1 and 64")
+_scan_slots = asyncio.Semaphore(_MAX_CONCURRENT_SCANS)
 
 app = FastAPI(
     title="HF Model Provenance Admission Service",
@@ -48,8 +56,11 @@ class ScanResponse(BaseModel):
 
 def _authorize(request: Request) -> None:
     expected = os.environ.get("API_KEY", "")
-    if not expected:
-        raise HTTPException(status_code=503, detail="API authentication is not configured")
+    if len(expected) < 32:
+        raise HTTPException(
+            status_code=503,
+            detail="API authentication is not configured with a sufficiently strong key",
+        )
     supplied = request.headers.get("X-API-Key", "")
     if not supplied or not hmac.compare_digest(supplied, expected):
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -123,9 +134,13 @@ def health() -> dict[str, str]:
 
 @app.get("/ready")
 def ready() -> dict[str, str]:
-    if not os.environ.get("API_KEY"):
-        raise HTTPException(status_code=503, detail="API_KEY is not configured")
-    return {"status": "ready"}
+    if len(os.environ.get("API_KEY", "")) < 32:
+        raise HTTPException(status_code=503, detail="API_KEY must be at least 32 characters")
+    return {
+        "status": "ready",
+        "max_concurrent_scans": str(_MAX_CONCURRENT_SCANS),
+        "scan_timeout_seconds": str(_SCAN_TIMEOUT_SECONDS),
+    }
 
 
 @app.post("/scan", response_model=ScanResponse)
@@ -133,7 +148,15 @@ async def scan(payload: ScanRequest, request: Request) -> ScanResponse:
     _authorize(request)
     _validate_target(payload)
     started = time.perf_counter()
-    code, result = await run_in_threadpool(_scan_sync, payload)
+    try:
+        async with _scan_slots:
+            code, result = await asyncio.wait_for(
+                run_in_threadpool(_scan_sync, payload),
+                timeout=_SCAN_TIMEOUT_SECONDS,
+            )
+    except asyncio.TimeoutError as exc:
+        raise HTTPException(status_code=504, detail="Scanner execution timed out") from exc
+
     completeness = str(result.get("completeness", "UNKNOWN")).upper()
 
     if code == 0 and completeness == "COMPLETE":
