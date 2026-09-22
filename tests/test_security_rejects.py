@@ -27,6 +27,11 @@ class TestWebhookSecurityRejects(unittest.TestCase):
         self.assertEqual(status, 500)
         self.assertEqual(result, {"error": "server misconfigured"})
 
+    def test_standalone_webhook_server_refuses_unsigned_mode(self):
+        with patch.dict(os.environ, {}, clear=True):
+            with self.assertRaisesRegex(RuntimeError, "WEBHOOK_SECRET is required"):
+                webhook.run_server(host="127.0.0.1", port=0)
+
     def test_webhook_rejects_oversized_content_length_before_reading(self):
         with patch.dict(os.environ, {"WEBHOOK_SECRET": "secret"}, clear=True):
             status, result = webhook.process_webhook_request(
