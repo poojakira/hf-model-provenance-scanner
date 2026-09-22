@@ -4,7 +4,7 @@
 
 Pre-load scanning, parsing, sandboxing, CLI/API behavior, CI integrations, and model-artifact handling are in scope. Third-party model hubs and external scanners are out of scope.
 
-This is an open-source research/engineering project. Security claims are limited to behavior demonstrated by the repository and its CI/committed evidence; they are not a statement of production certification.
+This is an open-source production-oriented security system. Security claims remain limited to behavior demonstrated by the repository, its CI, and committed evidence; production orientation does not imply third-party certification or a deployment history that is not evidenced here.
 
 ## Reporting a vulnerability
 
