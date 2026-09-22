@@ -62,8 +62,11 @@ def process_webhook_request(headers: dict, body_stream, handler):
         except ValueError:
             pass
 
-    # Read body
-    body = body_stream.read()
+    # Read at most one byte beyond the limit so a missing/lying Content-Length
+    # cannot turn into an unbounded allocation.
+    body = body_stream.read(MAX_CONTENT_LENGTH + 1)
+    if len(body) > MAX_CONTENT_LENGTH:
+        return 413, {"error": "payload too large"}
 
     # Verify signature
     signature = headers.get("X-Webhook-Secret", "")
@@ -102,6 +105,7 @@ def scan_repo(repo_id: str) -> dict:
                 "json",
                 "--fail-on",
                 os.environ.get("FAIL_ON", "high"),
+                "--enforce",
                 "--token",
                 os.environ.get("HF_TOKEN", ""),
             ]
@@ -113,6 +117,11 @@ def scan_repo(repo_id: str) -> dict:
         result = {"error": "Failed to parse scan output"}
 
     result["exit_code"] = exit_code
+    result["admitted"] = (
+        exit_code == 0
+        and str(result.get("completeness", "UNKNOWN")).upper() == "COMPLETE"
+        and not result.get("error")
+    )
     return result
 
 
@@ -188,8 +197,9 @@ def handle_webhook(event: dict) -> dict:
     send_notification(repo_id, result)
 
     return {
-        "status": "scanned",
+        "status": "admitted" if result.get("admitted") else "rejected",
         "repo_id": repo_id,
+        "admitted": bool(result.get("admitted")),
         "risk_level": result.get("risk", {}).get("level", "UNKNOWN"),
         "risk_score": result.get("risk", {}).get("score", 0),
         "findings_count": len(result.get("findings", [])),
