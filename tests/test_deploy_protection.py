@@ -12,12 +12,16 @@ def test_static_scan_requires_complete_result(monkeypatch, tmp_path: Path) -> No
     server = deploy_protection.ProtectedModelServer(str(tmp_path), {"runtime": {}})
 
     def fake_cli_main(args):
-        print(json.dumps({
-            "findings": [],
-            "risk": {"score": 0, "level": "LOW"},
-            "completeness": "INDETERMINATE",
-            "error": None,
-        }))
+        print(
+            json.dumps(
+                {
+                    "findings": [],
+                    "risk": {"score": 0, "level": "LOW"},
+                    "completeness": "INDETERMINATE",
+                    "error": None,
+                }
+            )
+        )
         return 1
 
     monkeypatch.setattr(deploy_protection, "cli_main", fake_cli_main)
@@ -34,12 +38,16 @@ def test_static_scan_approves_only_complete_success(monkeypatch, tmp_path: Path)
 
     def fake_cli_main(args):
         assert "--enforce" in args
-        print(json.dumps({
-            "findings": [],
-            "risk": {"score": 0, "level": "LOW"},
-            "completeness": "COMPLETE",
-            "error": None,
-        }))
+        print(
+            json.dumps(
+                {
+                    "findings": [],
+                    "risk": {"score": 0, "level": "LOW"},
+                    "completeness": "COMPLETE",
+                    "error": None,
+                }
+            )
+        )
         return 0
 
     monkeypatch.setattr(deploy_protection, "cli_main", fake_cli_main)
