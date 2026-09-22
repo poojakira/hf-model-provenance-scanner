@@ -1,9 +1,10 @@
 """
-Experimental Deployment Reference: Runtime Model Monitoring
-=============================================================
+Deployment Admission Gate and Runtime Monitoring
+================================================
 
-This script demonstrates how to deploy the HF Model Provenance Scanner
-with an experimental runtime-monitoring reference for ML inference services.
+This entry point provides a fail-closed pre-deployment admission gate and an
+optional runtime-monitoring sidecar process. It does not start or proxy an
+inference server; the inference runtime remains an external deployment concern.
 
 Architecture:
 1. Pre-deployment: Static scan (pickle, safetensors, GGUF, ONNX, code)
@@ -34,9 +35,7 @@ from scanner.cli import main as cli_main
 
 
 class ProtectedModelServer:
-    """
-    Production model server with integrated real-time threat detection.
-    """
+    """Fail-closed model admission and runtime-monitoring coordinator."""
 
     def __init__(self, model_path: str, config: dict):
         self.model_path = model_path
@@ -74,8 +73,8 @@ class ProtectedModelServer:
                         with open(filepath, "rb") as fp:
                             while chunk := fp.read(8192):
                                 hasher.update(chunk)
-                    except Exception:
-                        pass
+                    except OSError as exc:
+                        raise RuntimeError(f"Unable to hash model artifact {filepath}: {exc}") from exc
         return hasher.hexdigest()[:16]
 
     def static_scan(self) -> dict:
@@ -88,7 +87,8 @@ class ProtectedModelServer:
             "--format",
             "json",
             "--fail-on",
-            "never",
+            "high",
+            "--enforce",
             "--quiet",
         ]
         # Capture output
@@ -101,11 +101,17 @@ class ProtectedModelServer:
             with redirect_stdout(stdout), redirect_stderr(stderr):
                 exit_code = cli_main(args)
             result = json.loads(stdout.getvalue())
+            completeness = str(result.get("completeness", "UNKNOWN")).upper()
+            scan_error = result.get("error")
+            approved = exit_code == 0 and completeness == "COMPLETE" and not scan_error
             return {
                 "exit_code": exit_code,
                 "findings": result.get("findings", []),
                 "risk_score": result.get("risk", {}).get("score", 0),
                 "risk_level": result.get("risk", {}).get("level", "UNKNOWN"),
+                "completeness": completeness,
+                "error": scan_error,
+                "approved": approved,
             }
         except Exception as e:
             return {"error": str(e), "exit_code": 1}
@@ -286,15 +292,21 @@ def main():
 
     critical = [f for f in result.get("findings", []) if f.get("severity") == "critical"]
     high = [f for f in result.get("findings", []) if f.get("severity") == "high"]
-    if critical or high:
-        print(f"\n[BLOCK] Deployment blocked: {len(critical)} critical, {len(high)} high findings")
-        for f in critical + high:
-            print(f"  - {f['rule_id']}: {f['message']}")
-        if config["static"]["fail_on"] in ("critical", "high"):
-            sys.exit(1)
+    if not result.get("approved", False):
+        completeness = result.get("completeness", "UNKNOWN")
+        error = result.get("error")
+        print(
+            f"\n[BLOCK] Deployment blocked: completeness={completeness}, "
+            f"critical={len(critical)}, high={len(high)}, exit_code={result.get('exit_code')}"
+        )
+        if error:
+            print(f"  scanner error: {error}")
+        for finding in critical + high:
+            print(f"  - {finding['rule_id']}: {finding['message']}")
+        sys.exit(1)
 
     if args.static_only:
-        print("\n[OK] Static scan passed - model approved for deployment")
+        print("\n[OK] Static scan complete - artifact admitted by configured policy")
         return
 
     # Phase 2: Runtime Protection
@@ -313,11 +325,8 @@ def main():
 
         server.start_runtime_protection()
 
-        print(f"\n[SERVER] Protected inference server running on port {args.port}")
-        print("[SERVER] Press Ctrl+C to stop\n")
-
-        # In production: start your inference server here (FastAPI, Triton, etc.)
-        # For demo: just keep alive
+        print("\n[MONITOR] Runtime monitor active for this process")
+        print("[MONITOR] This command does not start an inference server; press Ctrl+C to stop\n")
         try:
             while True:
                 time.sleep(10)
