@@ -93,6 +93,45 @@ class TestWebhookSecurityRejects(unittest.TestCase):
             self.assertEqual(result, {"status": "ignored", "reason": "invalid repo_id"})
 
 
+    def test_webhook_rejects_model_event_without_immutable_revision(self):
+        with patch.object(webhook, "scan_repo", side_effect=AssertionError("scan_repo called")):
+            result = webhook.handle_webhook(
+                {"repo": {"name": "org/model", "type": "model"}}
+            )
+        self.assertEqual(result["status"], "rejected")
+        self.assertEqual(result["reason"], "missing_or_invalid_immutable_revision")
+        self.assertFalse(result["admitted"])
+
+    def test_webhook_scans_exact_head_sha(self):
+        revision = "a" * 40
+        fake_result = {
+            "admitted": True,
+            "exit_code": 0,
+            "completeness": "COMPLETE",
+            "risk": {"level": "LOW", "score": 0},
+            "findings": [],
+        }
+        with (
+            patch.object(webhook, "scan_repo", return_value=fake_result) as scan,
+            patch.object(webhook, "send_notification"),
+        ):
+            result = webhook.handle_webhook(
+                {
+                    "event": {"action": "update", "scope": "repo.content"},
+                    "repo": {
+                        "name": "org/model",
+                        "type": "model",
+                        "headSha": revision,
+                    },
+                }
+            )
+        scan.assert_called_once_with("org/model", revision)
+        self.assertEqual(result["status"], "admitted")
+        self.assertEqual(result["revision"], revision)
+        self.assertTrue(result["admitted"])
+
+
+
 class TestMaliciousFixtureSafety(unittest.TestCase):
     def test_privacy_filter_fixture_is_inert_when_called(self):
         fixture = Path(__file__).parent / "fixtures" / "malicious" / "privacy_filter_loader.py"
