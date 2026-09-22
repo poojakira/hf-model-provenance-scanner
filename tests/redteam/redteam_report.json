@@ -148,8 +148,8 @@
       ]
     },
     {
-      "name": "CVE-2026-46517 LMDeploy RCE",
-      "technique": "Hardcoded trust_remote_code enables RCE",
+      "name": "CVE-2026-46517 LMDeploy unsafe load path",
+      "technique": "Hardcoded trust_remote_code=True creates an unsafe remote-code load path",
       "cve": "CVE-2026-46517",
       "detected": true,
       "findings_count": 3,
