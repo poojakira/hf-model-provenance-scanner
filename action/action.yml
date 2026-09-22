@@ -58,7 +58,7 @@ runs:
   using: 'composite'
   steps:
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
       with:
         python-version: '3.11'
 
@@ -70,39 +70,50 @@ runs:
       id: scan
       shell: bash
       run: |
-        ARGS="${{ inputs.target }} --mode ${{ inputs.mode }} --fail-on ${{ inputs.fail-on }}"
-        ARGS="$ARGS --format ${{ inputs.format }}"
-        
+        args=(
+          "${{ inputs.target }}"
+          "--mode" "${{ inputs.mode }}"
+          "--fail-on" "${{ inputs.fail-on }}"
+          "--format" "${{ inputs.format }}"
+        )
+
         if [ -n "${{ inputs.output }}" ]; then
-          ARGS="$ARGS --output ${{ inputs.output }}"
+          args+=("--output" "${{ inputs.output }}")
         fi
-        
+
         if [ "${{ inputs.sandbox }}" = "true" ]; then
-          ARGS="$ARGS --sandbox"
+          args+=("--sandbox")
         fi
-        
+
         if [ -n "${{ inputs.token }}" ]; then
-          ARGS="$ARGS --token ${{ inputs.token }}"
+          args+=("--token" "${{ inputs.token }}")
         fi
-        
+
         if [ -n "${{ inputs.baseline }}" ]; then
-          ARGS="$ARGS --baseline ${{ inputs.baseline }}"
+          args+=("--baseline" "${{ inputs.baseline }}")
         fi
-        
+
         if [ -n "${{ inputs.save-baseline }}" ]; then
-          ARGS="$ARGS --save-baseline ${{ inputs.save-baseline }}"
+          args+=("--save-baseline" "${{ inputs.save-baseline }}")
         fi
-        
-        # Run scanner and capture exit code
+
+        # Execute an argv array so input whitespace and shell metacharacters
+        # cannot change option boundaries.
         set +e
-        hf-scanner $ARGS
+        hf-scanner "${args[@]}"
         EXIT_CODE=$?
         set -e
         
         echo "exit-code=$EXIT_CODE" >> $GITHUB_OUTPUT
         
         # Also run JSON format to extract metadata
-        JSON_OUT=$(hf-scanner ${{ inputs.target }} --mode ${{ inputs.mode }} --format json --fail-on never 2>/dev/null || true)
+        set +e
+        JSON_OUT=$(hf-scanner "${{ inputs.target }}" --mode "${{ inputs.mode }}" --format json --fail-on never 2>/dev/null)
+        JSON_EXIT=$?
+        set -e
+        if [ "$JSON_EXIT" -ne 0 ] && [ -z "$JSON_OUT" ]; then
+          echo "::warning::metadata extraction scan returned exit code $JSON_EXIT"
+        fi
         if [ -n "$JSON_OUT" ]; then
           echo "risk-score=$(echo "$JSON_OUT" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(d["risk"]["score"])')" >> $GITHUB_OUTPUT
           echo "risk-level=$(echo "$JSON_OUT" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(d["risk"]["level"])')" >> $GITHUB_OUTPUT
@@ -113,7 +124,7 @@ runs:
 
     - name: Upload SARIF (if applicable)
       if: always() && inputs.format == 'sarif' && inputs.output != ''
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@c4dd10e44af883a891fe31ced449bcb4a6728b9b # v3
       with:
         sarif_file: ${{ inputs.output }}
       continue-on-error: true
