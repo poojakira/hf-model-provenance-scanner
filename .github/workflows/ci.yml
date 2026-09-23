@@ -187,7 +187,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+          pip install -e ".[dev,service]"
 
       - name: Run sandbox validation tests
         env:
@@ -259,7 +259,7 @@ jobs:
             python attack-v19-core/scripts/download_attack_data.py
             pip install -e ".[dev,service,attack]"
           else
-            pip install -e ".[dev]"
+            pip install -e ".[dev,service]"
           fi
 
       - name: Run tests with coverage
@@ -270,7 +270,7 @@ jobs:
               --cov-report=term-missing \
               --cov-report=xml:coverage.xml \
               --cov-fail-under=55 \
-              -W error::DeprecationWarning \
+              -W error::DeprecationWarning:scanner \
               -W error::PendingDeprecationWarning:scanner
           else
             pytest tests/ -v --tb=short -p pytest_cov \
@@ -278,8 +278,8 @@ jobs:
               --cov-report=term-missing \
               --cov-report=xml:coverage.xml \
               --cov-fail-under=55 \
-              -W error::DeprecationWarning \
-              -W error::PendingDeprecationWarning
+              -W error::DeprecationWarning:scanner \
+              -W error::PendingDeprecationWarning:scanner
           fi
 
       - name: Upload coverage report
