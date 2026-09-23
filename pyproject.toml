@@ -19,7 +19,7 @@ hf-scanner = "scanner.cli:main"
 service = [
     "fastapi>=0.115,<1",
     "uvicorn[standard]>=0.32,<1",
-    "pydantic>=2.9,<3",
+    "pydantic>=2.7.4,<3",
 ]
 dev = [
     "pytest>=8.0",
