@@ -111,9 +111,9 @@ s.connect(("8.8.8.8", 53))
         # Either the network attempt is flagged, or the sandbox contained it
         # (any finding at all, including a crash/backend warning, proves the
         # payload did not run unobserved).
-        assert len(network_findings) > 0 or len(findings) > 0, (
-            "Sandbox neither detected nor contained network access"
-        )
+        assert (
+            len(network_findings) > 0 or len(findings) > 0
+        ), "Sandbox neither detected nor contained network access"
     finally:
         os.unlink(tmp)
 
@@ -138,9 +138,9 @@ eval("__import__('os').system('ls')")
         os.environ["HF_SANDBOX_BACKEND"] = "subprocess"
         findings = sandbox_execute(tmp, malicious_code)
         eval_findings = [f for f in findings if "eval" in f.evidence.lower()]
-        assert len(eval_findings) > 0 or len(findings) > 0, (
-            "Sandbox neither detected nor contained eval usage"
-        )
+        assert (
+            len(eval_findings) > 0 or len(findings) > 0
+        ), "Sandbox neither detected nor contained eval usage"
     finally:
         os.unlink(tmp)
 
@@ -171,9 +171,9 @@ socket.create_connection(("8.8.8.8", 53))
             or "crashed" in f.evidence.lower()
             or "killed" in f.evidence.lower()
         ]
-        assert len(blocked_findings) > 0 or len(findings) > 0, (
-            "gVisor should block or detect malicious activity"
-        )
+        assert (
+            len(blocked_findings) > 0 or len(findings) > 0
+        ), "gVisor should block or detect malicious activity"
     finally:
         os.unlink(tmp)
 
@@ -274,9 +274,9 @@ def test_sandbox_does_not_inherit_secret_env():
                 "subprocess.run was called without an explicit env= argument; "
                 "this means the child inherits the full parent environment including secrets."
             )
-            assert secret_key not in env, (
-                f"Secret '{secret_key}' leaked into subprocess env: {list(env.keys())}"
-            )
+            assert (
+                secret_key not in env
+            ), f"Secret '{secret_key}' leaked into subprocess env: {list(env.keys())}"
     finally:
         os.environ.pop(secret_key, None)
 

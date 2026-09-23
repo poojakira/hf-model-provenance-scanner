@@ -234,9 +234,9 @@ class TestIntegrationHFScanner:
             f for f in findings if f.get("severity", f.get("level", "")).upper() == "CRITICAL"
         ]
         finding_text = json.dumps(critical_findings).lower()
-        assert "os" in finding_text or "system" in finding_text, (
-            "Critical finding should reference the dangerous module (os.system)"
-        )
+        assert (
+            "os" in finding_text or "system" in finding_text
+        ), "Critical finding should reference the dangerous module (os.system)"
 
     def test_malicious_pickle_identifies_correct_file(self):
         """
@@ -257,9 +257,9 @@ class TestIntegrationHFScanner:
             flagged_files.add(Path(file_path).name)
 
         # Both malicious files should be flagged
-        assert "model.pkl" in flagged_files or "pytorch_model.bin" in flagged_files, (
-            f"Scanner should flag the malicious pickle files. Flagged: {flagged_files}"
-        )
+        assert (
+            "model.pkl" in flagged_files or "pytorch_model.bin" in flagged_files
+        ), f"Scanner should flag the malicious pickle files. Flagged: {flagged_files}"
 
     def test_clean_safetensors_no_findings(self):
         """
@@ -292,9 +292,9 @@ class TestIntegrationHFScanner:
         assert parsed is not None, "Should produce valid SARIF JSON"
 
         # Validate SARIF structure
-        assert parsed.get("$schema") or parsed.get("version"), (
-            "SARIF output should have schema or version field"
-        )
+        assert parsed.get("$schema") or parsed.get(
+            "version"
+        ), "SARIF output should have schema or version field"
         assert "runs" in parsed, "SARIF output must contain 'runs' array"
         assert len(parsed["runs"]) > 0, "SARIF should have at least one run"
 
@@ -366,9 +366,9 @@ class TestIntegrationHFScanner:
 
         findings = parsed.get("findings", parsed.get("results", []))
         # Should detect both dangerous imports
-        assert len(findings) >= 2, (
-            f"Expected at least 2 findings for 2 dangerous imports. Got {len(findings)}"
-        )
+        assert (
+            len(findings) >= 2
+        ), f"Expected at least 2 findings for 2 dangerous imports. Got {len(findings)}"
 
 
 # ---------------------------------------------------------------------------
