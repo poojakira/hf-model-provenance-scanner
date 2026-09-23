@@ -26,6 +26,7 @@ dev = [
     "pytest-cov>=5.0",
     "httpx>=0.28,<1",
     "ruff>=0.8.0",
+    "httpx2>=2.13,<3",
 ]
 attack = ["attack-v19-core>=19.1,<20"]
 
