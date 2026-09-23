@@ -128,9 +128,7 @@ class ProtectedModelServer:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        description="Fail-closed local model artifact admission gate"
-    )
+    parser = argparse.ArgumentParser(description="Fail-closed local model artifact admission gate")
     parser.add_argument("--model-path", required=True, help="Local model artifact directory")
     parser.add_argument(
         "--fail-on",

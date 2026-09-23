@@ -93,9 +93,7 @@ class TestWebhookSecurityRejects(unittest.TestCase):
 
     def test_webhook_rejects_model_event_without_immutable_revision(self):
         with patch.object(webhook, "scan_repo", side_effect=AssertionError("scan_repo called")):
-            result = webhook.handle_webhook(
-                {"repo": {"name": "org/model", "type": "model"}}
-            )
+            result = webhook.handle_webhook({"repo": {"name": "org/model", "type": "model"}})
         self.assertEqual(result["status"], "rejected")
         self.assertEqual(result["reason"], "missing_or_invalid_immutable_revision")
         self.assertFalse(result["admitted"])

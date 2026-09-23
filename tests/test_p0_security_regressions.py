@@ -151,12 +151,12 @@ class TestRedirectSecurity:
         new_req = handler._build_redirected_request(
             req, "https://cdn-lfs.huggingface.co/repos/ab/cd/model.pkl"
         )
-        assert (
-            "Authorization" not in new_req.headers
-        ), "Authorization MUST be stripped when redirecting to CDN host"
-        assert "authorization" not in {
-            k.lower() for k in new_req.headers
-        }, "Authorization (any case) MUST be stripped on cross-origin redirect"
+        assert "Authorization" not in new_req.headers, (
+            "Authorization MUST be stripped when redirecting to CDN host"
+        )
+        assert "authorization" not in {k.lower() for k in new_req.headers}, (
+            "Authorization (any case) MUST be stripped on cross-origin redirect"
+        )
 
     def test_auth_forwarded_on_same_origin_redirect(self):
         """Authorization header IS forwarded when redirecting within huggingface.co."""
@@ -166,9 +166,9 @@ class TestRedirectSecurity:
             headers={"Authorization": "Bearer my-token"},
         )
         new_req = handler._build_redirected_request(req, "https://huggingface.co/org/model/v2")
-        assert (
-            "Authorization" in new_req.headers
-        ), "Authorization should be forwarded within huggingface.co"
+        assert "Authorization" in new_req.headers, (
+            "Authorization should be forwarded within huggingface.co"
+        )
 
     def test_auth_stripped_on_s3_redirect(self):
         """Authorization must NOT be forwarded to s3.amazonaws.com."""
@@ -243,9 +243,9 @@ class TestUnknownPickleOpcode:
         scanner = PickleScanner("test.pkl", data)
         findings = scanner.scan()
         rule_ids = {f.rule_id for f in findings}
-        assert (
-            "HFS-096" in rule_ids
-        ), f"HFS-096 (INDETERMINATE) must be emitted for unknown opcode. Got: {rule_ids}"
+        assert "HFS-096" in rule_ids, (
+            f"HFS-096 (INDETERMINATE) must be emitted for unknown opcode. Got: {rule_ids}"
+        )
 
     def test_unknown_opcode_increments_counter(self):
         data = self._build_pickle_with_unknown_opcode()
@@ -261,9 +261,9 @@ class TestUnknownPickleOpcode:
         scanner = PickleScanner("benign.pkl", data)
         findings = scanner.scan()
         rule_ids = {f.rule_id for f in findings}
-        assert (
-            "HFS-096" not in rule_ids
-        ), f"HFS-096 must NOT fire for a known-clean pickle. Got: {rule_ids}"
+        assert "HFS-096" not in rule_ids, (
+            f"HFS-096 must NOT fire for a known-clean pickle. Got: {rule_ids}"
+        )
         assert scanner.unknown_opcode_count == 0
 
 
@@ -329,9 +329,9 @@ class TestDelayedPayloadRegression:
         data = self._build_delayed_payload(padding_size=513_000)
         findings = scan_pickle_bytes("boundary_payload.pkl", data)
         rule_ids = {f.rule_id for f in findings}
-        assert (
-            "HFS-050" in rule_ids
-        ), "HFS-050 must fire for os.system at 513KB — old 512KB limit was the bug."
+        assert "HFS-050" in rule_ids, (
+            "HFS-050 must fire for os.system at 513KB — old 512KB limit was the bug."
+        )
 
     def test_clean_data_with_large_string_no_finding(self):
         """A pickle with a large benign string but no dangerous GLOBAL must be clean."""
@@ -373,9 +373,9 @@ class TestTruncatedPickleFailsLoud:
         data = b"\x80\x04X" + struct.pack("<I", 5000) + b"ab"
         findings = scan_pickle_bytes("trunc2.pkl", data)
         rule_ids = {f.rule_id for f in findings}
-        assert (
-            "HFS-096" in rule_ids
-        ), f"Truncation with no globals must NOT be silently clean. Got: {rule_ids}"
+        assert "HFS-096" in rule_ids, (
+            f"Truncation with no globals must NOT be silently clean. Got: {rule_ids}"
+        )
 
     def test_valid_pickle_is_not_flagged_indeterminate(self):
         """A well-formed pickle must not be marked INDETERMINATE."""
@@ -384,9 +384,9 @@ class TestTruncatedPickleFailsLoud:
         data = pickle.dumps({"a": 1, "b": [1, 2, 3], "c": "hello"})
         findings = scan_pickle_bytes("ok.pkl", data)
         rule_ids = {f.rule_id for f in findings}
-        assert (
-            "HFS-096" not in rule_ids
-        ), f"Well-formed pickle must not be flagged INDETERMINATE. Got: {rule_ids}"
+        assert "HFS-096" not in rule_ids, (
+            f"Well-formed pickle must not be flagged INDETERMINATE. Got: {rule_ids}"
+        )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -412,9 +412,9 @@ class TestCliCompletenessPropagation:
         import json as _json
 
         report = _json.loads(out)
-        assert (
-            report["completeness"] == "INDETERMINATE"
-        ), f"Truncated pickle must yield INDETERMINATE completeness. Got: {report['completeness']}"
+        assert report["completeness"] == "INDETERMINATE", (
+            f"Truncated pickle must yield INDETERMINATE completeness. Got: {report['completeness']}"
+        )
         assert report["risk"]["level"] == "HIGH", (
             "INDETERMINATE must elevate risk to at least HIGH so a truncated file "
             f"is never reported LOW/clean. Got: {report['risk']['level']}"
@@ -442,9 +442,9 @@ class TestCliCompletenessPropagation:
         target = self._write(tmp_path, "clean.pkl", pickle.dumps({"ok": True}))
         rc = main([target, "-m", "local", "--format", "json"])
         report = _json.loads(capsys.readouterr().out)
-        assert (
-            report["completeness"] == "COMPLETE"
-        ), f"A clean pickle must scan COMPLETE (no false INDETERMINATE). Got: {report['completeness']}"
+        assert report["completeness"] == "COMPLETE", (
+            f"A clean pickle must scan COMPLETE (no false INDETERMINATE). Got: {report['completeness']}"
+        )
         assert rc == 0
 
 

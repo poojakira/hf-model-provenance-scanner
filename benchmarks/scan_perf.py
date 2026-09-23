@@ -295,9 +295,9 @@ def run_benchmark(fixtures_dir: Path, output_path: Path | None = None) -> dict:
         print(output_json)
 
     # --- Summary ---
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("  SCAN PERFORMANCE BENCHMARK RESULTS")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"  Files scanned:    {stats['num_files']}")
     print(f"  Total time:       {stats['total_time_seconds']:.3f}s")
     print(f"  Throughput:       {stats['throughput_files_per_sec']:.1f} files/sec")
@@ -306,7 +306,7 @@ def run_benchmark(fixtures_dir: Path, output_path: Path | None = None) -> dict:
     print(f"  p99 latency:      {stats['latency_ms']['p99']:.3f}ms")
     print(f"  Threshold (p95):  {P95_THRESHOLD_MS}ms")
     print(f"  Status:           {'PASS' if passed else 'FAIL'}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     return results
 

@@ -222,6 +222,7 @@ Public API functions include complete type annotations. Type changes follow thes
 ```python
 import warnings
 
+
 def old_function():
     warnings.warn(
         "old_function() is deprecated since v1.4.0, use new_function() instead. "

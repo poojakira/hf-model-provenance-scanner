@@ -19,6 +19,6 @@ if vulns:
     print(f"FAIL: {len(vulns)} packages with known vulnerabilities")
     for v in vulns:
         for vuln in v["vulns"]:
-            print(f'  {v["name"]}=={v["version"]}: {vuln["id"]}')
+            print(f"  {v['name']}=={v['version']}: {vuln['id']}")
     sys.exit(1)
 print("PASS: No known vulnerabilities in dependencies")
