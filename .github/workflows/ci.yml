@@ -27,7 +27,7 @@ env:
   BANDIT_VERSION: "1.8.3"
   PIP_AUDIT_VERSION: "2.10.1"
   CYCLONEDX_VERSION: "5.1.1"
-  GVISOR_VERSION: "latest"
+  GVISOR_VERSION: "20260907.0"
   FIRECRACKER_VERSION: "v1.5.0"
   PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
 
@@ -169,13 +169,13 @@ jobs:
           set -euo pipefail
           ARCH="$(uname -m)"
           URL="https://storage.googleapis.com/gvisor/releases/release/${{ env.GVISOR_VERSION }}/${ARCH}"
-          curl -fsSL "${URL}/gvisor.tar.bz2" -o /tmp/gvisor.tar.bz2
-          curl -fsSL "${URL}/gvisor.tar.bz2.sha512" -o /tmp/gvisor.tar.bz2.sha512
+          curl -fsSL "${URL}/gvisor.tar.zstd" -o /tmp/gvisor.tar.zstd
+          curl -fsSL "${URL}/gvisor.tar.zstd.sha512" -o /tmp/gvisor.tar.zstd.sha512
           (
             cd /tmp
-            sha512sum -c gvisor.tar.bz2.sha512
+            sha512sum -c gvisor.tar.zstd.sha512
           )
-          sudo tar -xjf /tmp/gvisor.tar.bz2 -C /usr/local/bin
+          sudo tar --zstd -xf /tmp/gvisor.tar.zstd -C /usr/local/bin
           /usr/local/bin/runsc --version
 
       - name: Set up Python
@@ -195,33 +195,16 @@ jobs:
         run: |
           python -m pytest tests/ -v -k "sandbox" --tb=short -W error::DeprecationWarning:scanner
 
-      - name: Verify gVisor isolation
-        continue-on-error: true
+      - name: Require a real gVisor sandbox execution probe
+        env:
+          HF_SANDBOX_BACKEND: gvisor
         run: |
-          python -c "
-          import os, subprocess, tempfile
-          os.environ['HF_SANDBOX_BACKEND'] = 'gvisor'
-          code = '''
-          import subprocess, socket
-          subprocess.run(['ls'])
-          socket.create_connection(('8.8.8.8', 53))
-          '''
-          with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-              f.write(code)
-              tmp = f.name
-          try:
-              result = subprocess.run(['python', '-m', 'scanner.analyzer.sandbox_executor', tmp], capture_output=True, text=True, timeout=30)
-          except Exception as exc:
-              print('gVisor isolation check could not run in this environment:', exc)
-              raise SystemExit(0)
-          print('STDOUT:', result.stdout[:500])
-          print('STDERR:', result.stderr[:500])
-          print('Return code:', result.returncode)
-          if 'blocked' in result.stdout.lower() or 'crashed' in result.stderr.lower():
-              print('SUCCESS: gVisor isolation verified')
-          else:
-              print('NOTE: gVisor isolation not fully enforced on this runner (hosted runners lack nested virtualization); relying on sandbox unit tests as the gate')
-          "
+          python - <<'PY'
+          from scanner.analyzer.sandbox_executor import _check_gvisor_available
+          if not _check_gvisor_available():
+              raise SystemExit("gVisor binary installed but sandbox execution probe failed")
+          print("gVisor rootless runsc-do execution probe passed")
+          PY
 
   test:
     name: Unit Tests (Python ${{ matrix.python-version }})
