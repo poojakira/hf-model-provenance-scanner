@@ -1,6 +1,6 @@
 # hf-model-provenance-scanner
 
-**Repository owner & maintainer:** Pooja Kiran ([@poojakira](https://github.com/poojakira)) — I own and maintain this repository and drive its design, engineering, validation, documentation, and evidence-backed releases.
+Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
 
 [![CI](https://github.com/poojakira/hf-model-provenance-scanner/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/hf-model-provenance-scanner/actions/workflows/ci.yml)
 [![Python >=3.10](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
@@ -26,9 +26,9 @@ This repository maps all security findings to [MITRE ATT&CK v19](https://attack.
 
 This repository contains scanner code and regression fixtures for known model supply-chain risk patterns. Public claims must stay within the committed evidence:
 
-For the current test, coverage, and red-team counts used in résumé/portfolio claims, see [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md).
+For the current test, coverage, and red-team counts, see [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md).
 
-For the frozen resume snapshot, including the documented 195-test historical validation and its reconciliation with later CI growth, see [`RESUME_EVIDENCE.md`](RESUME_EVIDENCE.md).
+For the historical validation snapshot, including the documented 195-test run and its reconciliation with later CI growth, see [`RESUME_EVIDENCE.md`](RESUME_EVIDENCE.md).
 
 | Area | Current status | Boundary |
 |--------|-------|----------|
@@ -110,7 +110,7 @@ Scope: Hugging Face model supply-chain scanner.
 
 Current hardening pass:
 - Build system: Makefile targets added or verified for install, lint, format, test, build, security, and verify.
-- Dashboard: 3D realtime dashboard: dashboard/realtime/index.html. Serve with make dashboard.
+- Dashboard: self-contained HTML visualization (three.js based): dashboard/realtime/index.html. Serve with make dashboard.
 - ATT&CK mapping: repos that map detections now use the shared v19 mapping builder where applicable.
 - Validation: historical local validation is recorded here for traceability only. Re-run CI before citing current pass counts.
 
