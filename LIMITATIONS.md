@@ -122,3 +122,13 @@ truncated payload could otherwise slip through as a zero-finding scan.
 - Not effective unless deployed in the user's workflow
 - Not a compliance certification tool
 - Not proof that an artifact is benign
+
+
+## Sandbox Backend Boundary
+
+The optional gVisor path uses rootless `runsc do` with networking disabled.
+CI pins a specific gVisor release and requires an actual sandbox command to
+execute before the gVisor validation job can pass. This proves that the
+evaluation backend is runnable on that CI worker; it does **not** prove
+production OCI containment. Production isolation requires an OCI runtime
+configuration with a minimal root filesystem and explicit mounts.
