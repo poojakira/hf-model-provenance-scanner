@@ -283,3 +283,22 @@ def test_sandbox_does_not_inherit_secret_env():
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+
+def test_gvisor_probe_requires_real_sandbox_execution():
+    """Availability requires a real rootless runsc-do execution, not PATH alone."""
+    from unittest.mock import MagicMock, patch
+
+    import scanner.analyzer.sandbox_executor as mod
+
+    result = MagicMock(returncode=0, stdout="", stderr="")
+    with patch.object(mod.shutil, "which", return_value="/usr/bin/runsc"), patch.object(
+        mod.subprocess, "run", return_value=result
+    ) as run:
+        assert mod._check_gvisor_available() is True
+
+    command = run.call_args.args[0]
+    assert "--rootless" in command
+    assert "--network=none" in command
+    assert "do" in command
+    assert command[-1] == "/bin/true"
