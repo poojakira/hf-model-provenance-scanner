@@ -4,15 +4,15 @@ This file is the evidence anchor for quantitative résumé and portfolio claims 
 
 ## Verified baseline
 
-**Audited code commit:** `c0fa6b18d1d2715f5d275d291021b3208d836dd9`  
-**Successful main CI run:** https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/35808366562  
-**Verification date:** 2026-09-23
+**Audited code commit:** `751a62aeb7dbca97e2f4458dcc5be60086769ee3`
+**Successful main CI run:** https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/36043740861
+**Verification date:** 2026-09-24
 
 | Claim | Verified value | Evidence |
 |---|---:|---|
-| Automated tests | **214 passed, 1 skipped** | Python 3.11 CI job `107014282187`; CI collected 215 tests |
-| Additional pytest subtests | **6 passed** | Same CI job |
-| Statement coverage | **66.16%** | Same CI coverage report; gate is 55% |
+| Automated tests | **211 passed** | Python 3.10/3.11/3.12 CI jobs `107782094870`, `107782094992`, `107782094737` |
+| Additional pytest subtests | **6 passed** | Same CI jobs |
+| Statement coverage | **66.90% on Python 3.11/3.12** | CI coverage reports; gate is 55% (Python 3.10: 68.14%) |
 | Core incident fixtures | **12/12 detected** | `tests/redteam/redteam_report.json` + `evidence/DETECTION_PROOF.md` |
 | Extended variants | **18/18 detected** | `tests/redteam/extended_report.json` + `evidence/DETECTION_PROOF.md` |
 | Large-scale fixtures | **3/3 detected** | `tests/redteam/test_large_scale.py` |
