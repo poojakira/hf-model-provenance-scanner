@@ -86,7 +86,7 @@ python -m scanner.cli ./model -m local --format sarif --output results.sarif
 # Verbose output
 python -m scanner.cli ./model -m local --verbose
 
-# Strongest detection (runs each Python file in a sandbox subprocess)
+# Optional dynamic-analysis harness (subprocess by default; gVisor evaluation backend is opt-in)
 python -m scanner.cli ./model -m local --sandbox
 
 # CI gate: fail on incomplete/indeterminate scans too (fail closed).
@@ -422,3 +422,15 @@ detections and are excluded from that count.
 
 *Last updated: 2026-09-02*
 *Verified on: Windows 11, PowerShell, Python 3.12.10 (end-to-end). CI matrix also runs Ubuntu + Python 3.10–3.12.*
+
+
+### gVisor evaluation backend boundary
+
+Set `HF_SANDBOX_BACKEND=gvisor` only when a working `runsc` installation is
+available. The scanner uses gVisor's rootless `runsc do` convenience command
+with networking disabled for dynamic-analysis evaluation. This is stronger
+isolation than the plain subprocess harness, but `runsc do` is explicitly a
+testing convenience and exposes the host filesystem read-only by default.
+Do not describe this path as an OCI production sandbox. Production execution of
+untrusted model code should use a separately configured OCI/container sandbox
+with an explicit minimal rootfs and mount policy.
