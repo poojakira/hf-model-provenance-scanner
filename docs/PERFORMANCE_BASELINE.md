@@ -36,7 +36,7 @@ If a result is intended for public use, save the raw output to a versioned artif
 
 ## CI status
 
-As of the 2026-09-21 evidence reconciliation, `benchmarks/scan_perf.py` is **not a required performance gate in `.github/workflows/ci.yml`**. The normal CI pipeline validates tests, lint/format, type checking, security scans, sandbox validation, container scanning, and Docker build, but a current performance benchmark is not part of the merge gate.
+As of the 2026-09-24 security repair, `benchmarks/scan_perf.py` is **not a required performance gate in `.github/workflows/ci.yml`**. The normal CI pipeline validates tests, lint/format, type checking, security scans, rejection of unsafe dynamic execution, container scanning, and Docker build, but a current performance benchmark is not part of the merge gate.
 
 ## Claim boundary
 

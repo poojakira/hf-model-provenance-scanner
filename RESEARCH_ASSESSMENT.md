@@ -40,7 +40,7 @@ Current verified Linux CI evidence reports:
 - **6 subtests passed**
 - **65.89% statement coverage**
 
-The latest verified CI run referenced by this audit is GitHub Actions run `35564351689`, which completed successfully across the Python matrix and the repository's lint, security, CodeQL, type-check, sandbox, Trivy, and Docker jobs.
+The historical CI run referenced by this 2026-09-21 audit is GitHub Actions run `35564351689`, which completed successfully across the Python matrix and the repository's lint, security, CodeQL, type-check, sandbox, Trivy, and Docker jobs.
 
 ### Fixture evidence
 
@@ -69,12 +69,12 @@ Any statement beyond the committed test, fixture, or benchmark scope should be t
 
 ## 4. Architecture and limitations
 
-The scanner combines several kinds of analysis rather than relying on a single signal. Relevant committed mechanisms include static source inspection, suspicious-data-flow checks, symbolic/string inspection, sandbox-oriented execution monitoring, binary-format parsing, provenance metadata checks, and temporal/fingerprint logic.
+The scanner combines several kinds of analysis rather than relying on a single signal. Relevant committed mechanisms include static source inspection, suspicious-data-flow checks, symbolic/string inspection, binary-format parsing, provenance metadata checks, and temporal/fingerprint logic.
 
 Important limitations remain:
 
 - heuristic rules can produce false positives and false negatives;
-- sandbox-oriented analysis may not reach environment-gated, delayed, or dependency-heavy payloads;
+- dynamic execution is disabled because the earlier subprocess and runsc convenience paths did not provide a verified isolation boundary;
 - static source analysis cannot resolve every dynamic Python behavior;
 - binary-format inspection does not prove model-weight semantic safety;
 - provenance indicators are risk signals, not proof of compromise;

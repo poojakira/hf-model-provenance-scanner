@@ -14,7 +14,7 @@ pipeline {
         
         stage('Scan Model') {
             steps {
-                sh 'hf-scanner . --mode local --format json --output report.json --fail-on high --sandbox'
+                sh 'hf-scanner . --mode local --format json --output report.json --fail-on high --enforce'
             }
             post {
                 always {

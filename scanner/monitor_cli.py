@@ -9,7 +9,7 @@ Usage:
     hf-scan-monitor --interval 30        # poll every 30s
     hf-scan-monitor --fail-on critical   # only page on critical hits
     hf-scan-monitor --show-all           # print CLEAN/SKIP too, not just hits
-    hf-scan-monitor --sandbox            # run the heavy sandbox engine per repo
+    Dynamic execution is disabled; use the default static scan.
     hf-scan-monitor --once               # single poll cycle then exit (for cron)
 """
 
@@ -74,7 +74,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--sandbox",
         action="store_true",
-        help="run the sandbox engine on each repo (slower, deeper)",
+        help="disabled: untrusted code execution has no verified isolation backend",
     )
     p.add_argument(
         "--once", action="store_true", help="run a single poll cycle then exit (for cron jobs)"
@@ -89,7 +89,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv=None) -> int:
-    args = build_parser().parse_args(argv)
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    if args.sandbox:
+        parser.error("--sandbox is disabled: no verified isolation backend")
     cfg = MonitorConfig(
         poll_interval_sec=args.interval,
         page_size=args.page_size,

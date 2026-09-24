@@ -26,7 +26,7 @@ jobs:
 
       - name: Scan repository
         run: |
-          hf-scanner . --mode local --format sarif --output results.sarif --fail-on high --sandbox
+          hf-scanner . --mode local --format sarif --output results.sarif --fail-on high --enforce
 
       - name: Upload SARIF results
         if: always()

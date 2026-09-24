@@ -86,8 +86,7 @@ python -m scanner.cli ./model -m local --format sarif --output results.sarif
 # Verbose output
 python -m scanner.cli ./model -m local --verbose
 
-# Optional dynamic-analysis harness (subprocess by default; gVisor evaluation backend is opt-in)
-python -m scanner.cli ./model -m local --sandbox
+# Dynamic execution is disabled; --sandbox returns an error.
 
 # CI gate: fail on incomplete/indeterminate scans too (fail closed).
 # Returns exit 1 if any file was skipped (PARTIAL) or a stream was
@@ -120,7 +119,7 @@ top-level Python function API to import.
 |-------|-------------|
 | **Pickle Opcode Analysis** | Zero-execution parsing of pickle opcodes (REDUCE, GLOBAL, BUILD, INST) |
 | **SafeTensors / GGUF / ONNX / Keras** | Binary format validation and metadata inspection |
-| **Source Code Analysis** | AST patterns, taint tracking, symbolic string resolution, optional sandbox execution |
+| **Source Code Analysis** | Static AST patterns, taint tracking, and symbolic string resolution |
 | **Org Impersonation** | Detects typosquatting and impersonation attempts |
 | **Provenance / SBOM** | Missing signature, SBOM, and provenance markers are flagged as risk signals |
 | **Temporal Baselining** | Compares scan snapshots over time to detect rug-pulls |
@@ -282,7 +281,6 @@ because it requires configuration you must provide:
   best-effort, post a discussion comment via `.github/scripts/post_hf_discussion.py`).
 - A `repository_dispatch` event of type `hf_model_push` (wired from your HF
   webhook), **or** a manual `workflow_dispatch` run where you type the `repo_id`.
-- gVisor (`runsc`) is downloaded at job start for stronger sandbox isolation.
 
 The `notify-hf` job posts a summary back to the HF repo's discussions only on
 `repository_dispatch`; if `HF_TOKEN` is unset or lacks discussion-write scope,
@@ -322,7 +320,6 @@ pytest tests/test_cli.py -v
 | `ModuleNotFoundError: scanner` | Run `pip install -e .` from the repo root |
 | Network timeout on HF API | Scan local files with `-m local` |
 | Permission denied | Ensure read access to model files |
-| Sandbox scan is slow | Each Python file runs in a subprocess (30s timeout); omit `--sandbox` for faster scans |
 
 ### Debug Mode
 
@@ -412,8 +409,7 @@ detections and are excluded from that count.
 | Command | Why it can't run here | Expected behavior |
 |---------|-----------------------|-------------------|
 | `make dashboard` | Starts a blocking local HTTP server. | Serves `dashboard/realtime/index.html` on `http://localhost:8080`; Ctrl-C to stop. |
-| `--sandbox` on a GPU/OS-gated payload | Sandbox cannot emulate all hardware. | Documented residual risk in `LIMITATIONS.md`. |
-| `.github/workflows/hf-webhook-scan.yml` | Needs `secrets.HF_TOKEN`, gVisor, and the `repository_dispatch` trigger. | Manual-only; see "HF Hub Webhook Scan" above. |
+| `.github/workflows/hf-webhook-scan.yml` | Needs `secrets.HF_TOKEN` and the `repository_dispatch` trigger. | Manual-only; see "HF Hub Webhook Scan" above. |
 | `make install-core` / `make data` / ATT&CK Navigator export | Require the sibling `attack-v19-core` package (the `attack` extra). | Without it, `scanner.attack_mapping.*` raises `ModuleNotFoundError: attack_v19_core`. Core scanning does not need it. |
 
 > `-m remote` **does** work here: it was run end-to-end against `gpt2` (see the checklist above). It only needs outbound HTTPS to `huggingface.co`.
@@ -424,13 +420,10 @@ detections and are excluded from that count.
 *Verified on: Windows 11, PowerShell, Python 3.12.10 (end-to-end). CI matrix also runs Ubuntu + Python 3.10–3.12.*
 
 
-### gVisor evaluation backend boundary
+### Dynamic execution boundary
 
-Set `HF_SANDBOX_BACKEND=gvisor` only when a working `runsc` installation is
-available. The scanner uses gVisor's rootless `runsc do` convenience command
-with networking disabled for dynamic-analysis evaluation. This is stronger
-isolation than the plain subprocess harness, but `runsc do` is explicitly a
-testing convenience and exposes the host filesystem read-only by default.
-Do not describe this path as an OCI production sandbox. Production execution of
-untrusted model code should use a separately configured OCI/container sandbox
-with an explicit minimal rootfs and mount policy.
+`--sandbox` is disabled and exits with an error before loading the target.
+The prior subprocess harness did not isolate untrusted code. The runsc
+convenience path was not a verified minimal-rootfs container boundary.
+Use the static scanner or configure and independently verify an external
+isolation system before executing model repository code.

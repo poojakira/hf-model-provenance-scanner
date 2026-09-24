@@ -58,7 +58,7 @@ class MonitorConfig:
     only_flagged: bool = True  # print clean repos too, or just hits?
     max_seen_memory: int = 5000  # cap the dedupe set so it can't grow forever
     token: str | None = None  # HF token for higher rate limits
-    sandbox: bool = False  # run the heavier sandbox engine per repo
+    sandbox: bool = False  # legacy option; rejected before execution
 
 
 def _load_seen() -> set:
@@ -118,14 +118,15 @@ def scan_one(repo_id: str, cfg: MonitorConfig) -> dict:
     We shell into the same CLI everything else uses instead of importing internals,
     so the monitor can never drift out of sync with what a manual scan would report.
     stdout is captured because the CLI prints the JSON report there."""
+    if cfg.sandbox:
+        raise ValueError("Dynamic execution is disabled; run the static monitor")
+
     import io
     from contextlib import redirect_stderr, redirect_stdout
 
     argv = [repo_id, "--mode", "remote", "--format", "json", "--fail-on", cfg.fail_on]
     if cfg.token:
         argv += ["--token", cfg.token]
-    if cfg.sandbox:
-        argv.append("--sandbox")
 
     buf = io.StringIO()
     err_buf = io.StringIO()  # swallow the CLI's expected 404/401 noise on empty repos

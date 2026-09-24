@@ -21,7 +21,6 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 from scanner.analyzer.ast_visitor import analyze_python_source
-from scanner.analyzer.sandbox_executor import sandbox_execute
 from scanner.analyzer.symbolic_resolver import resolve_strings_in_source
 from scanner.analyzer.taint_engine import analyze_taint
 
@@ -31,16 +30,13 @@ def full_scan(source):
     findings.extend(analyze_python_source("test.py", source))
     findings.extend(analyze_taint("test.py", source))
     findings.extend(resolve_strings_in_source("test.py", source))
-    findings.extend(sandbox_execute("test.py", source))
     return findings
 
 
 def _actionable(findings):
     """Return only findings that represent an actual detection.
 
-    INFO-severity notices (e.g. HFS-SANDBOX-BACKEND, which merely reports that
-    the legacy subprocess sandbox backend is in use) are capability warnings,
-    not detections of malicious behaviour. Counting them as "caught" would
+    INFO-severity notices are capability warnings, not detections of malicious behaviour. Counting them as "caught" would
     inflate the false-positive rate on benign code, so they are excluded from
     the detected/false-positive decision.
     """

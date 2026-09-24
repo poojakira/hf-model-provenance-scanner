@@ -45,8 +45,8 @@ samples (source: `tests/redteam/extended_report.json`)
 (28 actionable), plus 6 INFO capability notices (excluded from detection counts).
 
 > Timing note: per-fixture times are wall-clock on the reproduction host and are **not** a
-> hardware-normalized benchmark. Source-code fixtures include a sandbox subprocess spawn
-> (hundreds of ms); binary/pickle parse-only fixtures are sub-millisecond.
+> hardware-normalized benchmark. These historical timings include a subprocess spawn in source-code fixtures;
+> that execution path is disabled. Re-run the static fixture suite for current timing.
 
 ## How to Reproduce
 

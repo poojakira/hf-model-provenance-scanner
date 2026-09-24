@@ -32,8 +32,7 @@ def test_extended_suite_detects_all_with_zero_false_positives():
     assert report["total_attacks"] == 18
     assert report["detected"] == 18, f"extended detection regressed: {report}"
     assert report["missed"] == 0
-    # 0 false positives on the benign LEGIT samples — this must count only
-    # actionable (non-INFO) findings, not the sandbox-backend capability notice.
+    # 0 false positives on the benign LEGIT samples — count actionable findings.
     assert report["false_positives"] == 0, (
         "benign code produced actionable findings (real false positive) — "
         f"{report['false_positives']} FP"

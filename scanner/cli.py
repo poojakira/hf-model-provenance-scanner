@@ -17,7 +17,6 @@ from scanner.analyzer.org_checker import check_organization
 from scanner.analyzer.pickle_scanner import _looks_like_pickle, analyze_pickle_file, is_pickle_file
 from scanner.analyzer.runtime_monitor import create_production_monitor
 from scanner.analyzer.safetensors_scanner import analyze_safetensors_file, is_safetensors_file
-from scanner.analyzer.sandbox_executor import sandbox_execute
 from scanner.analyzer.shell_scanner import analyze_shell_script
 from scanner.analyzer.symbolic_resolver import resolve_strings_in_source
 from scanner.analyzer.taint_engine import analyze_taint
@@ -451,7 +450,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--sandbox",
         action="store_true",
-        help="Enable sandbox execution (instruments and runs code in restricted subprocess)",
+        help="Disabled: untrusted code execution has no verified isolation backend",
     )
     parser.add_argument(
         "--aibom", metavar="FILE", help="Generate CycloneDX AI Bill of Materials to FILE"
@@ -486,6 +485,11 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
+    if args.sandbox:
+        parser.error(
+            "--sandbox is disabled: the former subprocess and runsc convenience "
+            "backends did not provide a verified isolation boundary"
+        )
 
     out_format = args.format or ("text" if sys.stdout.isatty() else "json")
     mode = "local" if args.no_network else args.mode
@@ -547,17 +551,6 @@ def main(argv=None):
             if baseline:
                 temporal_findings = compare_with_baseline(baseline, result, all_file_hashes)
                 result.findings.extend(temporal_findings)
-
-        # Sandbox execution (optional — runs Python files in restricted subprocess)
-        if getattr(args, "sandbox", False):
-            for path, data in artifacts.items():
-                if path.lower().endswith(PYTHON_EXTENSIONS):
-                    try:
-                        source = data.decode("utf-8")
-                        sandbox_findings = sandbox_execute(path, source)
-                        result.findings.extend(sandbox_findings)
-                    except (UnicodeDecodeError, OSError):
-                        pass
 
         # Runtime Protection Mode (v0.3) — Real-time behavioral monitoring
         if getattr(args, "protect", False):

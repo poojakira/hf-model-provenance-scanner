@@ -84,7 +84,7 @@ tr:hover{background:rgba(56,139,253,.05)}
 <div class="card">
 <h3>Per-Fixture Scan Time</h3>
 <div class="stat stat-blue">&lt;1ms&ndash;446ms</div>
-<p style="color:var(--muted);font-size:.75rem;margin-top:.5rem">Range across the 12 core fixtures (source: redteam_report.json). Binary/pickle parse-only paths are &lt;1ms; source-code fixtures include a sandbox subprocess (up to ~446ms). Not a hardware-normalized benchmark.</p>
+<p style="color:var(--muted);font-size:.75rem;margin-top:.5rem">Range across the 12 core fixtures (source: redteam_report.json). Binary/pickle parse-only paths are &lt;1ms; historical source-code fixture timing included a subprocess path that is now disabled. Not a current benchmark.</p>
 </div>
 
 <div class="card">
@@ -262,7 +262,7 @@ findings.push({line:li+1,rule:pat.rule,sev:pat.sev,msg:pat.msg,text:lines[li].tr
 }
 
 if(findings.length===0){
-output.textContent="RESULT: CLEAN (0 findings)\n\nNo suspicious patterns detected by client-side scan.\nNote: Full analysis (taint tracking, sandbox execution, binary parsing)\nrequires the CLI: python3 -m scanner.cli <target> --sandbox";
+output.textContent="RESULT: CLEAN (0 findings)\n\nNo suspicious patterns detected by client-side scan.\nNote: Static source and binary analysis requires the CLI: python3 -m scanner.cli <target> --enforce";
 output.style.borderColor="var(--low)";
 }else{
 var txt="RESULT: "+findings.length+" FINDING(S) DETECTED\n";
@@ -272,7 +272,7 @@ var f=findings[fi];
 txt+="["+f.sev+"] "+f.rule+" (line "+f.line+"): "+f.msg+"\n";
 txt+="  > "+f.text.substring(0,100)+"\n\n";
 }
-txt+="---\nThis is client-side pattern matching only.\nFull scan (taint + sandbox + binary): python3 -m scanner.cli <target> --sandbox";
+txt+="---\nThis is client-side pattern matching only.\nStatic scan (taint + binary): python3 -m scanner.cli <target> --enforce";
 output.textContent=txt;
 output.style.borderColor="var(--critical)";
 }

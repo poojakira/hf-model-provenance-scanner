@@ -5,7 +5,7 @@ model-security-scan:
   script:
     - git clone --depth 1 https://github.com/poojakira/hf-model-provenance-scanner.git /tmp/hf-scanner
     - pip install -e /tmp/hf-scanner
-    - hf-scanner . --mode local --format json --output report.json --fail-on high --sandbox
+    - hf-scanner . --mode local --format json --output report.json --fail-on high --enforce
   artifacts:
     reports:
       sast: report.json

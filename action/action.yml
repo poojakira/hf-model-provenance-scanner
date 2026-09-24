@@ -28,7 +28,7 @@ inputs:
     required: false
     default: 'hf-scanner-results.sarif'
   sandbox:
-    description: 'Enable sandbox execution for Python files (slower but catches all obfuscation)'
+    description: 'Disabled; setting true fails closed because dynamic execution is unavailable'
     required: false
     default: 'false'
   token:

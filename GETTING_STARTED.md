@@ -145,19 +145,14 @@ py -m scanner.cli "meta-llama/Llama-3-8B" --mode remote --fail-on high
 python3 -m scanner.cli meta-llama/Llama-3-8B --mode remote --fail-on high
 ```
 
-### Scenario 3: Quick check with maximum detection
+### Scenario 3: Fail on high-severity static findings
 
-Use `--sandbox` for the strongest scanning (catches even heavily obfuscated attacks):
-
-**Windows:**
-```powershell
-py -m scanner.cli "C:\path\to\model" --mode local --sandbox --fail-on high
-```
-
-**Linux / macOS:**
 ```bash
-python3 -m scanner.cli ./path/to/model --mode local --sandbox --fail-on high
+python3 -m scanner.cli ./path/to/model --mode local --fail-on high --enforce
 ```
+
+The optional `--sandbox` flag is disabled. The former subprocess and gVisor
+convenience paths did not establish a verified boundary for untrusted code.
 
 ---
 
@@ -202,7 +197,6 @@ This means: **MALWARE DETECTED.** Do not load this model. Delete it immediately.
 | Block on critical only | `py -m scanner.cli .\model --fail-on critical` | `python3 -m scanner.cli ./model --fail-on critical` |
 | Block on high or above | `py -m scanner.cli .\model --fail-on high` | `python3 -m scanner.cli ./model --fail-on high` |
 | Never block (info only) | `py -m scanner.cli .\model --fail-on never` | `python3 -m scanner.cli ./model --fail-on never` |
-| Maximum detection | `py -m scanner.cli .\model --sandbox` | `python3 -m scanner.cli ./model --sandbox` |
 | JSON output | `py -m scanner.cli .\model --format json` | `python3 -m scanner.cli ./model --format json` |
 | Save report to file | `py -m scanner.cli .\model --output report.txt` | `python3 -m scanner.cli ./model --output report.txt` |
 | Show all findings (incl. info) | `py -m scanner.cli .\model --verbose` | `python3 -m scanner.cli ./model --verbose` |
@@ -257,17 +251,12 @@ Make sure you're inside the `hf-model-provenance-scanner` directory when running
 ### "Permission denied" (Linux/macOS)
 Use `pip install --user -e .` instead of `pip install -e .`
 
-### Scanner seems slow with --sandbox
-The sandbox runs each Python file in a subprocess (default 30s timeout). For faster scans, omit `--sandbox` — the other 4 engines still catch most attacks.
-
----
-
 ## What Happens Behind the Scenes
 
 When you run the scanner, it does this in order:
 
 1. **Walks all files** in the target directory
-2. **For each Python file**: runs 4 analysis engines (AST patterns, taint tracking, symbolic resolution, and optionally sandbox execution)
+2. **For each Python file**: runs static source analysis (AST patterns, taint tracking, and symbolic resolution)
 3. **For each binary model file** (.pkl, .pt, .safetensors, .gguf, .onnx, .h5): parses the binary format and checks for malicious content
 4. **For config/shell files**: checks for suspicious URLs, commands, and patterns
 5. **Computes a risk score** (0-100) based on all findings

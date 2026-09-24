@@ -34,7 +34,6 @@ from scanner.analyzer.ast_visitor import analyze_python_source
 from scanner.analyzer.gguf_scanner import analyze_gguf_file
 from scanner.analyzer.pickle_scanner import scan_pickle_bytes
 from scanner.analyzer.safetensors_scanner import analyze_safetensors_file
-from scanner.analyzer.sandbox_executor import sandbox_execute
 from scanner.analyzer.symbolic_resolver import resolve_strings_in_source
 from scanner.analyzer.taint_engine import analyze_taint
 
@@ -75,7 +74,6 @@ def run_all_engines(source):
     findings.extend(analyze_python_source("payload.py", source))
     findings.extend(analyze_taint("payload.py", source))
     findings.extend(resolve_strings_in_source("payload.py", source))
-    findings.extend(sandbox_execute("payload.py", source))
     return findings
 
 

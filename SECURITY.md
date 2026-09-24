@@ -2,7 +2,7 @@
 
 ## Scope
 
-Pre-load scanning, parsing, sandboxing, CLI/API behavior, CI integrations, and model-artifact handling are in scope. Third-party model hubs and external scanners are out of scope.
+Pre-load static scanning, parsing, CLI/API behavior, CI integrations, and model-artifact handling are in scope. Dynamic execution is disabled. Third-party model hubs and external scanners are out of scope.
 
 This is an open-source production-oriented security system. Security claims remain limited to behavior demonstrated by the repository, its CI, and committed evidence; production orientation does not imply third-party certification or a deployment history that is not evidenced here.
 

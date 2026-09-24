@@ -16,12 +16,9 @@ Regenerate locally with:
 | Historical real-model smoke checks | — | See committed reports if reproducing | Not a broad benign-model benchmark |
 
 **How "detected" and "false positive" are counted:** only *actionable*
-(non-INFO) findings count. INFO-level capability notices such as
-`HFS-SANDBOX-BACKEND` (which merely reports the legacy subprocess sandbox
-backend is in use) are **not** detections and are excluded from both the
-detection and false-positive tallies. Counting them would both inflate the
-detection rate on real attacks and inflate the false-positive rate on benign
-code; excluding them gives the honest number in the table above.
+(non-INFO) findings count. INFO-level capability notices are excluded from both the detection and
+false-positive tallies. Dynamic execution is disabled; fixture results now
+reflect the static analysis paths only.
 
 ## Fail-Loud on Unanalyzable Streams
 
@@ -124,11 +121,9 @@ truncated payload could otherwise slip through as a zero-finding scan.
 - Not proof that an artifact is benign
 
 
-## Sandbox Backend Boundary
+## Dynamic Execution Boundary
 
-The optional gVisor path uses rootless `runsc do` with networking disabled.
-CI pins a specific gVisor release and requires an actual sandbox command to
-execute before the gVisor validation job can pass. This proves that the
-evaluation backend is runnable on that CI worker; it does **not** prove
-production OCI containment. Production isolation requires an OCI runtime
-configuration with a minimal root filesystem and explicit mounts.
+Dynamic execution is disabled. `--sandbox` returns a nonzero error rather
+than running untrusted code in a regular subprocess or a runsc convenience
+mode with host filesystem visibility. Static scanning cannot guarantee that
+an artifact is safe to load or execute.
