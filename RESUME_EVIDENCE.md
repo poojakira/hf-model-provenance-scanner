@@ -25,7 +25,7 @@ pytest tests/ is green: 195 passed, 2 skipped, 6 subtests passed
 
 The documented environment was Windows 11 / PowerShell / Python 3.12.10.
 
-Important reconciliation: Linux GitHub Actions on the same repository revision later reported **199 passed, 1 skipped, 6 subtests passed** at **65.89%** coverage. Therefore the resume's 195 figure is a lower historical snapshot, not an overstatement of the present test suite.
+Important reconciliation: the repository has continued to grow after this snapshot. Current main CI is tracked separately in `VERIFIED_METRICS.md`; the resume's 195 figure remains a lower historical snapshot, not a claim about the present test suite.
 
 It should not be represented as the latest CI total. The latest verified total is higher.
 
@@ -52,6 +52,6 @@ This is deliberately narrow. It is **not** a claim of a universal 0% false-posit
 
 ## Current repository state
 
-Current CI evidence is stronger than the frozen resume snapshot: **199 passed, 1 skipped, 6 subtests passed** and **65.89% statement coverage**.
+Current main CI evidence is stronger than the frozen resume snapshot: **214 passed, 1 skipped, 6 subtests passed** and **66.16% statement coverage** at commit `c0fa6b18d1d2715f5d275d291021b3208d836dd9` (run `35808366562`).
 
 The resume remains defensible because its 195 figure is a documented historical lower-bound snapshot and the fixture claims remain tied to committed evidence.
