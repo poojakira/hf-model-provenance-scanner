@@ -861,7 +861,7 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
                         findings.extend(inner_findings)
                     except Exception:
                         pass
-    except (zipfile.BadZipFile, Exception):
+    except Exception:
         # Not a valid ZIP - might be raw pickle with PK in content
         scanner = PickleScanner(file_path, data)
         findings.extend(scanner.scan())
