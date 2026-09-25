@@ -1,10 +1,23 @@
 # Incident Response Runbook — HF Model Provenance Scanner
 
+> **This is a reference template, not the record of an operated service.**
+> This is a single-maintainer open-source project. There is **no on-call
+> rotation, no pager, no SLA/SLO, and no live production deployment** behind
+> this document. The severity levels, response-time targets, escalation
+> matrix, and coordination steps below are a **procedure you can adapt** for
+> your own environment if you deploy the scanner — they do not describe a
+> staffed incident-response operation. There is likewise no standing
+> coordination channel with the HuggingFace security team; Section 5 is a
+> suggested coordinated-disclosure workflow, not an active arrangement.
+
 ## Overview
 
-This runbook covers incident response procedures for the HuggingFace Model Provenance Scanner project. As a supply-chain security tool, incidents may include scanner bypasses, false positives affecting production systems, or newly discovered attack vectors in model serialization formats.
+This runbook is a reference procedure for handling issues in the HuggingFace
+Model Provenance Scanner project. As a supply-chain security tool, relevant
+issues may include scanner bypasses, false positives, or newly discovered
+attack vectors in model serialization formats.
 
-**Severity Levels:**
+**Severity / response-time targets (illustrative — adapt to your own team):**
 
 | Level | Description | Response Time |
 |-------|-------------|---------------|
@@ -31,9 +44,9 @@ This runbook covers incident response procedures for the HuggingFace Model Prove
    - Estimate number of affected downstream users
 
 3. **Notify stakeholders**
-   - Post to `#security-incidents` internal channel
-   - Notify HuggingFace security team via `security@huggingface.co`
-   - If SEV-1: Page on-call engineer via PagerDuty
+   - Post to your team's security channel (adapt to your own tooling)
+   - Consider reporting new attack vectors to the HuggingFace security team via `security@huggingface.co` (public contact; no standing arrangement exists)
+   - If you operate a deployment and treat this as SEV-1, page whoever owns it per your own alerting setup
 
 ### Containment (Hours 1–4)
 
@@ -164,8 +177,8 @@ This runbook covers incident response procedures for the HuggingFace Model Prove
 
 6. **Notify downstream**:
    - Post GitHub Security Advisory (if applicable)
-   - Notify HuggingFace to update their integrated scanner version
-   - Post to project mailing list / Discord
+   - If you have shared the vector with HuggingFace, follow up (this scanner is not integrated into HuggingFace's platform)
+   - Announce via the repository's own channels (issues/releases)
 
 ### Rollback Procedure
 
@@ -232,13 +245,18 @@ For true false positives:
 
 ## 5. Coordination with HuggingFace Security Team
 
-### Communication Channels
+> This section is a **suggested** coordinated-disclosure workflow. There is no
+> standing coordination channel, shared Slack, incident bridge, or information-
+> sharing arrangement with HuggingFace. `security@huggingface.co` is their
+> public disclosure contact. Treat everything below as a template for how you
+> *could* coordinate, not as an existing partnership.
 
-| Channel | Purpose | SLA |
+### Communication Channels (suggested)
+
+| Channel | Purpose | Notes |
 |---------|---------|-----|
-| `security@huggingface.co` | Report new attack vectors | Response within 24h |
+| `security@huggingface.co` | Report new attack vectors | Public contact; response times are theirs, not a commitment here |
 | Private GitHub Security Advisory | Coordinated disclosure | Per advisory timeline |
-| Shared Slack channel `#hf-scanner-security` | Real-time coordination | During incidents |
 
 ### Coordinated Disclosure Process
 
@@ -255,29 +273,31 @@ For true false positives:
 5. **Joint disclosure**: Publish advisory, release scanner update, HF deploys server-side fix
 6. **Post-disclosure**: Monitor for variants and follow-up attacks
 
-### Information Sharing
+### Information Sharing (hypothetical, if such coordination were established)
 
-**We share with HuggingFace:**
+**A maintainer could share with HuggingFace:**
 - New opcode abuse techniques discovered
 - Models flagged as malicious (hashes, repo IDs)
 - Scanner bypass techniques
-- Performance data on Hub-scale scanning
 
-**HuggingFace shares with us:**
+**HuggingFace could, in principle, share back:**
 - New model formats requiring scanner support
-- Telemetry on scanner effectiveness (detection rates)
 - Reports from their internal security scanning
 - Upcoming format changes that may affect rules
 
-### Joint Incident Response
+_No such information-sharing arrangement currently exists._
 
-For SEV-1 incidents affecting both parties:
+### Joint Incident Response (template)
 
-1. Open shared incident bridge (video call)
-2. Designate incident commander (rotates)
-3. Parallel workstreams: scanner rule (us) + server-side block (HF)
-4. Coordinated deployment: both parties deploy within same maintenance window
-5. Joint post-incident review within 72 hours
+If a coordinated SEV-1 response were ever arranged with HuggingFace, it might look like:
+
+1. Open a shared incident bridge (video call)
+2. Designate an incident commander
+3. Parallel workstreams: scanner rule (maintainer) + server-side block (HF)
+4. Coordinated deployment within the same maintenance window
+5. Joint post-incident review
+
+_This is illustrative; there is no pre-arranged joint response process._
 
 ---
 
@@ -324,7 +344,7 @@ For SEV-1 incidents affecting both parties:
 | Condition | Action |
 |-----------|--------|
 | Bypass confirmed, no exploitation | SEV-2: Fix within 4 hours |
-| Bypass with active exploitation | SEV-1: Page on-call, fix within 1 hour |
+| Bypass with active exploitation | SEV-1: Fix within 1 hour (page whoever owns your deployment, if any) |
 | False positive on top-100 model | SEV-3: Fix within 24 hours |
 | False positive on obscure model | SEV-4: Fix in next release |
 | Scanner crash / DoS vector | SEV-2: Fix within 4 hours |
@@ -334,15 +354,19 @@ For SEV-1 incidents affecting both parties:
 
 ## 8. Contact Information
 
+> Placeholders for you to fill in if you adopt this runbook. This project has
+> **no staffed roles and no PagerDuty rotation** — it is maintained by a single
+> author.
+
 | Role | Contact | Backup |
 |------|---------|--------|
-| Security Lead | @security-lead | @backup-security |
-| On-Call Engineer | PagerDuty rotation | — |
-| HuggingFace Security | security@huggingface.co | — |
-| Release Manager | @release-manager | @backup-release |
+| Maintainer | (repo owner) | — |
+| Your on-call (if you deploy) | (your alerting) | — |
+| HuggingFace Security | security@huggingface.co (public contact) | — |
+| Release Manager | (repo owner) | — |
 
 ---
 
 *Last updated: 2026-08-27*
 *Next review date: 2026-11-27*
-*Owner: Security Team*
+*Maintainer: repository owner (single-maintainer project; no staffed security team)*

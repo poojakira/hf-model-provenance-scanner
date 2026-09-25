@@ -155,7 +155,7 @@ make build
 # Security scan (bandit + pip-audit)
 make security
 
-# Serve the realtime dashboard
+# Serve the local demo dashboard
 make dashboard
 
 # Full verification (lint + test + build + security)
