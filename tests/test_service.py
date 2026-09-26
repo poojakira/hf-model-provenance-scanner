@@ -2,9 +2,15 @@ from __future__ import annotations
 
 import time
 
-from fastapi.testclient import TestClient
+import pytest
 
-from scanner import service
+# The FastAPI service lives behind the optional `service` extra. When only the
+# `dev` extra is installed, skip these tests instead of failing collection.
+pytest.importorskip("fastapi")
+
+from fastapi.testclient import TestClient  # noqa: E402
+
+from scanner import service  # noqa: E402
 
 client = TestClient(service.app)
 
