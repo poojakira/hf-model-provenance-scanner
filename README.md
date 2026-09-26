@@ -1,5 +1,18 @@
 <!-- profile-growth-header -->
 
+<!-- security-systems-poster -->
+## Research Poster
+
+**Security Systems / 03 — Non-Executing Security Analysis of AI Model Supply-Chain Artifacts**
+
+[![Research poster](poster/poster.png)](poster/poster_36x48.pdf)
+
+> Technical research poster (36 x 48 in). Click the image for the print-resolution **[PDF](poster/poster_36x48.pdf)**.
+> Every metric on it is evidence-backed; historical/projected numbers are labeled and separated from current results.
+> Part of the *Pooja Kiran - Security Systems* engineering poster collection.
+<!-- security-systems-poster -->
+
+
 # hf-model-provenance-scanner
 
 > **AI model supply-chain security**
