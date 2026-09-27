@@ -28,8 +28,6 @@ Scan model repositories for provenance, serialization, impersonation, and supply
 4. Inspect the limitations and evidence before making deployment claims.
 5. Open an issue or PR if you find a gap, add a fixture, or improve the documentation.
 
-# hf-model-provenance-scanner
-
 Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
 
 [![CI](https://github.com/poojakira/hf-model-provenance-scanner/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/hf-model-provenance-scanner/actions/workflows/ci.yml)
@@ -38,7 +36,12 @@ Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
 
 ## MITRE ATT&CK v19 Mapping
 
-This repository maps all security findings to [MITRE ATT&CK v19](https://attack.mitre.org/).
+This repository ships an **optional** ATT&CK enricher (`scanner/attack_mapping/`) that maps
+scanner finding families to [MITRE ATT&CK v19](https://attack.mitre.org/) technique IDs. It
+requires the optional [`attack-v19-core`](https://github.com/poojakira/attack-v19-core)
+dependency and is **not** part of the default `scanner` CLI output path — it is a library
+component exercised by `tests/test_attack_mapping.py`. The enricher currently covers 10
+finding families (see `ATTACKEnricher._rule_table`); it does not map every possible finding.
 
 | Domain     | Tactics | Techniques | Sub-Techniques |
 |------------|--------:|----------:|---------------:|
