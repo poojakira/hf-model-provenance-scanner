@@ -1,162 +1,204 @@
-<!-- profile-growth-header -->
+# HF Model Provenance Scanner
 
-<!-- security-systems-poster -->
+> **Non-executing security analysis for AI/ML model supply chains.**
+
+Inspect Hugging Face repositories and local model artifacts for provenance gaps, unsafe serialization, suspicious loaders, dependency risk, impersonation signals, obfuscation, and other supply-chain indicators **without executing untrusted model code**.
+
+Maintained by **Pooja Kiran** ([@poojakira](https://github.com/poojakira)).
+
+[![CI](https://github.com/poojakira/hf-model-provenance-scanner/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/hf-model-provenance-scanner/actions/workflows/ci.yml)
+[![Python >=3.10](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+## Verified Snapshot
+
+Current quantitative claims are anchored in [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md).
+
+| Measure | Verified result | Scope |
+|---|---:|---|
+| Automated tests | **211 passed** | CI on Python 3.10, 3.11, and 3.12 |
+| Additional pytest subtests | **6 passed** | Same CI jobs |
+| Statement coverage | **66.90%** | Python 3.11/3.12 CI coverage |
+| Core incident fixtures | **12/12 detected** | Committed red-team fixture suite |
+| Extended variants | **18/18 detected** | Committed extended fixture suite |
+| Large-scale fixtures | **3/3 detected** | Committed large-scale fixtures |
+| Actionable false positives | **0 across 4 benign samples** | Small committed benign fixture set only |
+
+The aggregate **33/33** result is an internal fixture-suite result, not a universal real-world detection rate. The benign result is likewise limited to the four committed benign samples.
+
+## Security Problem
+
+AI model repositories are software supply chains. A model download can include Python, shell scripts, dependency files, serialized objects, tokenizers, configuration, and binary model formats. Security teams need a way to inspect that material before trusting or deploying it.
+
+This project focuses on a simple boundary:
+
+**Analyze the repository and model artifacts first; do not execute untrusted model code in order to decide whether it is safe.**
+
+## What It Detects
+
+The scanner combines static and metadata-driven checks across source, configuration, dependencies, and model artifacts.
+
+- **Unsafe serialization:** pickle-derived artifacts and suspicious deserialization behavior.
+- **Model-format inspection:** SafeTensors, GGUF, ONNX, Keras, and common binary model extensions.
+- **Suspicious source behavior:** Python AST analysis, shell/config scanning, symbolic string resolution, taint analysis, and obfuscation indicators.
+- **Supply-chain provenance gaps:** missing signature, SBOM/AIBOM, and provenance/attestation markers.
+- **Repository risk signals:** executable loaders, suspicious entry points, dependency anomalies, and organization/publisher policy checks.
+- **Temporal drift:** baseline creation and comparison for model/repository changes over time.
+- **Machine-readable output:** JSON, SARIF, text, and HTML reports for CI/CD and review workflows.
+- **Optional ATT&CK enrichment:** maps selected finding families to MITRE ATT&CK v19 when the optional `attack-v19-core` package is installed.
+
+## Quick Start
+
+Requires **Python 3.10+**.
+
+```bash
+git clone https://github.com/poojakira/hf-model-provenance-scanner.git
+cd hf-model-provenance-scanner
+python -m pip install -e .
+```
+
+Scan a local directory:
+
+```bash
+hf-scanner ./model-repo --mode local
+```
+
+Scan a Hugging Face repository:
+
+```bash
+hf-scanner org/model-name --mode remote
+```
+
+Write SARIF for CI or code-scanning workflows:
+
+```bash
+hf-scanner ./model-repo --mode local --format sarif --output results.sarif
+```
+
+Create a baseline and compare later revisions:
+
+```bash
+hf-scanner ./model-repo --mode local --save-baseline baseline.json
+hf-scanner ./model-repo --mode local --baseline baseline.json
+```
+
+Generate a CycloneDX AI Bill of Materials:
+
+```bash
+hf-scanner ./model-repo --mode local --aibom aibom.json
+```
+
+Use `--enforce` in CI when incomplete or indeterminate scans must fail rather than pass silently.
+
+## Analysis Pipeline
+
+```text
+Target repository / local directory
+        |
+        v
+File discovery and immutable revision resolution
+        |
+        +--> Python / shell / config / dependency analysis
+        +--> Pickle / SafeTensors / GGUF / ONNX / Keras analysis
+        +--> Provenance / signature / SBOM checks
+        +--> Taint / symbolic / obfuscation analysis
+        +--> Temporal baseline comparison
+        |
+        v
+Normalized findings + severity + remediation
+        |
+        +--> text
+        +--> JSON
+        +--> SARIF
+        +--> HTML
+```
+
+The default scanner path is designed to inspect artifacts without importing or executing model repository code.
+
+## Evidence and Reproduction
+
+The repository keeps evidence separate from marketing claims so results can be checked independently.
+
+- [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md) — current test, coverage, and red-team counts.
+- [`RESUME_EVIDENCE.md`](RESUME_EVIDENCE.md) — historical validation snapshots and reconciliation with later CI growth.
+- [`evidence/DETECTION_PROOF.md`](evidence/DETECTION_PROOF.md) — committed detection evidence and reproduction notes.
+- [`tests/redteam/`](tests/redteam/) — attack and benign fixtures used for regression testing.
+- [`benchmarks/scan_perf.py`](benchmarks/scan_perf.py) — performance regression harness.
+
+Reproduce the principal regression checks with:
+
+```bash
+pytest tests/
+python tests/redteam/simulate_attacks.py
+python tests/redteam/extended_attacks.py
+python tests/redteam/test_large_scale.py
+```
+
+`tests/redteam/test_detection_counts.py` pins the advertised fixture totals so changes to those counts fail regression tests.
+
+## Evidence Boundaries
+
+| Area | Current status | Boundary |
+|---|---|---|
+| Scanner formats | Python, shell/config/dependency files, pickle-derived files, SafeTensors, GGUF, ONNX, and Keras paths are implemented | Format support does not imply complete attack coverage |
+| Provenance checks | Missing signature, SBOM, and provenance markers can be flagged | Missing evidence is a risk signal, not proof of compromise |
+| Red-team fixtures | Committed attack fixtures are detected by the current suite | Fixture results must not be generalized to arbitrary real-world repositories |
+| Latency | A benchmark harness exists | Do not claim a production P99 without a current reproducible result artifact |
+| False positives | Four committed benign samples produced zero actionable findings in the verified snapshot | Do not claim a universal 0% false-positive rate |
+| Sandbox mode | Disabled | The project does not claim verified isolation for executing untrusted model code |
+
+## MITRE ATT&CK v19 Enrichment
+
+ATT&CK mapping is an **optional library component**, not part of the default scanner CLI output path.
+
+The implementation lives under `scanner/attack_mapping/` and requires the optional [`attack-v19-core`](https://github.com/poojakira/attack-v19-core) dependency. The current enricher covers **10 finding families** through `ATTACKEnricher._rule_table`; it does not map every possible scanner finding.
+
+Install the optional dependency and export an ATT&CK Navigator layer:
+
+```bash
+pip install -e ".[attack]"
+python -m scanner.attack_mapping.reporter --output navigator_layer.json
+```
+
+Selected mappings include supply-chain compromise, unsafe Python execution, impersonation, dependency confusion, credential exposure, and model-card or tokenizer manipulation. See the implementation and tests for the exact current mapping table.
+
+## Output and CI Use
+
+The CLI supports:
+
+```text
+--format text|json|sarif|html
+--fail-on critical|high|medium|low|info|never
+--enforce
+--revision <branch|tag|sha>
+--baseline <file>
+--save-baseline <file>
+--aibom <file>
+--no-network
+```
+
+This makes the scanner usable as a local review tool, a CI security gate, or an evidence-producing component in a broader model-governance workflow.
+
 ## Research Poster
 
 **Security Systems / 03 — Non-Executing Security Analysis of AI Model Supply-Chain Artifacts**
 
 [![Research poster](poster/poster.png)](poster/poster_36x48.pdf)
 
-> Technical research poster (36 x 48 in). Click the image for the print-resolution **[PDF](poster/poster_36x48.pdf)**.
-> Every metric on it is evidence-backed; historical/projected numbers are labeled and separated from current results.
-> Part of the *Pooja Kiran - Security Systems* engineering poster collection.
-<!-- security-systems-poster -->
-
-
-# hf-model-provenance-scanner
-
-> **AI model supply-chain security**
-
-Scan model repositories for provenance, serialization, impersonation, and supply-chain risk signals.
-
-**Why this project:** security teams need a reproducible way to test, inspect, or measure this boundary before treating a security control as effective.
-
-**Quick path**
-1. Read the threat model / scope below.
-2. Run the smallest documented example.
-3. Reproduce the tests or benchmark.
-4. Inspect the limitations and evidence before making deployment claims.
-5. Open an issue or PR if you find a gap, add a fixture, or improve the documentation.
-
-Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
-
-[![CI](https://github.com/poojakira/hf-model-provenance-scanner/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/hf-model-provenance-scanner/actions/workflows/ci.yml)
-[![Python >=3.10](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-
-## MITRE ATT&CK v19 Mapping
-
-This repository ships an **optional** ATT&CK enricher (`scanner/attack_mapping/`) that maps
-scanner finding families to [MITRE ATT&CK v19](https://attack.mitre.org/) technique IDs. It
-requires the optional [`attack-v19-core`](https://github.com/poojakira/attack-v19-core)
-dependency and is **not** part of the default `scanner` CLI output path — it is a library
-component exercised by `tests/test_attack_mapping.py`. The enricher currently covers 10
-finding families (see `ATTACKEnricher._rule_table`); it does not map every possible finding.
-
-| Domain     | Tactics | Techniques | Sub-Techniques |
-|------------|--------:|----------:|---------------:|
-| Enterprise |      15 |       222 |            475 |
-| Mobile     |      12 |      (see ATT&CK) | (see ATT&CK) |
-| ICS        |      12 |      (see ATT&CK) | (see ATT&CK) |
-
-**v19 Breaking Changes (2026-07):**
-- **TA0005 renamed**: "Defense Evasion" -> "Stealth"
-- **TA0112 added**: "Defense Impairment" (new tactic, split from old TA0005)
-- **17 techniques revoked** (auto-remapped via V19_REVOCATION_MAP)
-- **48 new techniques** added (see CHANGELOG.md)
-
-### Current Evidence Boundaries
-
-This repository contains scanner code and regression fixtures for known model supply-chain risk patterns. Public claims must stay within the committed evidence:
-
-For the current test, coverage, and red-team counts, see [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md).
-
-For the historical validation snapshot, including the documented 195-test run and its reconciliation with later CI growth, see [`RESUME_EVIDENCE.md`](RESUME_EVIDENCE.md).
-
-| Area | Current status | Boundary |
-|--------|-------|----------|
-| Scanner formats | Python, shell/config/dependency files, pickle-derived files, SafeTensors, GGUF, ONNX, and Keras paths are implemented in code | Format support does not imply complete attack coverage |
-| Provenance checks | Missing signature, SBOM, and provenance markers can be flagged | Missing evidence is risk signal, not proof of compromise |
-| Red-team fixtures | `tests/redteam/` contains fixture scripts and reports | Fixture pass rates must not be generalized to real-world detection rates |
-| Latency | No current benchmark artifact is published in this repo | Do not claim P99 latency until a reproducible benchmark script and raw result artifact are committed |
-| False positives | No broad clean-model false-positive benchmark is published | Do not claim 0% false positives |
-
-### Export ATT&CK Navigator Layer
-
-> **Prerequisite:** the ATT&CK mapping/enrichment code depends on the sibling
-> package `attack-v19-core` (the `attack` optional extra). Install it first with
-> `make install-core` (installs from `../attack-v19-core`) or
-> `pip install -e ".[attack]"`. Without it, `scanner.attack_mapping.*` raises
-> `ModuleNotFoundError: attack_v19_core` — the core file/pickle/binary scanning
-> in `scanner.cli` does **not** require this package.
-
-```bash
-python -m scanner.attack_mapping.reporter --output navigator_layer.json
-```
-
-Open in [ATT&CK Navigator](https://mitre-attack.github.io/attack-navigator/) to visualize coverage. Layers generated with Navigator v4.9 format (attack: "19").
-
-### Finding Schema
-
-Every finding object includes:
-```json
-{
-  "attack_mappings": [
-    {
-      "tactic_id":         "TA0001",
-      "tactic_name":       "Initial Access",
-      "technique_id":      "T1195",
-      "technique_name":    "Supply Chain Compromise",
-      "subtechnique_id":   "T1195.001",
-      "subtechnique_name": "Compromise Software Dependencies and Development Tools",
-      "domain":            "enterprise",
-      "confidence":        0.85,
-      "data_sources":      ["..."],
-      "platforms":         ["..."],
-      "url":               "https://attack.mitre.org/techniques/T1195/001/"
-    }
-  ]
-}
-```
-
-### HF Model Provenance Specific Mappings (v19)
-
-| Finding Type | Techniques (v19) |
-|--------------|------------------|
-| unsigned_model_weights | T1195.001, T1553.002 |
-| pickle_deserialization | T1059.006, T1203 |
-| typosquatted_model_name | T1036.005, T1195 |
-| modified_model_card | T1565.001, T1027, **T1683/001** |
-| unauthorized_fine_tune | T1565, T1190 |
-| huggingface_token_exposure | T1552.001, T1078 |
-| trojanized_tokenizer | T1195.002, T1027.002, **T1027/018** |
-| model_weight_exfiltration | T1041, T1048 |
-| dependency_confusion | T1195.001 |
-| malicious_model_repo | T1583.001, T1608.001 |
-
-**New v19 additions in bold.** T1027/018 (Invisible Unicode) maps to trojanized_tokenizer for obfuscated tokenizer code. T1683/001 (Generate Content: Written) maps to modified_model_card for AI-generated model card manipulation.
-
-### Migration from v18
-
-See [MIGRATION_GUIDE.md](https://github.com/poojakira/attack-v19-core/blob/main/MIGRATION_GUIDE.md) in attack-v19-core for full migration steps.
-
-Key remappings:
-- T1562, T1562.001, T1089, T1054 -> T1685 (Disable or Modify Tools)
-- T1070.001 -> T1685.005 (Clear Windows Event Logs)
-- T1070.002 -> T1685.006 (Clear Linux/Mac Logs)
-- T1534 -> T1684.001 (Social Engineering: Impersonation)
-- T1566.003 -> T1684.002 (Social Engineering: Email Spoofing)
-<!-- engineering-update-2026-07-27 -->
-## Engineering Update - 2026-07-27
-
-Scope: Hugging Face model supply-chain scanner.
-
-Current hardening pass:
-- Build system: Makefile targets added or verified for install, lint, format, test, build, security, and verify.
-- Dashboard: self-contained HTML visualization (three.js based): dashboard/realtime/index.html. Serve with make dashboard.
-- ATT&CK mapping: repos that map detections now use the shared v19 mapping builder where applicable.
-- Validation: historical local validation is recorded here for traceability only. Re-run CI before citing current pass counts.
-
-Known limits:
-- Linux and GitHub Actions post-push results must be checked after this push.
-- Security scans are build targets; dependency advisories can change after this local snapshot.
-- No production-readiness or benchmark-certification claim is made from local checks alone.
-<!-- /engineering-update-2026-07-27 -->
+The 36 × 48 in technical poster summarizes the system, threat model, validation approach, and evidence boundaries. Metrics on the poster are intended to remain tied to committed evidence artifacts rather than generalized deployment claims.
 
 ## Additional Documentation
 
-- [INCIDENT_RUNBOOK.md](INCIDENT_RUNBOOK.md) - incident response for supply-chain scanner
-- [docs/API_VERSIONING.md](docs/API_VERSIONING.md) - CLI and API stability guarantees
-- [docs/PERFORMANCE_BASELINE.md](docs/PERFORMANCE_BASELINE.md) - scan performance baselines
-- [benchmarks/scan_perf.py](benchmarks/scan_perf.py) - performance regression gate
-- [tests/test_integration_hf.py](tests/test_integration_hf.py) - end-to-end integration tests
+- [`INCIDENT_RUNBOOK.md`](INCIDENT_RUNBOOK.md) — incident-response guidance for the scanner.
+- [`docs/API_VERSIONING.md`](docs/API_VERSIONING.md) — CLI and API stability notes.
+- [`docs/PERFORMANCE_BASELINE.md`](docs/PERFORMANCE_BASELINE.md) — performance-baseline documentation.
+- [`evidence/DETECTION_PROOF.md`](evidence/DETECTION_PROOF.md) — red-team detection evidence.
+- [`RESUME_EVIDENCE.md`](RESUME_EVIDENCE.md) — auditable résumé-claim evidence.
+- [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md) — current quantitative evidence anchor.
+
+## Maintainer
+
+**Pooja Kiran**  
+GitHub: [@poojakira](https://github.com/poojakira)
+
+This repository is maintained as an evidence-backed security-engineering project. Claims should remain reproducible from committed code, tests, CI results, and evidence artifacts.
