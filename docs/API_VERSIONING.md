@@ -55,7 +55,7 @@ All rules follow the format `HFS-XXX` where XXX is a zero-padded integer:
 HFS-001  Pickle GLOBAL opcode with os module
 HFS-002  Pickle GLOBAL opcode with subprocess module
 ...
-HFS-189  (highest assigned ID; 151 rules defined, IDs are sparse up to HFS-189)
+HFS-189  (highest assigned ID; 153 rules defined, IDs are sparse up to HFS-189)
 ```
 
 ### Guarantees

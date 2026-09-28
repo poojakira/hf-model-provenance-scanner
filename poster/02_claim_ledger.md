@@ -1,6 +1,6 @@
 # Claim Ledger — Poster 03 (03-hf-model-provenance-scanner)
 
-Apache-2.0 • Python 3.12 • HEAD 7b2cd5f • verified 2026-09-26. Classification: VERIFIED_CURRENT / VERIFIED_HISTORICAL / PARTIAL / UNVERIFIED / UNSUPPORTED.
+Apache-2.0 • Python 3.12 • HEAD 13a5ae4 • verified 2026-09-26. Classification: VERIFIED_CURRENT / VERIFIED_HISTORICAL / PARTIAL / UNVERIFIED / UNSUPPORTED.
 
 | # | Claim | Classification | Evidence |
 |---|---|---|---|

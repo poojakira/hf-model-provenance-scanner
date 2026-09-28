@@ -4,9 +4,9 @@ This file is the evidence anchor for quantitative résumé and portfolio claims 
 
 ## Verified baseline
 
-**Audited code commit:** `751a62aeb7dbca97e2f4458dcc5be60086769ee3`
+**Audited code commit:** `13a5ae401a259f20ba17c67a976b4cb0ba88979e` (current `main`)
 **Successful main CI run:** https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/36043740861
-**Verification date:** 2026-09-24
+**Verification date:** 2026-09-27 (re-confirmed on current main; counts unchanged)
 
 | Claim | Verified value | Evidence |
 |---|---:|---|
