@@ -1,5 +1,7 @@
 # Research Brief — Poster 03
 
+> Evidence status: This is a dated repository snapshot at the commit identified below. `VERIFIED_AT_SNAPSHOT` means verified for that commit and environment; it does not assert the same result on the latest `main`. Compare newer claims with the repository evidence before reuse.
+
 ## Repository
 `github.com/poojakira/hf-model-provenance-scanner` (public, default branch `main`, primary language Python). Apache-2.0 • Python 3.12 • HEAD 13a5ae4 • verified 2026-09-26
 
@@ -34,10 +36,10 @@ O4 — ATT&CK v19 mapping on findings
 ## Methodology
 1 Enumerate (artifacts) -> 2 AST (patterns) -> 3 Taint (+symbolic) -> 4 Parse (binaries) -> 5 Provenance (checks) -> 6·7 Map + gate (ATT&CK/exit)
 
-## Current Verified Evidence + Claim Ledger
-- **VERIFIED_CURRENT** — 33/33 committed fixtures detected; 0 actionable FP on 4 benign — evidence/DETECTION_PROOF.md + tests/redteam/redteam_report.json; pinned by test_detection_counts.py. Fixture-only.
-- **VERIFIED_CURRENT** — 5 binary format parsers; 5 analysis engines — README/LIMITATIONS.md enumerate pickle/SafeTensors/GGUF/ONNX/Keras and AST/taint/symbolic/sandbox(disabled)/binary.
-- **VERIFIED_CURRENT** — Fail-loud HFS-096 INDETERMINATE on unanalyzable pickle — LIMITATIONS.md; elevates risk >=HIGH; --enforce nonzero exit.
+## Evidence at Poster Snapshot + Claim Ledger
+- **VERIFIED_AT_SNAPSHOT** — 33/33 committed fixtures detected; 0 actionable FP on 4 benign — evidence/DETECTION_PROOF.md + tests/redteam/redteam_report.json; pinned by test_detection_counts.py. Fixture-only.
+- **VERIFIED_AT_SNAPSHOT** — 5 binary format parsers; 5 analysis engines — README/LIMITATIONS.md enumerate pickle/SafeTensors/GGUF/ONNX/Keras and AST/taint/symbolic/sandbox(disabled)/binary.
+- **VERIFIED_AT_SNAPSHOT** — Fail-loud HFS-096 INDETERMINATE on unanalyzable pickle — LIMITATIONS.md; elevates risk >=HIGH; --enforce nonzero exit.
 - **VERIFIED_HISTORICAL** — 211 passed + 6 subtests; 66.9% coverage — CI run 36043740861 (751a62a, 2026-09-24), Py 3.11/3.12. Not re-run at current HEAD.
 - **UNSUPPORTED (disclaimed)** — General detection rate / 0% FP on arbitrary models — README + DETECTION_PROOF scope note forbid generalizing fixture results; not claimed.
 - **UNSUPPORTED (disclaimed)** — Neural weight backdoor detection — LIMITATIONS.md lists as fundamental non-capability.

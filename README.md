@@ -119,6 +119,8 @@ Normalized findings + severity + remediation
 
 The default scanner path is designed to inspect artifacts without importing or executing model repository code.
 
+**Signature scope:** The scanner flags missing signature evidence and can invoke an installed external verifier for local detached signatures. It does not create model signatures or implement Ed25519 signing.
+
 ## Evidence and Reproduction
 
 The repository keeps evidence separate from marketing claims so results can be checked independently.
