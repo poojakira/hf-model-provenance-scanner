@@ -52,6 +52,9 @@ This is deliberately narrow. It is **not** a claim of a universal 0% false-posit
 
 ## Current repository state
 
-Current main CI evidence is stronger than the frozen resume snapshot: **214 passed, 1 skipped, 6 subtests passed** and **66.16% statement coverage** at commit `c0fa6b18d1d2715f5d275d291021b3208d836dd9` (run `35808366562`).
+Current main CI evidence is stronger than the frozen resume snapshot: the current
+authoritative total is **211 passed, 6 subtests passed, 66.9% statement coverage**,
+tracked in `VERIFIED_METRICS.md` (CI run `36043740861`, re-confirmed on current main
+`13a5ae4`). The resume's 195 figure remains a documented historical lower-bound snapshot.
 
 The resume remains defensible because its 195 figure is a documented historical lower-bound snapshot and the fixture claims remain tied to committed evidence.

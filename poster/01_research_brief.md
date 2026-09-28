@@ -1,7 +1,7 @@
 # Research Brief — Poster 03
 
 ## Repository
-`github.com/poojakira/hf-model-provenance-scanner` (public, default branch `main`, primary language Python). Apache-2.0 • Python 3.12 • HEAD 7b2cd5f • verified 2026-09-26
+`github.com/poojakira/hf-model-provenance-scanner` (public, default branch `main`, primary language Python). Apache-2.0 • Python 3.12 • HEAD 13a5ae4 • verified 2026-09-26
 
 ## Academic Project Title
 **Non-Executing Security Analysis of AI Model Supply-Chain Artifacts**

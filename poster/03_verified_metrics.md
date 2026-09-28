@@ -1,6 +1,6 @@
 # Verified Metrics — Poster 03
 
-Apache-2.0 • Python 3.12 • HEAD 7b2cd5f • verified 2026-09-26. Verified for this poster on Windows / CPython 3.12.10.
+Apache-2.0 • Python 3.12 • HEAD 13a5ae4 • verified 2026-09-26. Verified for this poster on Windows / CPython 3.12.10.
 
 ## Headline cards
 - 33/33 — FIXTURES DETECTED

@@ -35,12 +35,14 @@ That is a historical local-validation snapshot, not the current CI total.
 
 Current verified Linux CI evidence reports:
 
-- **199 passed**
-- **1 skipped**
+- **211 passed**
 - **6 subtests passed**
-- **65.89% statement coverage**
+- **66.90% statement coverage** (Python 3.11/3.12; gate is 55%)
 
-The historical CI run referenced by this 2026-09-21 audit is GitHub Actions run `35564351689`, which completed successfully across the Python matrix and the repository's lint, security, CodeQL, type-check, sandbox, Trivy, and Docker jobs.
+The current CI run for these totals is GitHub Actions run `36043740861` (see
+`VERIFIED_METRICS.md`). An earlier successful audit run `35564351689` (199 passed,
+1 skipped, 65.89% coverage) is retained here only as a prior snapshot; the test
+count has since grown to 211.
 
 ### Fixture evidence
 
@@ -84,7 +86,7 @@ Important limitations remain:
 
 Acceptable wording:
 
-> Validated 199 passing tests at 65.89% statement coverage; the committed internal red-team suite detects 12/12 core incident-reproduction fixtures, 18/18 extended variants, and 3/3 large-scale fixtures, with zero actionable findings across four committed benign samples.
+> Validated 211 passing tests at 66.9% statement coverage; the committed internal red-team suite detects 12/12 core incident-reproduction fixtures, 18/18 extended variants, and 3/3 large-scale fixtures, with zero actionable findings across four committed benign samples.
 
 Required qualifier:
 
