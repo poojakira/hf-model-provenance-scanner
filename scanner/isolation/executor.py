@@ -225,8 +225,9 @@ class RestrictedSubprocessBackend(ExecutorBackend):
                 stdout, stderr = b"", b""
             applied.append(f"timeout_enforced_kill={timeout_seconds}s")
 
-        stdout = stdout or b""
-        stderr = stderr or b""
+        # Popen uses binary pipes here; normalize the possible text type in its stubs.
+        stdout = stdout.encode() if isinstance(stdout, str) else (stdout or b"")
+        stderr = stderr.encode() if isinstance(stderr, str) else (stderr or b"")
 
         stdout_trunc = len(stdout) > max_output_bytes
         stderr_trunc = len(stderr) > max_output_bytes
