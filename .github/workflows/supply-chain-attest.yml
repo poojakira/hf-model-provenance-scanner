@@ -1,0 +1,125 @@
+# Supply-chain signing + attestation for the hf-scanner container image.
+#
+# STATUS: UNVERIFIED IN LOCAL DEV ENVIRONMENT.
+# This workflow requires a GitHub Actions runner with OIDC enabled and access
+# to the GitHub Container Registry. It has NOT been executed on the maintainer's
+# local Windows machine (no cosign binary, no CI OIDC token, no registry auth).
+# It is authored to be runnable on CI; verify by pushing to a branch and reading
+# the Actions run. See docs/supply-chain/SIGNING.md for the exact verification steps.
+#
+# What it does when it DOES run on CI:
+#   1. Builds the container image.
+#   2. Generates a CycloneDX SBOM (reusing the repo's AIBOM/SBOM tooling + syft).
+#   3. Signs the image with cosign KEYLESS (Fulcio/Rekor, OIDC identity) — no
+#      long-lived private keys are stored in the repo or in secrets.
+#   4. Attaches the SBOM as an in-toto attestation and signs it.
+#   5. Generates SLSA build provenance and attaches it as a signed attestation.
+#   6. Runs a verify step that fails the build if signature/attestation checks fail.
+
+name: supply-chain-attest
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write      # REQUIRED for cosign keyless (OIDC) signing
+  attestations: write  # REQUIRED for GitHub-native build provenance attestations
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-sign-attest:
+    runs-on: ubuntu-latest
+    outputs:
+      image-digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: Install syft (SBOM generator)
+        uses: anchore/sbom-action/download-syft@v0
+
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push image (by digest)
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Generate CycloneDX SBOM
+        run: |
+          syft "${REGISTRY}/${IMAGE_NAME}@${DIGEST}" \
+            -o cyclonedx-json=sbom.cdx.json
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+
+      - name: Sign image (cosign KEYLESS — no stored private key)
+        run: |
+          cosign sign --yes \
+            "${REGISTRY}/${IMAGE_NAME}@${DIGEST}"
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+          COSIGN_EXPERIMENTAL: "1"
+
+      - name: Attach + sign SBOM attestation
+        run: |
+          cosign attest --yes \
+            --predicate sbom.cdx.json \
+            --type cyclonedx \
+            "${REGISTRY}/${IMAGE_NAME}@${DIGEST}"
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+          COSIGN_EXPERIMENTAL: "1"
+
+      - name: Generate SLSA build provenance (GitHub-native attestation)
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+
+      - name: VERIFY signature + attestations (fails build if broken)
+        run: |
+          # Verify the keyless signature, pinning the expected OIDC identity + issuer.
+          cosign verify \
+            --certificate-identity-regexp "^https://github.com/${GITHUB_REPOSITORY}/" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            "${REGISTRY}/${IMAGE_NAME}@${DIGEST}"
+
+          # Verify the signed CycloneDX SBOM attestation.
+          cosign verify-attestation \
+            --type cyclonedx \
+            --certificate-identity-regexp "^https://github.com/${GITHUB_REPOSITORY}/" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            "${REGISTRY}/${IMAGE_NAME}@${DIGEST}"
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+          COSIGN_EXPERIMENTAL: "1"

@@ -1,0 +1,42 @@
+{
+  "_comment": "UNVERIFIED on this host. Intended seccomp allowlist for running untrusted model repository code under a Linux kernel-backed runtime (libseccomp / OCI runtime spec 'linux.seccomp'). Default action denies everything not explicitly allowed. This file is a committed profile only; it is NOT enforced by the portable restricted_subprocess backend.",
+  "_verification": "Requires Linux host. See scanner/isolation/README.md runbook.",
+  "defaultAction": "SCMP_ACT_ERRNO",
+  "defaultErrnoRet": 1,
+  "architectures": [
+    "SCMP_ARCH_X86_64",
+    "SCMP_ARCH_X86",
+    "SCMP_ARCH_AARCH64"
+  ],
+  "syscalls": [
+    {
+      "names": [
+        "read", "write", "readv", "writev", "close", "fstat", "lseek",
+        "mmap", "mprotect", "munmap", "brk", "rt_sigaction", "rt_sigprocmask",
+        "rt_sigreturn", "ioctl", "access", "pipe", "pipe2", "select",
+        "sched_yield", "mremap", "dup", "dup2", "dup3", "nanosleep",
+        "getpid", "getppid", "getuid", "geteuid", "getgid", "getegid",
+        "exit", "exit_group", "wait4", "uname", "fcntl", "getdents64",
+        "getcwd", "readlink", "readlinkat", "openat", "newfstatat",
+        "clock_gettime", "clock_nanosleep", "gettimeofday", "futex",
+        "set_robust_list", "get_robust_list", "set_tid_address",
+        "arch_prctl", "prlimit64", "getrandom", "sysinfo", "poll", "ppoll",
+        "epoll_create1", "epoll_ctl", "epoll_wait", "epoll_pwait",
+        "eventfd2", "statx", "faccessat", "faccessat2", "pread64", "pwrite64"
+      ],
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "_comment_denied": "Explicitly denied high-risk syscalls (also denied by defaultAction, listed for auditability).",
+      "names": [
+        "ptrace", "mount", "umount2", "pivot_root", "kexec_load",
+        "open_by_handle_at", "init_module", "finit_module", "delete_module",
+        "reboot", "swapon", "swapoff", "setns", "unshare", "clone3",
+        "bpf", "perf_event_open", "process_vm_readv", "process_vm_writev",
+        "socket", "connect", "bind", "sendto", "recvfrom"
+      ],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1
+    }
+  ]
+}

@@ -12,7 +12,7 @@ Maintained by **Pooja Kiran** ([@poojakira](https://github.com/poojakira)).
 
 ## Overview
 
-`hf-model-provenance-scanner` inspects Hugging Face repositories and local model artifacts for supply-chain risk — provenance gaps, unsafe pickle/serialization, suspicious loaders, dependency risk, impersonation, and obfuscation — **without executing untrusted model code**. It combines a custom pickle-opcode parser, AST/taint/symbolic-string analysis, and binary-format parsers across pickle, SafeTensors, GGUF, ONNX, and Keras, emitting text/JSON/SARIF for CI gating. It exists because a model download is a software supply chain that teams must be able to inspect before trusting or loading it.
+`hf-model-provenance-scanner` inspects Hugging Face repositories and local model artifacts for supply-chain risk ΓÇö provenance gaps, unsafe pickle/serialization, suspicious loaders, dependency risk, impersonation, and obfuscation ΓÇö **without executing untrusted model code**. It combines a custom pickle-opcode parser, AST/taint/symbolic-string analysis, and binary-format parsers across pickle, SafeTensors, GGUF, ONNX, and Keras, emitting text/JSON/SARIF for CI gating. It exists because a model download is a software supply chain that teams must be able to inspect before trusting or loading it.
 
 ## Verified Snapshot
 
@@ -123,11 +123,11 @@ The default scanner path is designed to inspect artifacts without importing or e
 
 The repository keeps evidence separate from marketing claims so results can be checked independently.
 
-- [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md) — current test, coverage, and red-team counts.
-- [`RESUME_EVIDENCE.md`](RESUME_EVIDENCE.md) — historical validation snapshots and reconciliation with later CI growth.
-- [`evidence/DETECTION_PROOF.md`](evidence/DETECTION_PROOF.md) — committed detection evidence and reproduction notes.
-- [`tests/redteam/`](tests/redteam/) — attack and benign fixtures used for regression testing.
-- [`benchmarks/scan_perf.py`](benchmarks/scan_perf.py) — performance regression harness.
+- [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md) ΓÇö current test, coverage, and red-team counts.
+- [`RESUME_EVIDENCE.md`](RESUME_EVIDENCE.md) ΓÇö historical validation snapshots and reconciliation with later CI growth.
+- [`evidence/DETECTION_PROOF.md`](evidence/DETECTION_PROOF.md) ΓÇö committed detection evidence and reproduction notes.
+- [`tests/redteam/`](tests/redteam/) ΓÇö attack and benign fixtures used for regression testing.
+- [`benchmarks/scan_perf.py`](benchmarks/scan_perf.py) ΓÇö performance regression harness.
 
 Reproduce the principal regression checks with:
 
@@ -185,20 +185,49 @@ This makes the scanner usable as a local review tool, a CI security gate, or an 
 
 ## Research Poster
 
-**Security Systems / 03 — Non-Executing Security Analysis of AI Model Supply-Chain Artifacts**
+**Security Systems / 03 ΓÇö Non-Executing Security Analysis of AI Model Supply-Chain Artifacts**
 
 [![Research poster](poster/poster.png)](poster/poster_36x48.pdf)
 
-The 36 × 48 in technical poster summarizes the system, threat model, validation approach, and evidence boundaries. Metrics on the poster are intended to remain tied to committed evidence artifacts rather than generalized deployment claims.
+The 36 ├ù 48 in technical poster summarizes the system, threat model, validation approach, and evidence boundaries. Metrics on the poster are intended to remain tied to committed evidence artifacts rather than generalized deployment claims.
+
+## Fail-Closed Isolation Executor
+
+The existing `--sandbox` subprocess backend is **not** isolation. This adds an
+explicit execution boundary in `scanner/isolation/executor.py`:
+
+- **`ExecutorBackend` interface + `RestrictedSubprocessBackend`** enforcing, portably (Windows/POSIX):
+  wall-clock timeout with kill, output-size caps, working-dir confinement, and env scrubbing.
+- **POSIX-only (guarded):** `resource.setrlimit` for CPU/AS/NOFILE/FSIZE plus `os.setsid`.
+- **Fail-closed:** refuses to run untrusted code without an explicit acknowledgment flag.
+
+**UNVERIFIED — requires Linux host + KVM:** committed seccomp / namespace / cgroup-v2 profiles
+under `scanner/isolation/profiles/` and a gVisor / Firecracker backend **stub** that raises
+`NotImplementedError`. These kernel-isolation pieces are inert on Windows and are **not**
+verified here. True kernel isolation is **not** verified on Windows.
+
+Tests: `tests/test_executor.py` = **12 passed, 1 skipped** (the POSIX-only test is skipped on
+Windows). Full suite: **223 passed / 1 skipped, no regressions**. See
+[`scanner/isolation/README.md`](scanner/isolation/README.md) for the verified-vs-Linux matrix.
+
+## Supply-Chain Signing & Attestation
+
+`.github/workflows/supply-chain-attest.yml` adds cosign **keyless** image signing, a signed
+CycloneDX SBOM attestation, SLSA build provenance, and a verify gate.
+
+**UNVERIFIED locally — requires a CI runner with OIDC + registry:** this workflow has not been
+executed in the local dev environment. The **verified** part is the existing CycloneDX AIBOM
+generator (`scanner/aibom_generator.py`); the signing/attestation pipeline is not verified here.
+See [`docs/supply-chain/SIGNING.md`](docs/supply-chain/SIGNING.md).
 
 ## Additional Documentation
 
-- [`INCIDENT_RUNBOOK.md`](INCIDENT_RUNBOOK.md) — incident-response guidance for the scanner.
-- [`docs/API_VERSIONING.md`](docs/API_VERSIONING.md) — CLI and API stability notes.
-- [`docs/PERFORMANCE_BASELINE.md`](docs/PERFORMANCE_BASELINE.md) — performance-baseline documentation.
-- [`evidence/DETECTION_PROOF.md`](evidence/DETECTION_PROOF.md) — red-team detection evidence.
-- [`RESUME_EVIDENCE.md`](RESUME_EVIDENCE.md) — auditable résumé-claim evidence.
-- [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md) — current quantitative evidence anchor.
+- [`INCIDENT_RUNBOOK.md`](INCIDENT_RUNBOOK.md) ΓÇö incident-response guidance for the scanner.
+- [`docs/API_VERSIONING.md`](docs/API_VERSIONING.md) ΓÇö CLI and API stability notes.
+- [`docs/PERFORMANCE_BASELINE.md`](docs/PERFORMANCE_BASELINE.md) ΓÇö performance-baseline documentation.
+- [`evidence/DETECTION_PROOF.md`](evidence/DETECTION_PROOF.md) ΓÇö red-team detection evidence.
+- [`RESUME_EVIDENCE.md`](RESUME_EVIDENCE.md) ΓÇö auditable r├⌐sum├⌐-claim evidence.
+- [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md) ΓÇö current quantitative evidence anchor.
 
 ## Maintainer
 

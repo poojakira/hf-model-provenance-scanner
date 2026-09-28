@@ -1,0 +1,45 @@
+# UNVERIFIED on this host — requires Linux with cgroup v2 (unified hierarchy)
+# mounted at /sys/fs/cgroup and delegated to the launching user.
+# Committed profile only; the portable restricted_subprocess backend does NOT
+# create or write any cgroup. Verification: scanner/isolation/README.md.
+
+version: 1
+kind: CgroupV2LimitsSpec
+metadata:
+  purpose: "Bound CPU / memory / pids / IO for untrusted model execution"
+  verified: false
+  requires:
+    - "cgroup v2 unified hierarchy at /sys/fs/cgroup"
+    - "delegation: systemd user slice or root"
+
+# Target cgroup path (created under the delegated subtree).
+cgroup_path: "/sys/fs/cgroup/hf-scanner/untrusted"
+
+# Controllers to enable on the parent before creating the leaf.
+controllers:
+  - cpu
+  - memory
+  - pids
+  - io
+
+# Interface-file writes. These are the exact cgroup v2 files and values.
+limits:
+  # 50% of one CPU: quota 50000us per 100000us period.
+  "cpu.max": "50000 100000"
+  # Hard memory ceiling. OOM-kills the cgroup if exceeded.
+  "memory.max": "1073741824"          # 1 GiB
+  # Throttle-before-OOM soft limit.
+  "memory.high": "805306368"          # 768 MiB
+  # No swap.
+  "memory.swap.max": "0"
+  # Cap total processes/threads to prevent fork bombs.
+  "pids.max": "128"
+
+# Reference procedure this spec describes (documentation only):
+#   mkdir -p /sys/fs/cgroup/hf-scanner/untrusted
+#   echo "+cpu +memory +pids +io" > /sys/fs/cgroup/hf-scanner/cgroup.subtree_control
+#   echo "50000 100000" > /sys/fs/cgroup/hf-scanner/untrusted/cpu.max
+#   echo 1073741824     > /sys/fs/cgroup/hf-scanner/untrusted/memory.max
+#   echo 0              > /sys/fs/cgroup/hf-scanner/untrusted/memory.swap.max
+#   echo 128            > /sys/fs/cgroup/hf-scanner/untrusted/pids.max
+#   echo $$             > /sys/fs/cgroup/hf-scanner/untrusted/cgroup.procs

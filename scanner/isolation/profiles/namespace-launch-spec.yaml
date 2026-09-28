@@ -1,0 +1,70 @@
+# UNVERIFIED on this host — requires a Linux kernel with user namespaces enabled.
+# Intended `unshare(1)` launch specification for running untrusted model code
+# inside fresh namespaces. This is a committed profile only; the portable
+# restricted_subprocess backend does NOT apply any of this.
+#
+# Verification: see scanner/isolation/README.md "Linux verification runbook".
+
+version: 1
+kind: NamespaceLaunchSpec
+metadata:
+  purpose: "Isolate untrusted HF model repository code under Linux namespaces"
+  verified: false
+  requires:
+    - "Linux >= 5.10"
+    - "kernel.unprivileged_userns_clone = 1 (or run as root)"
+
+# Namespaces to unshare. Each maps to an unshare(1) flag.
+namespaces:
+  user: true        # --user   : map to unprivileged uid/gid (rootless)
+  mount: true       # --mount  : private mount namespace
+  pid: true         # --pid --fork : new PID namespace, child becomes PID 1
+  net: true         # --net    : empty network namespace (no connectivity)
+  uts: true         # --uts    : isolated hostname
+  ipc: true         # --ipc    : isolated System V IPC / POSIX message queues
+  cgroup: true      # --cgroup : new cgroup namespace
+
+uid_map: "0 100000 65536"   # rootless subuid/subgid mapping
+gid_map: "0 100000 65536"
+
+# Root filesystem policy applied inside the mount namespace.
+rootfs:
+  mode: readonly
+  new_root: "/var/lib/hf-scanner/rootfs"     # minimal, prepared out of band
+  bind_mounts:
+    - source: "/model"
+      target: "/model"
+      options: "ro,nosuid,nodev,noexec"
+    - source: "tmpfs"
+      target: "/tmp"
+      options: "rw,nosuid,nodev,noexec,size=64m"
+  masked_paths:
+    - "/proc/kcore"
+    - "/proc/sys"
+    - "/sys"
+
+# Reference command this spec describes (documentation only; not executed here):
+#   unshare --user --map-root-user --mount --pid --fork --net --uts --ipc --cgroup \
+#     --mount-proc \
+#     env -i PATH=/usr/bin:/bin \
+#     /usr/bin/python3 -I -S -B /model/entry.py
+reference_command:
+  - unshare
+  - "--user"
+  - "--map-root-user"
+  - "--mount"
+  - "--pid"
+  - "--fork"
+  - "--net"
+  - "--uts"
+  - "--ipc"
+  - "--cgroup"
+  - "--mount-proc"
+  - env
+  - "-i"
+  - "PATH=/usr/bin:/bin"
+  - /usr/bin/python3
+  - "-I"
+  - "-S"
+  - "-B"
+  - /model/entry.py
