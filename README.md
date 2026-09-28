@@ -10,6 +10,10 @@ Maintained by **Pooja Kiran** ([@poojakira](https://github.com/poojakira)).
 [![Python >=3.10](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+## Overview
+
+`hf-model-provenance-scanner` inspects Hugging Face repositories and local model artifacts for supply-chain risk — provenance gaps, unsafe pickle/serialization, suspicious loaders, dependency risk, impersonation, and obfuscation — **without executing untrusted model code**. It combines a custom pickle-opcode parser, AST/taint/symbolic-string analysis, and binary-format parsers across pickle, SafeTensors, GGUF, ONNX, and Keras, emitting text/JSON/SARIF for CI gating. It exists because a model download is a software supply chain that teams must be able to inspect before trusting or loading it.
+
 ## Verified Snapshot
 
 Current quantitative claims are anchored in [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md).
@@ -34,7 +38,7 @@ This project focuses on a simple boundary:
 
 **Analyze the repository and model artifacts first; do not execute untrusted model code in order to decide whether it is safe.**
 
-## What It Detects
+## Core Capabilities
 
 The scanner combines static and metadata-driven checks across source, configuration, dependencies, and model artifacts.
 
@@ -90,7 +94,7 @@ hf-scanner ./model-repo --mode local --aibom aibom.json
 
 Use `--enforce` in CI when incomplete or indeterminate scans must fail rather than pass silently.
 
-## Analysis Pipeline
+## Architecture
 
 ```text
 Target repository / local directory
@@ -136,7 +140,7 @@ python tests/redteam/test_large_scale.py
 
 `tests/redteam/test_detection_counts.py` pins the advertised fixture totals so changes to those counts fail regression tests.
 
-## Evidence Boundaries
+## Threat Model & Scope
 
 | Area | Current status | Boundary |
 |---|---|---|
