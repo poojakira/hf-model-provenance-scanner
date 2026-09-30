@@ -25,10 +25,13 @@ Environment variables:
 
 import hashlib
 import hmac
+import ipaddress
 import json
 import os
 import re
+import socket
 import sys
+import urllib.parse
 import urllib.request
 
 # Add scanner to path
@@ -36,6 +39,43 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Webhook configuration
 MAX_CONTENT_LENGTH = 10 * 1024 * 1024  # 10 MB
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def _safe_notify_url(url: str) -> bool:
+    """Allow only HTTPS notification destinations that resolve to public IP space."""
+    try:
+        parsed = urllib.parse.urlparse(url)
+        if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
+            return False
+        allowed_hosts = {
+            item.strip().lower()
+            for item in os.environ.get("NOTIFY_ALLOWED_HOSTS", "").split(",")
+            if item.strip()
+        }
+        if allowed_hosts and parsed.hostname.lower() not in allowed_hosts:
+            return False
+        addresses = socket.getaddrinfo(parsed.hostname, parsed.port or 443, type=socket.SOCK_STREAM)
+        if not addresses:
+            return False
+        for entry in addresses:
+            ip = ipaddress.ip_address(entry[4][0])
+            if (
+                ip.is_private
+                or ip.is_loopback
+                or ip.is_link_local
+                or ip.is_multicast
+                or ip.is_reserved
+                or ip.is_unspecified
+            ):
+                return False
+        return True
+    except (OSError, ValueError):
+        return False
 
 
 def process_webhook_request(headers: dict, body_stream, handler):
@@ -138,7 +178,7 @@ def scan_repo(repo_id: str, revision: str) -> dict:
 def send_notification(repo_id: str, result: dict):
     """Send alert to Slack/Teams/Discord if findings detected."""
     notify_url = os.environ.get("NOTIFY_URL")
-    if not notify_url:
+    if not notify_url or not _safe_notify_url(notify_url):
         return
 
     risk = result.get("risk", {})
@@ -164,7 +204,9 @@ def send_notification(repo_id: str, result: dict):
         method="POST",
     )
     try:
-        urllib.request.urlopen(req, timeout=10)
+        opener = urllib.request.build_opener(_NoRedirect())
+        with opener.open(req, timeout=10) as response:  # nosec B310 - destination validated above
+            response.read(1)
     except Exception:
         pass
 
