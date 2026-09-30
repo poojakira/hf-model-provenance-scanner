@@ -8,14 +8,17 @@ import hmac
 import io
 import json
 import logging
+import math
 import os
 import re
+import threading
 import time
 import uuid
 from collections import defaultdict
 from contextlib import redirect_stderr, redirect_stdout
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
@@ -32,7 +35,7 @@ _MAX_CONCURRENT_SCANS = int(os.environ.get("MAX_CONCURRENT_SCANS", "4"))
 _MAX_REQUEST_BYTES = int(os.environ.get("SCAN_MAX_REQUEST_BYTES", "16384"))
 _RATE_LIMIT_RPM = int(os.environ.get("SCAN_RATE_LIMIT_RPM", "60"))
 _request_log: dict[str, list[float]] = defaultdict(list)
-if _SCAN_TIMEOUT_SECONDS <= 0:
+if not math.isfinite(_SCAN_TIMEOUT_SECONDS) or _SCAN_TIMEOUT_SECONDS <= 0:
     raise RuntimeError("SCAN_TIMEOUT_SECONDS must be positive")
 if _MAX_CONCURRENT_SCANS < 1 or _MAX_CONCURRENT_SCANS > 64:
     raise RuntimeError("MAX_CONCURRENT_SCANS must be between 1 and 64")
@@ -40,6 +43,7 @@ if _MAX_REQUEST_BYTES < 1024 or _MAX_REQUEST_BYTES > 1024 * 1024:
     raise RuntimeError("SCAN_MAX_REQUEST_BYTES must be between 1024 and 1048576")
 if _RATE_LIMIT_RPM < 1 or _RATE_LIMIT_RPM > 10000:
     raise RuntimeError("SCAN_RATE_LIMIT_RPM must be between 1 and 10000")
+_scanner_output_lock = threading.Lock()
 _scan_slots = asyncio.Semaphore(_MAX_CONCURRENT_SCANS)
 
 app = FastAPI(
@@ -47,6 +51,52 @@ app = FastAPI(
     version="1.0.0",
     description="Resolve a model revision immutably, scan it, and return an admission decision.",
 )
+
+
+class BodySizeLimitMiddleware:
+    """Bound bytes from the ASGI stream, including chunked bodies, before parsing."""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+        chunks = []
+        total = 0
+        while True:
+            message = await receive()
+            if message["type"] == "http.disconnect":
+                return
+            chunk = message.get("body", b"")
+            total += len(chunk)
+            if total > _MAX_REQUEST_BYTES:
+                response = JSONResponse(
+                    status_code=413, content={"detail": "Request body too large"}
+                )
+                return await response(scope, receive, send)
+            chunks.append(chunk)
+            if not message.get("more_body", False):
+                break
+        pending = True
+
+        async def replay():
+            nonlocal pending
+            if pending:
+                pending = False
+                return {"type": "http.request", "body": b"".join(chunks), "more_body": False}
+            return await receive()
+
+        await self.app(scope, replay, send)
+
+
+app.add_middleware(BodySizeLimitMiddleware)
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error_handler(request: Request, exc: RequestValidationError):
+    # Pydantic's default response includes the rejected input, which may contain secrets.
+    return JSONResponse(status_code=422, content={"detail": "Invalid request payload"})
 
 
 class ScanRequest(BaseModel):
@@ -105,9 +155,7 @@ async def _request_size_limit(request: Request, call_next):
                     )
             except ValueError:
                 return JSONResponse(status_code=400, content={"detail": "Invalid Content-Length"})
-        body = await request.body()
-        if len(body) > _MAX_REQUEST_BYTES:
-            return JSONResponse(status_code=413, content={"detail": "Request body too large"})
+
     response = await call_next(request)
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
@@ -123,7 +171,7 @@ def _authorize(request: Request) -> None:
             detail="API authentication is not configured with a sufficiently strong key",
         )
     supplied = request.headers.get("X-API-Key", "")
-    if not supplied or not hmac.compare_digest(supplied, expected):
+    if not supplied or not hmac.compare_digest(supplied.encode("utf-8"), expected.encode("utf-8")):
         raise HTTPException(status_code=401, detail="Unauthorized")
 
 
@@ -132,8 +180,45 @@ def _validate_target(payload: ScanRequest) -> None:
         raise HTTPException(status_code=422, detail="repo_id must be exactly owner/model")
     if not _REVISION.fullmatch(payload.revision) or ".." in payload.revision:
         raise HTTPException(status_code=422, detail="invalid revision")
+    allowed = {
+        repo.strip() for repo in os.environ.get("SCAN_ALLOWED_REPOS", "").split(",") if repo.strip()
+    }
+    if os.environ.get("HF_TOKEN") and not allowed:
+        raise HTTPException(
+            status_code=503, detail="Private model access requires a repository allowlist"
+        )
+    if allowed and payload.repo_id not in allowed:
+        raise HTTPException(status_code=403, detail="Repository access denied")
     if payload.fail_on.lower() not in _FAIL_ON:
         raise HTTPException(status_code=422, detail="invalid fail_on threshold")
+
+
+_active_jobs: set[asyncio.Task] = set()
+
+
+async def _run_bounded(function, argument, slots, timeout):
+    # A timed-out thread keeps running. Retain its slot until it actually exits.
+    # Reject saturation instead of creating an unbounded queue of requests.
+    if slots.locked():
+        raise HTTPException(status_code=503, detail="Service busy")
+    await slots.acquire()
+
+    async def work():
+        try:
+            return await run_in_threadpool(function, argument)
+        finally:
+            slots.release()
+
+    task = asyncio.create_task(work())
+    _active_jobs.add(task)
+
+    def finished(job):
+        _active_jobs.discard(job)
+        if not job.cancelled():
+            job.exception()  # Retrieve failures after an HTTP timeout/disconnect.
+
+    task.add_done_callback(finished)
+    return await asyncio.wait_for(asyncio.shield(task), timeout=timeout)
 
 
 def _scan_sync(payload: ScanRequest) -> tuple[int, dict]:
@@ -155,14 +240,15 @@ def _scan_sync(payload: ScanRequest) -> tuple[int, dict]:
     if token:
         args.extend(["--token", token])
 
-    with redirect_stdout(stdout), redirect_stderr(stderr):
+    # stdout/stderr redirection is global process state; concurrent scans must serialize it.
+    with _scanner_output_lock, redirect_stdout(stdout), redirect_stderr(stderr):
         code = int(scanner_main(args))
 
     raw = stdout.getvalue().strip()
     if not raw:
         stderr_text = stderr.getvalue().strip()
         if stderr_text:
-            logger.warning("Scanner produced no JSON result: %s", stderr_text[:500])
+            logger.warning("Scanner produced no JSON result")
         return 2, {
             "error": "scanner execution failed",
             "completeness": "UNKNOWN",
@@ -215,13 +301,13 @@ async def scan(payload: ScanRequest, request: Request) -> ScanResponse:
     _validate_target(payload)
     started = time.perf_counter()
     try:
-        async with _scan_slots:
-            code, result = await asyncio.wait_for(
-                run_in_threadpool(_scan_sync, payload),
-                timeout=_SCAN_TIMEOUT_SECONDS,
-            )
+        code, result = await _run_bounded(_scan_sync, payload, _scan_slots, _SCAN_TIMEOUT_SECONDS)
     except asyncio.TimeoutError as exc:
         raise HTTPException(status_code=504, detail="Scanner execution timed out") from exc
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=500, detail="Scanner execution failed") from None
 
     completeness = str(result.get("completeness", "UNKNOWN")).upper()
 

@@ -107,6 +107,13 @@ class _SafeRedirectHandler(urllib.request.HTTPRedirectHandler):
         scheme = parsed.scheme.lower()
         host = parsed.hostname or ""
 
+        if (
+            parsed.username is not None
+            or parsed.password is not None
+            or parsed.port not in (None, 443)
+        ):
+            raise urllib.error.URLError("Redirect target must use the standard HTTPS origin")
+
         if scheme != "https":
             raise urllib.error.URLError(
                 f"Redirect security violation: scheme downgrade to '{scheme}' "
@@ -213,10 +220,6 @@ class HFApiClient:
 
     def _request(self, url: str, max_bytes: int | None = None) -> bytes:
         """Make an HTTPS GET request with safe redirect handling, rate limiting, and caching."""
-        with self._cache_lock:
-            if url in self._cache:
-                return self._cache[url]
-
         # Validate the initial URL is HTTPS before we even send
         parsed = urllib.parse.urlparse(url)
         if parsed.scheme.lower() != "https":
@@ -224,11 +227,30 @@ class HFApiClient:
                 f"Security: only HTTPS requests are permitted; got scheme '{parsed.scheme}'"
             )
 
+        if (
+            not _host_allowed(parsed.hostname or "")
+            or parsed.username is not None
+            or parsed.password is not None
+            or parsed.port not in (None, 443)
+        ):
+            raise ValueError("Security: request target is outside the allowed HTTPS origins")
+        limit = MAX_DOWNLOAD_BYTES if max_bytes is None else max_bytes
+        if limit < 1:
+            raise ValueError("max_bytes must be positive")
+        with self._cache_lock:
+            cached = self._cache.get(url)
+        if cached is not None:
+            if len(cached) > limit:
+                raise ValueError("Cached download exceeds safety limit")
+            return cached
+
         wait = self._rate_limiter.consume(1)
         if wait > 0:
             time.sleep(wait)
 
         headers = self._headers()
+        if parsed.hostname not in HF_AUTH_FORWARD_HOSTS:
+            headers.pop("Authorization", None)
         req = urllib.request.Request(url, headers=headers)
         redirect_handler = _SafeRedirectHandler(original_headers=headers)
         opener = urllib.request.build_opener(redirect_handler)
@@ -239,14 +261,9 @@ class HFApiClient:
                 with opener.open(req, timeout=30) as resp:
                     self._update_rate_limit(dict(resp.headers))
 
-                    if max_bytes:
-                        data = resp.read(max_bytes + 1)
-                        if len(data) > max_bytes:
-                            raise ValueError(
-                                f"Download exceeds {max_bytes // (1024 * 1024)}MB safety limit"
-                            )
-                    else:
-                        data = resp.read()
+                    data = resp.read(limit + 1)
+                    if len(data) > limit:
+                        raise ValueError("Download exceeds safety limit")
 
                     with self._cache_lock:
                         self._cache[url] = data
@@ -263,7 +280,7 @@ class HFApiClient:
                     if e.code == 429:
                         retry_after = e.headers.get("Retry-After", "")
                         if retry_after.isdigit():
-                            delay = max(delay, int(retry_after))
+                            delay = min(60, max(delay, int(retry_after)))
                     time.sleep(delay)
 
             except (urllib.error.URLError, OSError) as e:
