@@ -11,6 +11,8 @@ from integrations import huggingface_webhook as webhook
 
 
 class TestWebhookSecurityRejects(unittest.TestCase):
+    TEST_SECRET = "test-webhook-secret-at-least-32-characters"
+
     def _signed_headers(self, body: bytes, secret: str) -> dict[str, str]:
         signature = webhook.hmac.new(secret.encode(), body, webhook.hashlib.sha256).hexdigest()
         return {
@@ -33,7 +35,7 @@ class TestWebhookSecurityRejects(unittest.TestCase):
                 webhook.run_server(host="127.0.0.1", port=0)
 
     def test_webhook_rejects_oversized_content_length_before_reading(self):
-        with patch.dict(os.environ, {"WEBHOOK_SECRET": "secret"}, clear=True):
+        with patch.dict(os.environ, {"WEBHOOK_SECRET": self.TEST_SECRET}, clear=True):
             status, result = webhook.process_webhook_request(
                 {"Content-Length": str(webhook.MAX_CONTENT_LENGTH + 1)},
                 io.BytesIO(b""),
@@ -44,7 +46,7 @@ class TestWebhookSecurityRejects(unittest.TestCase):
 
     def test_webhook_rejects_oversized_body_without_content_length(self):
         body = b"A" * (webhook.MAX_CONTENT_LENGTH + 1)
-        with patch.dict(os.environ, {"WEBHOOK_SECRET": "secret"}, clear=True):
+        with patch.dict(os.environ, {"WEBHOOK_SECRET": self.TEST_SECRET}, clear=True):
             status, result = webhook.process_webhook_request(
                 {}, io.BytesIO(body), handler=lambda event: event
             )
@@ -53,9 +55,9 @@ class TestWebhookSecurityRejects(unittest.TestCase):
 
     def test_webhook_returns_generic_500_without_exception_text(self):
         body = json.dumps({"repo": {"name": "org/model", "type": "model"}}).encode()
-        with patch.dict(os.environ, {"WEBHOOK_SECRET": "secret"}, clear=True):
+        with patch.dict(os.environ, {"WEBHOOK_SECRET": self.TEST_SECRET}, clear=True):
             status, result = webhook.process_webhook_request(
-                self._signed_headers(body, "secret"),
+                self._signed_headers(body, self.TEST_SECRET),
                 io.BytesIO(body),
                 handler=lambda event: (_ for _ in ()).throw(RuntimeError("raw secret failure")),
             )
@@ -65,9 +67,9 @@ class TestWebhookSecurityRejects(unittest.TestCase):
 
     def test_webhook_accepts_valid_signed_request(self):
         body = json.dumps({"repo": {"name": "org/model", "type": "model"}}).encode()
-        with patch.dict(os.environ, {"WEBHOOK_SECRET": "secret"}, clear=True):
+        with patch.dict(os.environ, {"WEBHOOK_SECRET": self.TEST_SECRET}, clear=True):
             status, result = webhook.process_webhook_request(
-                self._signed_headers(body, "secret"),
+                self._signed_headers(body, self.TEST_SECRET),
                 io.BytesIO(body),
                 handler=lambda event: {"repo": event["repo"]["name"]},
             )
