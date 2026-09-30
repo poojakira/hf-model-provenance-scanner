@@ -7,10 +7,10 @@
 
 | ID | Severity | Finding | Status |
 |---|---|---|---|
-| HF-001 | High | The authenticated `/scan` service has concurrency and execution time limits but no request-rate limiter. | Open |
-| HF-002 | Medium | The service does not enforce a raw request-body byte limit before framework parsing. | Open |
-| HF-003 | Medium | `WEBHOOK_SECRET` is mandatory but not required to meet a minimum strength in the standalone webhook adapter. | Open |
-| HF-004 | Medium | Service responses can propagate scanner-internal `error` text to clients. | Open |
+| HF-001 | High | `/scan` now enforces a bounded per-peer/API-key request rate before starting scanner work. | Fixed |
+| HF-002 | Medium | HTTP middleware now enforces the configured raw request-body byte limit before request handling and rejects oversized or invalid declared lengths. | Fixed |
+| HF-003 | Medium | Webhook processing and standalone startup now require `WEBHOOK_SECRET` to be at least 32 characters and fail closed otherwise. | Fixed |
+| HF-004 | Medium | Scanner-internal failures are mapped to the generic public marker `scan_failed`; raw internal error text is not returned by the admission response. | Fixed |
 | HF-005 | Info | Restricted subprocess execution is explicitly fail-closed unless the caller acknowledges its non-kernel isolation limitations. | Verified |
 
 ## Existing controls verified
