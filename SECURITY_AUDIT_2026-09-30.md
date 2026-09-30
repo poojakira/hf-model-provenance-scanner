@@ -42,3 +42,12 @@ SQL tenant isolation and password reset.
 - **Status:** PARTIALLY VERIFIED
 - **Evidence:** A verified Ruff S105 false positive on an inert webhook test secret was fixed with a targeted `noqa` annotation instead of weakening the rule globally. Earlier post-fix CI completed successfully; the current main head had no completed CI run attached at this snapshot.
 - This checkpoint is intentionally date-bounded. It does not claim zero vulnerabilities or universal production readiness.
+
+<!-- hardening-followup-20260930:start -->
+## Follow-up hardening — 2026-09-30
+
+- GitHub Actions hardening was strengthened on `main`: non-release checkouts do not persist credentials, the obsolete one-time write-enabled formatter workflow was removed, and supply-chain/documentation workflows were updated accordingly.
+- `scripts/workflow_security_scan.py` now enforces immutable action SHAs, non-persisted checkout credentials, safe workflow triggers, and no remote-script pipe-to-shell execution.
+- The published integration examples and installer use immutable repository/action revisions and instruct users to download, review, and then execute installation scripts rather than piping network content directly into a shell.
+- Scanner matches for `eval`, `exec`, `verify=False`, pickle operations, and malicious shell strings are primarily analyzer logic and adversarial fixtures; they are not evidence that the scanner itself executes scanned content.
+<!-- hardening-followup-20260930:end -->
