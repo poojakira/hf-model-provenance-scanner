@@ -11,7 +11,7 @@ from integrations import huggingface_webhook as webhook
 
 
 class TestWebhookSecurityRejects(unittest.TestCase):
-    TEST_SECRET = "test-webhook-secret-at-least-32-characters"
+    TEST_SECRET = "test-webhook-secret-at-least-32-characters"  # noqa: S105 -- inert test fixture
 
     def _signed_headers(self, body: bytes, secret: str) -> dict[str, str]:
         signature = webhook.hmac.new(secret.encode(), body, webhook.hashlib.sha256).hexdigest()
