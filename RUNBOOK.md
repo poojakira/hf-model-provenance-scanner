@@ -254,7 +254,7 @@ Human-readable summary with color-coded severity.
       --format sarif --output results.sarif
 
 - name: Upload SARIF
-  uses: github/codeql-action/upload-sarif@v3
+  uses: github/codeql-action/upload-sarif@c4dd10e44af883a891fe31ced449bcb4a6728b9b
   with:
     sarif_file: results.sarif
 ```
