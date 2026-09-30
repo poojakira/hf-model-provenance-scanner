@@ -1,5 +1,6 @@
-# One-line installer for HF Model Provenance Scanner (Windows)
-# Usage: iex ((New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/main/install.ps1'))
+# Reviewed installer for HF Model Provenance Scanner (Windows)
+# Download this script from an immutable commit, inspect it, then run it locally.
+# Set HF_SCANNER_REF to another reviewed full commit SHA only when intentionally upgrading.
 
 $ErrorActionPreference = "Stop"
 
@@ -26,14 +27,15 @@ if ([int]$parts[0] -lt 3 -or ([int]$parts[0] -eq 3 -and [int]$parts[1] -lt 9)) {
 # Install directory
 $installDir = if ($env:HF_SCANNER_DIR) { $env:HF_SCANNER_DIR } else { "$env:USERPROFILE\.hf-scanner" }
 
-if (Test-Path $installDir) {
-    Write-Host "Updating existing installation..."
-    Push-Location $installDir
-    git pull --quiet
-    Pop-Location
-} else {
-    git clone --depth 1 https://github.com/poojakira/hf-model-provenance-scanner.git $installDir
+$scannerRef = if ($env:HF_SCANNER_REF) { $env:HF_SCANNER_REF } else { "9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4" }
+if (-not (Test-Path "$installDir\.git")) {
+    if (Test-Path $installDir) { Remove-Item -Recurse -Force $installDir }
+    New-Item -ItemType Directory -Force -Path $installDir | Out-Null
+    git -C $installDir init --quiet
+    git -C $installDir remote add origin https://github.com/poojakira/hf-model-provenance-scanner.git
 }
+git -C $installDir fetch --quiet --depth 1 origin $scannerRef
+git -C $installDir checkout --quiet --detach FETCH_HEAD
 
 # Create wrapper batch file
 $wrapperContent = "@echo off`r`n$python -m scanner.cli %*"
