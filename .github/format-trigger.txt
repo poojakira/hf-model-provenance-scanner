@@ -1,3 +1,1 @@
-Verification run after audit remediation.
-Repository: hf-model-provenance-scanner
-Verification cycle: 2026-09-22-final-1
+security-hardening-format-pass-2026-09-30
