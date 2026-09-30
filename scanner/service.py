@@ -70,7 +70,7 @@ class ScanResponse(BaseModel):
 def _rate_key(request: Request) -> str:
     supplied = request.headers.get("X-API-Key", "")
     peer = request.client.host if request.client else "unknown"
-    return hashlib.sha256(f"{peer}\0{supplied}".encode("utf-8")).hexdigest()[:32]
+    return hashlib.sha256(f"{peer}\0{supplied}".encode()).hexdigest()[:32]
 
 
 def _is_rate_limited(key: str) -> bool:
