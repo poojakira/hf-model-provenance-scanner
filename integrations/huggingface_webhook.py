@@ -118,7 +118,7 @@ def process_webhook_request(headers: dict, body_stream, handler):
         event = json.loads(body)
         result = handler(event)
         return 200, result
-    except Exception as e:
+    except Exception:
         return 500, {"error": "internal server error"}
 
 
@@ -290,7 +290,7 @@ def run_server(host: str | None = None, port: int = 8080):
     webhook_secret = os.environ.get("WEBHOOK_SECRET", "")
     if len(webhook_secret) < 32:
         raise RuntimeError(
-            "WEBHOOK_SECRET must be configured with at least 32 characters; "
+            "WEBHOOK_SECRET is required and must be configured with at least 32 characters; "
             "unsigned or weak-secret webhook mode is disabled"
         )
 
