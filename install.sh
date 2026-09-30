@@ -1,7 +1,8 @@
 #!/bin/bash
-# One-line installer for HF Model Provenance Scanner
-# Usage: curl -sSL https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/main/install.sh | bash
-set -e
+# Reviewed installer for HF Model Provenance Scanner
+# Download this script from an immutable commit, inspect it, then run it locally.
+# Set HF_SCANNER_REF to another reviewed full commit SHA only when intentionally upgrading.
+set -euo pipefail
 
 echo "Installing HF Model Provenance Scanner..."
 
@@ -25,14 +26,17 @@ if [ "$MAJOR" -lt 3 ] || ([ "$MAJOR" -eq 3 ] && [ "$MINOR" -lt 9 ]); then
     exit 1
 fi
 
-# Install
+# Install from an immutable revision by default.
 INSTALL_DIR="${HF_SCANNER_DIR:-$HOME/.hf-scanner}"
-if [ -d "$INSTALL_DIR" ]; then
-    echo "Updating existing installation..."
-    cd "$INSTALL_DIR" && git pull --quiet
-else
-    git clone --depth 1 https://github.com/poojakira/hf-model-provenance-scanner.git "$INSTALL_DIR"
+HF_SCANNER_REF="${HF_SCANNER_REF:-9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4}"
+if [ ! -d "$INSTALL_DIR/.git" ]; then
+    rm -rf "$INSTALL_DIR"
+    mkdir -p "$INSTALL_DIR"
+    git -C "$INSTALL_DIR" init --quiet
+    git -C "$INSTALL_DIR" remote add origin https://github.com/poojakira/hf-model-provenance-scanner.git
 fi
+git -C "$INSTALL_DIR" fetch --quiet --depth 1 origin "$HF_SCANNER_REF"
+git -C "$INSTALL_DIR" checkout --quiet --detach FETCH_HEAD
 
 # Add to PATH (if not already)
 SHELL_RC=""
