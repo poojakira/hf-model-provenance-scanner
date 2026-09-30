@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import hmac
 import io
 import json
@@ -10,9 +11,11 @@ import os
 import re
 import time
 import uuid
+from collections import defaultdict
 from contextlib import redirect_stderr, redirect_stdout
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
 
@@ -23,10 +26,17 @@ _REVISION = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]{0,199}$")
 _FAIL_ON = {"critical", "high", "medium", "low", "info"}
 _SCAN_TIMEOUT_SECONDS = float(os.environ.get("SCAN_TIMEOUT_SECONDS", "120"))
 _MAX_CONCURRENT_SCANS = int(os.environ.get("MAX_CONCURRENT_SCANS", "4"))
+_MAX_REQUEST_BYTES = int(os.environ.get("SCAN_MAX_REQUEST_BYTES", "16384"))
+_RATE_LIMIT_RPM = int(os.environ.get("SCAN_RATE_LIMIT_RPM", "60"))
+_request_log: dict[str, list[float]] = defaultdict(list)
 if _SCAN_TIMEOUT_SECONDS <= 0:
     raise RuntimeError("SCAN_TIMEOUT_SECONDS must be positive")
 if _MAX_CONCURRENT_SCANS < 1 or _MAX_CONCURRENT_SCANS > 64:
     raise RuntimeError("MAX_CONCURRENT_SCANS must be between 1 and 64")
+if _MAX_REQUEST_BYTES < 1024 or _MAX_REQUEST_BYTES > 1024 * 1024:
+    raise RuntimeError("SCAN_MAX_REQUEST_BYTES must be between 1024 and 1048576")
+if _RATE_LIMIT_RPM < 1 or _RATE_LIMIT_RPM > 10000:
+    raise RuntimeError("SCAN_RATE_LIMIT_RPM must be between 1 and 10000")
 _scan_slots = asyncio.Semaphore(_MAX_CONCURRENT_SCANS)
 
 app = FastAPI(
@@ -52,6 +62,44 @@ class ScanResponse(BaseModel):
     risk: dict
     findings: list[dict]
     error: str | None = None
+
+
+def _rate_key(request: Request) -> str:
+    supplied = request.headers.get("X-API-Key", "")
+    peer = request.client.host if request.client else "unknown"
+    return hashlib.sha256(f"{peer}\0{supplied}".encode("utf-8")).hexdigest()[:32]
+
+
+def _is_rate_limited(key: str) -> bool:
+    now = time.time()
+    cutoff = now - 60.0
+    hits = [stamp for stamp in _request_log[key] if stamp > cutoff]
+    if len(hits) >= _RATE_LIMIT_RPM:
+        _request_log[key] = hits
+        return True
+    hits.append(now)
+    _request_log[key] = hits
+    if len(_request_log) > 10000:
+        stale = [candidate for candidate, stamps in _request_log.items() if not stamps or stamps[-1] <= cutoff]
+        for candidate in stale[:2000]:
+            _request_log.pop(candidate, None)
+    return False
+
+
+@app.middleware("http")
+async def _request_size_limit(request: Request, call_next):
+    if request.method in {"POST", "PUT", "PATCH"}:
+        declared = request.headers.get("content-length")
+        if declared:
+            try:
+                if int(declared) > _MAX_REQUEST_BYTES:
+                    return JSONResponse(status_code=413, content={"detail": "Request body too large"})
+            except ValueError:
+                return JSONResponse(status_code=400, content={"detail": "Invalid Content-Length"})
+        body = await request.body()
+        if len(body) > _MAX_REQUEST_BYTES:
+            return JSONResponse(status_code=413, content={"detail": "Request body too large"})
+    return await call_next(request)
 
 
 def _authorize(request: Request) -> None:
@@ -146,6 +194,8 @@ def ready() -> dict[str, str]:
 @app.post("/scan", response_model=ScanResponse)
 async def scan(payload: ScanRequest, request: Request) -> ScanResponse:
     _authorize(request)
+    if _is_rate_limited(_rate_key(request)):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded")
     _validate_target(payload)
     started = time.perf_counter()
     try:
@@ -175,5 +225,5 @@ async def scan(payload: ScanRequest, request: Request) -> ScanResponse:
         completeness=completeness,
         risk=result.get("risk") or {},
         findings=result.get("findings") or [],
-        error=result.get("error"),
+        error="scan_failed" if result.get("error") else None,
     )
