@@ -83,7 +83,11 @@ def _is_rate_limited(key: str) -> bool:
     hits.append(now)
     _request_log[key] = hits
     if len(_request_log) > 10000:
-        stale = [candidate for candidate, stamps in _request_log.items() if not stamps or stamps[-1] <= cutoff]
+        stale = [
+            candidate
+            for candidate, stamps in _request_log.items()
+            if not stamps or stamps[-1] <= cutoff
+        ]
         for candidate in stale[:2000]:
             _request_log.pop(candidate, None)
     return False
@@ -96,7 +100,9 @@ async def _request_size_limit(request: Request, call_next):
         if declared:
             try:
                 if int(declared) > _MAX_REQUEST_BYTES:
-                    return JSONResponse(status_code=413, content={"detail": "Request body too large"})
+                    return JSONResponse(
+                        status_code=413, content={"detail": "Request body too large"}
+                    )
             except ValueError:
                 return JSONResponse(status_code=400, content={"detail": "Invalid Content-Length"})
         body = await request.body()
