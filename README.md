@@ -247,3 +247,10 @@ This repository is maintained as an evidence-backed security-engineering project
 - **Security note:** The exception is limited to the inert test fixture; production secret-handling rules remain enforced.
 - **Evidence boundary:** This update records repository and GitHub Actions evidence observed during the pass. It is not a claim of independent penetration testing, production deployment, or zero residual risk.
 <!-- repo-verification:end -->
+
+## Verification checkpoint — 2026-09-30
+
+- **Snapshot commit:** `293ac40874b09033ce8af4fcca87457a7661af56`
+- **Status:** PARTIALLY VERIFIED
+- **Evidence:** A verified Ruff S105 false positive on an inert webhook test secret was fixed with a targeted `noqa` annotation instead of weakening the rule globally. Earlier post-fix CI completed successfully; the current main head had no completed CI run attached at this snapshot.
+- This checkpoint is intentionally date-bounded. It does not claim zero vulnerabilities or universal production readiness.
