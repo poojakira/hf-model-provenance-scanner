@@ -51,7 +51,7 @@ def process_webhook_request(headers: dict, body_stream, handler):
         Tuple of (status_code, response_dict)
     """
     secret = os.environ.get("WEBHOOK_SECRET")
-    if not secret:
+    if not secret or len(secret) < 32:
         return 500, {"error": "server misconfigured"}
 
     # Check content length
@@ -245,8 +245,12 @@ def run_server(host: str | None = None, port: int = 8080):
 
     if host is None:
         host = os.environ.get("WEBHOOK_BIND_HOST", "127.0.0.1")
-    if not os.environ.get("WEBHOOK_SECRET"):
-        raise RuntimeError("WEBHOOK_SECRET is required; unsigned webhook mode is disabled")
+    webhook_secret = os.environ.get("WEBHOOK_SECRET", "")
+    if len(webhook_secret) < 32:
+        raise RuntimeError(
+            "WEBHOOK_SECRET must be configured with at least 32 characters; "
+            "unsigned or weak-secret webhook mode is disabled"
+        )
 
     class Handler(BaseHTTPRequestHandler):
         def do_POST(self):
