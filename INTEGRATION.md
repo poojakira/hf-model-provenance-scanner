@@ -2,16 +2,22 @@
 
 Get the HF Model Provenance Scanner into your workflow in under 2 minutes.
 
-## One-Line Install
+## Reviewed Install
 
 ### Linux / macOS
 ```bash
-curl -sSL https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/main/install.sh | bash
+curl -fsSLo install.sh https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4/install.sh
+# Review the downloaded script before execution.
+less install.sh
+bash ./install.sh
 ```
 
 ### Windows (PowerShell)
 ```powershell
-iex ((New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/main/install.ps1'))
+Invoke-WebRequest -UseBasicParsing -OutFile install.ps1 https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4/install.ps1
+# Review the downloaded script before execution.
+Get-Content .\install.ps1
+& .\install.ps1
 ```
 
 ---
@@ -27,13 +33,15 @@ jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: '3.11'
-      - run: pip install git+https://github.com/poojakira/hf-model-provenance-scanner.git
+      - run: pip install "git+https://github.com/poojakira/hf-model-provenance-scanner.git@9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4"
       - run: hf-scanner . --mode local --format sarif --output results.sarif --fail-on high
-      - uses: github/codeql-action/upload-sarif@v3
+      - uses: github/codeql-action/upload-sarif@c4dd10e44af883a891fe31ced449bcb4a6728b9b
         if: always()
         with:
           sarif_file: results.sarif
@@ -52,7 +60,7 @@ model-scan:
   stage: test
   image: python:3.11-slim
   script:
-    - pip install git+https://github.com/poojakira/hf-model-provenance-scanner.git
+    - pip install "git+https://github.com/poojakira/hf-model-provenance-scanner.git@9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4"
     - hf-scanner . --mode local --format json --output report.json --fail-on high
   artifacts:
     reports:
@@ -65,7 +73,7 @@ model-scan:
 
 ```yaml
 steps:
-  - script: pip install git+https://github.com/poojakira/hf-model-provenance-scanner.git
+  - script: pip install "git+https://github.com/poojakira/hf-model-provenance-scanner.git@9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4"
   - script: hf-scanner . --mode local --format sarif --output results.sarif --fail-on high
 ```
 
@@ -79,7 +87,7 @@ pipeline {
     stages {
         stage('Scan') {
             steps {
-                sh 'pip install git+https://github.com/poojakira/hf-model-provenance-scanner.git'
+                sh 'pip install "git+https://github.com/poojakira/hf-model-provenance-scanner.git@9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4"'
                 sh 'hf-scanner . --mode local --format json --output report.json --fail-on high'
             }
         }
@@ -98,7 +106,7 @@ jobs:
       - image: cimg/python:3.11
     steps:
       - checkout
-      - run: pip install git+https://github.com/poojakira/hf-model-provenance-scanner.git
+      - run: pip install "git+https://github.com/poojakira/hf-model-provenance-scanner.git@9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4"
       - run: hf-scanner . --mode local --fail-on high
 ```
 
@@ -126,7 +134,7 @@ Add to `.pre-commit-config.yaml`:
 ```yaml
 repos:
   - repo: https://github.com/poojakira/hf-model-provenance-scanner
-    rev: main
+    rev: 9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4
     hooks:
       - id: hf-scanner
 ```
@@ -176,8 +184,10 @@ jobs:
   monitor:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: pip install git+https://github.com/poojakira/hf-model-provenance-scanner.git
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - run: pip install "git+https://github.com/poojakira/hf-model-provenance-scanner.git@9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4"
       - run: hf-scanner your-org/your-model --mode remote --baseline baseline.json --fail-on high
 ```
 
