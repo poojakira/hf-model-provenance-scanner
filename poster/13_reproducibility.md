@@ -1,12 +1,20 @@
-# Reproduce the Work — Poster 03
+# Reproduce the Work - Poster 03
 
-> Evidence status: This is a dated repository snapshot at the commit identified below. `VERIFIED_AT_SNAPSHOT` means verified for that commit and environment; it does not assert the same result on the latest `main`. Compare newer claims with the repository evidence before reuse.
+**Repository:** `github.com/poojakira/hf-model-provenance-scanner`  
+**Verified code snapshot:** `4501739a724a2a0a7de9173e51af535b192bf0e4`  
+**CI run:** `36782472264`
 
-**Repository:** `github.com/poojakira/hf-model-provenance-scanner` · Apache-2.0 • Python 3.12 • HEAD 7b2cd5f • verified 2026-09-26
-
+```bash
+git clone https://github.com/poojakira/hf-model-provenance-scanner.git
+cd hf-model-provenance-scanner
+git checkout 4501739a724a2a0a7de9173e51af535b192bf0e4
+python -m pip install -e ".[dev,service]"
+pytest tests/ -q --cov=scanner --cov-report=term
 ```
-pytest tests/
-python tests/redteam/simulate_attacks.py
-```
 
-Evidence artifacts: VERIFIED_METRICS.md, evidence/DETECTION_PROOF.md, tests/redteam/
+Expected current-main CI evidence:
+
+- **231 passed**
+- **1 skipped**
+- **6 subtests passed**
+- **68.00% statement coverage**

@@ -1,19 +1,15 @@
-# Claim Ledger — Poster 03 (03-hf-model-provenance-scanner)
+# Claim Ledger - Poster 03
 
-> Evidence status: This is a dated repository snapshot at the commit identified below. `VERIFIED_AT_SNAPSHOT` means verified for that commit and environment; it does not assert the same result on the latest `main`. Compare newer claims with the repository evidence before reuse.
-
-Apache-2.0 • Python 3.12 • HEAD 13a5ae4 • verified 2026-09-26. Classification: VERIFIED_AT_SNAPSHOT / VERIFIED_HISTORICAL / PARTIAL / UNVERIFIED / UNSUPPORTED.
+> Verified code snapshot: `4501739a724a2a0a7de9173e51af535b192bf0e4`; successful CI run `36782472264`, 2026-09-30.
 
 | # | Claim | Classification | Evidence |
 |---|---|---|---|
-| 1 | 33/33 committed fixtures detected; 0 actionable FP on 4 benign | VERIFIED_AT_SNAPSHOT | evidence/DETECTION_PROOF.md + tests/redteam/redteam_report.json; pinned by test_detection_counts.py. Fixture-only. |
-| 2 | 5 binary format parsers; 5 analysis engines | VERIFIED_AT_SNAPSHOT | README/LIMITATIONS.md enumerate pickle/SafeTensors/GGUF/ONNX/Keras and AST/taint/symbolic/sandbox(disabled)/binary. |
-| 3 | Fail-loud HFS-096 INDETERMINATE on unanalyzable pickle | VERIFIED_AT_SNAPSHOT | LIMITATIONS.md; elevates risk >=HIGH; --enforce nonzero exit. |
-| 4 | 211 passed + 6 subtests; 66.9% coverage | VERIFIED_HISTORICAL | CI run 36043740861 (751a62a, 2026-09-24), Py 3.11/3.12. Not re-run at current HEAD. |
-| 5 | General detection rate / 0% FP on arbitrary models | UNSUPPORTED (disclaimed) | README + DETECTION_PROOF scope note forbid generalizing fixture results; not claimed. |
-| 6 | Neural weight backdoor detection | UNSUPPORTED (disclaimed) | LIMITATIONS.md lists as fundamental non-capability. |
+| 1 | 231 passed, 1 skipped, 6 subtests passed | VERIFIED_AT_SNAPSHOT | Python 3.12 current-main CI. |
+| 2 | 68.00% statement coverage | VERIFIED_AT_SNAPSHOT | Python 3.12 current-main CI. |
+| 3 | Curated malicious fixture suite is detected by the committed proof harness | VERIFIED_AT_SNAPSHOT | Fixture evidence and regression tests; fixture-only scope. |
+| 4 | Supported binary/model formats and static analysis engines are implemented | VERIFIED_AT_SNAPSHOT | Current scanner modules and tests. |
+| 5 | Unsafe dynamic execution is rejected by scanner tests | VERIFIED_AT_SNAPSHOT | Current CI Reject Unsafe Dynamic Execution job. |
+| 6 | Universal detection rate / universal 0% false-positive rate | UNSUPPORTED | Curated fixtures cannot establish population performance. |
+| 7 | General neural-weight backdoor detection | UNSUPPORTED | Outside established repository capability. |
 
-## Policy applied
-- Only VERIFIED_AT_SNAPSHOT figures appear as prominent current results.
-- Historical/projected values are labeled (dashed box / explicit note).
-- Unsupported production/accuracy claims are omitted or shown in the red "NOT ESTABLISHED" box.
+Do not convert fixture evidence into a real-world detection-rate claim.

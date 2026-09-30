@@ -1,72 +1,55 @@
-# Research Brief — Poster 03
+# Research Brief - Poster 03
 
-> Evidence status: This is a dated repository snapshot at the commit identified below. `VERIFIED_AT_SNAPSHOT` means verified for that commit and environment; it does not assert the same result on the latest `main`. Compare newer claims with the repository evidence before reuse.
+> Evidence status: Refreshed against current code snapshot `4501739a724a2a0a7de9173e51af535b192bf0e4` and successful CI run `36782472264` on 2026-09-30.
 
 ## Repository
-`github.com/poojakira/hf-model-provenance-scanner` (public, default branch `main`, primary language Python). Apache-2.0 • Python 3.12 • HEAD 13a5ae4 • verified 2026-09-26
+
+`github.com/poojakira/hf-model-provenance-scanner` - public, default branch `main`.
 
 ## Academic Project Title
+
 **Non-Executing Security Analysis of AI Model Supply-Chain Artifacts**
 
 ### Subtitle
+
 Provenance, Serialization, Impersonation, and Repository Risk Inspection
 
 ## One-Sentence Contribution
-A non-executing supply-chain scanner combining AST, taint, symbolic-string, and binary- format engines across pickle/SafeTensors/GGUF/ONNX/Keras, with fail-loud handling of unanalyzable streams and ATT&CK v19 mapping — signals for pre-load review, not a safety proof.
 
-## Problem Statement
-Loading a model can execute code. Pickle-based checkpoints run arbitrary opcodes on deserialize; Keras Lambda layers and ONNX custom ops load native code; typosquatted repos impersonate trusted ones. The danger is realized the moment an artifact is loaded — so inspection must happen before that.
+A primarily non-executing model-artifact security scanner combining static code analysis, symbolic and taint-style inspection, binary-format parsing, provenance checks, and fail-loud handling of incomplete analysis before model loading.
 
-## Threat Model
-Chain: MALICIOUS ARTIFACT -> MODEL REPOSITORY -> LOAD / DESERIALIZE -> NON-EXEC SCAN BOUNDARY -> FINDING + ATT&CK MAP.
-Adversary capability: publishes crafted model repo or artifact; Assumptions: scan runs before load; dynamic exec disabled; Out of scope: neural weight backdoors; cross-file taint; runtime behavior; Residual risk: novel bypass; missing provenance ≠ compromise.
+## Method
 
-## Research / Engineering Question
-> Can important model supply-chain risk signals be identified without loading or executing untrusted model artifacts?
+1. Enumerate repository and model artifacts.
+2. Parse supported serialization/model formats.
+3. Apply AST, pattern, symbolic, taint-style, metadata, and provenance checks.
+4. Reject unsafe dynamic-execution paths in the scanner itself.
+5. Emit findings and fail-loud states for incomplete or unsafe analysis.
 
-## Objective
-Determine whether static parsers + pattern/taint/ symbolic analysis can surface supply-chain risk signals across model formats without execution.
+## Current Verified Evidence
 
-## Engineering Sub-Objectives
-O1 — Pickle opcode + 5 binary formats
-O2 — AST / taint / symbolic string engines
-O3 — Provenance & impersonation checks
-O4 — ATT&CK v19 mapping on findings
+Current-main Python 3.12 CI reports:
 
-## Methodology
-1 Enumerate (artifacts) -> 2 AST (patterns) -> 3 Taint (+symbolic) -> 4 Parse (binaries) -> 5 Provenance (checks) -> 6·7 Map + gate (ATT&CK/exit)
-
-## Evidence at Poster Snapshot + Claim Ledger
-- **VERIFIED_AT_SNAPSHOT** — 33/33 committed fixtures detected; 0 actionable FP on 4 benign — evidence/DETECTION_PROOF.md + tests/redteam/redteam_report.json; pinned by test_detection_counts.py. Fixture-only.
-- **VERIFIED_AT_SNAPSHOT** — 5 binary format parsers; 5 analysis engines — README/LIMITATIONS.md enumerate pickle/SafeTensors/GGUF/ONNX/Keras and AST/taint/symbolic/sandbox(disabled)/binary.
-- **VERIFIED_AT_SNAPSHOT** — Fail-loud HFS-096 INDETERMINATE on unanalyzable pickle — LIMITATIONS.md; elevates risk >=HIGH; --enforce nonzero exit.
-- **VERIFIED_HISTORICAL** — 211 passed + 6 subtests; 66.9% coverage — CI run 36043740861 (751a62a, 2026-09-24), Py 3.11/3.12. Not re-run at current HEAD.
-- **UNSUPPORTED (disclaimed)** — General detection rate / 0% FP on arbitrary models — README + DETECTION_PROOF scope note forbid generalizing fixture results; not claimed.
-- **UNSUPPORTED (disclaimed)** — Neural weight backdoor detection — LIMITATIONS.md lists as fundamental non-capability.
-
-## Important Negative / Honest Results
-See RESULTS panel: Committed fixtures only (redteam_report.json). Do not generalize to arbitrary HF repos.
+- **231 passed, 1 skipped, 6 subtests passed**.
+- **68.00% statement coverage**; CI gate is 55%.
+- Lint/format, type checking, Bandit, pip-audit, CodeQL, Trivy container scanning, unsafe-dynamic-execution rejection, and Docker build jobs succeeded.
+- The committed adversarial fixture evidence remains fixture-scoped; it must not be generalized to arbitrary model repositories.
 
 ## Limitations
-1. Fixture results ≠ real-world detection rate.
-2. No broad benign false-positive benchmark.
-3. Cannot detect weight-space neural backdoors.
-4. Cross-file / whole-program taint not modeled.
-5. Missing provenance is a signal, not proof.
 
-## Future Work
-• Broad benign-model FP benchmark.
-• Whole-repo cross-file taint analysis.
-• Larger real-model corpus.
-• Published latency benchmark artifact.
-• Signature/SBOM verification depth.
+- Static analysis cannot prove a model is safe.
+- No claim is made that neural weight backdoors are generally detected.
+- Fixture-level results do not establish population-level precision or recall.
+- Unsupported or incomplete parsing must remain fail-loud rather than silently clean.
 
 ## Reproducibility
-```
-pytest tests/
-python tests/redteam/simulate_attacks.py
-```
-Evidence: VERIFIED_METRICS.md, evidence/DETECTION_PROOF.md, tests/redteam/
 
-## References
-[1] MITRE ATT&CK v19 · [2] MITRE ATLAS · [3] JFrog/Sonatype PickleScan Bypass Research · [4] SLSA Provenance · [5] OWASP ML Supply Chain · [6] HF SafeTensors
+```bash
+git clone https://github.com/poojakira/hf-model-provenance-scanner.git
+cd hf-model-provenance-scanner
+git checkout 4501739a724a2a0a7de9173e51af535b192bf0e4
+python -m pip install -e ".[dev,service]"
+pytest tests/ -q --cov=scanner --cov-report=term
+```
+
+Expected current-main evidence: **231 passed, 1 skipped, 6 subtests passed**, **68.00% coverage**.

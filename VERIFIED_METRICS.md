@@ -1,40 +1,27 @@
 # Verified Metrics
 
-This file is the evidence anchor for quantitative résumé and portfolio claims about this repository.
+## Current verified snapshot
 
-## Verified baseline
+**Code commit:** `4501739a724a2a0a7de9173e51af535b192bf0e4`  
+**Successful CI:** https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/36782472264
 
-**Audited code commit:** `13a5ae401a259f20ba17c67a976b4cb0ba88979e` (current `main`)
-**Successful main CI run:** https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/36043740861
-**Verification date:** 2026-09-27 (re-confirmed on current main; counts unchanged)
-
-| Claim | Verified value | Evidence |
+| Claim | Current value | Evidence boundary |
 |---|---:|---|
-| Automated tests | **211 passed** | Python 3.10/3.11/3.12 CI jobs `107782094870`, `107782094992`, `107782094737` |
-| Additional pytest subtests | **6 passed** | Same CI jobs |
-| Statement coverage | **66.90% on Python 3.11/3.12** | CI coverage reports; gate is 55% (Python 3.10: 68.14%) |
-| Core incident fixtures | **12/12 detected** | `tests/redteam/redteam_report.json` + `evidence/DETECTION_PROOF.md` |
-| Extended variants | **18/18 detected** | `tests/redteam/extended_report.json` + `evidence/DETECTION_PROOF.md` |
-| Large-scale fixtures | **3/3 detected** | `tests/redteam/test_large_scale.py` |
-| Actionable false positives in extended benign set | **0 across 4 benign samples** | `tests/redteam/extended_report.json` + `evidence/DETECTION_PROOF.md` |
+| Automated tests | **231 passed, 1 skipped** | Python 3.12 current-main CI |
+| Additional pytest subtests | **6 passed** | Same CI |
+| Statement coverage | **68.00%** | Python 3.12 CI |
+| Coverage gate | **55%** | Repository CI policy |
 
-## Claim boundary
+Current CI also completed lint/format, type checks, Bandit, pip-audit, CodeQL, container scanning, unsafe-dynamic-execution rejection, and Docker build checks successfully.
 
-The **33/33** aggregate is a committed internal fixture-suite result (12 core + 18 extended + 3 large-scale). It is **not** a general detection rate across arbitrary Hugging Face repositories.
+## Fixture boundary
 
-Likewise, **0 actionable false positives across 4 benign samples** applies only to that small committed benign fixture set. It must not be restated as a universal 0% false-positive rate.
+Detection proof files and curated red-team fixtures are regression evidence. They must not be stated as a universal detection rate or universal false-positive rate.
 
 ## Reproduce
 
-Use the repository CI dependency set. Key checks are:
-
 ```bash
-pytest tests/
-python tests/redteam/simulate_attacks.py
-python tests/redteam/extended_attacks.py
-python tests/redteam/test_large_scale.py
+git checkout 4501739a724a2a0a7de9173e51af535b192bf0e4
+python -m pip install -e ".[dev,service]"
+pytest tests/ -q --cov=scanner --cov-report=term
 ```
-
-The regression test `tests/redteam/test_detection_counts.py` pins the fixture counts so a change in the advertised detection totals fails tests.
-
-When tests or fixture sets change, reconcile this file, `RUNBOOK.md`, the portfolio dashboard, and résumé wording together.
