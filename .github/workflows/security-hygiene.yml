@@ -140,9 +140,18 @@ jobs:
               errors="replace",
           )
           commit = "unknown"
+          current_path = ""
           for line in history.splitlines():
               if line.startswith("__COMMIT__"):
                   commit = line.removeprefix("__COMMIT__")[:12]
+                  current_path = ""
+                  continue
+              if line.startswith("diff --git a/"):
+                  current_path = line.split(" b/", 1)[-1]
+                  continue
+              # Historical virtualenv trees were accidentally committed and later
+              # removed. Their third-party package fixtures contain key-shaped samples.
+              if current_path.startswith((".venv/", ".venv-test/", "venv/", "test_env/")):
                   continue
               if not line.startswith(("+", "-")) or line.startswith(("+++", "---")):
                   continue
