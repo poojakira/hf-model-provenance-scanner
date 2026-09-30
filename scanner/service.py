@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import hashlib
 import hmac
 import io
+import logging
 import json
 import os
 import re
@@ -16,10 +18,13 @@ from contextlib import redirect_stderr, redirect_stdout
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
 
 from scanner.cli import main as scanner_main
+
+logger = logging.getLogger(__name__)
 
 _REPO_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}/[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 _REVISION = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]{0,199}$")
@@ -44,6 +49,41 @@ app = FastAPI(
     version="1.0.0",
     description="Resolve a model revision immutably, scan it, and return an admission decision.",
 )
+
+
+@app.middleware("http")
+async def _security_boundary(request: Request, call_next):
+    if request.method in {"POST", "PUT", "PATCH"}:
+        declared = request.headers.get("content-length")
+        if declared:
+            try:
+                if int(declared) > _MAX_REQUEST_BYTES:
+                    return JSONResponse(status_code=413, content={"detail": "Request body too large"})
+            except ValueError:
+                return JSONResponse(status_code=400, content={"detail": "Invalid Content-Length"})
+        body = await request.body()
+        if len(body) > _MAX_REQUEST_BYTES:
+            return JSONResponse(status_code=413, content={"detail": "Request body too large"})
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    return response
+
+
+def _consume_rate_limit(identity: str) -> bool:
+    now = time.time()
+    cutoff = now - 60.0
+    bucket = _rate_windows.setdefault(identity, [])
+    bucket[:] = [ts for ts in bucket if ts > cutoff]
+    if len(bucket) >= _RATE_LIMIT_RPM:
+        return False
+    bucket.append(now)
+    if len(_rate_windows) > 4096:
+        stale = [key for key, values in _rate_windows.items() if not values or values[-1] <= cutoff]
+        for key in stale[:1024]:
+            _rate_windows.pop(key, None)
+    return True
 
 
 class ScanRequest(BaseModel):
@@ -112,6 +152,10 @@ def _authorize(request: Request) -> None:
     supplied = request.headers.get("X-API-Key", "")
     if not supplied or not hmac.compare_digest(supplied, expected):
         raise HTTPException(status_code=401, detail="Unauthorized")
+    peer = request.client.host if request.client else "unknown"
+    identity = hashlib.sha256((supplied + "\0" + peer).encode("utf-8")).hexdigest()[:32]
+    if not _consume_rate_limit(identity):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded", headers={"Retry-After": "60"})
 
 
 def _validate_target(payload: ScanRequest) -> None:
@@ -147,8 +191,11 @@ def _scan_sync(payload: ScanRequest) -> tuple[int, dict]:
 
     raw = stdout.getvalue().strip()
     if not raw:
+        stderr_text = stderr.getvalue().strip()
+        if stderr_text:
+            logger.warning("Scanner produced no JSON result: %s", stderr_text[:500])
         return 2, {
-            "error": stderr.getvalue().strip() or "scanner produced no JSON result",
+            "error": "scanner execution failed",
             "completeness": "UNKNOWN",
             "risk": {},
             "findings": [],
