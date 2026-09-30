@@ -212,15 +212,23 @@ var attacks=[
 {name:"GGUF metadata shell injection",technique:"PowerShell -enc in custom key",cve:"",detected:true,severity:"high",time:"<1ms",findings:1}
 ];
 
-// Render table
+// Render table with DOM APIs so finding text is never interpreted as HTML.
 var tbody=document.getElementById("attack-tbody");
 for(var i=0;i<attacks.length;i++){
 var a=attacks[i];
 var tr=document.createElement("tr");
-var sevClass="sev-"+a.severity;
-var statusHtml=a.detected?"<span class='detected'>Blocked</span>":"<span class='sev-critical'>Missed</span>";
-var cveHtml=a.cve?a.cve:"\u2014";
-tr.innerHTML="<td>"+statusHtml+"</td><td>"+a.name+"</td><td style='font-size:.75rem'>"+a.technique+"</td><td>"+cveHtml+"</td><td><span class='"+sevClass+"'>"+a.severity.toUpperCase()+"</span></td><td>"+a.time+"</td>";
+var statusCell=document.createElement("td");
+var status=document.createElement("span");
+status.className=a.detected?"detected":"sev-critical";
+status.textContent=a.detected?"Blocked":"Missed";
+statusCell.appendChild(status);
+var nameCell=document.createElement("td");nameCell.textContent=String(a.name);
+var techniqueCell=document.createElement("td");techniqueCell.style.fontSize=".75rem";techniqueCell.textContent=String(a.technique);
+var cveCell=document.createElement("td");cveCell.textContent=a.cve?String(a.cve):"—";
+var severityCell=document.createElement("td");
+var severity=document.createElement("span");severity.className="sev-"+String(a.severity);severity.textContent=String(a.severity).toUpperCase();severityCell.appendChild(severity);
+var timeCell=document.createElement("td");timeCell.textContent=String(a.time);
+tr.append(statusCell,nameCell,techniqueCell,cveCell,severityCell,timeCell);
 tbody.appendChild(tr);
 }
 
