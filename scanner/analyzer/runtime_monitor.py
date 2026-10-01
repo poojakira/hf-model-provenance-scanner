@@ -2,8 +2,8 @@
 Advanced Runtime Behavioral Monitor for Real-Time Threat Detection.
 Uses eBPF, psutil, and syscall tracing for production inference protection.
 """
-
 import json
+import logging
 import threading
 import time
 from collections import defaultdict, deque
@@ -16,6 +16,8 @@ import psutil
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
+
+logger = logging.getLogger(__name__)
 
 PSUTIL_AVAILABLE = True
 
@@ -158,7 +160,7 @@ class RuntimeMonitor:
                 self._check_anomalies()
                 time.sleep(0.1)  # 10Hz sampling
             except Exception:
-                pass
+                logger.debug("Runtime monitor ignored a recoverable sampling error")
 
     def _collect_syscalls(self, pid: int):
         """Collect syscall events via /proc/pid/syscall or eBPF if available."""
@@ -192,7 +194,7 @@ class RuntimeMonitor:
                 self._alert("HFS-111", f"Cryptominer pattern: CPU={cpu}% MEM={mem}MB")
 
         except (psutil.NoSuchProcess, psutil.AccessDenied):
-            pass
+            logger.debug("Runtime target disappeared or access was denied")
 
     def _collect_network(self, pid: int):
         """Monitor network egress for exfiltration."""
@@ -220,7 +222,7 @@ class RuntimeMonitor:
                         self._alert("HFS-104", f"Known C2 port: {remote_ip}:{remote_port}")
 
         except (psutil.NoSuchProcess, psutil.AccessDenied):
-            pass
+            logger.debug("Runtime target disappeared or access was denied")
 
     def _collect_process_tree(self, pid: int):
         """Track process tree for injection/hijack detection."""
@@ -262,7 +264,7 @@ class RuntimeMonitor:
                         )
 
         except (psutil.NoSuchProcess, psutil.AccessDenied):
-            pass
+            logger.debug("Runtime target disappeared or access was denied")
 
     def _check_egress(self, remote_ip: str, remote_port: int):
         """Check network connection against threat intel."""
@@ -392,9 +394,9 @@ class ContainerEscapeDetector:
                             )
                         )
             except Exception:
-                pass
+                logger.debug("Runtime monitor ignored a recoverable sampling error")
         except (psutil.NoSuchProcess, psutil.AccessDenied):
-            pass
+            logger.debug("Runtime target disappeared or access was denied")
         return findings
 
 

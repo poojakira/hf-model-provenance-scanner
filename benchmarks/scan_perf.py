@@ -14,7 +14,7 @@ Exit codes:
 
 import argparse
 import json
-import pickle
+import pickle  # nosec B403 - benchmark intentionally generates pickle fixtures for the scanner
 import statistics
 import struct
 import sys
@@ -219,7 +219,7 @@ def run_benchmark(fixtures_dir: Path, output_path: Path | None = None) -> dict:
     for filepath in files:
         start = time.perf_counter()
         try:
-            result = scan_file(str(filepath))
+            scan_file(str(filepath))
             success = True
             error = None
         except Exception as e:
