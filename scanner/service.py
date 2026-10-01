@@ -121,7 +121,7 @@ class ScanResponse(BaseModel):
 def _rate_key(request: Request) -> str:
     supplied = request.headers.get("X-API-Key", "")
     peer = request.client.host if request.client else "unknown"
-    material = f"{peer}\0{supplied}".encode("utf-8")
+    material = f"{peer}\0{supplied}".encode()
     return hmac.new(_RATE_KEY_SECRET, material, hashlib.sha256).hexdigest()[:32]
 
 
