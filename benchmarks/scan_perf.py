@@ -223,7 +223,6 @@ def run_benchmark(fixtures_dir: Path, output_path: Path | None = None) -> dict:
             success = True
             error = None
         except Exception as e:
-            result = None
             success = False
             error = str(e)
         elapsed_ms = (time.perf_counter() - start) * 1000.0
