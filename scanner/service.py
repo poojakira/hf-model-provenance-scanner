@@ -60,8 +60,7 @@ class BodySizeLimitMiddleware:
 
     async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
-            await self.app(scope, receive, send)
-            return
+            return await self.app(scope, receive, send)
         chunks = []
         total = 0
         while True:
@@ -88,8 +87,7 @@ class BodySizeLimitMiddleware:
                 return {"type": "http.request", "body": b"".join(chunks), "more_body": False}
             return await receive()
 
-        await self.app(scope, replay, send)
-        return None
+        return await self.app(scope, replay, send)
 
 
 app.add_middleware(BodySizeLimitMiddleware)
