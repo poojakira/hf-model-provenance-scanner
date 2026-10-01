@@ -176,7 +176,7 @@ def analyze_gguf_file(file_path: str, data: bytes) -> list[Finding]:
         )
         return findings
 
-    tensor_count = struct.unpack_from("<Q", data, 8)[0]
+    _tensor_count = struct.unpack_from("<Q", data, 8)[0]
     kv_count = struct.unpack_from("<Q", data, 16)[0]
 
     if kv_count > 100_000:
@@ -215,9 +215,14 @@ def analyze_gguf_file(file_path: str, data: bytes) -> list[Finding]:
                     if isinstance(item, str):
                         metadata_strings.append((key, item))
 
-    except (ValueError, struct.error, IndexError):
-        # Partial parse is OK — scan what we have
-        pass
+    except (ValueError, struct.error, IndexError) as exc:
+        findings.append(
+            _make_finding(
+                "HFS-057",
+                file_path,
+                f"GGUF metadata parsing stopped early: {type(exc).__name__}",
+            )
+        )
 
     # Scan collected metadata strings
     for key, value in metadata_strings:

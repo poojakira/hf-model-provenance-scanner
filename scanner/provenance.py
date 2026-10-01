@@ -4,7 +4,7 @@ import hashlib
 import json
 import os
 import shutil
-import subprocess
+import subprocess  # nosec B404 - resolved verifier executable with fixed argv only
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
@@ -31,10 +31,11 @@ def sha256_bytes(data: bytes) -> str:
 
 
 def _find_verifier() -> str | None:
-    """Find an available signature verifier tool."""
+    """Find an available signature verifier executable."""
     for tool in ("cosign", "gpg", "minisign"):
-        if shutil.which(tool):
-            return tool
+        resolved = shutil.which(tool)
+        if resolved:
+            return resolved
     return None
 
 
@@ -76,6 +77,8 @@ def verify_local_signatures(root: str) -> list:
             )
         return findings
 
+    verifier_name = os.path.splitext(os.path.basename(verifier))[0].lower()
+
     for sf in sig_files:
         # Determine the artifact the signature covers
         artifact_path = sf
@@ -88,14 +91,16 @@ def verify_local_signatures(root: str) -> list:
             continue
 
         try:
-            if verifier == "cosign":
-                cmd = ["cosign", "verify-blob", "--signature", sf, artifact_path]
-            elif verifier == "gpg":
-                cmd = ["gpg", "--verify", sf, artifact_path]
+            if verifier_name == "cosign":
+                cmd = [verifier, "verify-blob", "--signature", sf, artifact_path]
+            elif verifier_name == "gpg":
+                cmd = [verifier, "--verify", sf, artifact_path]
             else:
-                cmd = ["minisign", "-Vm", artifact_path, "-x", sf]
+                cmd = [verifier, "-Vm", artifact_path, "-x", sf]
 
-            result = subprocess.run(cmd, capture_output=True, timeout=30)
+            result = subprocess.run(  # nosec B603 - resolved verifier and fixed argv shape
+                cmd, capture_output=True, timeout=30
+            )
             if result.returncode != 0:
                 rule = get_rule("HFS-038")
                 findings.append(

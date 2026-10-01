@@ -26,6 +26,7 @@ Design goals
 from __future__ import annotations
 
 import abc
+import logging
 import os
 import shutil
 import subprocess  # nosec B404 - controlled command execution with fail-closed gate
@@ -35,6 +36,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 # POSIX-only module; import guarded so Windows import does not crash.
+
+logger = logging.getLogger(__name__)
+
 if sys.platform != "win32":
     import resource  # type: ignore
 else:  # pragma: no cover - exercised on Windows hosts
@@ -291,25 +295,27 @@ class RestrictedSubprocessBackend(ExecutorBackend):
                     soft, hard = resource.getrlimit(res)
                     new_hard = value if hard == resource.RLIM_INFINITY else min(value, hard)
                     resource.setrlimit(res, (min(value, new_hard), new_hard))
-                except (ValueError, OSError):
-                    # Best-effort; a failed limit must not silently weaken the
-                    # gate, but we cannot raise usefully from preexec here.
-                    pass
+                except (ValueError, OSError) as exc:
+                    raise RuntimeError("failed to apply isolation resource limit") from exc
 
         return _preexec
 
     def _kill_tree(self, proc: subprocess.Popen) -> None:
         """Kill the process (and its group on POSIX)."""
         if sys.platform != "win32":
+            group_killed = False
             try:
                 os.killpg(os.getpgid(proc.pid), 9)  # SIGKILL the whole session
-                return
+                group_killed = True
             except (ProcessLookupError, PermissionError, OSError):
-                pass
+                logger.debug("Process group termination unavailable; falling back to proc.kill()")
+            if group_killed:
+                return
         try:
             proc.kill()
         except (ProcessLookupError, OSError):
-            pass
+            logger.debug("Process already stopped while killing isolation worker")
+            return
 
 
 class UnverifiedKernelIsolationBackend(ExecutorBackend):

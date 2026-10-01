@@ -1,11 +1,14 @@
 import ast
 import base64
+import logging
 import os
 import re
 
 from scanner.models import Finding, Severity
 from scanner.rules.definitions import get_rule
 from scanner.utils.entropy import shannon_entropy
+
+logger = logging.getLogger(__name__)
 
 FULL_SHA_RE = re.compile(r"^[0-9a-f]{7,40}$", re.IGNORECASE)
 LOADER_NAMES = {"loader.py", "setup.py", "install.py", "start.py", "run.py", "inference.py"}
@@ -451,5 +454,6 @@ def analyze_python_source(
                                     byte_pattern_scan(decoded2, file_path, decoded_layer + 2)
                                 )
                     except UnicodeDecodeError:
-                        pass
+                        logger.debug("Skipping undecodable nested string payload")
+                        continue
     return findings

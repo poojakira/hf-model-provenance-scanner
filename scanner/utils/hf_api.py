@@ -19,14 +19,16 @@ HF resolves download URLs to CDN hosts.  The allowlist below covers known HF
 CDN endpoints as of 2026.  If HF adds new CDN domains and downloads fail,
 add them here after verification from huggingface.co documentation.
 """
-
 import json
+import logging
 import random
 import threading
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
+
+logger = logging.getLogger(__name__)
 
 MAX_DOWNLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 MAX_RETRIES = 3
@@ -216,7 +218,8 @@ class HFApiClient:
                 self._rate_limiter.rate = max(1.0, remaining / max(1, reset))
                 self._rate_limiter.burst = max(5, remaining)
         except (ValueError, TypeError):
-            pass
+            logger.debug("Ignoring malformed Hugging Face rate-limit headers")
+            return
 
     def _request(self, url: str, max_bytes: int | None = None) -> bytes:
         """Make an HTTPS GET request with safe redirect handling, rate limiting, and caching."""

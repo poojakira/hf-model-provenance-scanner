@@ -19,17 +19,19 @@ Feed format (each source returns JSON with optional fields):
     "updated_at": "2026-07-01T00:00:00Z"
 }
 """
-
 import hashlib
 import json
+import logging
 import os
 import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
 
-
 # Cache directory — use platform-appropriate user cache
+
+logger = logging.getLogger(__name__)
+
 def _get_cache_dir() -> str:
     """Get a writable cache directory for IOC feeds."""
     # Try XDG_CACHE_HOME (Linux), then LOCALAPPDATA (Windows), then fallback
@@ -139,7 +141,7 @@ def _write_cache(url: str, data: dict):
         with open(meta_file, "w") as f:
             f.write(str(time.time()))
     except OSError:
-        pass
+        logger.debug("IOC cache write failed; continuing without cache update")
 
 
 def fetch_remote_feed(url: str, timeout: int = 10) -> dict | None:

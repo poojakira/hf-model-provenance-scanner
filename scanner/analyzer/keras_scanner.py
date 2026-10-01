@@ -12,13 +12,16 @@ Since we can't import h5py (zero deps), we scan the raw bytes for:
 - Python code patterns within Lambda layer definitions
 - custom_objects declarations
 """
-
+import logging
 import re
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
 
 # HDF5 magic number
+
+logger = logging.getLogger(__name__)
+
 HDF5_MAGIC = b"\x89HDF\r\n\x1a\n"
 
 # Patterns indicating Keras model config
@@ -118,7 +121,7 @@ def analyze_keras_file(file_path: str, data: bytes) -> list[Finding]:
                     )
                 )
             except Exception:
-                pass
+                logger.debug("Skipping malformed Keras custom-object metadata")
 
     # Check for pickle markers in the file
     if b"cos\nsystem\n" in data or b"csubprocess\n" in data:
@@ -151,11 +154,8 @@ def _scan_embedded_configs(file_path: str, data: bytes, findings: list[Finding])
         search_end = min(len(data), idx + 100_000)
         chunk = data[search_start:search_end]
 
-        # Find JSON-like structures
-        try:
-            text = chunk.decode("utf-8", errors="replace")
-        except Exception:
-            continue
+        # Replacement decoding is total for arbitrary bytes and cannot raise.
+        text = chunk.decode("utf-8", errors="replace")
 
         # Look for Lambda function bodies
         lambda_pattern = re.compile(r'"function"\s*:\s*"([^"]+)"', re.DOTALL)

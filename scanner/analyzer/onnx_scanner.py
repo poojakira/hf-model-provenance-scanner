@@ -11,13 +11,16 @@ ONNX models can contain:
 ONNX uses protobuf serialization. We parse the minimal structures
 needed without importing the onnx package (zero dependencies).
 """
-
+import logging
 import re
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
 
 # Protobuf wire types
+
+logger = logging.getLogger(__name__)
+
 WIRE_VARINT = 0
 WIRE_64BIT = 1
 WIRE_LENGTH_DELIMITED = 2
@@ -256,7 +259,7 @@ def analyze_onnx_file(file_path: str, data: bytes) -> list[Finding]:
                             if s[0].isupper() and s.isalnum():
                                 custom_ops.append(s)
                     except UnicodeDecodeError:
-                        pass
+                        logger.debug("Skipping undecodable ONNX string candidate")
         i += 1
 
     # Check for custom operators

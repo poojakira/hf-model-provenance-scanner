@@ -12,8 +12,8 @@ References:
 - JFrog PickleScan bypass research (2025-2026)
 - MITRE ATLAS AML.T0010 (AI Supply Chain Compromise)
 """
-
 import io
+import logging
 import struct
 from pathlib import Path
 
@@ -22,6 +22,9 @@ from scanner.rules.definitions import get_rule
 
 # Pickle protocol opcodes relevant to security analysis
 # See: https://docs.python.org/3/library/pickletools.html
+
+logger = logging.getLogger(__name__)
+
 PICKLE_MAGIC = b"\x80"  # Protocol header (protocol 2+)
 # Maximum recursion depth when rescanning pickle payloads embedded inside
 # another pickle's byte-string opcodes (staged / nested-pickle evasion).
@@ -821,7 +824,7 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
                                 )
                             )
                     except Exception:
-                        pass
+                        logger.debug("Skipping malformed nested pickle metadata during best-effort scan")
 
                 # CVE-2025-10156: ZIP CRC bypass - bad CRC but PyTorch ignores it
                 info = zf.getinfo(name)
@@ -845,7 +848,7 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
                             )
                         )
                     except Exception:
-                        pass
+                        logger.debug("Skipping malformed nested pickle metadata during best-effort scan")
 
                 # PyTorch stores pickled data in data.pkl or similar
                 if lower_name.endswith((".pkl", ".pickle")) or "data.pkl" in lower_name:
@@ -860,7 +863,7 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
                             f.evidence = f"[ZIP:{name}] {f.evidence}"
                         findings.extend(inner_findings)
                     except Exception:
-                        pass
+                        logger.debug("Skipping malformed nested pickle metadata during best-effort scan")
     except Exception:
         # Not a valid ZIP - might be raw pickle with PK in content
         scanner = PickleScanner(file_path, data)

@@ -22,11 +22,11 @@ Environment variables:
   NOTIFY_URL        - Optional: Slack/Teams/Discord webhook for alerts
   FAIL_ON           - Severity threshold (default: high)
 """
-
 import hashlib
 import hmac
 import ipaddress
 import json
+import logging
 import os
 import re
 import socket
@@ -35,6 +35,9 @@ import urllib.parse
 import urllib.request
 
 # Add scanner to path
+
+logger = logging.getLogger(__name__)
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Webhook configuration
@@ -101,7 +104,7 @@ def process_webhook_request(headers: dict, body_stream, handler):
             if int(content_length) > MAX_CONTENT_LENGTH:
                 return 413, {"error": "payload too large"}
         except ValueError:
-            pass
+            return 400, {"error": "invalid content-length"}
 
     # Read at most one byte beyond the limit so a missing/lying Content-Length
     # cannot turn into an unbounded allocation.
@@ -208,7 +211,8 @@ def send_notification(repo_id: str, result: dict):
         with opener.open(req, timeout=10) as response:  # nosec B310 - destination validated above
             response.read(1)
     except Exception:
-        pass
+        logger.debug("Webhook notification delivery failed")
+        return
 
 
 def handle_webhook(event: dict) -> dict:
