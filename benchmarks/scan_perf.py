@@ -218,13 +218,13 @@ def run_benchmark(fixtures_dir: Path, output_path: Path | None = None) -> dict:
 
     for filepath in files:
         start = time.perf_counter()
+        success = True
+        error_message: str | None = None
         try:
             scan_file(str(filepath))
-            success = True
-            error = None
-        except Exception as e:
+        except Exception as exc:
             success = False
-            error = str(e)
+            error_message = str(exc)
         elapsed_ms = (time.perf_counter() - start) * 1000.0
 
         timings.append(elapsed_ms)
@@ -233,7 +233,7 @@ def run_benchmark(fixtures_dir: Path, output_path: Path | None = None) -> dict:
                 "file": filepath.name,
                 "elapsed_ms": round(elapsed_ms, 3),
                 "success": success,
-                "error": error,
+                "error": error_message,
             }
         )
 
