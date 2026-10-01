@@ -75,7 +75,7 @@ class BodySizeLimitMiddleware:
                     status_code=413, content={"detail": "Request body too large"}
                 )
                 await response(scope, receive, send)
-                return None
+                return
             chunks.append(chunk)
             if not message.get("more_body", False):
                 break
