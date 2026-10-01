@@ -1,8 +1,6 @@
 name: HF Hub Webhook Scan
 
 on:
-  repository_dispatch:
-    types: [hf_model_push]
   workflow_dispatch:
     inputs:
       repo_id:

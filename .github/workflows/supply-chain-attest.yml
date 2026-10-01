@@ -19,9 +19,6 @@
 name: supply-chain-attest
 
 on:
-  push:
-    branches: [main]
-    tags: ["v*"]
   workflow_dispatch: {}
 
 permissions:
