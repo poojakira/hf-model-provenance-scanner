@@ -11,6 +11,7 @@ ONNX models can contain:
 ONNX uses protobuf serialization. We parse the minimal structures
 needed without importing the onnx package (zero dependencies).
 """
+
 import logging
 import re
 
