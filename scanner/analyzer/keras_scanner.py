@@ -12,6 +12,7 @@ Since we can't import h5py (zero deps), we scan the raw bytes for:
 - Python code patterns within Lambda layer definitions
 - custom_objects declarations
 """
+
 import logging
 import re
 

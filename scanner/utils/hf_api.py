@@ -19,6 +19,7 @@ HF resolves download URLs to CDN hosts.  The allowlist below covers known HF
 CDN endpoints as of 2026.  If HF adds new CDN domains and downloads fail,
 add them here after verification from huggingface.co documentation.
 """
+
 import json
 import logging
 import random

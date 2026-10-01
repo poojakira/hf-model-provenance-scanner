@@ -19,6 +19,7 @@ Feed format (each source returns JSON with optional fields):
     "updated_at": "2026-07-01T00:00:00Z"
 }
 """
+
 import hashlib
 import json
 import logging
@@ -31,6 +32,7 @@ from dataclasses import dataclass, field
 # Cache directory — use platform-appropriate user cache
 
 logger = logging.getLogger(__name__)
+
 
 def _get_cache_dir() -> str:
     """Get a writable cache directory for IOC feeds."""

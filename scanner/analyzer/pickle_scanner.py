@@ -12,6 +12,7 @@ References:
 - JFrog PickleScan bypass research (2025-2026)
 - MITRE ATLAS AML.T0010 (AI Supply Chain Compromise)
 """
+
 import io
 import logging
 import struct
@@ -824,7 +825,9 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
                                 )
                             )
                     except Exception:
-                        logger.debug("Skipping malformed nested pickle metadata during best-effort scan")
+                        logger.debug(
+                            "Skipping malformed nested pickle metadata during best-effort scan"
+                        )
 
                 # CVE-2025-10156: ZIP CRC bypass - bad CRC but PyTorch ignores it
                 info = zf.getinfo(name)
@@ -848,7 +851,9 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
                             )
                         )
                     except Exception:
-                        logger.debug("Skipping malformed nested pickle metadata during best-effort scan")
+                        logger.debug(
+                            "Skipping malformed nested pickle metadata during best-effort scan"
+                        )
 
                 # PyTorch stores pickled data in data.pkl or similar
                 if lower_name.endswith((".pkl", ".pickle")) or "data.pkl" in lower_name:
@@ -863,7 +868,9 @@ def _scan_pytorch_zip(file_path: str, data: bytes) -> list[Finding]:
                             f.evidence = f"[ZIP:{name}] {f.evidence}"
                         findings.extend(inner_findings)
                     except Exception:
-                        logger.debug("Skipping malformed nested pickle metadata during best-effort scan")
+                        logger.debug(
+                            "Skipping malformed nested pickle metadata during best-effort scan"
+                        )
     except Exception:
         # Not a valid ZIP - might be raw pickle with PK in content
         scanner = PickleScanner(file_path, data)
