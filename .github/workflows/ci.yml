@@ -216,7 +216,7 @@ jobs:
               --cov=scanner \
               --cov-report=term-missing \
               --cov-report=xml:coverage.xml \
-              --cov-fail-under=55 \
+              --cov-fail-under=75 \
               -W error::DeprecationWarning:scanner \
               -W error::PendingDeprecationWarning:scanner
           else
@@ -224,7 +224,7 @@ jobs:
               --cov=scanner \
               --cov-report=term-missing \
               --cov-report=xml:coverage.xml \
-              --cov-fail-under=55 \
+              --cov-fail-under=75 \
               -W error::DeprecationWarning:scanner \
               -W error::PendingDeprecationWarning:scanner
           fi
