@@ -35,6 +35,7 @@ _MAX_CONCURRENT_SCANS = int(os.environ.get("MAX_CONCURRENT_SCANS", "4"))
 _MAX_REQUEST_BYTES = int(os.environ.get("SCAN_MAX_REQUEST_BYTES", "16384"))
 _RATE_LIMIT_RPM = int(os.environ.get("SCAN_RATE_LIMIT_RPM", "60"))
 _request_log: dict[str, list[float]] = defaultdict(list)
+_RATE_KEY_SECRET = os.urandom(32)
 if not math.isfinite(_SCAN_TIMEOUT_SECONDS) or _SCAN_TIMEOUT_SECONDS <= 0:
     raise RuntimeError("SCAN_TIMEOUT_SECONDS must be positive")
 if _MAX_CONCURRENT_SCANS < 1 or _MAX_CONCURRENT_SCANS > 64:
@@ -120,7 +121,8 @@ class ScanResponse(BaseModel):
 def _rate_key(request: Request) -> str:
     supplied = request.headers.get("X-API-Key", "")
     peer = request.client.host if request.client else "unknown"
-    return hashlib.sha256(f"{peer}\0{supplied}".encode()).hexdigest()[:32]
+    material = f"{peer}\0{supplied}".encode("utf-8")
+    return hmac.new(_RATE_KEY_SECRET, material, hashlib.sha256).hexdigest()[:32]
 
 
 def _is_rate_limited(key: str) -> bool:
