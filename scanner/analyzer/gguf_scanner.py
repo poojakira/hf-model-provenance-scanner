@@ -176,7 +176,6 @@ def analyze_gguf_file(file_path: str, data: bytes) -> list[Finding]:
         )
         return findings
 
-    _tensor_count = struct.unpack_from("<Q", data, 8)[0]
     kv_count = struct.unpack_from("<Q", data, 16)[0]
 
     if kv_count > 100_000:
