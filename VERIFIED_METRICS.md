@@ -7,10 +7,10 @@
 
 | Claim | Current value | Evidence boundary |
 |---|---:|---|
-| Automated tests | **231 passed, 1 skipped** | Python 3.12 current-main CI |
+| Automated tests | **241 passed, 1 skipped** | Python 3.12 current-main CI |
 | Additional pytest subtests | **6 passed** | Same CI |
-| Statement coverage | **68.00%** | Python 3.12 CI |
-| Coverage gate | **55%** | Repository CI policy |
+| Statement coverage | **75.81%** | Python 3.12 CI |
+| Coverage gate | **75%** | Repository CI policy |
 
 Current CI also completed lint/format, type checks, Bandit, pip-audit, CodeQL, container scanning, unsafe-dynamic-execution rejection, and Docker build checks successfully.
 

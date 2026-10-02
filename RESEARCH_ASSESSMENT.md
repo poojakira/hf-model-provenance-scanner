@@ -1,7 +1,7 @@
 # Research Assessment: HF Model Provenance Scanner
 
 **Evidence status:** repository assessment based on committed source, tests, fixtures, and GitHub Actions evidence.  
-**Last reconciled:** 2026-09-21
+**Last reconciled:** 2026-10-01
 
 This document intentionally avoids invented reviewer personas, product rankings, deployment recommendations, and unsupported comparisons with other scanners.
 
@@ -35,14 +35,13 @@ That is a historical local-validation snapshot, not the current CI total.
 
 Current verified Linux CI evidence reports:
 
-- **211 passed**
+- **241 passed, 1 skipped**
 - **6 subtests passed**
-- **66.90% statement coverage** (Python 3.11/3.12; gate is 55%)
+- **75.81% statement coverage** (Python 3.12 verification; CI gate is 75%)
 
-The current CI run for these totals is GitHub Actions run `36043740861` (see
-`VERIFIED_METRICS.md`). An earlier successful audit run `35564351689` (199 passed,
-1 skipped, 65.89% coverage) is retained here only as a prior snapshot; the test
-count has since grown to 211.
+The current coverage-hardening snapshot is commit `d3907462284c12deb701210fa7fb7bd8ab109ba0`.
+The matching current-main CI run is recorded in `VERIFIED_METRICS.md`. Earlier successful
+audit runs are retained only as historical snapshots; the suite and coverage gate have since grown.
 
 ### Fixture evidence
 
@@ -86,7 +85,7 @@ Important limitations remain:
 
 Acceptable wording:
 
-> Validated 211 passing tests at 66.9% statement coverage; the committed internal red-team suite detects 12/12 core incident-reproduction fixtures, 18/18 extended variants, and 3/3 large-scale fixtures, with zero actionable findings across four committed benign samples.
+> Validated 241 passing tests (1 skipped) at 75.81% statement coverage; the committed internal red-team suite detects 12/12 core incident-reproduction fixtures, 18/18 extended variants, and 3/3 large-scale fixtures, with zero actionable findings across four committed benign samples.
 
 Required qualifier:
 

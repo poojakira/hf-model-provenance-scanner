@@ -20,9 +20,9 @@ Current quantitative claims are anchored in [`VERIFIED_METRICS.md`](VERIFIED_MET
 
 | Measure | Verified result | Scope |
 |---|---:|---|
-| Automated tests | **231 passed** | CI on Python 3.10, 3.11, and 3.12 |
+| Automated tests | **241 passed** | CI on Python 3.10, 3.11, and 3.12 |
 | Additional pytest subtests | **6 passed** | Same CI jobs |
-| Statement coverage | **68.00%** | Python 3.11/3.12 CI coverage |
+| Statement coverage | **75.81%** | Python 3.11/3.12 CI coverage |
 | Core incident fixtures | **12/12 detected** | Committed red-team fixture suite |
 | Extended variants | **18/18 detected** | Committed extended fixture suite |
 | Large-scale fixtures | **3/3 detected** | Committed large-scale fixtures |
@@ -209,7 +209,7 @@ under `scanner/isolation/profiles/` and a gVisor / Firecracker backend **stub** 
 verified here. True kernel isolation is **not** verified on Windows.
 
 Tests: `tests/test_executor.py` = **12 passed, 1 skipped** (the POSIX-only test is skipped on
-Windows). Full suite: **231 passed / 1 skipped, plus 6 subtests, no regressions**. See
+Windows). Full suite: **241 passed / 1 skipped, plus 6 subtests, no regressions**. See
 [`scanner/isolation/README.md`](scanner/isolation/README.md) for the verified-vs-Linux matrix.
 
 ## Supply-Chain Signing & Attestation

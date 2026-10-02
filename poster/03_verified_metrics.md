@@ -1,14 +1,14 @@
 # Verified Metrics - Poster 03
 
-**Code snapshot:** `4501739a724a2a0a7de9173e51af535b192bf0e4`  
-**CI run:** https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/36782472264
+**Code snapshot:** `d3907462284c12deb701210fa7fb7bd8ab109ba0`
+**CI run:** https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/36944320100
 
 | Metric | Current value |
 |---|---:|
-| Tests passed | **231** |
+| Tests passed | **241** |
 | Tests skipped | **1** |
 | Additional pytest subtests passed | **6** |
-| Statement coverage | **68.00%** |
-| CI coverage gate | **55%** |
+| Statement coverage | **75.81%** |
+| CI coverage gate | **75%** |
 
 Curated malicious/benign fixture results are regression evidence only. They are not a population-level detection rate or universal false-positive estimate.
