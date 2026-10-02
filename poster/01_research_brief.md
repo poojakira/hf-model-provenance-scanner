@@ -26,9 +26,9 @@ A primarily non-executing model-artifact security scanner combining static code 
 4. Reject unsafe dynamic-execution paths in the scanner itself.
 5. Emit findings and fail-loud states for incomplete or unsafe analysis.
 
-## Current Verified Evidence
+## Verified Evidence at Poster Snapshot
 
-Current-main Python 3.12 CI reports:
+The cited Python 3.12 CI snapshot reports:
 
 - **241 passed, 1 skipped, 6 subtests passed**.
 - **75.81% statement coverage**; CI gate is 75%.
@@ -52,4 +52,4 @@ python -m pip install -e ".[dev,service]"
 pytest tests/ -q --cov=scanner --cov-report=term
 ```
 
-Expected current-main evidence: **241 passed, 1 skipped, 6 subtests passed**, **75.81% coverage**.
+Expected evidence at the cited snapshot: **241 passed, 1 skipped, 6 subtests passed**, **75.81% coverage**.
