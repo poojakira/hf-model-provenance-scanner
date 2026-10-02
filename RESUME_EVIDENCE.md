@@ -50,8 +50,8 @@ The extended fixture evidence records **0 actionable (non-INFO) false positives 
 
 This is deliberately narrow. It is **not** a claim of a universal 0% false-positive rate across arbitrary Hugging Face repositories or real-world model ecosystems.
 
-## Current repository state
+## Repository state and evidence history
 
-Current verified evidence is stronger than the frozen resume snapshot: the authoritative snapshot records **241 passed, 1 skipped, 6 additional pytest subtests passed, and 75.81% statement coverage**, as documented in `VERIFIED_METRICS.md`. This is a dated verification snapshot and should not be generalized beyond its cited code and environment. The resume's 195 figure remains a documented historical lower-bound snapshot.
+The latest quantified verification snapshot is stronger than the frozen resume snapshot and records **241 passed, 1 skipped, 6 additional pytest subtests passed, and 75.81% statement coverage**, as documented in `VERIFIED_METRICS.md`. This is a dated verification snapshot and should not be generalized beyond its cited code and environment. The resume's 195 figure remains a documented historical lower-bound snapshot.
 
 The resume remains defensible because its 195 figure is a documented historical lower-bound snapshot and the fixture claims remain tied to committed evidence.
