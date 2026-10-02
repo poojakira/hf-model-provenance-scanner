@@ -5,14 +5,14 @@
 **Code commit:** `4501739a724a2a0a7de9173e51af535b192bf0e4`  
 **Successful CI:** https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/36782472264
 
-| Claim | Current value | Evidence boundary |
+| Claim | Verified snapshot value | Evidence boundary |
 |---|---:|---|
-| Automated tests | **241 passed, 1 skipped** | Python 3.12 current-main CI |
+| Automated tests | **241 passed, 1 skipped** | Python 3.12 cited CI snapshot |
 | Additional pytest subtests | **6 passed** | Same CI |
 | Statement coverage | **75.81%** | Python 3.12 CI |
 | Coverage gate | **75%** | Repository CI policy |
 
-Current CI also completed lint/format, type checks, Bandit, pip-audit, CodeQL, container scanning, unsafe-dynamic-execution rejection, and Docker build checks successfully.
+The cited CI snapshot also completed lint/format, type checks, Bandit, pip-audit, CodeQL, container scanning, unsafe-dynamic-execution rejection, and Docker build checks successfully.
 
 ## Fixture boundary
 

@@ -12,7 +12,7 @@ python -m pip install -e ".[dev,service]"
 pytest tests/ -q --cov=scanner --cov-report=term
 ```
 
-Expected current-main CI evidence:
+Expected evidence at the cited CI snapshot:
 
 - **241 passed**
 - **1 skipped**
