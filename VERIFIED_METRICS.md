@@ -1,6 +1,6 @@
 # Verified Metrics
 
-## Current verified snapshot
+## Latest quantified verified snapshot
 
 **Code commit:** `4501739a724a2a0a7de9173e51af535b192bf0e4`  
 **Successful CI:** https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/36782472264

@@ -39,8 +39,8 @@ Current verified Linux CI evidence reports:
 - **6 subtests passed**
 - **75.81% statement coverage** (Python 3.12 verification; CI gate is 75%)
 
-The current coverage-hardening snapshot is commit `d3907462284c12deb701210fa7fb7bd8ab109ba0`.
-The matching current-main CI run is recorded in `VERIFIED_METRICS.md`. Earlier successful
+The cited coverage-hardening snapshot is commit `d3907462284c12deb701210fa7fb7bd8ab109ba0`.
+The matching cited CI run is recorded in `VERIFIED_METRICS.md`. Earlier successful
 audit runs are retained only as historical snapshots; the suite and coverage gate have since grown.
 
 ### Fixture evidence
