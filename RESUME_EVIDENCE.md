@@ -52,9 +52,6 @@ This is deliberately narrow. It is **not** a claim of a universal 0% false-posit
 
 ## Current repository state
 
-Current main CI evidence is stronger than the frozen resume snapshot: the current
-authoritative total is **211 passed, 6 subtests passed, 66.9% statement coverage**,
-tracked in `VERIFIED_METRICS.md` (CI run `36043740861`, re-confirmed on current main
-`13a5ae4`). The resume's 195 figure remains a documented historical lower-bound snapshot.
+Current verified evidence is stronger than the frozen resume snapshot: the authoritative snapshot records **241 passed, 1 skipped, 6 additional pytest subtests passed, and 75.81% statement coverage**, as documented in `VERIFIED_METRICS.md`. This is a dated verification snapshot and should not be generalized beyond its cited code and environment. The resume's 195 figure remains a documented historical lower-bound snapshot.
 
 The resume remains defensible because its 195 figure is a documented historical lower-bound snapshot and the fixture claims remain tied to committed evidence.
