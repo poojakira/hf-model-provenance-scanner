@@ -369,9 +369,7 @@ hf-model-provenance-scanner/
 
 ## Verification Checklist
 
-Every item below was run end-to-end on Windows 11 / PowerShell with
-Python 3.12.10 during the last docs pass. Exact numbers are current as of
-that run; re-run to confirm on your platform.
+This checklist combines two evidence sources and keeps them distinct: the Windows 11 / PowerShell / Python 3.12.10 functional pass for Windows-specific behavior, and the current Linux Python 3.12 CI snapshot (`251a7b90fd60fa1884c643adda9d96cd7801abe6`, run `37163168715`) for the 241 passed / 1 skipped / 6 subtests and 75.67% coverage totals. Re-run on your platform before treating environment-specific behavior as current.
 
 - [x] Repository clones successfully
 - [x] `pip install -e ".[dev]"` completes
