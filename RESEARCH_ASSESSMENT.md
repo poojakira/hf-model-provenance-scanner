@@ -1,7 +1,7 @@
 # Research Assessment: HF Model Provenance Scanner
 
 **Evidence status:** repository assessment based on committed source, tests, fixtures, and GitHub Actions evidence.  
-**Last reconciled:** 2026-10-01
+**Last reconciled:** 2026-10-04
 
 This document intentionally avoids invented reviewer personas, product rankings, deployment recommendations, and unsupported comparisons with other scanners.
 
@@ -39,9 +39,7 @@ Current verified Linux CI evidence reports:
 - **6 subtests passed**
 - **75.67% statement coverage** (Python 3.12 verification; CI gate is 75%)
 
-The cited coverage-hardening snapshot is commit `d3907462284c12deb701210fa7fb7bd8ab109ba0`.
-The matching cited CI run is recorded in `VERIFIED_METRICS.md`. Earlier successful
-audit runs are retained only as historical snapshots; the suite and coverage gate have since grown.
+The current cited CI snapshot is commit `251a7b90fd60fa1884c643adda9d96cd7801abe6`, run `37163168715`, as recorded in `VERIFIED_METRICS.md`. Earlier successful audit runs are retained only as historical snapshots.
 
 ### Fixture evidence
 
