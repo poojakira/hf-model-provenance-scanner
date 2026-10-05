@@ -166,7 +166,7 @@ make verify
 
 ```bash
 # Run tests with the same coverage gate CI enforces (line coverage is
-# currently 75.81%; the CI gate is --cov-fail-under=75).
+# currently 75.67%; the CI gate is --cov-fail-under=75).
 pytest tests/ -v --cov=scanner --cov-fail-under=75
 
 # Run specific test
@@ -299,7 +299,7 @@ To try it manually: Actions → "HF Hub Webhook Scan" → Run workflow → enter
 # Run all tests
 pytest tests/ -v
 
-# Run with coverage (CI gate is 75%; verified statement coverage 75.81%)
+# Run with coverage (CI gate is 75%; verified statement coverage 75.67%)
 pytest tests/ --cov=scanner --cov-report=html --cov-fail-under=75
 
 # Run specific test modules
@@ -377,7 +377,7 @@ that run; re-run to confirm on your platform.
 - [x] `pip install -e ".[dev]"` completes
 - [x] `python -m scanner.cli --version` reports `hf-scanner 0.2.0`
 - [x] `pytest tests/` is green: **241 passed, 1 skipped** in the current Python 3.12 verification
-- [x] Coverage gate: `pytest tests/ --cov=scanner --cov-fail-under=75` passes (statement coverage **75.81%**)
+- [x] Coverage gate: `pytest tests/ --cov=scanner --cov-fail-under=75` passes (statement coverage **75.67%**)
 - [x] Scan a local target: `python -m scanner.cli <TARGET> -m local`
 - [x] JSON output is valid and includes `completeness` / `skipped_files_detail`
 - [x] SARIF output is valid (`tool.driver.name = hf-scanner`)
