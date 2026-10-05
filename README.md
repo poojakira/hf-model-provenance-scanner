@@ -22,7 +22,7 @@ Current quantitative claims are anchored in [`VERIFIED_METRICS.md`](VERIFIED_MET
 |---|---:|---|
 | Automated tests | **241 passed** | CI on Python 3.10, 3.11, and 3.12 |
 | Additional pytest subtests | **6 passed** | Same CI jobs |
-| Statement coverage | **75.81%** | Python 3.11/3.12 CI coverage |
+| Statement coverage | **75.67%** | Python 3.11/3.12 CI coverage |
 | Core incident fixtures | **12/12 detected** | Committed red-team fixture suite |
 | Extended variants | **18/18 detected** | Committed extended fixture suite |
 | Large-scale fixtures | **3/3 detected** | Committed large-scale fixtures |
