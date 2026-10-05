@@ -37,7 +37,7 @@ Current verified Linux CI evidence reports:
 
 - **241 passed, 1 skipped**
 - **6 subtests passed**
-- **75.81% statement coverage** (Python 3.12 verification; CI gate is 75%)
+- **75.67% statement coverage** (Python 3.12 verification; CI gate is 75%)
 
 The cited coverage-hardening snapshot is commit `d3907462284c12deb701210fa7fb7bd8ab109ba0`.
 The matching cited CI run is recorded in `VERIFIED_METRICS.md`. Earlier successful
@@ -85,7 +85,7 @@ Important limitations remain:
 
 Acceptable wording:
 
-> Validated 241 passing tests (1 skipped) at 75.81% statement coverage; the committed internal red-team suite detects 12/12 core incident-reproduction fixtures, 18/18 extended variants, and 3/3 large-scale fixtures, with zero actionable findings across four committed benign samples.
+> Validated 241 passing tests (1 skipped) at 75.67% statement coverage; the committed internal red-team suite detects 12/12 core incident-reproduction fixtures, 18/18 extended variants, and 3/3 large-scale fixtures, with zero actionable findings across four committed benign samples.
 
 Required qualifier:
 
