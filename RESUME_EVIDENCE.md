@@ -52,6 +52,6 @@ This is deliberately narrow. It is **not** a claim of a universal 0% false-posit
 
 ## Repository state and evidence history
 
-The latest quantified verification snapshot is stronger than the frozen resume snapshot and records **241 passed, 1 skipped, 6 additional pytest subtests passed, and 75.81% statement coverage**, as documented in `VERIFIED_METRICS.md`. This is a dated verification snapshot and should not be generalized beyond its cited code and environment. The resume's 195 figure remains a documented historical lower-bound snapshot.
+The latest quantified verification snapshot is stronger than the frozen resume snapshot and records **241 passed, 1 skipped, 6 additional pytest subtests passed, and 75.67% statement coverage**, as documented in `VERIFIED_METRICS.md`. This is a dated verification snapshot and should not be generalized beyond its cited code and environment. The resume's 195 figure remains a documented historical lower-bound snapshot.
 
 The resume remains defensible because its 195 figure is a documented historical lower-bound snapshot and the fixture claims remain tied to committed evidence.
