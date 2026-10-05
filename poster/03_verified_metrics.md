@@ -8,7 +8,7 @@
 | Tests passed | **241** |
 | Tests skipped | **1** |
 | Additional pytest subtests passed | **6** |
-| Statement coverage | **75.81%** |
+| Statement coverage | **75.67%** |
 | CI coverage gate | **75%** |
 
 Curated malicious/benign fixture results are regression evidence only. They are not a population-level detection rate or universal false-positive estimate.
