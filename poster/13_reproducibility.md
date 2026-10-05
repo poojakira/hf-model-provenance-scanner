@@ -17,4 +17,4 @@ Expected evidence at the cited CI snapshot:
 - **241 passed**
 - **1 skipped**
 - **6 subtests passed**
-- **75.81% statement coverage**
+- **75.67% statement coverage**
