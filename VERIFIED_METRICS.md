@@ -2,14 +2,14 @@
 
 ## Latest quantified verified snapshot
 
-**Code commit:** `4501739a724a2a0a7de9173e51af535b192bf0e4`  
-**Successful CI:** https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/36782472264
+**Code commit:** `251a7b90fd60fa1884c643adda9d96cd7801abe6`  
+**Successful CI:** https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/37163168715
 
 | Claim | Verified snapshot value | Evidence boundary |
 |---|---:|---|
 | Automated tests | **241 passed, 1 skipped** | Python 3.12 cited CI snapshot |
 | Additional pytest subtests | **6 passed** | Same CI |
-| Statement coverage | **75.81%** | Python 3.12 CI |
+| Statement coverage | **75.67%** | Python 3.12 CI |
 | Coverage gate | **75%** | Repository CI policy |
 
 The cited CI snapshot also completed lint/format, type checks, Bandit, pip-audit, CodeQL, container scanning, unsafe-dynamic-execution rejection, and Docker build checks successfully.
@@ -21,7 +21,7 @@ Detection proof files and curated red-team fixtures are regression evidence. The
 ## Reproduce
 
 ```bash
-git checkout 4501739a724a2a0a7de9173e51af535b192bf0e4
+git checkout 251a7b90fd60fa1884c643adda9d96cd7801abe6
 python -m pip install -e ".[dev,service]"
 pytest tests/ -q --cov=scanner --cov-report=term
 ```
