@@ -16,6 +16,10 @@ Portfolio: [Pooja Kiran Security Engineering Portfolio](https://poojakira.github
 
 `hf-model-provenance-scanner` inspects Hugging Face repositories and local model artifacts for supply-chain risk - provenance gaps, unsafe pickle/serialization, suspicious loaders, dependency risk, impersonation, and obfuscation - **without executing untrusted model code**. It combines a custom pickle-opcode parser, AST/taint/symbolic-string analysis, and binary-format parsers across pickle, SafeTensors, GGUF, ONNX, and Keras, emitting text/JSON/SARIF for CI gating. It exists because a model download is a software supply chain that teams must be able to inspect before trusting or loading it.
 
+### Poster evidence and reproducibility (October 2026)
+
+The source files in [poster/](poster/) reference the verified Python 3.12 CI snapshot at commit `251a7b90fd60fa1884c643adda9d96cd7801abe6` ([successful run 37163168715](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/37163168715)). This is a historical test/coverage snapshot, not a measured result for every later commit. Poster PNG/PDF files are generated artifacts: use the poster parity workflow to reconcile the rendered image with the cited source and review generated changes before merging. A generated PDF can differ in non-content metadata. No fixture-level detection claim should be presented as population precision or recall.
+
 ## Verified Snapshot
 
 Current quantitative claims are anchored in [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md).
