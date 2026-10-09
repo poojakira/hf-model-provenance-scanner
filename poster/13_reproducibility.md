@@ -1,13 +1,13 @@
 # Reproduce the Work - Poster 03
 
 **Repository:** `github.com/poojakira/hf-model-provenance-scanner`
-**Verified code snapshot:** `d3907462284c12deb701210fa7fb7bd8ab109ba0`
-**CI run:** `36944320100`
+**Verified code snapshot:** `251a7b90fd60fa1884c643adda9d96cd7801abe6`
+**CI run:** `37163168715`
 
 ```bash
 git clone https://github.com/poojakira/hf-model-provenance-scanner.git
 cd hf-model-provenance-scanner
-git checkout d3907462284c12deb701210fa7fb7bd8ab109ba0
+git checkout 251a7b90fd60fa1884c643adda9d96cd7801abe6
 python -m pip install -e ".[dev,service]"
 pytest tests/ -q --cov=scanner --cov-report=term
 ```
