@@ -12,6 +12,12 @@ on:
       - "poster/03_verified_metrics.md"
       - "poster/13_reproducibility.md"
       - "poster/render_poster.py"
+      - ".github/workflows/poster-artifact-parity.yml"
+  push:
+    branches: [main]
+    paths:
+      - "poster/**"
+      - ".github/workflows/poster-artifact-parity.yml"
   workflow_dispatch:
 
 permissions:
@@ -38,6 +44,11 @@ jobs:
           export POSTER_BROWSER="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
           test -n "$POSTER_BROWSER"
           python poster/render_poster.py
+
+      - name: Validate committed PNG parity on main
+        if: github.event_name == 'push'
+        shell: bash
+        run: git diff --exit-code -- poster/poster.png
 
       - name: Sync regenerated poster artifacts to PR branch
         if: github.event_name == 'pull_request'
