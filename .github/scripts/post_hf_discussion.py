@@ -21,7 +21,7 @@ from urllib.parse import urlsplit
 
 
 
-_SEGMENT = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,95}\\Z")
+_SEGMENT = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,95}")
 
 
 def _discussion_url(repo_id: str) -> str:
