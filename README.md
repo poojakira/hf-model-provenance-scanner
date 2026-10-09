@@ -294,3 +294,7 @@ This repository separates **implementation evidence**, **public/external interop
 ## Recruiting evidence audit (2026-10-09)
 
 See [the bounded recruiting evidence audit](docs/RECRUITER_EVIDENCE_AUDIT_2026-10-09.md) for current dated verification, test-scope limitations and unsupported impact claims.
+
+## Hugging Face discussion notification security (2026-10-09)
+
+The optional HF discussion publisher accepts only two literal model-ID segments (namespace/model), constructs a fixed HTTPS Hugging Face API destination, rejects numeric-IP namespaces, embedded URL components and credentials, and disallows redirects from the bearer-authenticated POST. This bounds the discussion notifier; it does not certify every outbound request made by the scanner, and failed discussion notification does not block scanning.
