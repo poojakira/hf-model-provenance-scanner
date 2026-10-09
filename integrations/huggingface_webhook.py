@@ -22,6 +22,7 @@ Environment variables:
   NOTIFY_URL        - Optional: Slack/Teams/Discord webhook for alerts
   FAIL_ON           - Severity threshold (default: high)
 """
+
 import hashlib
 import hmac
 import ipaddress

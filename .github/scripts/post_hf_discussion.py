@@ -85,10 +85,10 @@ def main() -> int:
         f"**Risk Level:** {risk_level} ({risk_score}/100)\n"
         f"**Total Findings:** {findings}\n"
         f"**Critical:** {critical} | **High:** {high}\n\n"
-        "This scan was triggered automatically on model push via GitHub Actions.\n"
+        "This summary reports the model scan supplied by the caller.\n"
         f"View full results in the [GitHub Actions run]({run_url}).\n\n"
         "---\n"
-        "*Scan performed by hf-model-provenance-scanner with gVisor sandbox validation.*\n"
+        "*Scan performed by hf-model-provenance-scanner using non-executing artifact analysis.*\n"
     )
 
     try:

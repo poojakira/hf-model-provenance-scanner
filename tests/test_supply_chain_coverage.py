@@ -8,11 +8,12 @@ import sys
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 from scanner import config
 from scanner.analyzer import dependency_scanner as deps
 from scanner.analyzer.keras_scanner import HDF5_MAGIC, analyze_keras_file, is_keras_file
 from scanner.analyzer.onnx_scanner import analyze_onnx_file, is_onnx_file
-from scanner.attack_mapping.reporter import NavigatorLayerReporter
 from scanner.provenance import (
     is_sbom_file,
     is_signature_file,
@@ -251,6 +252,9 @@ def test_onnx_scanner_small_custom_op_and_url():
 
 
 def test_navigator_reporter_deduplicates_and_prefers_subtechnique():
+    pytest.importorskip("attack_v19_core")
+    from scanner.attack_mapping.reporter import NavigatorLayerReporter
+
     mappings = [
         SimpleNamespace(technique_id="T1000", subtechnique_id=None, confidence=0.8),
         SimpleNamespace(technique_id="T1000", subtechnique_id=None, confidence=0.7),

@@ -1,6 +1,6 @@
 # Research Brief - Poster 03
 
-> Evidence status: Refreshed against verified code snapshot `d3907462284c12deb701210fa7fb7bd8ab109ba0` and successful CI run `36944320100` on 2026-09-30.
+> Evidence status: Refreshed against verified code snapshot `d3907462284c12deb701210fa7fb7bd8ab109ba0` and successful CI run `36944320100` on 2026-10-02.
 
 ## Repository
 
@@ -52,4 +52,4 @@ python -m pip install -e ".[dev,service]"
 pytest tests/ -q --cov=scanner --cov-report=term
 ```
 
-Expected evidence at the cited snapshot: **241 passed, 1 skipped, 6 subtests passed**, **75.81% coverage**.
+Expected evidence at the cited snapshot: **241 passed, 1 skipped, 6 subtests passed**, **75.67% coverage**.

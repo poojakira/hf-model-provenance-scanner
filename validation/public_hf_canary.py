@@ -58,9 +58,7 @@ def run_one(repo_id: str) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", action="append", dest="repos")
-    parser.add_argument(
-        "--output", type=Path, default=Path("validation/public-hf-canary.json")
-    )
+    parser.add_argument("--output", type=Path, default=Path("validation/public-hf-canary.json"))
     args = parser.parse_args()
     repos = tuple(args.repos or DEFAULT_REPOS)
     results = [run_one(repo_id) for repo_id in repos]

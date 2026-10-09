@@ -14,7 +14,7 @@ Portfolio: [Pooja Kiran Security Engineering Portfolio](https://poojakira.github
 
 ## Overview
 
-`hf-model-provenance-scanner` inspects Hugging Face repositories and local model artifacts for supply-chain risk ΓÇö provenance gaps, unsafe pickle/serialization, suspicious loaders, dependency risk, impersonation, and obfuscation ΓÇö **without executing untrusted model code**. It combines a custom pickle-opcode parser, AST/taint/symbolic-string analysis, and binary-format parsers across pickle, SafeTensors, GGUF, ONNX, and Keras, emitting text/JSON/SARIF for CI gating. It exists because a model download is a software supply chain that teams must be able to inspect before trusting or loading it.
+`hf-model-provenance-scanner` inspects Hugging Face repositories and local model artifacts for supply-chain risk - provenance gaps, unsafe pickle/serialization, suspicious loaders, dependency risk, impersonation, and obfuscation - **without executing untrusted model code**. It combines a custom pickle-opcode parser, AST/taint/symbolic-string analysis, and binary-format parsers across pickle, SafeTensors, GGUF, ONNX, and Keras, emitting text/JSON/SARIF for CI gating. It exists because a model download is a software supply chain that teams must be able to inspect before trusting or loading it.
 
 ## Verified Snapshot
 
@@ -127,11 +127,11 @@ The default scanner path is designed to inspect artifacts without importing or e
 
 The repository keeps evidence separate from marketing claims so results can be checked independently.
 
-- [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md) ΓÇö current test, coverage, and red-team counts.
-- [`RESUME_EVIDENCE.md`](RESUME_EVIDENCE.md) ΓÇö historical validation snapshots and reconciliation with later CI growth.
-- [`evidence/DETECTION_PROOF.md`](evidence/DETECTION_PROOF.md) ΓÇö committed detection evidence and reproduction notes.
-- [`tests/redteam/`](tests/redteam/) ΓÇö attack and benign fixtures used for regression testing.
-- [`benchmarks/scan_perf.py`](benchmarks/scan_perf.py) ΓÇö performance regression harness.
+- [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md) - current test, coverage, and red-team counts.
+- [`RESUME_EVIDENCE.md`](RESUME_EVIDENCE.md) - historical validation snapshots and reconciliation with later CI growth.
+- [`evidence/DETECTION_PROOF.md`](evidence/DETECTION_PROOF.md) - committed detection evidence and reproduction notes.
+- [`tests/redteam/`](tests/redteam/) - attack and benign fixtures used for regression testing.
+- [`benchmarks/scan_perf.py`](benchmarks/scan_perf.py) - performance regression harness.
 
 Reproduce the principal regression checks with:
 
@@ -189,11 +189,11 @@ This makes the scanner usable as a local review tool, a CI security gate, or an 
 
 ## Research Poster
 
-**Security Systems / 03 ΓÇö Non-Executing Security Analysis of AI Model Supply-Chain Artifacts**
+**Security Systems / 03 - Non-Executing Security Analysis of AI Model Supply-Chain Artifacts**
 
 [![Research poster](poster/poster.png)](poster/poster_36x48.pdf)
 
-The 36 ├ù 48 in technical poster summarizes the system, threat model, validation approach, and evidence boundaries. Metrics on the poster are intended to remain tied to committed evidence artifacts rather than generalized deployment claims.
+The 36 x 48 in technical poster summarizes the system, threat model, validation approach, and evidence boundaries. Metrics on the poster are intended to remain tied to committed evidence artifacts rather than generalized deployment claims.
 
 ## Fail-Closed Isolation Executor
 
@@ -226,12 +226,12 @@ See [`docs/supply-chain/SIGNING.md`](docs/supply-chain/SIGNING.md).
 
 ## Additional Documentation
 
-- [`INCIDENT_RUNBOOK.md`](INCIDENT_RUNBOOK.md) ΓÇö incident-response guidance for the scanner.
-- [`docs/API_VERSIONING.md`](docs/API_VERSIONING.md) ΓÇö CLI and API stability notes.
-- [`docs/PERFORMANCE_BASELINE.md`](docs/PERFORMANCE_BASELINE.md) ΓÇö performance-baseline documentation.
-- [`evidence/DETECTION_PROOF.md`](evidence/DETECTION_PROOF.md) ΓÇö red-team detection evidence.
-- [`RESUME_EVIDENCE.md`](RESUME_EVIDENCE.md) ΓÇö auditable r├⌐sum├⌐-claim evidence.
-- [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md) ΓÇö current quantitative evidence anchor.
+- [`INCIDENT_RUNBOOK.md`](INCIDENT_RUNBOOK.md) - incident-response guidance for the scanner.
+- [`docs/API_VERSIONING.md`](docs/API_VERSIONING.md) - CLI and API stability notes.
+- [`docs/PERFORMANCE_BASELINE.md`](docs/PERFORMANCE_BASELINE.md) - performance-baseline documentation.
+- [`evidence/DETECTION_PROOF.md`](evidence/DETECTION_PROOF.md) - red-team detection evidence.
+- [`RESUME_EVIDENCE.md`](RESUME_EVIDENCE.md) - auditable resume-claim evidence.
+- [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md) - current quantitative evidence anchor.
 
 ## Maintainer
 
@@ -298,3 +298,15 @@ See [the bounded recruiting evidence audit](docs/RECRUITER_EVIDENCE_AUDIT_2026-1
 ## Hugging Face discussion notification security (2026-10-09)
 
 The optional HF discussion publisher accepts only two literal model-ID segments (namespace/model), constructs a fixed HTTPS Hugging Face API destination, rejects numeric-IP namespaces, embedded URL components and credentials, and disallows redirects from the bearer-authenticated POST. This bounds the discussion notifier; it does not certify every outbound request made by the scanner, and failed discussion notification does not block scanning.
+
+## Manual scan workflow boundary
+
+The HF Hub Webhook Scan workflow currently supports manual `workflow_dispatch` only. Repository-dispatch issue posting and HF Hub discussion posting are disabled; their unreachable job/step definitions have been removed. The standalone discussion helper remains available with URL validation and redirect blocking, but the workflow does not invoke it. Manual scan inputs are passed through environment variables and quoted as data. Optional Slack delivery remains limited to an explicitly configured webhook.
+
+## Local audit-fix validation (2026-10-09)
+
+The audit-fix working tree passed **260 tests, with 1 skipped and 6 subtests passed**, on Python 3.12.14. Scanner statement coverage was **75.67%**, satisfying the existing 75% gate. This local run included the optional `attack-v19-core` package and all three public MITRE ATT&CK v19.2 bundles verified against their pinned SHA-256 digests. The HF discussion security tests used mocked transport and a dummy token; no notifications or authenticated remote scans were sent. Ruff 0.8.4 lint and format checks passed across all 90 Python files, including CI helpers.
+
+Reproduction: install the documented development, service and optional attack dependencies, download the pinned ATT&CK bundles with `python -m attack_v19_core.download`, then run `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest tests/ -q -p pytest_cov --cov=scanner --cov-fail-under=75`. When using a sibling source checkout of `attack-v19-core`, also set `PYTHONPATH=.:../attack-v19-core`; set `ATTACK_DATA_DIR` to the verified bundle directory if it is outside the default cache.
+
+The historical poster and verified metrics remain tied to their cited CI snapshots. This local result does not replace a hosted CI result for the final merged commit. Poster PDF/PNG coverage text was corrected and visually checked locally; a full Chromium render remains for the existing poster parity workflow on the PR.

@@ -47,10 +47,10 @@ jobs:
         run: pip install ruff==${{ env.RUFF_VERSION }}
 
       - name: Run Ruff Linter
-        run: ruff check scanner tests --output-format=github
+        run: ruff check . .github/scripts --output-format=github
 
       - name: Run Ruff Formatter Check
-        run: ruff format --check scanner tests
+        run: ruff format --check . .github/scripts
 
   typecheck:
     name: Type Check (Pyright)
