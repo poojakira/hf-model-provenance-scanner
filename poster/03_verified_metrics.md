@@ -1,9 +1,9 @@
 # Verified Metrics - Poster 03
 
-**Code snapshot:** `d3907462284c12deb701210fa7fb7bd8ab109ba0`
-**CI run:** https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/36944320100
+**Code snapshot:** `251a7b90fd60fa1884c643adda9d96cd7801abe6`
+**CI run:** https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/37163168715
 
-| Metric | Current value |
+| Metric | Cited 2026 snapshot |
 |---|---:|
 | Tests passed | **241** |
 | Tests skipped | **1** |

@@ -34,6 +34,7 @@ env:
 jobs:
   build-sign-attest:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     outputs:
       image-digest: ${{ steps.build.outputs.digest }}
     steps:

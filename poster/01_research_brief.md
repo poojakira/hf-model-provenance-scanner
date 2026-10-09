@@ -1,6 +1,6 @@
 # Research Brief - Poster 03
 
-> Evidence status: Refreshed against verified code snapshot `d3907462284c12deb701210fa7fb7bd8ab109ba0` and successful CI run `36944320100` on 2026-10-02.
+> Evidence status: Refreshed against verified code snapshot `251a7b90fd60fa1884c643adda9d96cd7801abe6` and successful CI run `37163168715` (CI run initiated 2026-10-03 UTC).
 
 ## Repository
 
@@ -47,7 +47,7 @@ The cited Python 3.12 CI snapshot reports:
 ```bash
 git clone https://github.com/poojakira/hf-model-provenance-scanner.git
 cd hf-model-provenance-scanner
-git checkout d3907462284c12deb701210fa7fb7bd8ab109ba0
+git checkout 251a7b90fd60fa1884c643adda9d96cd7801abe6
 python -m pip install -e ".[dev,service]"
 pytest tests/ -q --cov=scanner --cov-report=term
 ```
