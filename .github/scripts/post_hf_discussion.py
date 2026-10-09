@@ -15,7 +15,43 @@ Environment variables:
 
 import json
 import os
+import re
 import urllib.request
+from urllib.parse import urlsplit
+
+
+
+_SEGMENT = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,95}\\Z")
+
+
+def _discussion_url(repo_id: str) -> str:
+    """Construct only the official HF discussions endpoint from two safe IDs."""
+    parts = repo_id.split("/")
+    if len(parts) != 2 or any(
+        not _SEGMENT.fullmatch(part) or part in {".", ".."} or ".." in part
+        for part in parts
+    ):
+        raise ValueError("REPO_ID must be an HF namespace/model pair")
+    url = f"https://huggingface.co/api/models/{parts[0]}/{parts[1]}/discussions"
+    parsed = urlsplit(url)
+    if (
+        parsed.scheme != "https"
+        or parsed.hostname != "huggingface.co"
+        or parsed.port is not None
+        or parsed.username is not None
+        or parsed.password is not None
+        or parsed.query
+        or parsed.fragment
+    ):
+        raise ValueError("Invalid Hugging Face discussions endpoint")
+    return url
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Block cross-origin redirects to avoid leaking HF authorization headers."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
 
 
 def main() -> int:
@@ -51,7 +87,11 @@ def main() -> int:
         "*Scan performed by hf-model-provenance-scanner with gVisor sandbox validation.*\n"
     )
 
-    url = f"https://huggingface.co/api/models/{repo_id}/discussions"
+    try:
+        url = _discussion_url(repo_id)
+    except ValueError:
+        print("REPO_ID is invalid; refusing to send HF discussion notification.")
+        return 0
     data = json.dumps({"title": f"Security Scan: {risk_level} risk", "content": body}).encode()
     req = urllib.request.Request(
         url,
@@ -60,7 +100,7 @@ def main() -> int:
         method="POST",
     )
     try:
-        urllib.request.urlopen(req, timeout=10)  # noqa: S310
+        urllib.request.build_opener(_NoRedirect()).open(req, timeout=10)  # noqa: S310
         print("Posted to HF Hub discussion")
     except Exception as e:  # noqa: BLE001 - best-effort notifier, never fatal
         print(f"Could not post to HF Hub (non-fatal): {e}")
