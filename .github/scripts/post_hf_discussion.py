@@ -21,7 +21,6 @@ import urllib.request
 from urllib.parse import urlsplit
 
 
-
 _SEGMENT = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,95}")
 
 
@@ -29,8 +28,7 @@ def _discussion_url(repo_id: str) -> str:
     """Construct only the official HF discussions endpoint from two safe IDs."""
     parts = repo_id.split("/")
     if len(parts) != 2 or any(
-        not _SEGMENT.fullmatch(part) or part in {".", ".."} or ".." in part
-        for part in parts
+        not _SEGMENT.fullmatch(part) or part in {".", ".."} or ".." in part for part in parts
     ):
         raise ValueError("REPO_ID must be an HF namespace/model pair")
     try:
