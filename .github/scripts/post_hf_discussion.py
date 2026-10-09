@@ -13,9 +13,49 @@ Environment variables:
     GITHUB_SERVER_URL, GITHUB_REPOSITORY, GITHUB_RUN_ID   Provided by Actions.
 """
 
+import ipaddress
 import json
 import os
+import re
 import urllib.request
+from urllib.parse import urlsplit
+
+_SEGMENT = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,95}")
+
+
+def _discussion_url(repo_id: str) -> str:
+    """Construct only the official HF discussions endpoint from two safe IDs."""
+    parts = repo_id.split("/")
+    if len(parts) != 2 or any(
+        not _SEGMENT.fullmatch(part) or part in {".", ".."} or ".." in part for part in parts
+    ):
+        raise ValueError("REPO_ID must be an HF namespace/model pair")
+    try:
+        ipaddress.ip_address(parts[0])
+    except ValueError:
+        pass
+    else:
+        raise ValueError("REPO_ID namespace must not be an IP address")
+    url = f"https://huggingface.co/api/models/{parts[0]}/{parts[1]}/discussions"
+    parsed = urlsplit(url)
+    if (
+        parsed.scheme != "https"
+        or parsed.hostname != "huggingface.co"
+        or parsed.port is not None
+        or parsed.username is not None
+        or parsed.password is not None
+        or parsed.query
+        or parsed.fragment
+    ):
+        raise ValueError("Invalid Hugging Face discussions endpoint")
+    return url
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Block cross-origin redirects to avoid leaking HF authorization headers."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
 
 
 def main() -> int:
@@ -45,13 +85,17 @@ def main() -> int:
         f"**Risk Level:** {risk_level} ({risk_score}/100)\n"
         f"**Total Findings:** {findings}\n"
         f"**Critical:** {critical} | **High:** {high}\n\n"
-        "This scan was triggered automatically on model push via GitHub Actions.\n"
+        "This summary reports the model scan supplied by the caller.\n"
         f"View full results in the [GitHub Actions run]({run_url}).\n\n"
         "---\n"
-        "*Scan performed by hf-model-provenance-scanner with gVisor sandbox validation.*\n"
+        "*Scan performed by hf-model-provenance-scanner using non-executing artifact analysis.*\n"
     )
 
-    url = f"https://huggingface.co/api/models/{repo_id}/discussions"
+    try:
+        url = _discussion_url(repo_id)
+    except ValueError:
+        print("REPO_ID is invalid; refusing to send HF discussion notification.")
+        return 0
     data = json.dumps({"title": f"Security Scan: {risk_level} risk", "content": body}).encode()
     req = urllib.request.Request(
         url,
@@ -60,7 +104,7 @@ def main() -> int:
         method="POST",
     )
     try:
-        urllib.request.urlopen(req, timeout=10)  # noqa: S310
+        urllib.request.build_opener(_NoRedirect()).open(req, timeout=10)  # noqa: S310
         print("Posted to HF Hub discussion")
     except Exception as e:  # noqa: BLE001 - best-effort notifier, never fatal
         print(f"Could not post to HF Hub (non-fatal): {e}")

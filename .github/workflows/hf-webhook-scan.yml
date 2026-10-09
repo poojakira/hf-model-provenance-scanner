@@ -17,8 +17,6 @@ on:
 permissions:
   contents: read
   security-events: write
-  issues: write
-  pull-requests: write
 
 env:
   PYTHON_VERSION: "3.12"
@@ -55,9 +53,9 @@ jobs:
         id: scan
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          REPO_ID: ${{ inputs.repo_id }}
           FAIL_ON: ${{ github.event.inputs.fail_on || 'high' }}
         run: |
-          REPO_ID="${{ github.event.client_payload.repo_id || github.event.inputs.repo_id }}"
           if [ -z "$REPO_ID" ]; then
             echo "ERROR: No repo_id provided"
             exit 1
@@ -101,103 +99,29 @@ jobs:
             echo "high_count=0" >> $GITHUB_OUTPUT
           fi
 
-      - name: Post results as issue comment (if triggered by repository_dispatch)
-        if: github.event_name == 'repository_dispatch'
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
-        with:
-          script: |
-            const repo_id = "${{ github.event.client_payload.repo_id }}";
-            const risk_level = "${{ steps.parse.outputs.risk_level }}";
-            const risk_score = "${{ steps.parse.outputs.risk_score }}";
-            const findings_count = "${{ steps.parse.outputs.findings_count }}";
-            const critical_count = "${{ steps.parse.outputs.critical_count }}";
-            const high_count = "${{ steps.parse.outputs.high_count }}";
-            
-            const body = [
-              `## 🔍 HF Model Security Scan Results`,
-              ``,
-              `**Repository:** \`${repo_id}\``,
-              `**Risk Level:** ${risk_level} (${risk_score}/100)`,
-              `**Total Findings:** ${findings_count}`,
-              `**Critical:** ${critical_count} | **High:** ${high_count}`,
-              ``,
-              `**Scan Details:** [View Artifact](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`,
-              ``,
-              `*Triggered by HuggingFace webhook on model push.*`,
-            ].join('\n');
-            
-            // Create or update issue with scan results
-            const { data: issues } = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'all',
-              labels: ['hf-scan', repo_id.replace('/', '-')]
-            });
-            
-            if (issues.length > 0) {
-              await github.rest.issues.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issues[0].number,
-                body: body
-              });
-            } else {
-              await github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: `[HF Scan] ${repo_id} - ${risk_level} risk`,
-                body: body,
-                labels: ['hf-scan', repo_id.replace('/', '-'), `risk-${risk_level.toLowerCase()}`]
-              });
-            }
-
       - name: Send Slack notification (if configured)
         if: env.SLACK_WEBHOOK_URL != ''
-        run: |
-          REPO_ID="${{ github.event.client_payload.repo_id || github.event.inputs.repo_id }}"
-          RISK_LEVEL="${{ steps.parse.outputs.risk_level }}"
-          RISK_SCORE="${{ steps.parse.outputs.risk_score }}"
-          FINDINGS="${{ steps.parse.outputs.findings_count }}"
-          CRITICAL="${{ steps.parse.outputs.critical_count }}"
-          HIGH="${{ steps.parse.outputs.high_count }}"
-          
-          curl -X POST -H 'Content-type: application/json' \
-            --data "{\"text\":\"🔍 *HF Model Scan Alert* for \`${REPO_ID}\`\nRisk: ${RISK_LEVEL} (${RISK_SCORE}/100)\nFindings: ${FINDINGS} (Critical: ${CRITICAL}, High: ${HIGH})\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>\"}" \
-            "${SLACK_WEBHOOK_URL}"
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          REPO_ID: ${{ inputs.repo_id }}
+          RISK_LEVEL: ${{ steps.parse.outputs.risk_level }}
+          RISK_SCORE: ${{ steps.parse.outputs.risk_score }}
+          FINDINGS: ${{ steps.parse.outputs.findings_count }}
+          CRITICAL: ${{ steps.parse.outputs.critical_count }}
+          HIGH: ${{ steps.parse.outputs.high_count }}
+        run: |
+          jq -n --arg repo "$REPO_ID" --arg level "$RISK_LEVEL" \
+            --arg score "$RISK_SCORE" --arg findings "$FINDINGS" \
+            --arg critical "$CRITICAL" --arg high "$HIGH" \
+            --arg details "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            '{text: ("HF Model Scan Alert for " + $repo + "\nRisk: " + $level + " (" + $score + "/100)\nFindings: " + $findings + " (Critical: " + $critical + ", High: " + $high + ")\n" + $details)}' \
+            > slack-payload.json
+          curl --fail --silent --show-error --max-time 15 \
+            -X POST -H 'Content-type: application/json' \
+            --data-binary @slack-payload.json "$SLACK_WEBHOOK_URL"
 
       - name: Fail if threshold exceeded
         if: steps.parse.outputs.critical_count > 0 || steps.parse.outputs.high_count > 0
         run: |
           echo "::error::Scan failed: ${{ steps.parse.outputs.critical_count }} critical and ${{ steps.parse.outputs.high_count }} high severity findings detected"
           exit 1
-
-  notify-hf:
-    name: Post Results to HF Hub Discussion
-    needs: scan
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    # Only runs for webhook-triggered scans. The HF Hub post is best-effort:
-    # if secrets.HF_TOKEN is unset or lacks discussion-write scope, the step
-    # logs and continues (see the try/except in the script below).
-    if: github.event_name == 'repository_dispatch'
-    steps:
-      - name: Post scan results to HF Hub discussion
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          REPO_ID: ${{ github.event.client_payload.repo_id }}
-          RISK_LEVEL: ${{ needs.scan.outputs.risk_level }}
-          RISK_SCORE: ${{ needs.scan.outputs.risk_score }}
-          FINDINGS: ${{ needs.scan.outputs.findings_count }}
-          CRITICAL: ${{ needs.scan.outputs.critical_count }}
-          HIGH: ${{ needs.scan.outputs.high_count }}
-        run: |
-          if [ -z "${HF_TOKEN}" ]; then
-            echo "HF_TOKEN not configured; skipping HF Hub discussion post."
-            exit 0
-          fi
-          # Best-effort: post scan summary to the HF repo discussions API.
-          # Requires HF_TOKEN with discussion-write scope; failures are logged,
-          # not fatal (this is a notification, not a security gate).
-          python .github/scripts/post_hf_discussion.py
