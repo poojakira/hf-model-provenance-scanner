@@ -13,6 +13,7 @@ Environment variables:
     GITHUB_SERVER_URL, GITHUB_REPOSITORY, GITHUB_RUN_ID   Provided by Actions.
 """
 
+import ipaddress
 import json
 import os
 import re
@@ -32,6 +33,12 @@ def _discussion_url(repo_id: str) -> str:
         for part in parts
     ):
         raise ValueError("REPO_ID must be an HF namespace/model pair")
+    try:
+        ipaddress.ip_address(parts[0])
+    except ValueError:
+        pass
+    else:
+        raise ValueError("REPO_ID namespace must not be an IP address")
     url = f"https://huggingface.co/api/models/{parts[0]}/{parts[1]}/discussions"
     parsed = urlsplit(url)
     if (
