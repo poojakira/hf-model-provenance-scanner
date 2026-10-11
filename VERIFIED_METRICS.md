@@ -1,5 +1,11 @@
 # Verified Metrics
 
+## Later hosted CI confirmation — 2026-10-09
+
+The most recent independently inspected hosted Python 3.12 result as of this evidence review is [CI run 38002138828](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38002138828) at main commit `2f937ba51f31c678e43a064e95d6939e3feb9226`: **260 passed, 1 skipped, 6 subtests passed, 75.67% statement coverage**. Lint, type checking, security audit and Docker-build jobs also passed. The older snapshot and its original evidence anchor below are retained for the historical poster. Fixture-level results do not imply population-wide performance.
+
+## Archived cited snapshot
+
 ## Latest quantified verified snapshot
 
 **Code commit:** `251a7b90fd60fa1884c643adda9d96cd7801abe6`  
