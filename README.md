@@ -20,9 +20,13 @@ Portfolio: [Pooja Kiran Security Engineering Portfolio](https://poojakira.github
 
 The source files in [poster/](poster/) reference the verified Python 3.12 CI snapshot at commit `251a7b90fd60fa1884c643adda9d96cd7801abe6` ([successful run 37163168715](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/37163168715)). This is a historical test/coverage snapshot, not a measured result for every later commit. Poster PNG/PDF files are generated artifacts: use the poster parity workflow to reconcile the rendered image with the cited source and review generated changes before merging. A generated PDF can differ in non-content metadata. No fixture-level detection claim should be presented as population precision or recall.
 
-## Verified Snapshot
+## Latest inspected hosted verification (2026-10-09)
 
-Current quantitative claims are anchored in [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md).
+[CI run 38002138828](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38002138828), Python 3.12, main commit `2f937ba51f31c678e43a064e95d6939e3feb9226`: **260 passed, 1 skipped, 6 additional pytest subtests passed, 75.67% coverage**. Hosted lint/type/security and Docker-build jobs passed. These results are distinct from the earlier pinned poster run and are not a real-world detection rate.
+
+## Historical poster CI snapshot
+
+The original poster snapshot is anchored in [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md). These numbers refer to an older commit and must not be presented as latest main results.
 
 | Measure | Verified result | Scope |
 |---|---:|---|
@@ -131,7 +135,7 @@ The default scanner path is designed to inspect artifacts without importing or e
 
 The repository keeps evidence separate from marketing claims so results can be checked independently.
 
-- [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md) - current test, coverage, and red-team counts.
+- [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md) - latest hosted CI plus separately dated historical poster evidence and red-team counts.
 - [`RESUME_EVIDENCE.md`](RESUME_EVIDENCE.md) - historical validation snapshots and reconciliation with later CI growth.
 - [`evidence/DETECTION_PROOF.md`](evidence/DETECTION_PROOF.md) - committed detection evidence and reproduction notes.
 - [`tests/redteam/`](tests/redteam/) - attack and benign fixtures used for regression testing.
@@ -235,7 +239,7 @@ See [`docs/supply-chain/SIGNING.md`](docs/supply-chain/SIGNING.md).
 - [`docs/PERFORMANCE_BASELINE.md`](docs/PERFORMANCE_BASELINE.md) - performance-baseline documentation.
 - [`evidence/DETECTION_PROOF.md`](evidence/DETECTION_PROOF.md) - red-team detection evidence.
 - [`RESUME_EVIDENCE.md`](RESUME_EVIDENCE.md) - auditable resume-claim evidence.
-- [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md) - current quantitative evidence anchor.
+- [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md) - latest hosted result and archived poster snapshot, with separate run anchors.
 
 ## Maintainer
 
