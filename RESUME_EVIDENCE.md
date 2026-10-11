@@ -1,10 +1,10 @@
 # Resume Evidence
 
-This file documents the quantitative claims used on Pooja Kiran's resume and distinguishes the frozen resume snapshot from later CI totals.
+This file distinguishes quantitative claims in the currently tracked portfolio resume, older locally recorded test runs, and separate committed fixture reports.
 
 ## Current portfolio resume snapshot (audited 2026-10-11)
 
-The resume uses:
+The current portfolio resume uses the 260-pass/75.67%-coverage evidence; the fixture results listed here are supporting project evidence and are not all separately printed on the one-page resume:
 
 - **260 passing tests, 1 skipped, 6 additional pytest subtests passed**
 - **75.67% statement coverage**
@@ -53,7 +53,7 @@ This is deliberately narrow. It is **not** a claim of a universal 0% false-posit
 
 ## Repository state and evidence history
 
-The latest quantified verification snapshot is stronger than the frozen resume snapshot and records **241 passed, 1 skipped, 6 additional pytest subtests passed, and 75.67% statement coverage**, as documented in `VERIFIED_METRICS.md`. This is a dated verification snapshot and should not be generalized beyond its cited code and environment. The resume's 195 figure remains a documented historical lower-bound snapshot.
+The repository's earlier `VERIFIED_METRICS.md` record reported **241 passed, 1 skipped, 6 subtests and 75.67% statement coverage** at its cited code commit. The newer October 9 hosted CI run reported **260 passed, 1 skipped, 6 subtests and 75.67% statement coverage**. The separately archived 195-pass Windows test run remains historical evidence only. No one run is claimed to have produced all three test totals.
 
 The currently tracked portfolio resume source uses 260 passing tests and 1 skipped, consistent with the October 9, 2026 hosted CI result. Historical claims and fixture results remain scoped to their specific commits and samples.
 
