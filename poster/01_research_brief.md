@@ -30,7 +30,7 @@ A primarily non-executing model-artifact security scanner combining static code 
 
 The cited Python 3.12 CI snapshot reports:
 
-- **241 passed, 1 skipped, 6 subtests passed**.
+- **260 passed, 1 skipped, 6 subtests passed** (Oct 13 2026 CI run 38462464074).
 - **75.67% statement coverage**; CI gate is 75%.
 - Lint/format, type checking, Bandit, pip-audit, CodeQL, Trivy container scanning, unsafe-dynamic-execution rejection, and Docker build jobs succeeded.
 - The committed adversarial fixture evidence remains fixture-scoped; it must not be generalized to arbitrary model repositories.
@@ -52,4 +52,5 @@ python -m pip install -e ".[dev,service]"
 pytest tests/ -q --cov=scanner --cov-report=term
 ```
 
-Expected evidence at the cited snapshot: **241 passed, 1 skipped, 6 subtests passed**, **75.67% coverage**.
+Expected evidence at the cited snapshot: **260 passed, 1 skipped, 6 subtests passed**, **75.67% coverage** (Oct 13 2026 CI run 38462464074).
+
