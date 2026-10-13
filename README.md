@@ -32,7 +32,7 @@ The original poster snapshot is anchored in [`VERIFIED_METRICS.md`](VERIFIED_MET
 
 | Measure | Verified result | Scope |
 |---|---:|---|
-| Automated tests | **241 passed** | CI on Python 3.10, 3.11, and 3.12 |
+| Automated tests | **260 passed** | Oct 13 2026 CI on Python 3.12 (run [38462464074](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074)) |
 | Additional pytest subtests | **6 passed** | Same CI jobs |
 | Statement coverage | **75.67%** | Python 3.11/3.12 CI coverage |
 | Core incident fixtures | **12/12 detected** | Committed red-team fixture suite |
@@ -221,7 +221,7 @@ under `scanner/isolation/profiles/` and a gVisor / Firecracker backend **stub** 
 verified here. True kernel isolation is **not** verified on Windows.
 
 Tests: `tests/test_executor.py` = **12 passed, 1 skipped** (the POSIX-only test is skipped on
-Windows). Full suite: **241 passed / 1 skipped, plus 6 subtests, no regressions**. See
+Windows). Full suite: **260 passed / 1 skipped, plus 6 subtests, no regressions** (Oct 13 2026 CI run [38462464074](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074)). See
 [`scanner/isolation/README.md`](scanner/isolation/README.md) for the verified-vs-Linux matrix.
 
 ## Supply-Chain Signing & Attestation
@@ -320,3 +320,4 @@ The audit-fix working tree passed **260 tests, with 1 skipped and 6 subtests pas
 Reproduction: install the documented development, service and optional attack dependencies, download the pinned ATT&CK bundles with `python -m attack_v19_core.download`, then run `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest tests/ -q -p pytest_cov --cov=scanner --cov-fail-under=75`. When using a sibling source checkout of `attack-v19-core`, also set `PYTHONPATH=.:../attack-v19-core`; set `ATTACK_DATA_DIR` to the verified bundle directory if it is outside the default cache.
 
 The historical poster and verified metrics remain tied to their cited CI snapshots. This local result does not replace a hosted CI result for the final merged commit. Poster PDF/PNG coverage text was corrected and visually checked locally; a full Chromium render remains for the existing poster parity workflow on the PR.
+
