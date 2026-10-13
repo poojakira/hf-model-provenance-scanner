@@ -7,7 +7,7 @@ name = "hf-scanner"
 version = "0.2.0"
 description = "ML supply chain provenance scanner for Hugging Face repositories"
 requires-python = ">=3.10"
-license = "Apache-2.0"
+license = {file = "LICENSE"}
 dependencies = [
     "psutil>=5.9",
 ]
