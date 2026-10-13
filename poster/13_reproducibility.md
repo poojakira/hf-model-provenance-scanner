@@ -14,7 +14,8 @@ pytest tests/ -q --cov=scanner --cov-report=term
 
 Expected evidence at the cited CI snapshot:
 
-- **241 passed**
+- **260 passed, 1 skipped, 6 subtests** (Oct 13 2026 CI run 38462464074)
 - **1 skipped**
 - **6 subtests passed**
 - **75.67% statement coverage**
+

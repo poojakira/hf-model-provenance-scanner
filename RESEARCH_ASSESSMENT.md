@@ -35,7 +35,7 @@ That is a historical local-validation snapshot, not the current CI total.
 
 Current verified Linux CI evidence reports:
 
-- **241 passed, 1 skipped**
+- **260 passed, 1 skipped, 6 subtests** (Oct 13 2026 CI run 38462464074)
 - **6 subtests passed**
 - **75.67% statement coverage** (Python 3.12 verification; CI gate is 75%)
 
@@ -85,7 +85,7 @@ Important limitations remain:
 
 Acceptable wording:
 
-> Validated 241 passing tests (1 skipped) at 75.67% statement coverage; the committed internal red-team suite detects 12/12 core incident-reproduction fixtures, 18/18 extended variants, and 3/3 large-scale fixtures, with zero actionable findings across four committed benign samples.
+> Validated 260 passing tests (1 skipped, 6 subtests) at 75.67% statement coverage (Oct 13 2026 CI run 38462464074); the committed internal red-team suite detects 12/12 core incident-reproduction fixtures, 18/18 extended variants, and 3/3 large-scale fixtures, with zero actionable findings across four committed benign samples.
 
 Required qualifier:
 
@@ -111,3 +111,4 @@ For current test and coverage evidence, prefer the cited GitHub Actions run over
 The repository demonstrates a substantial model-supply-chain security implementation with reproducible internal tests and explicitly scoped red-team fixtures. Its credibility comes from source code, regression tests, CI, machine-readable reports, and documented limitations—not from rankings, marketing comparisons, or universal effectiveness claims.
 
 Future credibility should be improved through independently reproducible larger-corpus evaluation, clearly versioned benchmark artifacts, and broader benign/malicious datasets while preserving the same evidence boundaries.
+

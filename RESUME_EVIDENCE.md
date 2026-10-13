@@ -53,7 +53,7 @@ This is deliberately narrow. It is **not** a claim of a universal 0% false-posit
 
 ## Repository state and evidence history
 
-The repository's earlier `VERIFIED_METRICS.md` record reported **241 passed, 1 skipped, 6 subtests and 75.67% statement coverage** at its cited code commit. The newer October 9 hosted CI run reported **260 passed, 1 skipped, 6 subtests and 75.67% statement coverage**. The separately archived 195-pass Windows test run remains historical evidence only. No one run is claimed to have produced all three test totals.
+The repository's earlier `VERIFIED_METRICS.md` record previously reported 241 passed at its cited commit (historical). The current verified result is **260 passed, 1 skipped, 6 subtests and 75.67% statement coverage** (October 13, 2026 CI run [38462464074](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074), commit `4304853a`). The separately archived 195-pass Windows run remains historical evidence only.
 
 The currently tracked portfolio resume source uses 260 passing tests and 1 skipped, consistent with the October 9, 2026 hosted CI result. Historical claims and fixture results remain scoped to their specific commits and samples.
 
@@ -62,3 +62,4 @@ The currently tracked portfolio resume source uses 260 passing tests and 1 skipp
 - Main commit: [`2f937ba51f31c678e43a064e95d6939e3feb9226`](https://github.com/poojakira/hf-model-provenance-scanner/commit/2f937ba51f31c678e43a064e95d6939e3feb9226)
 - [GitHub Actions CI run 38002138828](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38002138828), Python 3.12 job: **260 passed, 1 skipped, 6 subtests passed, 75.67% coverage**.
 - These results are hosted test evidence, not a real-world detection rate or deployment claim.
+

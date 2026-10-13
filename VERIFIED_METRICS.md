@@ -13,7 +13,7 @@ The most recent independently inspected hosted Python 3.12 result as of this evi
 
 | Claim | Verified snapshot value | Evidence boundary |
 |---|---:|---|
-| Automated tests | **241 passed, 1 skipped** | Python 3.12 cited CI snapshot |
+| Automated tests | **260 passed, 1 skipped, 6 subtests** | October 13, 2026 CI run [38462464074](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074), commit `4304853a` |
 | Additional pytest subtests | **6 passed** | Same CI |
 | Statement coverage | **75.67%** | Python 3.12 CI |
 | Coverage gate | **75%** | Repository CI policy |
@@ -31,3 +31,4 @@ git checkout 251a7b90fd60fa1884c643adda9d96cd7801abe6
 python -m pip install -e ".[dev,service]"
 pytest tests/ -q --cov=scanner --cov-report=term
 ```
+
