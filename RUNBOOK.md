@@ -376,7 +376,7 @@ that run; re-run to confirm on your platform.
 - [x] Repository clones successfully
 - [x] `pip install -e ".[dev]"` completes
 - [x] `python -m scanner.cli --version` reports `hf-scanner 0.2.0`
-- [x] `pytest tests/` is green: **241 passed, 1 skipped** in the current Python 3.12 verification
+- [x] `pytest tests/` is green: **260 passed, 1 skipped, 6 subtests** in the current Python 3.12 verification (Oct 13 2026 CI run 38462464074)
 - [x] Coverage gate: `pytest tests/ --cov=scanner --cov-fail-under=75` passes (statement coverage **75.67%**)
 - [x] Scan a local target: `python -m scanner.cli <TARGET> -m local`
 - [x] JSON output is valid and includes `completeness` / `skipped_files_detail`
@@ -427,3 +427,4 @@ The prior subprocess harness did not isolate untrusted code. The runsc
 convenience path was not a verified minimal-rootfs container boundary.
 Use the static scanner or configure and independently verify an external
 isolation system before executing model repository code.
+
