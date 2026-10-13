@@ -2,7 +2,7 @@
 
 **Repository:** https://github.com/poojakira/hf-model-provenance-scanner  
 **Description:** Scan Hugging Face model repos for provenance, impersonation, pickle-risk, and supply-chain signals  
-**License:** Apache-2.0  
+**License:** Proprietary / All Rights Reserved for owner-controlled new releases; see [LICENSE](LICENSE). Existing Apache-2.0 grants to earlier versions remain valid; see [historical license](docs/license-history/LICENSE-BEFORE-2026-10-13.txt).  
 **Default Branch:** main
 
 ---
