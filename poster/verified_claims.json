@@ -1,0 +1,52 @@
+{
+  "repository": "hf-model-provenance-scanner",
+  "title": "Non-Executing Security Analysis of AI Model Supply-Chain Artifacts",
+  "subtitle": "Provenance, Serialization, Impersonation, and Repository Risk Inspection",
+  "license": "MIT",
+  "source_commit": "e3b100e6768ff37391bf780a43783ee5ed44b6d6",
+  "test_commit": "251a7b90fd60fa1884c643adda9d96cd7801abe6",
+  "ci_run": 37163168715,
+  "ci_date": "2026-10-03",
+  "cards": [
+    {
+      "value": "241",
+      "label": "tests passed in cited CI"
+    },
+    {
+      "value": "75.67%",
+      "label": "statement coverage, same CI job"
+    },
+    {
+      "value": "33 / 33",
+      "label": "committed adversarial fixtures, separately reproduced"
+    },
+    {
+      "value": "0 / 4",
+      "label": "actionable findings / committed benign samples"
+    }
+  ],
+  "contribution": "A primarily non-executing model-artifact security scanner combining static code analysis, symbolic and taint-style inspection, binary-format parsing, provenance checks, and fail-loud handling of incomplete analysis before model loading.",
+  "methods": [
+    "Enumerate repository and model artifacts.",
+    "Parse supported serialization/model formats.",
+    "Apply AST, pattern, symbolic, taint-style, metadata, and provenance checks.",
+    "Reject unsafe dynamic-execution paths in the scanner itself.",
+    "Emit findings and fail-loud states for incomplete or unsafe analysis."
+  ],
+  "evidence": [
+    "Cited Python 3.12 CI: 241 passed, 1 skipped, 6 additional subtests; 75.67% statement coverage; 75% configured gate.",
+    "Static inspection supports SafeTensors, GGUF, ONNX, Keras and pickle-derived artifacts, plus AST, symbolic, taint-style and dependency/provenance checks.",
+    "Separate guarded offline harness: 12 attack fixtures + 18 variants + 3 large-artifact assertions detected; 4 benign samples produced no actionable findings. Network/subprocess calls were denied and report writing disabled.",
+    "Fixture labels are incident-inspired regression data; external incident/CVE correctness was not independently authenticated."
+  ],
+  "limitations": [
+    "Static analysis does not prove model safety or generally detect neural-weight backdoors.",
+    "Fixture detections are not population precision/recall; four benign samples do not establish a universal false-positive rate.",
+    "Unsupported or incomplete analysis must remain explicit; no untrusted model code was executed in this verification."
+  ],
+  "reproduction": [
+    "git checkout 251a7b90fd60fa1884c643adda9d96cd7801abe6",
+    "Install the documented development extras and run python -m pytest tests/ -q using the cited Linux CI configuration.",
+    "A different platform or dependency set may produce different counts/coverage. This poster is not a promise about the latest main."
+  ]
+}
