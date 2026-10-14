@@ -20,7 +20,7 @@ Portfolio: [Pooja Kiran Security Engineering Portfolio](https://poojakira.github
 
 ### Poster evidence and reproducibility (October 2026)
 
-The source files in [poster/](poster/) reference the verified Python 3.12 CI snapshot at commit `251a7b90fd60fa1884c643adda9d96cd7801abe6` ([successful run 37163168715](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/37163168715)). This is a historical test/coverage snapshot, not a measured result for every later commit. Poster PNG/PDF files are generated artifacts: use the poster parity workflow to reconcile the rendered image with the cited source and review generated changes before merging. A generated PDF can differ in non-content metadata. No fixture-level detection claim should be presented as population precision or recall.
+The current source files in [poster/](poster/) cite the verified Python 3.12 main CI snapshot at commit `09aaa224776b8de0e53315a63c260eb3229bf9ac` ([successful run 38498005353](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38498005353)): **260 passed, 1 skipped, 6 subtests, 75.67% coverage**. The earlier 241-pass October 3 snapshot remains archived in [VERIFIED_METRICS.md](VERIFIED_METRICS.md). This is a historical test/coverage snapshot, not a measured result for every later commit. Poster PNG/PDF files are generated artifacts: use the poster parity workflow to reconcile the rendered image with the cited source and review generated changes before merging. A generated PDF can differ in non-content metadata. No fixture-level detection claim should be presented as population precision or recall.
 
 ## Hosted CI evidence (October 9–13, 2026)
 
@@ -28,9 +28,9 @@ The source files in [poster/](poster/) reference the verified Python 3.12 CI sna
 - **October 9–10 main CI:** [run 38002138828](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38002138828) at commit `2f937ba51f31c678e43a064e95d6939e3feb9226`: **260 passed, 1 skipped, 6 subtests, 75.67% coverage**.
 - **October 13 PR CI:** [run 38462464074](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074) at PR commit `4304853a76ba8a687c2ee29204ad45429de7c55d`: **260 passed, 1 skipped, 6 subtests, 75.67% coverage**.
 
-## Historical poster CI snapshot (October 3, 2026)
+## Archived original poster CI snapshot (October 3, 2026)
 
-The pinned poster run is [37163168715](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/37163168715) at `251a7b90fd60fa1884c643adda9d96cd7801abe6`: **241 passed, 1 skipped, 6 additional pytest subtests, 75.67% coverage**. Its source panel remains an archived snapshot, not the current CI total. See [VERIFIED_METRICS.md](VERIFIED_METRICS.md).
+The original archived poster run was [37163168715](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/37163168715) at `251a7b90fd60fa1884c643adda9d96cd7801abe6`: **241 passed, 1 skipped, 6 additional pytest subtests, 75.67% coverage**. Its source panel remains an archived snapshot, not the current CI total. See [VERIFIED_METRICS.md](VERIFIED_METRICS.md).
 
 ## Curated fixture evidence (not population-level performance)
 
