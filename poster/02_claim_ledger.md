@@ -1,10 +1,10 @@
 # Claim Ledger - Poster 03
 
-> Verified code snapshot: `251a7b90fd60fa1884c643adda9d96cd7801abe6`; successful CI run `37163168715`, run initiated 2026-10-03 UTC.
+> Verified code snapshot: `09aaa224776b8de0e53315a63c260eb3229bf9ac`; successful CI run `38498005353`, run initiated 2026-10-14 UTC.
 
 | # | Claim | Classification | Evidence |
 |---|---|---|---|
-| 1 | 260 passed, 1 skipped, 6 subtests passed | VERIFIED_AT_SNAPSHOT | Oct 13 2026 CI run 38462464074, commit 4304853a. |
+| 1 | 260 passed, 1 skipped, 6 subtests passed | VERIFIED_AT_SNAPSHOT | Oct 14 2026 main CI run 38498005353, commit 09aaa224. |
 | 2 | 75.67% statement coverage | VERIFIED_AT_SNAPSHOT | Python 3.12 CI at the cited snapshot. |
 | 3 | Curated malicious fixture suite is detected by the committed proof harness | VERIFIED_AT_SNAPSHOT | Fixture evidence and regression tests; fixture-only scope. |
 | 4 | Supported binary/model formats and static analysis engines are implemented | VERIFIED_AT_SNAPSHOT | Scanner modules and tests at the cited snapshot. |

@@ -1,6 +1,6 @@
 # Research Brief - Poster 03
 
-> Evidence status: Refreshed against verified code snapshot `251a7b90fd60fa1884c643adda9d96cd7801abe6` and successful CI run `37163168715` (CI run initiated 2026-10-03 UTC).
+> Evidence status: Refreshed against verified code snapshot `09aaa224776b8de0e53315a63c260eb3229bf9ac` and successful CI run `38498005353` (CI run initiated 2026-10-14 UTC).
 
 ## Repository
 
@@ -30,7 +30,7 @@ A primarily non-executing model-artifact security scanner combining static code 
 
 The cited Python 3.12 CI snapshot reports:
 
-- **260 passed, 1 skipped, 6 subtests passed** (Oct 13 2026 CI run 38462464074).
+- **260 passed, 1 skipped, 6 subtests passed** (Oct 14 2026 main CI run 38498005353).
 - **75.67% statement coverage**; CI gate is 75%.
 - Lint/format, type checking, Bandit, pip-audit, CodeQL, Trivy container scanning, unsafe-dynamic-execution rejection, and Docker build jobs succeeded.
 - The committed adversarial fixture evidence remains fixture-scoped; it must not be generalized to arbitrary model repositories.
@@ -47,10 +47,10 @@ The cited Python 3.12 CI snapshot reports:
 ```bash
 git clone https://github.com/poojakira/hf-model-provenance-scanner.git
 cd hf-model-provenance-scanner
-git checkout 251a7b90fd60fa1884c643adda9d96cd7801abe6
+git checkout 09aaa224776b8de0e53315a63c260eb3229bf9ac
 python -m pip install -e ".[dev,service]"
 pytest tests/ -q --cov=scanner --cov-report=term
 ```
 
-Expected evidence at the cited snapshot: **260 passed, 1 skipped, 6 subtests passed**, **75.67% coverage** (Oct 13 2026 CI run 38462464074).
+Expected evidence at the cited snapshot: **260 passed, 1 skipped, 6 subtests passed**, **75.67% coverage** (Oct 14 2026 main CI run 38498005353).
 
