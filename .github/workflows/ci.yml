@@ -291,7 +291,7 @@ jobs:
           category: "/language:${{ matrix.language }}"
 
   container-scan:
-    name: Container Scan (Trivy)
+    name: Filesystem Scan (Trivy)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     if: ${{ always() }}
@@ -305,7 +305,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Run Trivy vulnerability scanner
+      - name: Scan repository filesystem (HIGH/CRITICAL gate)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: 'fs'
@@ -313,8 +313,41 @@ jobs:
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'HIGH,CRITICAL'
+          exit-code: '1'
+          limit-severities-for-sarif: true
+
+      - name: Summarize filesystem scan findings
+        if: always()
+        run: |
+          python - <<'PY'
+          import collections
+          import json
+          from pathlib import Path
+
+          path = Path('trivy-results.sarif')
+          if not path.exists():
+              raise SystemExit('Filesystem scan report missing; inspect Trivy logs.')
+          runs = json.loads(path.read_text())['runs']
+          counts = collections.Counter(
+              result.get('ruleId', 'unknown')
+              for run in runs
+              for result in run.get('results', [])
+          )
+          print(f'TRIVY_FILESYSTEM_FINDINGS count={sum(counts.values())}')
+          for rule, count in sorted(counts.items()):
+              print(f'{rule}: {count}')
+          PY
+
+      - name: Preserve filesystem scan report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: trivy-filesystem-report
+          path: trivy-results.sarif
+          if-no-files-found: error
 
       - name: Upload Trivy results to GitHub Security
+        if: always()
         uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
         with:
           sarif_file: 'trivy-results.sarif'
