@@ -6,15 +6,15 @@ A complete step-by-step guide for first-time users. No prior knowledge required.
 
 ## What Is This Tool?
 
-This is a **security scanner** for AI/ML models downloaded from HuggingFace. Before you load or run any model from the internet, this tool checks it for hidden malware, credential stealers, and supply-chain attacks.
+This is a **security scanner** for AI/ML models downloaded from HuggingFace. Before loading an untrusted model, this tool checks supported source files, formats, and repository metadata for defined risk indicators. It does not execute model code while scanning, prove that a model is safe, or detect every attack.
 
-**Think of it like antivirus, but specifically for AI models.**
+**Think of it as a static model-artifact risk screen, not a malware-removal tool or a certificate of safety.**
 
 ---
 
 ## Prerequisites
 
-You need **Python 3.10 or newer** installed. That's it. No other software required.
+You need **Python 3.10 or newer**, Python **pip**, and **Git** if using the clone commands. The package install resolves its declared Python dependencies; service and other optional features have additional dependencies.
 
 ### Check if Python is installed:
 
@@ -56,7 +56,10 @@ git clone https://github.com/poojakira/hf-model-provenance-scanner.git
 # Step 3: Go into the folder
 cd hf-model-provenance-scanner
 
-# Step 4: Verify it works
+# Step 4: Install declared package dependencies
+py -m pip install -e .
+
+# Step 5: Verify it works
 py -m scanner.cli --version
 # Should print: hf-scanner 0.2.0
 ```
@@ -71,7 +74,10 @@ git clone https://github.com/poojakira/hf-model-provenance-scanner.git
 REM Step 3: Go into the folder
 cd hf-model-provenance-scanner
 
-REM Step 4: Verify it works
+REM Step 4: Install declared package dependencies
+py -m pip install -e .
+
+REM Step 5: Verify it works
 py -m scanner.cli --version
 ```
 
@@ -85,7 +91,10 @@ git clone https://github.com/poojakira/hf-model-provenance-scanner.git
 # Step 3: Go into the folder
 cd hf-model-provenance-scanner
 
-# Step 4: Verify it works
+# Step 4: Install declared package dependencies
+python3 -m pip install -e .
+
+# Step 5: Verify it works
 python3 -m scanner.cli --version
 # Should print: hf-scanner 0.2.0
 ```
@@ -133,7 +142,7 @@ python3 -m scanner.cli ~/Downloads/my-model --mode local --fail-on high
 
 ### Scenario 2: Scan a HuggingFace repo before downloading
 
-You want to check if a model on HuggingFace is safe BEFORE downloading it:
+You want a remote static risk screen before deciding whether to load a Hugging Face model. Remote mode retrieves supported metadata and file content as needed, and cannot certify the model as safe:
 
 **Windows:**
 ```powershell
@@ -158,15 +167,15 @@ convenience paths did not establish a verified boundary for untrusted code.
 
 ## Understanding the Output
 
-### Clean model (safe to use):
+### Example: no findings in the analyzed scope (not proof of safety):
 ```
 Risk: LOW (0/100)
 
 0 findings (0 critical, 0 high, 0 medium)
 ```
-This means: **Safe.** No suspicious code found.
+This means: **No matching findings were reported in the analyzed scope.** Review the JSON `completeness` field and skipped-file information; unknown, partial, or indeterminate coverage is not clean. Even a complete static scan cannot prove a model benign.
 
-### Dangerous model (DO NOT USE):
+### Example: high-risk findings that require investigation (do not execute untrusted artifacts):
 ```
 Risk: CRITICAL (100/100)
   - 5 critical findings
@@ -176,13 +185,13 @@ Risk: CRITICAL (100/100)
 [CRITICAL] HFS-001 loader.py:12 - subprocess with powershell
 [HIGH] HFS-014 loader.py:15 - Hidden window execution
 ```
-This means: **MALWARE DETECTED.** Do not load this model. Delete it immediately.
+This means: **Potentially dangerous behavior or artifacts were flagged by static checks.** Do not load or execute the model until the evidence and provenance have been investigated. Findings are indicators, not definitive proof of malicious intent.
 
 ### Exit codes (for CI/CD):
-- `0` = Clean (or findings below your threshold)
-- `1` = Findings at or above `--fail-on` severity — **blocked**
-- `2` = Scanner error
-- `3` = Invalid arguments
+- `0` = No findings at or above the configured severity threshold. Without `--enforce`, an incomplete scan may still return zero; this is **not** a safety approval.
+- `1` = Findings at or above `--fail-on`, or incomplete/indeterminate/unknown scan in `--enforce` mode. CI must use this status to stop its own loading/deployment step; a scanner exit code does not itself block another program.
+- `2` = Scanner/runtime error or argument-parser error.
+- `3` = Certain invalid-target errors reported after parsing.
 
 ---
 
