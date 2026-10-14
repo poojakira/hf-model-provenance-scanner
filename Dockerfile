@@ -4,7 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 WORKDIR /build
-COPY pyproject.toml ./
+COPY pyproject.toml LICENSE ./
 COPY scanner ./scanner
 
 RUN python -m pip install --no-cache-dir --upgrade pip build \
