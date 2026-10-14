@@ -22,25 +22,19 @@ Portfolio: [Pooja Kiran Security Engineering Portfolio](https://poojakira.github
 
 The source files in [poster/](poster/) reference the verified Python 3.12 CI snapshot at commit `251a7b90fd60fa1884c643adda9d96cd7801abe6` ([successful run 37163168715](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/37163168715)). This is a historical test/coverage snapshot, not a measured result for every later commit. Poster PNG/PDF files are generated artifacts: use the poster parity workflow to reconcile the rendered image with the cited source and review generated changes before merging. A generated PDF can differ in non-content metadata. No fixture-level detection claim should be presented as population precision or recall.
 
-## Latest inspected hosted verification (2026-10-09)
+## Hosted CI evidence (October 9–13, 2026)
 
-[CI run 38002138828](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38002138828), Python 3.12, main commit `2f937ba51f31c678e43a064e95d6939e3feb9226`: **260 passed, 1 skipped, 6 additional pytest subtests passed, 75.67% coverage**. Hosted lint/type/security and Docker-build jobs passed. These results are distinct from the earlier pinned poster run and are not a real-world detection rate.
+- **October 13 main push:** [run 38487400153](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38487400153) succeeded at commit `ea9f1b3048a8eb84fc563b246ed008b360aafa24`. This status is not independent proof of detector effectiveness.
+- **October 9–10 main CI:** [run 38002138828](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38002138828) at commit `2f937ba51f31c678e43a064e95d6939e3feb9226`: **260 passed, 1 skipped, 6 subtests, 75.67% coverage**.
+- **October 13 PR CI:** [run 38462464074](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074) at PR commit `4304853a76ba8a687c2ee29204ad45429de7c55d`: **260 passed, 1 skipped, 6 subtests, 75.67% coverage**.
 
-## Historical poster CI snapshot
+## Historical poster CI snapshot (October 3, 2026)
 
-The original poster snapshot is anchored in [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md). These numbers refer to an older commit and must not be presented as latest main results.
+The pinned poster run is [37163168715](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/37163168715) at `251a7b90fd60fa1884c643adda9d96cd7801abe6`: **241 passed, 1 skipped, 6 additional pytest subtests, 75.67% coverage**. Its source panel remains an archived snapshot, not the current CI total. See [VERIFIED_METRICS.md](VERIFIED_METRICS.md).
 
-| Measure | Verified result | Scope |
-|---|---:|---|
-| Automated tests | **260 passed** | Oct 13 2026 CI on Python 3.12 (run [38462464074](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074)) |
-| Additional pytest subtests | **6 passed** | Same CI jobs |
-| Statement coverage | **75.67%** | Python 3.11/3.12 CI coverage |
-| Core incident fixtures | **12/12 detected** | Committed red-team fixture suite |
-| Extended variants | **18/18 detected** | Committed extended fixture suite |
-| Large-scale fixtures | **3/3 detected** | Committed large-scale fixtures |
-| Actionable false positives | **0 across 4 benign samples** | Small committed benign fixture set only |
+## Curated fixture evidence (not population-level performance)
 
-The aggregate **33/33** result is an internal fixture-suite result, not a universal real-world detection rate. The benign result is likewise limited to the four committed benign samples.
+The committed regression collection reports **12/12 core incident cases**, **18/18 extended variants**, and **3/3 large-scale fixtures** detected; aggregate **33/33** refers only to those curated cases. **0 actionable findings across 4 benign samples** refers only to those samples, not a universal false-positive rate.
 
 ## Security Problem
 
