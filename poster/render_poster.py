@@ -67,12 +67,15 @@ evidence = items(
     sec(
         "Current Verified Evidence",
         "Verified Evidence",
+        "Verified Evidence at Poster Snapshot",
+        "Verified Current CI and Separately Pinned Benchmark Evidence",
         "Evidence at Poster Snapshot + Claim Ledger",
     )
 )[:7]
 limits = items(
     sec(
         "Honest Boundaries",
+        "Claim Boundary",
         "Limitations",
         "Limitations & Residual Risk",
         "Not established by this repository",
@@ -83,6 +86,17 @@ repro = strip_fences(repro_block)[:900]
 repository = (
     clean(sec("Repository")) or f"github.com/poojakira/{repo.name.replace('_readonly_','')}"
 )
+
+
+# Print the measured evidence snapshot, not the commit that only rendered the artwork.
+evidence_shas = list(dict.fromkeys(re.findall(r"\b[0-9a-f]{40}\b", metrics_text)))
+evidence_runs = list(
+    dict.fromkeys(re.findall(r"(?:actions/runs/|run\s+`?)([0-9]{8,})", metrics_text, re.IGNORECASE))
+)
+if evidence_shas:
+    repro += "\nMeasured code snapshot: " + evidence_shas[0]
+if evidence_runs:
+    repro += "\nEvidence CI run: " + evidence_runs[0]
 
 metrics = []
 headline_match = re.search(r"(?ms)^##+\s+Headline cards\s*$\n(.*?)(?=^##+\s+|\Z)", metrics_text)

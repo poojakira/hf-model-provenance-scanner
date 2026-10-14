@@ -32,7 +32,7 @@ The cited Python 3.12 CI snapshot reports:
 
 - **260 passed, 1 skipped, 6 subtests passed** (Oct 14 2026 main CI run 38498005353).
 - **75.67% statement coverage**; CI gate is 75%.
-- Lint/format, type checking, Bandit, pip-audit, CodeQL, Trivy container scanning, unsafe-dynamic-execution rejection, and Docker build jobs succeeded.
+- Lint/format, type checking, Bandit, pip-audit, CodeQL, Trivy repository-filesystem scanning (not an image scan), unsafe-dynamic-execution rejection, and Docker build jobs succeeded.
 - The committed adversarial fixture evidence remains fixture-scoped; it must not be generalized to arbitrary model repositories.
 
 ## Limitations
