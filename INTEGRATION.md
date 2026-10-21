@@ -41,7 +41,7 @@ jobs:
           python-version: '3.11'
       - run: pip install "git+https://github.com/poojakira/hf-model-provenance-scanner.git@9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4"
       - run: hf-scanner . --mode local --format sarif --output results.sarif --fail-on high
-      - uses: github/codeql-action/upload-sarif@c4dd10e44af883a891fe31ced449bcb4a6728b9b
+      - uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
         if: always()
         with:
           sarif_file: results.sarif
