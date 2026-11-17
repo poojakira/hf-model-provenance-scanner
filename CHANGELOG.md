@@ -8,6 +8,7 @@
 - Fixed installer destructive-target handling, CRLF syntax and Python requirement; install from reviewed local source into a new environment.
 - Prevent installed distributions from inheriting an unrelated parent Git commit; generated health evidence omits the temporary local CSRF nonce.
 - Keep native subtest totals separate from individual test outcomes in generated verification reports.
+- Cancel obsolete pending downloads and remove old export authority on every scan; capture a consistent report/checksum snapshot. Save only non-secret health evidence fields.
 - Kept existing remote admission authentication and its distinct API version unchanged. Dynamic sandbox convenience remains disabled.
 - Replaced current README claims with scoped task documentation; marked historical documents as historical. Final commit-scoped checks are generated outside source, not copied from prior metrics.
 

@@ -11,6 +11,7 @@ import time
 import urllib.request
 from pathlib import Path
 
+from playwright.sync_api import TimeoutError as BrowserTimeout
 from playwright.sync_api import expect, sync_playwright
 
 
@@ -44,8 +45,9 @@ def main():
         else:
             raise RuntimeError("Server startup deadline")
         (evidence / "health.json").write_text(
-            json.dumps({key: value for key, value in health.items() if key != "token"}, indent=2)
+            json.dumps({key: health[key] for key in ("status", "source", "limits")}, indent=2)
         )
+        assert health["csrf_token"] not in (evidence / "health.json").read_text()
         with (
             tempfile.TemporaryDirectory(prefix="hf-browser-") as temporary,
             sync_playwright() as playwright,
@@ -100,6 +102,17 @@ os.system("echo synthetic")
                 == hashlib.sha256(second.read_bytes()).hexdigest()
             )
             page.screenshot(path=str(evidence / "desktop-results.png"), full_page=True)
+            # Delay only checksum completion; actual engines still process both reviews.
+            page.evaluate(
+                """() => {window.originalDigest=crypto.subtle.digest.bind(crypto.subtle);
+                crypto.subtle.digest=async function(...args){
+                  document.body.dataset.pendingDigest='yes';
+                  await new Promise(resolve=>window.releaseDigest=resolve);
+                  return window.originalDigest(...args);
+                };}"""
+            )
+            page.locator("#download").click()
+            expect(page.locator("body")).to_have_attribute("data-pending-digest", "yes")
             second = Path(temporary) / "synthetic-edited.py"
             second.write_text("# SYNTHETIC edited source\nweights = [1, 2]\n")
             page.locator("#second").set_input_files(second)
@@ -107,6 +120,49 @@ os.system("echo synthetic")
             page.get_by_role("button", name="Inspect files").click()
             expect(page.locator("#status")).to_contain_text("Completed", timeout=15000)
             expect(page.locator("#files")).not_to_contain_text("HFS-001")
+            try:
+                with page.expect_download(timeout=2000):
+                    page.evaluate("window.releaseDigest()")
+            except BrowserTimeout:
+                pass  # An obsolete export must not produce any download.
+            else:
+                raise AssertionError("Changed review retained obsolete download authority")
+            page.evaluate("() => {crypto.subtle.digest=window.originalDigest;}")
+            with page.expect_download() as changed:
+                page.locator("#download").click()
+            changed.value.save_as(str(evidence / "changed-download.json"))
+            current = json.loads((evidence / "changed-download.json").read_text())
+            canonical = page.evaluate(
+                "JSON.stringify(JSON.parse(document.getElementById('report').textContent),null,2)"
+            )
+            assert (
+                current["manifest"]["report_sha256"]
+                == hashlib.sha256(canonical.encode()).hexdigest()
+            )
+            assert (
+                current["report"]["input_manifest"][1]["sha256"]
+                == hashlib.sha256(second.read_bytes()).hexdigest()
+            )
+            # Hold a real backend response and check old evidence disappears immediately.
+            page.evaluate(
+                """() => {window.originalFetch=fetch.bind(window);
+                window.fetch=async function(...args){const response=await window.originalFetch(...args);
+                  if(args[0]==='/api/inspect'){
+                    document.body.dataset.pendingInspection='yes';
+                    await new Promise(resolve=>window.releaseInspection=resolve);
+                  }
+                  return response;
+                };}"""
+            )
+            page.locator("#sample").click()
+            expect(page.locator("#status")).to_contain_text("Inspecting")
+            expect(page.locator("#output")).to_be_hidden()
+            expect(page.locator("body")).to_have_attribute(
+                "data-pending-inspection", "yes", timeout=15000
+            )
+            page.evaluate("window.releaseInspection()")
+            expect(page.locator("#status")).to_contain_text("Completed", timeout=15000)
+            page.evaluate("() => {window.fetch=window.originalFetch;}")
             # Delay browser File.arrayBuffer, then select a newer file before it resolves.
             page.evaluate(
                 "() => {window.originalRead=File.prototype.arrayBuffer; File.prototype.arrayBuffer=async function(){await new Promise(r=>setTimeout(r,600)); return window.originalRead.call(this);};}"
@@ -172,6 +228,9 @@ os.system("echo synthetic")
                             "hash comparison",
                             "edit/rerun",
                             "download checksum",
+                            "obsolete pending checksum cancels download",
+                            "new review export checksum and input hashes",
+                            "new scan removes old export authority",
                             "delayed file read",
                             "delayed response",
                             "synthetic label",
