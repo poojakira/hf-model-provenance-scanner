@@ -44,7 +44,7 @@ from scanner.runtime_policy import format_runtime_policy
 from scanner.utils.file_filter import walk_files
 from scanner.utils.hf_api import HFApiClient
 
-SCANNER_VERSION = "0.2.0"
+SCANNER_VERSION = "0.3.0"
 SCRIPT_EXTENSIONS = (".sh", ".bat", ".ps1", ".cmd")
 CONFIG_EXTENSIONS = (".json",)
 PYTHON_EXTENSIONS = (".py",)
@@ -376,8 +376,8 @@ def scan_remote_files(
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="hf-scanner",
-        description="Zero-dependency ML supply chain provenance scanner for "
-        "Hugging Face repositories — v0.2.0 with binary model analysis",
+        description="Static ML supply chain provenance scanner for "
+        "Hugging Face repositories — v0.3.0 with binary model analysis",
     )
     parser.add_argument(
         "target", metavar="TARGET", help="Hugging Face repo ID or local directory path"

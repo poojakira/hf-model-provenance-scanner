@@ -1,317 +1,50 @@
-> **READ THIS LICENSE BEFORE USING THIS REPOSITORY.** Owner-controlled new releases are subject to the [proprietary All Rights Reserved LICENSE](LICENSE): copying, modification, and redistribution require written authorization except where law or GitHub's Terms allow. Previously granted Apache-2.0 rights remain valid for versions covered by that license; see the [historical license](docs/license-history/LICENSE-BEFORE-2026-10-13.txt). Third-party rights remain unaffected.
+# AI Model Trust Inspector
 
-# HF Model Provenance Scanner
+Inspect and compare actual local model artifacts without loading a model. The browser calls this repository’s static Python, pickle opcode, SafeTensors and GGUF analyzers in a bounded Linux worker. This is the local workbench for `hf-scanner` 0.3.0.
 
-> **Non-executing security analysis for AI/ML model supply chains.**
+**Status: PARTIAL.** The local workflow is implemented. Final commit-scoped results are generated outside source; independent review, all historical documentation claims, optional remote integrations, container deployment and production approval remain separate gates. No static result establishes behavioral safety or trustworthy model origin. Curated fixture detection is not a field accuracy measurement.
 
-Inspect Hugging Face repositories and local model artifacts for provenance gaps, unsafe serialization, suspicious loaders, dependency risk, impersonation signals, obfuscation, and other supply-chain indicators **without executing untrusted model code**.
+## Start locally
 
-Maintained by **Pooja Kiran** ([@poojakira](https://github.com/poojakira)).
+Requires Linux, Python 3.10+, `libseccomp.so.2`, and a current browser. No credentials or paid service is needed. From this reviewed checkout:
 
-Portfolio: [Pooja Kiran Security Engineering Portfolio](https://poojakira.github.io/Pooja_Kiran_Portfolio_Website/).
-
-[![CI](https://github.com/poojakira/hf-model-provenance-scanner/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/hf-model-provenance-scanner/actions/workflows/ci.yml)
-[![Python >=3.10](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
-[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
-
-## Overview
-
-`hf-model-provenance-scanner` inspects Hugging Face repositories and local model artifacts for supply-chain risk - provenance gaps, unsafe pickle/serialization, suspicious loaders, dependency risk, impersonation, and obfuscation - **without executing untrusted model code**. It combines a custom pickle-opcode parser, AST/taint/symbolic-string analysis, and binary-format parsers across pickle, SafeTensors, GGUF, ONNX, and Keras, emitting text/JSON/SARIF for CI gating. It exists because a model download is a software supply chain that teams must be able to inspect before trusting or loading it.
-
-### Poster evidence and reproducibility (October 2026)
-
-The current source files in [poster/](poster/) cite the verified Python 3.12 main CI snapshot at commit `09aaa224776b8de0e53315a63c260eb3229bf9ac` ([successful run 38498005353](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38498005353)): **260 passed, 1 skipped, 6 subtests, 75.67% coverage**. The earlier 241-pass October 3 snapshot remains archived in [VERIFIED_METRICS.md](VERIFIED_METRICS.md). This is a historical test/coverage snapshot, not a measured result for every later commit. Poster PNG/PDF files are generated artifacts: use the poster parity workflow to reconcile the rendered image with the cited source and review generated changes before merging. A generated PDF can differ in non-content metadata. No fixture-level detection claim should be presented as population precision or recall.
-
-## Hosted CI evidence (October 9–13, 2026)
-
-- **October 13 main push:** [run 38487400153](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38487400153) succeeded at commit `ea9f1b3048a8eb84fc563b246ed008b360aafa24`. This status is not independent proof of detector effectiveness.
-- **October 9–10 main CI:** [run 38002138828](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38002138828) at commit `2f937ba51f31c678e43a064e95d6939e3feb9226`: **260 passed, 1 skipped, 6 subtests, 75.67% coverage**.
-- **October 13 PR CI:** [run 38462464074](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074) at PR commit `4304853a76ba8a687c2ee29204ad45429de7c55d`: **260 passed, 1 skipped, 6 subtests, 75.67% coverage**.
-
-## Archived original poster CI snapshot (October 3, 2026)
-
-The original archived poster run was [37163168715](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/37163168715) at `251a7b90fd60fa1884c643adda9d96cd7801abe6`: **241 passed, 1 skipped, 6 additional pytest subtests, 75.67% coverage**. Its source panel remains an archived snapshot, not the current CI total. See [VERIFIED_METRICS.md](VERIFIED_METRICS.md).
-
-## Curated fixture evidence (not population-level performance)
-
-The committed regression collection reports **12/12 core incident cases**, **18/18 extended variants**, and **3/3 large-scale fixtures** detected; aggregate **33/33** refers only to those curated cases. **0 actionable findings across 4 benign samples** refers only to those samples, not a universal false-positive rate.
-
-## Security Problem
-
-AI model repositories are software supply chains. A model download can include Python, shell scripts, dependency files, serialized objects, tokenizers, configuration, and binary model formats. Security teams need a way to inspect that material before trusting or deploying it.
-
-This project focuses on a simple boundary:
-
-**Analyze the repository and model artifacts first; do not execute untrusted model code in order to decide whether it is safe.**
-
-## Core Capabilities
-
-The scanner combines static and metadata-driven checks across source, configuration, dependencies, and model artifacts.
-
-- **Unsafe serialization:** pickle-derived artifacts and suspicious deserialization behavior.
-- **Model-format inspection:** SafeTensors, GGUF, ONNX, Keras, and common binary model extensions.
-- **Suspicious source behavior:** Python AST analysis, shell/config scanning, symbolic string resolution, taint analysis, and obfuscation indicators.
-- **Supply-chain provenance gaps:** missing signature, SBOM/AIBOM, and provenance/attestation markers.
-- **Repository risk signals:** executable loaders, suspicious entry points, dependency anomalies, and organization/publisher policy checks.
-- **Temporal drift:** baseline creation and comparison for model/repository changes over time.
-- **Machine-readable output:** JSON, SARIF, text, and HTML reports for CI/CD and review workflows.
-- **Optional ATT&CK enrichment:** maps selected finding families to MITRE ATT&CK v19 when the optional `attack-v19-core` package is installed.
-
-## Quick Start
-
-Requires **Python 3.10+**.
-
-```bash
-git clone https://github.com/poojakira/hf-model-provenance-scanner.git
-cd hf-model-provenance-scanner
-python -m pip install -e .
+```sh
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-local.lock
+.venv/bin/python -m pip install --no-deps -e .
+.venv/bin/python -m scanner.workbench.server
 ```
 
-Scan a local directory:
+Open **http://127.0.0.1:8763**. Select one or two files and choose **Inspect files**. Change a file and inspect again. The **Try synthetic comparison** button analyzes clearly labeled synthetic Python source through the same worker. **Download report + manifest** exports findings, hashes, structures, limits, unknowns and source provenance. Stop with Ctrl+C.
 
-```bash
-hf-scanner ./model-repo --mode local
-```
+Supported local inputs: `.safetensors`, `.gguf`, raw pickle (`.pkl`, `.pickle`, `.pt`, `.pth`, `.bin`, `.ckpt`, `.joblib`) and UTF-8 `.py`. Each file must contain 1 byte–4 MiB. ZIP-based PyTorch, archives, compressed files, ONNX and Keras are not supported by this workbench. Use a plain ASCII filename without directories.
 
-Scan a Hugging Face repository:
+## What the evidence means
 
-```bash
-hf-scanner org/model-name --mode remote
-```
+- `CONCERNS`: the actual engine found configured static patterns. Review evidence and context.
+- `NO_PATTERN_FOUND`: no configured pattern was found in the supported inspection scope. Safety and origin remain unknown.
+- `UNKNOWN`: malformed, unsupported, failed, timed-out or incomplete inspection. Never a clean result.
+- Comparison covers file hashes, metadata and parsed serialized structures. It does not establish semantic equivalence or model behavior.
 
-Write SARIF for CI or code-scanning workflows:
+Raw pickle opcodes include offsets; Python findings include source locations where available; SafeTensors exposes header/tensor descriptors and tensor byte hashes; GGUF exposes metadata/descriptor offsets. GGUF tensor payload layout and quantization are **NOT VERIFIED**. Static rules can miss threats and flag benign content.
 
-```bash
-hf-scanner ./model-repo --mode local --format sarif --output results.sarif
-```
+The worker has a fail-closed Linux seccomp syscall allowlist, `no_new_privs`, CPU/address-space limits, bounded pipes and a wall-clock deadline. It cannot open filesystem paths, create sockets, execute programs or create children after initialization. This is not a VM/container or protection against kernel vulnerabilities. Inputs remain in bounded process memory; they are never extracted, imported, unpickled, written to disk or downloaded. Exports are saved only when you choose Download. Local processes and browser extensions are outside the user-isolation boundary.
 
-Create a baseline and compare later revisions:
+![Actual desktop workbench; evidence archive publication follows independent review](https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/refs/tags/evidence/local-workbench-20261116/release-evidence/browser/desktop.png)
 
-```bash
-hf-scanner ./model-repo --mode local --save-baseline baseline.json
-hf-scanner ./model-repo --mode local --baseline baseline.json
-```
+The screenshot belongs to an immutable evidence archive published after independent review. Before that publication, inspect the generated local browser artifact described in [evidence guidance](docs/EVIDENCE.md).
 
-Generate a CycloneDX AI Bill of Materials:
+## Existing CLI and admission API
 
-```bash
-hf-scanner ./model-repo --mode local --aibom aibom.json
-```
+The local scanner CLI remains available with `.venv/bin/hf-scanner --help`. The existing remote admission service in `scanner/service.py` retains its API-key authorization and network policy. Its **1.0.0 API version** describes that separate service contract; the software/engine version is **0.3.0** and the local API schema version is **1**. The upload UI never calls the remote service and does not bypass its authentication. The old dashboards are explicitly synthetic, historical visualization assets.
 
-Use `--enforce` in CI when incomplete or indeterminate scans must fail rather than pass silently.
+## Engineering documentation
 
-## Architecture
+- [Product, architecture, threat model, API, operations and user/developer guide](docs/INSPECTOR.md)
+- [Testing and adversarial checks](docs/TESTING.md)
+- [Evidence and known limitations](docs/EVIDENCE.md)
+- [Security reporting and autopsy](SECURITY.md)
+- [Changelog](CHANGELOG.md)
+- [Read-only baseline and branch audit](docs/internal/REPOSITORY_AUDIT.md)
 
-```text
-Target repository / local directory
-        |
-        v
-File discovery and immutable revision resolution
-        |
-        +--> Python / shell / config / dependency analysis
-        +--> Pickle / SafeTensors / GGUF / ONNX / Keras analysis
-        +--> Provenance / signature / SBOM checks
-        +--> Taint / symbolic / obfuscation analysis
-        +--> Temporal baseline comparison
-        |
-        v
-Normalized findings + severity + remediation
-        |
-        +--> text
-        +--> JSON
-        +--> SARIF
-        +--> HTML
-```
-
-The default scanner path is designed to inspect artifacts without importing or executing model repository code.
-
-**Signature scope:** The scanner flags missing signature evidence and can invoke an installed external verifier for local detached signatures. It does not create model signatures or implement Ed25519 signing.
-
-## Evidence and Reproduction
-
-The repository keeps evidence separate from marketing claims so results can be checked independently.
-
-- [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md) - latest hosted CI plus separately dated historical poster evidence and red-team counts.
-- [`RESUME_EVIDENCE.md`](RESUME_EVIDENCE.md) - historical validation snapshots and reconciliation with later CI growth.
-- [`evidence/DETECTION_PROOF.md`](evidence/DETECTION_PROOF.md) - committed detection evidence and reproduction notes.
-- [`tests/redteam/`](tests/redteam/) - attack and benign fixtures used for regression testing.
-- [`benchmarks/scan_perf.py`](benchmarks/scan_perf.py) - performance regression harness.
-
-Reproduce the principal regression checks with:
-
-```bash
-pytest tests/
-python tests/redteam/simulate_attacks.py
-python tests/redteam/extended_attacks.py
-python tests/redteam/test_large_scale.py
-```
-
-`tests/redteam/test_detection_counts.py` pins the advertised fixture totals so changes to those counts fail regression tests.
-
-## Threat Model & Scope
-
-| Area | Current status | Boundary |
-|---|---|---|
-| Scanner formats | Python, shell/config/dependency files, pickle-derived files, SafeTensors, GGUF, ONNX, and Keras paths are implemented | Format support does not imply complete attack coverage |
-| Provenance checks | Missing signature, SBOM, and provenance markers can be flagged | Missing evidence is a risk signal, not proof of compromise |
-| Red-team fixtures | Committed attack fixtures are detected by the current suite | Fixture results must not be generalized to arbitrary real-world repositories |
-| Latency | A benchmark harness exists | Do not claim a production P99 without a current reproducible result artifact |
-| False positives | Four committed benign samples produced zero actionable findings in the verified snapshot | Do not claim a universal 0% false-positive rate |
-| Sandbox mode | Disabled | The project does not claim verified isolation for executing untrusted model code |
-
-## MITRE ATT&CK v19 Enrichment
-
-ATT&CK mapping is an **optional library component**, not part of the default scanner CLI output path.
-
-The implementation lives under `scanner/attack_mapping/` and requires the optional [`attack-v19-core`](https://github.com/poojakira/attack-v19-core) dependency. The current enricher covers **10 finding families** through `ATTACKEnricher._rule_table`; it does not map every possible scanner finding.
-
-Install the optional dependency and export an ATT&CK Navigator layer:
-
-```bash
-pip install -e ".[attack]"
-python -m scanner.attack_mapping.reporter --output navigator_layer.json
-```
-
-Selected mappings include supply-chain compromise, unsafe Python execution, impersonation, dependency confusion, credential exposure, and model-card or tokenizer manipulation. See the implementation and tests for the exact current mapping table.
-
-## Output and CI Use
-
-The CLI supports:
-
-```text
---format text|json|sarif|html
---fail-on critical|high|medium|low|info|never
---enforce
---revision <branch|tag|sha>
---baseline <file>
---save-baseline <file>
---aibom <file>
---no-network
-```
-
-This makes the scanner usable as a local review tool, a CI security gate, or an evidence-producing component in a broader model-governance workflow.
-
-## Research Poster
-
-**Security Systems / 03 - Non-Executing Security Analysis of AI Model Supply-Chain Artifacts**
-
-[![Research poster](poster/poster.png)](poster/poster_36x48.pdf)
-
-The 36 x 48 in technical poster summarizes the system, threat model, validation approach, and evidence boundaries. Metrics on the poster are intended to remain tied to committed evidence artifacts rather than generalized deployment claims.
-
-## Fail-Closed Isolation Executor
-
-The existing `--sandbox` subprocess backend is **not** isolation. This adds an
-explicit execution boundary in `scanner/isolation/executor.py`:
-
-- **`ExecutorBackend` interface + `RestrictedSubprocessBackend`** enforcing, portably (Windows/POSIX):
-  wall-clock timeout with kill, output-size caps, working-dir confinement, and env scrubbing.
-- **POSIX-only (guarded):** `resource.setrlimit` for CPU/AS/NOFILE/FSIZE plus `os.setsid`.
-- **Fail-closed:** refuses to run untrusted code without an explicit acknowledgment flag.
-
-**UNVERIFIED — requires Linux host + KVM:** committed seccomp / namespace / cgroup-v2 profiles
-under `scanner/isolation/profiles/` and a gVisor / Firecracker backend **stub** that raises
-`NotImplementedError`. These kernel-isolation pieces are inert on Windows and are **not**
-verified here. True kernel isolation is **not** verified on Windows.
-
-Tests: `tests/test_executor.py` = **12 passed, 1 skipped** (the POSIX-only test is skipped on
-Windows). Full suite: **260 passed / 1 skipped, plus 6 subtests, no regressions** (Oct 13 2026 CI run [38462464074](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074)). See
-[`scanner/isolation/README.md`](scanner/isolation/README.md) for the verified-vs-Linux matrix.
-
-## Supply-Chain Signing & Attestation
-
-`.github/workflows/supply-chain-attest.yml` adds cosign **keyless** image signing, a signed
-CycloneDX SBOM attestation, SLSA build provenance, and a verify gate.
-
-**UNVERIFIED locally — requires a CI runner with OIDC + registry:** this workflow has not been
-executed in the local dev environment. The **verified** part is the existing CycloneDX AIBOM
-generator (`scanner/aibom_generator.py`); the signing/attestation pipeline is not verified here.
-See [`docs/supply-chain/SIGNING.md`](docs/supply-chain/SIGNING.md).
-
-## Additional Documentation
-
-- [`INCIDENT_RUNBOOK.md`](INCIDENT_RUNBOOK.md) - incident-response guidance for the scanner.
-- [`docs/API_VERSIONING.md`](docs/API_VERSIONING.md) - CLI and API stability notes.
-- [`docs/PERFORMANCE_BASELINE.md`](docs/PERFORMANCE_BASELINE.md) - performance-baseline documentation.
-- [`evidence/DETECTION_PROOF.md`](evidence/DETECTION_PROOF.md) - red-team detection evidence.
-- [`RESUME_EVIDENCE.md`](RESUME_EVIDENCE.md) - auditable resume-claim evidence.
-- [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md) - latest hosted result and archived poster snapshot, with separate run anchors.
-
-## Maintainer
-
-**Pooja Kiran**  
-GitHub: [@poojakira](https://github.com/poojakira)
-
-This repository is maintained as an evidence-backed security-engineering project. Claims should remain reproducible from committed code, tests, CI results, and evidence artifacts.
-
-<!-- repo-verification:start -->
-## Verification update — 2026-09-30
-
-- **Scope:** Account-wide `poojakira` repository pass covering source/configuration, CI/release workflows, security-hygiene gates, dependency/SAST controls, and documentation consistency.
-- **Remediation:** Marked the inert webhook test secret as a test-only S105 exception instead of weakening the rule globally; CI then passed.
-- **Verification state:** CI, Production Gate, Security Hygiene, Documentation Integrity, and Admission Service Container checks completed successfully after the fix.
-- **Security note:** The exception is limited to the inert test fixture; production secret-handling rules remain enforced.
-- **Evidence boundary:** This update records repository and GitHub Actions evidence observed during the pass. It is not a claim of independent penetration testing, production deployment, or zero residual risk.
-<!-- repo-verification:end -->
-
-## Verification checkpoint — 2026-09-30
-
-- **Snapshot commit:** `293ac40874b09033ce8af4fcca87457a7661af56`
-- **Status:** PARTIALLY VERIFIED
-- **Evidence:** A verified Ruff S105 false positive on an inert webhook test secret was fixed with a targeted `noqa` annotation instead of weakening the rule globally. Earlier post-fix CI completed successfully; the current main head had no completed CI run attached at this snapshot.
-- This checkpoint is intentionally date-bounded. It does not claim zero vulnerabilities or universal production readiness.
-
-
-## Secret handling
-
-Keep runtime credentials outside Git. If this repository provides an `.env.example` or `.env.sample`, copy it to a local `.env` or `.env.local` and fill in values locally; the real environment file must remain untracked.
-
-Do not commit AWS access keys or session credentials, API tokens, service-account JSON, private keys, package-manager credentials, Terraform state, or secret-bearing `tfvars`. CI/deployment credentials belong in GitHub Actions secrets or the deployment provider's secret manager. AWS account IDs are identifiers; AWS access-key IDs, secret access keys, and session tokens are credentials.
-
-If a real credential is ever exposed, revoke or rotate it at the provider first, then remove it from the working tree and reachable Git history. The Security Hygiene workflow checks the current tree and reachable history for common credential formats without printing matched secret values.
-
-## Security review and deployment boundaries
-
-See [the September 30, 2026 security review](SECURITY_REVIEW_2026-09-30.md) for verified fixes, actual test results, authentication versus resource authorization, secret-scan scope, and remaining deployment limitations. A passing scan or test suite does not certify that untrusted artifacts are safe.
-
-### Your own local configuration
-
-Create your own local `.env` file for deployment configuration; it is ignored by Git. Use your own newly generated `API_KEY` and your own narrowly scoped provider credentials. No repository-owner keys or shared credentials are supplied. Never commit populated environment files or paste credentials into issues, logs, or scan reports. Load `.env` explicitly through your deployment tooling; these services read process environment variables and do not automatically load that file.
-
-If private-model access is needed, configure your own `HF_TOKEN` and explicitly set `SCAN_ALLOWED_REPOS` to the model repositories you authorize. Public-model scans can omit `HF_TOKEN`. Keep the API service key separate from the Hugging Face token.
-
-<!-- security-local-config:start -->
-## Secrets and local configuration
-
-- Never commit real API keys, access tokens, passwords, cloud credentials, private keys, or a populated `.env` file.
-- Local `.env` and `.env.*` files are ignored by Git. Only safe templates such as `.env.example` or `.env.sample` may be committed, and they must contain placeholder or empty values only.
-- If an integration needs credentials, create your own local `.env` file (or use your shell/secret manager) and supply **your own** API key. In GitHub Actions, use repository/environment secrets rather than hard-coding values in workflow YAML.
-- Do not copy or reuse any credential that appears in repository history, examples, tests, screenshots, logs, or documentation. Test strings are not intended to be usable credentials.
-- If a real credential is ever committed, **revoke or rotate it at the credential provider first**, then remove it from the current tree and reachable Git history. Deleting a key from GitHub does not revoke it.
-<!-- security-local-config:end -->
-
-## Product validation
-
-This repository separates **implementation evidence**, **public/external interoperability checks**, and **real deployment or customer evidence**. See [PRODUCT_VALIDATION.md](PRODUCT_VALIDATION.md) for the current validation ladder, reproducible checks, and the claims that are deliberately out of scope. A passing test or public-data canary is not presented as customer adoption or universal production efficacy.
-
-
-## Recruiting evidence audit (2026-10-09)
-
-See [the bounded recruiting evidence audit](docs/RECRUITER_EVIDENCE_AUDIT_2026-10-09.md) for current dated verification, test-scope limitations and unsupported impact claims.
-
-## Hugging Face discussion notification security (2026-10-09)
-
-The optional HF discussion publisher accepts only two literal model-ID segments (namespace/model), constructs a fixed HTTPS Hugging Face API destination, rejects numeric-IP namespaces, embedded URL components and credentials, and disallows redirects from the bearer-authenticated POST. This bounds the discussion notifier; it does not certify every outbound request made by the scanner, and failed discussion notification does not block scanning.
-
-## Manual scan workflow boundary
-
-The HF Hub Webhook Scan workflow currently supports manual `workflow_dispatch` only. Repository-dispatch issue posting and HF Hub discussion posting are disabled; their unreachable job/step definitions have been removed. The standalone discussion helper remains available with URL validation and redirect blocking, but the workflow does not invoke it. Manual scan inputs are passed through environment variables and quoted as data. Optional Slack delivery remains limited to an explicitly configured webhook.
-
-## Local audit-fix validation (2026-10-09)
-
-The audit-fix working tree passed **260 tests, with 1 skipped and 6 subtests passed**, on Python 3.12.14. Scanner statement coverage was **75.67%**, satisfying the existing 75% gate. This local run included the optional `attack-v19-core` package and all three public MITRE ATT&CK v19.2 bundles verified against their pinned SHA-256 digests. The HF discussion security tests used mocked transport and a dummy token; no notifications or authenticated remote scans were sent. Ruff 0.8.4 lint and format checks passed across all 90 Python files, including CI helpers.
-
-Reproduction: install the documented development, service and optional attack dependencies, download the pinned ATT&CK bundles with `python -m attack_v19_core.download`, then run `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest tests/ -q -p pytest_cov --cov=scanner --cov-fail-under=75`. When using a sibling source checkout of `attack-v19-core`, also set `PYTHONPATH=.:../attack-v19-core`; set `ATTACK_DATA_DIR` to the verified bundle directory if it is outside the default cache.
-
-The historical poster and verified metrics remain tied to their cited CI snapshots. This local result does not replace a hosted CI result for the final merged commit. Poster PDF/PNG coverage text was corrected and visually checked locally; a full Chromium render remains for the existing poster parity workflow on the PR.
-
+Older documents carry a historical-scope notice. Their metrics and production claims are not current release evidence.

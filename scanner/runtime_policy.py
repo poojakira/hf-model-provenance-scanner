@@ -13,7 +13,7 @@ def build_runtime_policy(target: str) -> dict:
         "kind": "RuntimePolicy",
         "metadata": {
             "target": target,
-            "generator": "hf-scanner/0.2.0",
+            "generator": "hf-scanner/0.3.0",
         },
         "spec": {
             "container": {

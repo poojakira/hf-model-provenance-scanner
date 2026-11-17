@@ -1,3 +1,5 @@
+> **Historical / legacy scope.** Preserved for context; claims, metrics and commands below are not current 0.3.0 local-inspector release evidence. Use the repository README and `docs/INSPECTOR.md`; final results are generated outside source. Full historical factual review remains NOT VERIFIED.
+
 # Security review, 2026-09-30
 
 Reviewed checkout: `4de4ded268bf7f9b032f2040aaf92b4e97e8ed02`.

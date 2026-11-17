@@ -1,3 +1,5 @@
+> **Historical / legacy scope.** Preserved for context; claims, metrics and commands below are not current 0.3.0 local-inspector release evidence. Use the repository README and `docs/INSPECTOR.md`; final results are generated outside source. Full historical factual review remains NOT VERIFIED.
+
 # Research Brief - Poster 03
 
 > Evidence status: Refreshed against verified code snapshot `09aaa224776b8de0e53315a63c260eb3229bf9ac` and successful CI run `38498005353` (CI run initiated 2026-10-14 UTC).

@@ -1,3 +1,5 @@
+> **Historical / legacy scope.** Preserved for context; claims, metrics and commands below are not current 0.3.0 local-inspector release evidence. Use the repository README and `docs/INSPECTOR.md`; final results are generated outside source. Full historical factual review remains NOT VERIFIED.
+
 # Attacker and User Runbook
 
 This file gives two safe execution paths: normal scanner usage and adversarial regression usage. Attacker commands are `[TEST-ONLY]`; they scan local fixtures and must not be used against systems you do not own or have permission to test.

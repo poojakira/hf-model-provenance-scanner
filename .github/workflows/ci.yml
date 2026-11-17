@@ -15,9 +15,7 @@ on:
 
 permissions:
   contents: read
-  security-events: write
   actions: read
-  id-token: write
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -42,6 +40,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
@@ -68,12 +67,14 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Checkout attack-v19-core (optional)
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         continue-on-error: true
         with:
           persist-credentials: false
+          ref: 76cf874cd6d8a012c20a76efc06b44907663751d
           repository: poojakira/attack-v19-core
           path: attack-v19-core
 
@@ -115,6 +116,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
@@ -171,6 +173,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: ${{ env.PYTHON_VERSION }}
@@ -191,12 +194,14 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Checkout attack-v19-core (optional)
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         continue-on-error: true
         with:
           persist-credentials: false
+          ref: 76cf874cd6d8a012c20a76efc06b44907663751d
           repository: poojakira/attack-v19-core
           path: attack-v19-core
 
@@ -278,6 +283,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
@@ -304,6 +310,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Scan repository filesystem (HIGH/CRITICAL gate)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
@@ -364,6 +371,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
@@ -383,7 +391,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     if: github.event_name == 'workflow_dispatch' && inputs.publish_release && startsWith(github.ref, 'refs/tags/v')
-    needs: [lint, typecheck, security, test, codeql, sandbox-validation, container-scan, docker-build]
+    needs: [lint, typecheck, security, test, codeql, sandbox-validation, container-scan, docker-build, local-inspector]
     permissions:
       id-token: write
       contents: read
@@ -394,6 +402,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
@@ -443,3 +452,49 @@ jobs:
           subject-name: ghcr.io/${{ github.repository }}
           subject-digest: ${{ steps.image.outputs.digest }}
           push-to-registry: true
+
+  local-inspector:
+    name: Local Inspector Offline Acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Install exact local dependencies and browser tooling
+        run: |
+          python - <<'PY'
+          import datetime, os, subprocess
+          state = "DIRTY" if subprocess.check_output(["git", "status", "--porcelain"]).strip() else "CLEAN"
+          with open(os.environ["GITHUB_ENV"], "a") as stream:
+              stream.write("HF_VERIFY_STARTED_UTC=" + datetime.datetime.now(datetime.timezone.utc).isoformat() + "\n")
+              stream.write("HF_SOURCE_STATE_BEFORE=" + state + "\n")
+          PY
+          python -m pip install -r requirements-local.lock -r requirements-browser.lock
+          python -m pip install --no-deps -e .
+          python -m playwright install --with-deps chromium
+      - name: Actual isolated worker, API and documentation regressions
+        run: |
+          mkdir -p "$RUNNER_TEMP/hf-evidence"
+          COVERAGE_FILE="$RUNNER_TEMP/hf-evidence/coverage-data" python -m pytest tests -q -p pytest_cov --cov=scanner --cov-report="json:$RUNNER_TEMP/hf-evidence/coverage.json" --cov-fail-under=75 --junitxml="$RUNNER_TEMP/hf-evidence/junit.xml"
+          python scripts/check_inspector_docs.py
+          python -m build --outdir "$RUNNER_TEMP/hf-evidence/dist"
+      - name: Actual browser upload, compare and export
+        run: python scripts/workbench_e2e.py --evidence "$RUNNER_TEMP/hf-evidence/browser"
+      - name: Generate exact-source evidence outside checkout
+        if: always()
+        env:
+          HF_JOB_STATUS: ${{ job.status }}
+        run: python scripts/evidence_manifest.py --artifacts "$RUNNER_TEMP/hf-evidence" --output "$RUNNER_TEMP/hf-evidence/manifest.json"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: local-inspector-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/hf-evidence
+          if-no-files-found: error

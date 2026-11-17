@@ -1,35 +1,20 @@
-# Security Policy
+# Security reporting and local inspector autopsy
 
-## Scope
+The 0.3.0 local inspector is a PARTIAL candidate, with no production-support or vulnerability-free claim. Report suspected vulnerabilities privately through the repository owner’s GitHub contact/security reporting channel where available. Do not post credentials, private models, personal data or executable payloads publicly. A minimal synthetic reproducer, affected source SHA, expected boundary, observed result and redacted logs help review. No response SLA is promised.
 
-Pre-load static scanning, parsing, CLI/API behavior, CI integrations, and model-artifact handling are in scope. Dynamic execution is disabled. Third-party model hubs and external scanners are out of scope.
+## Findings addressed in this candidate
 
-This is an open-source production-oriented security system. Security claims remain limited to behavior demonstrated by the repository, its CI, and committed evidence; production orientation does not imply third-party certification or a deployment history that is not evidenced here.
+| Finding / mechanism | Mitigation / regression | Remaining scope |
+|---|---|---|
+| Installer CRLF syntax, Python 3.9 misclaim and arbitrary-target `rm -rf` | LF script; Python 3.10+; install reviewed local checkout only into a new path; existing sentinel directory preserved by test | Operator must choose an authorized install location |
+| Hostile artifact deserialization / uploaded source execution | Static parsers only; real worker source/pickle sentinel tests and open/socket/exec/fork denial | CPython/kernel/library bugs remain possible |
+| Resource/pipe flooding or thread timeout retaining work | Process CPU/address-space/deadline quotas; nonblocking capped stdout/stderr; kill/reap group; one scan; bounded connections | Legitimate larger artifacts are rejected |
+| Malformed/overlapping SafeTensors, duplicate/non-finite JSON, extreme dimensions or trailing polyglot | Strict structural prevalidation and actual worker negative tests | Supported dtype/size subset is conservative |
+| GGUF zero-tensor trailing payload, truncated value/string, nested arrays, non-finite floats | Complete bounds/UTF-8/type checks and UNKNOWN on unsupported data | Tensor payload layout/quantization and complete content detection remain unverified |
+| Cross-origin upload / DNS rebinding / path probing | Fixed loopback, Host/Origin/session token, no paths/URLs, inert text rendering and CSP | Same-account local processes/extensions are trusted boundary |
+| Stale file read or scan response overwrites current selection | Selection revision invalidates old results; browser delayed-read/response tests | No persistent history/version control of user models |
+| Filename-sensitive structure hash | Fingerprint excludes display path from structural comparison; equal-content regression | Static equality has no behavioral implication |
 
-## Reporting a vulnerability
+Existing `--sandbox` dynamic execution stays disabled. The remote admission service retains authorization; a keyless local upload UI is not a reason to weaken a different API. Local report checksums provide integrity checks, not an external attestation, digital signature or tamper-proof audit log.
 
-Please do not publish exploit details in a public issue before the maintainer has had a reasonable opportunity to review them.
-
-Send a concise report to the maintainer contact listed on https://github.com/poojakira with:
-- affected version/commit;
-- reproduction steps;
-- impact and preconditions;
-- suggested mitigation, if known.
-
-## Supported versions
-
-Only the current default branch is actively maintained unless a release explicitly states otherwise.
-
-## Disclosure
-
-After a fix is available, a public issue or advisory may document the affected scope, remediation, and any claim changes required by the finding.
-
-<!-- credential-response:start -->
-## Credential and secret handling
-
-- Real API keys, tokens, passwords, private keys, cloud credentials, and populated environment files must never be committed.
-- Local users must create their own `.env` from the repository's safe template when environment variables are needed, and must supply **their own** credentials. CI/CD credentials belong in GitHub repository/environment secrets or an external secret manager, not in source or workflow YAML.
-- If a real credential is exposed, treat it as compromised even if the commit is quickly deleted. **Revoke or rotate the credential at its provider first.** Then remove it from the current tree, reachable Git history, logs/artifacts, examples, screenshots, and documentation as applicable.
-- Rewriting Git history or deleting a file does **not** revoke a credential. Provider-side rotation/revocation is required.
-- Placeholder/test credentials must be clearly marked and must not be valid for real services.
-<!-- credential-response:end -->
+Independent adversarial review and deployment-specific acceptance are still required. See [known limitations](docs/EVIDENCE.md) and the final out-of-tree evidence manifest for tested status.

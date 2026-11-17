@@ -1,3 +1,5 @@
+> **Historical / legacy scope.** Preserved for context; claims, metrics and commands below are not current 0.3.0 local-inspector release evidence. Use the repository README and `docs/INSPECTOR.md`; final results are generated outside source. Full historical factual review remains NOT VERIFIED.
+
 # Reproduce the Work — HF Provenance Scanner Poster 03
 
 **Current code snapshot:** `09aaa224776b8de0e53315a63c260eb3229bf9ac`  

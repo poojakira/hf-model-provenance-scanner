@@ -1,3 +1,5 @@
+> **Historical / legacy scope.** Preserved for context; claims, metrics and commands below are not current 0.3.0 local-inspector release evidence. Use the repository README and `docs/INSPECTOR.md`; final results are generated outside source. Full historical factual review remains NOT VERIFIED.
+
 # Runbook: hf-model-provenance-scanner
 
 **Repository:** https://github.com/poojakira/hf-model-provenance-scanner  
