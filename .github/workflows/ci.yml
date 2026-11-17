@@ -481,8 +481,9 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Actual isolated worker, API and documentation regressions
         run: |
+          set -o pipefail
           mkdir -p "$RUNNER_TEMP/hf-evidence"
-          COVERAGE_FILE="$RUNNER_TEMP/hf-evidence/coverage-data" python -m pytest tests -q -p pytest_cov --cov=scanner --cov-report="json:$RUNNER_TEMP/hf-evidence/coverage.json" --cov-fail-under=75 --junitxml="$RUNNER_TEMP/hf-evidence/junit.xml"
+          COVERAGE_FILE="$RUNNER_TEMP/hf-evidence/coverage-data" python -m pytest tests -q -p pytest_cov --cov=scanner --cov-report="json:$RUNNER_TEMP/hf-evidence/coverage.json" --cov-fail-under=75 --junitxml="$RUNNER_TEMP/hf-evidence/junit.xml" | tee "$RUNNER_TEMP/hf-evidence/regression.log"
           python scripts/check_inspector_docs.py
           python -m build --outdir "$RUNNER_TEMP/hf-evidence/dist"
       - name: Actual browser upload, compare and export

@@ -6,6 +6,7 @@ import importlib.metadata
 import json
 import os
 import platform
+import re
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
@@ -64,14 +65,25 @@ def main():
     if junit.is_file():
         tree = ElementTree.parse(junit).getroot()
         suites = [tree] if tree.tag == "testsuite" else list(tree.iter("testsuite"))
-        counts = {
+        suite_counts = {
             name: sum(int(suite.get(name, "0")) for suite in suites)
             for name in ("tests", "failures", "errors", "skipped")
+        }
+        cases = list(tree.iter("testcase"))
+        counts = {
+            "tests": len(cases),
+            "failures": sum(case.find("failure") is not None for case in cases),
+            "errors": sum(case.find("error") is not None for case in cases),
+            "skipped": sum(case.find("skipped") is not None for case in cases),
         }
         counts["passed"] = counts["tests"] - sum(
             counts[name] for name in ("failures", "errors", "skipped")
         )
         manifest["tests"] = counts
+        manifest["junit_suite_counts"] = suite_counts
+        manifest["test_count_units"] = (
+            "Individual JUnit testcase outcomes; suite totals can additionally count native subtests"
+        )
         manifest["skips"] = [
             {
                 "name": case.get("name"),
@@ -81,6 +93,13 @@ def main():
             for case in tree.iter("testcase")
             for skip in case.findall("skipped")
         ]
+    regression_log = args.artifacts / "regression.log"
+    if regression_log.is_file():
+        text = regression_log.read_text()
+        manifest["subtests"] = {
+            outcome: sum(int(count) for count in re.findall(rf"(\d+) subtests {outcome}", text))
+            for outcome in ("passed", "failed", "skipped")
+        }
     coverage = args.artifacts / "coverage.json"
     if coverage.is_file():
         manifest["coverage"] = json.loads(coverage.read_text())["totals"]
