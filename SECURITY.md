@@ -1,20 +1,21 @@
-# Security reporting and local inspector autopsy
+# Security reporting and boundaries
 
-The 0.3.0 local inspector is a PARTIAL candidate, with no production-support or vulnerability-free claim. Report suspected vulnerabilities privately through the repository owner’s GitHub contact/security reporting channel where available. Do not post credentials, private models, personal data or executable payloads publicly. A minimal synthetic reproducer, affected source SHA, expected boundary, observed result and redacted logs help review. No response SLA is promised.
+Software0.3.0 is a **PARTIAL** candidate. No production-support, response/fix deadline, certification or vulnerability-free claim is made. Report suspected vulnerabilities privately through the repository owner's GitHub security/contact channel where available. Include affected source/version, prerequisites, minimal synthetic reproduction, expected/observed boundary and redacted logs. Never post private models, credentials, process tokens or executable payloads publicly.
 
-## Findings addressed in this candidate
+## Actual trust boundaries
 
-| Finding / mechanism | Mitigation / regression | Remaining scope |
-|---|---|---|
-| Installer CRLF syntax, Python 3.9 misclaim and arbitrary-target `rm -rf` | LF script; Python 3.10+; install reviewed local checkout only into a new path; existing sentinel directory preserved by test | Operator must choose an authorized install location |
-| Hostile artifact deserialization / uploaded source execution | Static parsers only; real worker source/pickle sentinel tests and open/socket/exec/fork denial | CPython/kernel/library bugs remain possible |
-| Resource/pipe flooding or thread timeout retaining work | Process CPU/address-space/deadline quotas; nonblocking capped stdout/stderr; kill/reap group; one scan; bounded connections | Legitimate larger artifacts are rejected |
-| Malformed/overlapping SafeTensors, duplicate/non-finite JSON, extreme dimensions or trailing polyglot | Strict structural prevalidation and actual worker negative tests | Supported dtype/size subset is conservative |
-| GGUF zero-tensor trailing payload, truncated value/string, nested arrays, non-finite floats | Complete bounds/UTF-8/type checks and UNKNOWN on unsupported data | Tensor payload layout/quantization and complete content detection remain unverified |
-| Cross-origin upload / DNS rebinding / path probing | Fixed loopback, Host/Origin/session token, no paths/URLs, inert text rendering and CSP | Same-account local processes/extensions are trusted boundary |
-| Stale file read or scan response overwrites current selection | Selection revision invalidates old results; browser delayed-read/response tests | No persistent history/version control of user models |
-| Filename-sensitive structure hash | Fingerprint excludes display path from structural comparison; equal-content regression | Static equality has no behavioral implication |
+The Linux local inspector uses bounded input, exact loopback Host/Origin/process-token checks, inert rendering and a fresh syscall-contained static worker. It never imports/unpickles/executes uploaded files. Its origin token does not authenticate another OS user; local processes/extensions and the host remain trusted. Containment is not a VM or proof against kernel/CPython/library flaws. Report checksums are not signatures or tamper-proof audit anchors.
 
-Existing `--sandbox` dynamic execution stays disabled. The remote admission service retains authorization; a keyless local upload UI is not a reason to weaken a different API. Local report checksums provide integrity checks, not an external attestation, digital signature or tamper-proof audit log.
+CLI, remote admission, webhook and portable executor are distinct surfaces. The local worker is not automatically wrapped around every CLI/remote operation. The remote service retains API-key/allowlist checks; a keyless local browser is not authorization to weaken them. The portable executor's acknowledgment flag and illustrative kernel profiles do not establish arbitrary-code isolation. `--sandbox` remains disabled.
 
-Independent adversarial review and deployment-specific acceptance are still required. See [known limitations](docs/EVIDENCE.md) and the final out-of-tree evidence manifest for tested status.
+## Source-scoped autopsy
+
+Implementation work corrected destructive installer target handling/CRLF/Python-version drift, installed-wheel Git attribution, bounded worker/pipes and structural parsing, stale file/response/export races, and nonce persistence in saved health evidence. Actual negative/regression results are source-scoped in [EVIDENCE.md](docs/EVIDENCE.md). Independent review at an earlier source identified two export races and nonce hygiene; engineering regression confirmed the corrections at 16ff. Independent closing review remains **BLOCKED** by the review service, not VERIFIED. This documentation pass supplies no new independent security closure.
+
+The old filename-sensitive hash concern is not an unresolved defect: structure fingerprinting excludes the display path and the identical-renamed-bytes comparison passed. No-result/UNKNOWN/no-pattern statuses must remain distinct. Heuristic rules can miss malicious content and flag benign files; broad safety/provenance conclusions require other evidence.
+
+## Credentials, privacy and recovery
+
+Use synthetic data for evaluation and operator-approved inputs in a trusted environment. Keep tokens, passwords, private keys and populated environment files out of source/logs/exports. Optional network paths need approved narrow runtime credentials and destinations. Reports can disclose artifact content, paths and metadata; review before sharing. If a credential is exposed, revoke/rotate at its provider first, then preserve evidence and remediate source/history/artifact exposure. Deleting a file or rewriting history does not revoke it. No live credential probing is needed to classify a scanner heuristic.
+
+Backend input memory is reclaimed, not cryptographically erased; explicit downloads and source files persist under operator control. There is no local report database or secure-erasure promise. Follow [operations](RUNBOOK.md), [limitations](LIMITATIONS.md) and [incident-response template](INCIDENT_RUNBOOK.md); deployment-specific review and remaining acceptance gates stay explicit.

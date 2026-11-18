@@ -1,4 +1,4 @@
-> **Historical / legacy scope.** Preserved for context; claims, metrics and commands below are not current 0.3.0 local-inspector release evidence. Use the repository README and `docs/INSPECTOR.md`; final results are generated outside source. Full historical factual review remains NOT VERIFIED.
+> **Historical/source-bounded record.** The dated observations, metrics, chronology and third-party assertions below retain their original scope. They are not verification of a later inspector/documentation head or production approval. Original external/private sources and field claims were not independently revalidated in this pass. See [current evidence status](../docs/EVIDENCE.md).
 
 # Incident Report: Fake OpenAI "Privacy Filter" Repository (May 2026)
 
@@ -89,11 +89,11 @@ This incident demonstrates the critical need for automated model provenance scan
 4. **No velocity anomaly detection**: 244K downloads in 18h not auto-flagged
 5. **Trust in platform trending**: Users assumed trending = safe
 
-## How HF Model Provenance Scanner Detects This
+## Historical fixture interpretation
 
-Our scanner detects this attack at **multiple stages** simultaneously:
+The earlier author mapped static patterns to selected described stages. These are research/fixture interpretations, not proven prevention of the real incident:
 
-| Detection | Rule | Severity | Stage Blocked |
+| Detection | Rule | Severity | Described stage |
 |-----------|------|----------|---------------|
 | SSL verification disabled | HFS-002 | CRITICAL | Stage 3 |
 | jsonkeeper.com C2 domain | HFS-004 | CRITICAL | Stage 3 |
@@ -118,7 +118,7 @@ cd hf-model-provenance-scanner
 python3 tests/redteam/simulate_attacks.py
 ```
 
-The simulation replicates the **exact techniques** from this incident and detects this
+The simulation models selected described techniques and detects its controlled
 reproduction fixture (1 of the 12 core red-team fixtures). This is fixture-suite coverage,
 not a measured detection rate against arbitrary Hugging Face models.
 

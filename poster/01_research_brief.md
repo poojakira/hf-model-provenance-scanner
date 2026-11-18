@@ -1,4 +1,4 @@
-> **Historical / legacy scope.** Preserved for context; claims, metrics and commands below are not current 0.3.0 local-inspector release evidence. Use the repository README and `docs/INSPECTOR.md`; final results are generated outside source. Full historical factual review remains NOT VERIFIED.
+> **Historical poster snapshot: October 14, 2026.** Source09aaa224776b8de0e53315a63c260eb3229bf9ac/run 38498005353. These are not later inspector/documentation-head results; independent current security closure remains BLOCKED. [Current evidence](../docs/EVIDENCE.md).
 
 # Research Brief - Poster 03
 
@@ -55,4 +55,3 @@ pytest tests/ -q --cov=scanner --cov-report=term
 ```
 
 Expected evidence at the cited snapshot: **260 passed, 1 skipped, 6 subtests passed**, **75.67% coverage** (Oct 14 2026 main CI run 38498005353).
-

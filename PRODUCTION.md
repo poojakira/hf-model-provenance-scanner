@@ -1,34 +1,13 @@
-> **Historical / legacy scope.** Preserved for context; claims, metrics and commands below are not current 0.3.0 local-inspector release evidence. Use the repository README and `docs/INSPECTOR.md`; final results are generated outside source. Full historical factual review remains NOT VERIFIED.
+# Release and deployment governance
 
-# Production Operating Contract
+**Decision: PARTIAL. No production deployment is approved.** A workflow named Production Gate, an API version or an image build does not supply operational acceptance.
 
-## System role
+Promotion requires a frozen source and fresh regression/browser/static/security/build/documentation evidence identifying its exact SHA, clean state, commands, UTC intervals, environment/dependencies, skips, coverage settings and artifact hashes. Preserve the 75% coverage gate and all negative/recovery assertions. Distinguish Docker build from product-container runtime and generated SBOM from verified signing/attestation.
 
-This repository is maintained as a **model supply-chain scanning service and CLI**.
+The local inspector is a trusted single-operator Linux application. Do not publicly proxy it, disable its origin/session/size/quota controls or replace fail-closed containment with unrestricted parsing. Remote admission and webhook services have separate credential, allowlist, timeout and authorization contracts; a keyless local UI does not authorize weakening those services. Per-process limits are not coordinated multi-worker quotas; remote timeout retains capacity until the worker completes and does not kill a thread.
 
-## Production purpose
+Release blockers include independent security closure, missing publisher/lineage/behavior verification, complete format/large-file support, broader adversarial/benign evaluation and environment-specific security/privacy/load/backup/recovery review. Signing, registry publication, external notifications and cloud deployment need their own explicit authorization and actual evidence. No automatic release on arbitrary tag push is claimed; inspect the current workflow's manual publish inputs and existing-version-tag conditions.
 
-scan model repositories/artifacts before load and emit machine-readable security findings.
+Keep main, the reviewed candidate and active/unique work. HF's prior pass retained main, the candidate and five open dependency PR branches; none was deleted. Re-read remote state before any future consolidation. Evidence archives are immutable non-release tags and need no permanent evidence branch. Do not rewrite shared history or delete ambiguous work.
 
-## Release gate
-
-A release is promotable only when scanner tests, format parsers, service/container checks, dependency/security gates, and fixture regressions pass.
-
-## Operating requirements
-
-- Configuration must come from explicit environment/config files; secrets must never be committed.
-- Production defaults must fail safely when required identity, credentials, artifacts, or dependencies are missing.
-- Health/readiness behavior must represent real dependency state where the repository exposes a service.
-- Logs and machine-readable outputs must support incident/debug reconstruction without leaking secrets.
-- Dependency and security findings at the repository's blocking threshold must stop promotion.
-- Public metrics and benchmark claims must identify their dataset, environment, and scope.
-- Deployment images/artifacts must be versioned and immutable at promotion time.
-- Rollback must be possible without rewriting Git history.
-
-## Evidence boundary
-
-"Production-oriented" describes the engineering and release contract of this repository. It does **not** mean that an external enterprise deployment, penetration test, certification, uptime history, or scale target has occurred unless a separate committed artifact proves it.
-
-## Change management
-
-Main is the supported integration branch. Production changes should be small, reviewable, tested, and tied to observable behavior. Historical benchmark/research material may remain for evidence, but active README, security, runbook, and deployment surfaces must describe the supported runtime rather than an academic or prototype status.
+[Evidence status](docs/EVIDENCE.md), [testing](docs/TESTING.md), [operations](RUNBOOK.md) and [security reporting](SECURITY.md) define the current boundaries. No default merge, package/container publication, external account activation or public service was created by this documentation update.

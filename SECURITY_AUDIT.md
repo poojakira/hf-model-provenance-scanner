@@ -1,8 +1,8 @@
-> **Historical / legacy scope.** Preserved for context; claims, metrics and commands below are not current 0.3.0 local-inspector release evidence. Use the repository README and `docs/INSPECTOR.md`; final results are generated outside source. Full historical factual review remains NOT VERIFIED.
+> **Historical/source-bounded record.** The dated observations, metrics, chronology and third-party assertions below retain their original scope. They are not verification of a later inspector/documentation head or production approval. Original external/private sources and field claims were not independently revalidated in this pass. See [current evidence status](docs/EVIDENCE.md).
 
 # Security Audit — hf-model-provenance-scanner
 
-**Audit date:** 2026-09-29  
+**Audit date:** 2026-09-29
 **Scope:** admission HTTP service, Hugging Face webhook integration, remote fetching, isolation executor, secrets, CI, containers, and error handling.
 
 ## Findings captured before this remediation pass

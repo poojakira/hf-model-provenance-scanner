@@ -1,3 +1,11 @@
+# Documentation reconciliation — unreleased
+
+- Reconcile current local workflow, CLI/remote API, security, operations, integration and testing guidance against actual code.
+- Separate the published 16ff implementation proof from later-head evidence and retain the independent closing-review blocker.
+- Remove nonexistent API/import/deployment guarantees, disabled dynamic-execution claims, unsafe/invented incident procedures and unqualified current metrics.
+- Label historical poster/fixture/research evidence, regenerate real documentation artifacts and record every tracked document's disposition.
+- Preserve legal/raw records, runtime/rules/tests/workflows/pins and active branches. Only poster presentation strings change outside Markdown.
+
 # Changelog
 
 ## 0.3.0 — local candidate (not a production release)

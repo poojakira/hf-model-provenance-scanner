@@ -1,4 +1,4 @@
-> **Historical / legacy scope.** Preserved for context; claims, metrics and commands below are not current 0.3.0 local-inspector release evidence. Use the repository README and `docs/INSPECTOR.md`; final results are generated outside source. Full historical factual review remains NOT VERIFIED.
+> **Historical/source-bounded record.** The dated observations, metrics, chronology and third-party assertions below retain their original scope. They are not verification of a later inspector/documentation head or production approval. Original external/private sources and field claims were not independently revalidated in this pass. See [current evidence status](../docs/EVIDENCE.md).
 
 # Detection Proof: Internal Red-Team Fixture Suite
 
@@ -12,7 +12,7 @@ techniques. This suite contains **33 fixtures** total:
 - **18 extended attack variants** (`tests/redteam/extended_attacks.py`)
 - **3 large-scale fixtures** (`tests/redteam/test_large_scale.py`)
 
-Against this committed suite the scanner detects **33/33** fixtures, with **0 actionable
+The cited historical reports record **33/33** curated fixture matches, with **0 actionable
 (non-INFO) findings** on the 4 benign ML samples included in the extended suite.
 
 > **Scope note — read this first.** These are *fixture-suite* results, reproducible from
@@ -76,5 +76,5 @@ running explicitly versioned third-party tools against the same committed corpus
 using the same execution environment and counting rules, and publishing the raw
 outputs. No such current cross-tool benchmark is committed here.
 
-The supported claim is limited to this scanner's own reproducible fixture results
+The supported claim is limited to this scanner's own cited curated fixture results
 documented above.

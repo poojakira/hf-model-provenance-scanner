@@ -1,8 +1,12 @@
-> **Historical / legacy scope.** Preserved for context; claims, metrics and commands below are not current 0.3.0 local-inspector release evidence. Use the repository README and `docs/INSPECTOR.md`; final results are generated outside source. Full historical factual review remains NOT VERIFIED.
+# Verified source snapshots
 
-# Verified Metrics
+Latest published implementation-source proof is16ff6f87f2f8f2832624d736c57c16e8809c1e5b: 312 passed, 3 skipped, 6 native subtests, 76.08318890814559% local coverage at the unchanged 75% gate. The subtests and separate optional integration/other-Python runs are not extra individual primary-suite passes. See [EVIDENCE.md](docs/EVIDENCE.md) for exact commands, skips, UTC intervals and immutable archive.
 
-## Recent hosted CI references (distinct commit scopes)
+These results do not attest to a later documentation head. Its new-head results remain pending until a generated manifest identifies that exact clean source. Independent security closure remains BLOCKED. Historical metrics below are prior-source records, not current-head claims.
+
+## Retained historical metric ledger
+
+## Historical hosted CI references (distinct commit scopes)
 
 - **October 13, 2026 — main push:** [successful run 38487400153](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38487400153) at commit `ea9f1b3048a8eb84fc563b246ed008b360aafa24`. This records CI completion; do not infer unstated test totals from its status alone.
 - **October 13, 2026 — pull-request check:** [successful run 38462464074](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074) at commit `4304853a76ba8a687c2ee29204ad45429de7c55d`; documented Python 3.12 result **260 passed, 1 skipped, 6 subtests, 75.67% statement coverage**. This is a PR event, not the current main commit.
@@ -10,7 +14,7 @@
 
 ## Historical poster evidence — October 3, 2026
 
-**Code commit:** `251a7b90fd60fa1884c643adda9d96cd7801abe6`  
+**Code commit:** `251a7b90fd60fa1884c643adda9d96cd7801abe6`
 **Successful CI:** https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/37163168715
 
 | Claim | Historical pinned poster snapshot | Evidence boundary |

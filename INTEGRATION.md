@@ -1,214 +1,35 @@
-> **Historical / legacy scope.** Preserved for context; claims, metrics and commands below are not current 0.3.0 local-inspector release evidence. Use the repository README and `docs/INSPECTOR.md`; final results are generated outside source. Full historical factual review remains NOT VERIFIED.
+# Optional integration contracts
 
-# Integration Guide
+The [local inspector](README.md) requires no integration, keys or external service. CLI/admission/webhook/signing/monitoring examples are distinct paths. No CI installation in another repository, model download, external notification, registry publication or deployment was executed by this documentation pass.
 
-Get the HF Model Provenance Scanner into your workflow in under 2 minutes.
+## Integrate a local CLI result
 
-## Reviewed Install
+Run a reviewed distribution in an isolated environment and use an explicit local target, `--no-network`, `--enforce` and a chosen severity threshold. Preserve JSON/SARIF and capture exit code without converting failures to success. The calling pipeline must stop its own model-loading/deployment step. Exit 0 and COMPLETE do not prove safety; review errors, skipped input, scope and findings.
 
-### Linux / macOS
-```bash
-curl -fsSLo install.sh https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4/install.sh
-# Review the downloaded script before execution.
-less install.sh
-bash ./install.sh
+```sh
+python -m scanner.cli ./authorized-model --mode local --no-network --format json --output report.json --fail-on high --enforce
 ```
 
-### Windows (PowerShell)
-```powershell
-Invoke-WebRequest -UseBasicParsing -OutFile install.ps1 https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4/install.ps1
-# Review the downloaded script before execution.
-Get-Content .\install.ps1
-& .\install.ps1
-```
+The JSON formatter is this scanner's native report, **not** GitLab's SAST report schema. SARIF output is a separate format. Uploading either to a service needs its permissions and schema validation; no generic cloud-platform adapter is implied. Pin reviewed package/source and action/image revisions in an actual integration rather than copying a moving branch or arbitrary old installer hash.
 
----
+The checked-in `.pre-commit-hooks.yaml` invokes the CLI on `.` in local mode, suppresses output and disables filename passing. This is a configured repository scan, not automatic inspection of every file format or a completed integration test. Review thresholds/configuration, report visibility and scope before activation. `pre-commit install` is not required for the browser.
 
-## GitHub Actions (2 lines)
+## Remote admission service
 
-Add to `.github/workflows/model-scan.yml`:
+`scanner/service.py` exposes an authenticated repository-ID scan API. See [API_VERSIONING.md](docs/API_VERSIONING.md#remote-admission-api-100) for request/response/errors and credential/allowlist limits. Deployments need separately reviewed ingress/TLS, runtime credentials, shared quotas, storage/log policy and recovery. The local upload UI does not call or bypass this service.
 
-```yaml
-name: Model Security
-on: [push, pull_request]
-jobs:
-  scan:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
-        with:
-          python-version: '3.11'
-      - run: pip install "git+https://github.com/poojakira/hf-model-provenance-scanner.git@9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4"
-      - run: hf-scanner . --mode local --format sarif --output results.sarif --fail-on high
-      - uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
-        if: always()
-        with:
-          sarif_file: results.sarif
-```
+## Webhook adapter and manual workflow
 
-Results appear in your repo's **Security → Code Scanning** tab.
+`integrations/huggingface_webhook.py` is a Python adapter/standalone HTTP helper, not a provider-neutral serverless deployment. Its request wrapper requires a 32+ character WEBHOOK_SECRET, checks the signed body within a 10 MiB cap and passes a verified event to the handler. Its signature convention is `X-Webhook-Secret: sha256=<HMAC-SHA256(body)>`; validate compatibility with the actual provider/gateway, not its name. Valid model events must supply a repository name and immutable `headSha`; otherwise they are ignored/rejected. The scanner uses remote enforce mode and an immutable revision. A returned admitted flag is a static-policy result, not a model-safety guarantee.
 
----
+Optional NOTIFY_URL delivery sends finding summaries to a configured HTTPS destination subject to host/public-address checks and a short no-redirect request. NOTIFY_ALLOWED_HOSTS further scopes destinations. DNS/ingress/delivery reliability, receiver payload format and privacy require deployment review; a generic text payload does not prove compatibility with every Slack/Teams/Discord endpoint. Source code does not implement automatic HF discussion posting here. Do not activate notifications or share account/model context without specific destination/data authorization.
 
-## GitLab CI
+`.github/workflows/hf-webhook-scan.yml` currently has **workflow_dispatch only**; it does not declare repository_dispatch or an automatic HF webhook trigger. It needs a supplied repo_id and may use configured HF_TOKEN/Slack secrets. It exports parsed finding counts and has separate failure/notification logic; its scan command does not add `--enforce`. Review completeness/error handling before calling it an admission gate. A helper for HF discussion posting elsewhere does not establish that this workflow invokes it.
 
-Add to `.gitlab-ci.yml`:
+## Baselines, runtime and deployment examples
 
-```yaml
-model-scan:
-  stage: test
-  image: python:3.11-slim
-  script:
-    - pip install "git+https://github.com/poojakira/hf-model-provenance-scanner.git@9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4"
-    - hf-scanner . --mode local --format json --output report.json --fail-on high
-  artifacts:
-    reports:
-      sast: report.json
-```
+CLI baseline save/compare can flag changed hashes/content; it does not identify a malicious rug-pull by itself. Preserve the approved baseline and input revision privately. The runtime monitor/protect flags have their [actual limited scope](RUNBOOK.md#baselines-and-other-optional-modes); there is no verified host-wide daemon or automatic external process protection.
 
----
+Use the Dockerfile only from a reviewed checkout and capture image digest, build/runtime behavior and isolation/network/filesystem policy. A mutable `docker build` from an internet Git branch is not reproducible evidence. Signing/attestation requires [separate checks](docs/supply-chain/SIGNING.md). Existing deployments, throughput, cost, platform partnerships and sub-two-minute activation are not established by source templates.
 
-## Azure Pipelines
-
-```yaml
-steps:
-  - script: pip install "git+https://github.com/poojakira/hf-model-provenance-scanner.git@9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4"
-  - script: hf-scanner . --mode local --format sarif --output results.sarif --fail-on high
-```
-
----
-
-## Jenkins
-
-```groovy
-pipeline {
-    agent any
-    stages {
-        stage('Scan') {
-            steps {
-                sh 'pip install "git+https://github.com/poojakira/hf-model-provenance-scanner.git@9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4"'
-                sh 'hf-scanner . --mode local --format json --output report.json --fail-on high'
-            }
-        }
-    }
-}
-```
-
----
-
-## CircleCI
-
-```yaml
-jobs:
-  scan:
-    docker:
-      - image: cimg/python:3.11
-    steps:
-      - checkout
-      - run: pip install "git+https://github.com/poojakira/hf-model-provenance-scanner.git@9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4"
-      - run: hf-scanner . --mode local --fail-on high
-```
-
----
-
-## Docker
-
-```bash
-# Build
-docker build -t hf-scanner https://github.com/poojakira/hf-model-provenance-scanner.git
-
-# Scan a local directory
-docker run --rm -v $(pwd):/workspace hf-scanner /workspace --mode local --fail-on high
-
-# Scan a remote HuggingFace repo
-docker run --rm hf-scanner meta-llama/Llama-3-8B --mode remote --fail-on high
-```
-
----
-
-## Pre-commit Hook
-
-Add to `.pre-commit-config.yaml`:
-
-```yaml
-repos:
-  - repo: https://github.com/poojakira/hf-model-provenance-scanner
-    rev: 9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4
-    hooks:
-      - id: hf-scanner
-```
-
-Then: `pre-commit install`
-
-Every commit will now be scanned automatically.
-
----
-
-## HuggingFace Platform Integration (Webhook)
-
-Deploy `integrations/huggingface_webhook.py` as a serverless function:
-
-1. **Configure webhook on HuggingFace:**
-   - Go to https://huggingface.co/settings/webhooks
-   - URL: `https://your-endpoint.com/scan`
-   - Events: "Repo update"
-   - Set a webhook secret
-
-2. **Deploy the handler:**
-   ```bash
-   # AWS Lambda / Google Cloud Functions / Cloudflare Workers
-   # Or run standalone:
-   export HF_TOKEN=hf_xxxxx
-   export WEBHOOK_SECRET=your-secret
-   export NOTIFY_URL=https://hooks.slack.com/services/xxx  # Optional
-   python integrations/huggingface_webhook.py
-   ```
-
-3. **Every model push is now auto-scanned.** Alerts fire to Slack/Teams/Discord.
-
----
-
-## Temporal Monitoring (Rug-Pull Detection)
-
-Set up a cron job or scheduled CI to detect supply-chain rug-pulls:
-
-```bash
-# Daily scan comparing against trusted baseline
-# GitHub Actions scheduled workflow:
-name: Daily Model Monitor
-on:
-  schedule:
-    - cron: '0 6 * * *'  # 6 AM UTC daily
-jobs:
-  monitor:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          persist-credentials: false
-      - run: pip install "git+https://github.com/poojakira/hf-model-provenance-scanner.git@9a9aa1fe37dd3366a0034ab3d6d5b35222a26fc4"
-      - run: hf-scanner your-org/your-model --mode remote --baseline baseline.json --fail-on high
-```
-
----
-
-## Exit Codes for CI/CD
-
-| Code | Meaning | CI Action |
-|------|---------|-----------|
-| 0 | Clean (no findings above threshold) | Continue pipeline |
-| 1 | Findings at or above `--fail-on` severity | Block deployment |
-| 2 | Scanner error (network, config) | Retry or alert |
-| 3 | Invalid arguments | Fix configuration |
-
----
-
-## Recommended Deployment Strategy
-
-1. **Immediate** — Add to CI/CD pipeline (catches attacks before deployment)
-2. **Next** — Add pre-commit hook (catches during development)
-3. **Then** — Deploy webhook for all HuggingFace repos in your org
-4. **Ongoing** — Enable temporal monitoring for rug-pull detection
+Rollback and credential rotation remain operator procedures. Avoid piping network scripts into a shell; current `install.sh` installs the reviewed **local** checkout into a new environment and refuses existing targets. An older downloaded script or Windows helper is not the current local-install contract.

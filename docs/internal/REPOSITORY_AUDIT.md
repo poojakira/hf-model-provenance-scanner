@@ -1,3 +1,5 @@
+> **Historical read-only baseline.** This records initial main source f4fe1da87755da3ed97f7f0faf09c17e40f545e9 before the local inspector was implemented. Its branch counts, dependency failures and recommended next steps are not later-candidate state. See [current evidence](../EVIDENCE.md).
+
 # Read-only forensic baseline: poojakira/hf-model-provenance-scanner
 
 UTC: 2026-11-17T02:26:33.787101+00:00. Audit role: independent forensic reviewer. Decision: PARTIAL baseline; product release NOT VERIFIED.

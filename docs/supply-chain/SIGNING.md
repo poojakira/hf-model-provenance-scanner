@@ -1,56 +1,21 @@
-> **Historical / legacy scope.** Preserved for context; claims, metrics and commands below are not current 0.3.0 local-inspector release evidence. Use the repository README and `docs/INSPECTOR.md`; final results are generated outside source. Full historical factual review remains NOT VERIFIED.
+# Supply-chain inventory, signing and attestation
 
-# Supply-chain signing & attestation
+The CLI's `--aibom` path invokes `scanner/aibom_generator.py` and produces scan-derived CycloneDX inventory. A generated SBOM/AIBOM, checksum or local inspector report is not a signature, trusted publisher identity or proof of complete dependencies. Schema/conformance and content correctness require actual checks at the candidate source.
 
-This repository already generates a **CycloneDX 1.6 AIBOM/SBOM** in code
-(`scanner/aibom_generator.py`, verified by the test suite). This document covers
-the additional container **signing and attestation** layer.
+The separate CLI signature helper in `scanner/provenance.py` discovers detached signatures and invokes a resolved cosign/gpg/minisign executable with fixed arguments and timeout. It reports failures/unavailable verifiers; it does not establish a trusted key/certificate/publisher policy merely by finding a signature or executable. The local upload inspector does not authenticate publisher signatures/training lineage.
 
-## Status matrix (honest scoping)
+## Optional workflow boundary
 
-| Capability | Where | Status |
-|---|---|---|
-| CycloneDX AIBOM/SBOM generation from scan results | `scanner/aibom_generator.py` | **VERIFIED** (unit tests pass locally) |
-| Cosign **keyless** image signing (Fulcio/Rekor, OIDC) | `.github/workflows/supply-chain-attest.yml` | **UNVERIFIED locally** — requires a GitHub Actions runner with `id-token: write` and registry access. Not run on the maintainer's Windows box (no cosign binary, no OIDC token). |
-| Signed CycloneDX SBOM **attestation** (`cosign attest`) | same workflow | **UNVERIFIED locally** — same reason |
-| **SLSA build provenance** attestation (`actions/attest-build-provenance`) | same workflow | **UNVERIFIED locally** — same reason |
-| Signature + attestation **verification gate** (`cosign verify`, `verify-attestation`) | same workflow | **UNVERIFIED locally** — same reason |
+`.github/workflows/supply-chain-attest.yml` contains signing/attestation/verification steps tied to its actual triggers, permissions and registry/OIDC prerequisites. Source presence is not execution. Registry publication, cosign signing, Rekor/Fulcio interaction and OIDC identities are separate external operations; no such operation was executed by this documentation pass. Do not trigger them merely to make a status table green.
 
-No long-lived signing private key is stored in the repo or in secrets: signing
-is **keyless**, using the CI runner's short-lived OIDC identity via Sigstore
-Fulcio, with transparency logged to Rekor.
+| Capability | Evidence required before a passing claim |
+|---|---|
+| AIBOM generation | Actual emitted artifact and source/schema/content checks |
+| Image signing | Exact image digest, signing identity/issuer and successful signing record |
+| Signed SBOM attestation | Exact subject digest, predicate content and independent verification |
+| Build provenance | Actual build/subject/source/runner provenance with valid verification |
+| Consumer verification | Exact expected workflow identity/issuer, digest and result; existence of a signature is insufficient |
 
-## Verification runbook (run this on CI or a Linux box with the tools)
+Never treat a broad repository identity regexp as a complete trust policy. Operators must choose approved issuer/workflow/ref/artifact identities, preserve immutable digests, validate predicate/source relationships and record real failures. Keyless describes the intended credential flow; it does not prove no secrets exist anywhere, that a workflow ran, or that current registry artifacts are signed.
 
-Prerequisites: `cosign` (v2+), `syft`, Docker, and — for keyless signing — an
-OIDC identity (GitHub Actions provides this automatically; locally you can use
-`cosign sign --yes <ref>` which opens an interactive OIDC flow).
-
-1. **Trigger the workflow** by pushing to `main` or a `v*` tag, or via
-   *Actions → supply-chain-attest → Run workflow*.
-2. **Confirm the run is green.** The `VERIFY` step fails the build if the
-   signature or SBOM attestation cannot be verified against the expected OIDC
-   identity/issuer.
-3. **Independently verify from any machine** (replace `<owner>/<repo>` and digest):
-
-   ```bash
-   cosign verify \
-     --certificate-identity-regexp "^https://github.com/<owner>/<repo>/" \
-     --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
-     ghcr.io/<owner>/<repo>@sha256:<digest>
-
-   cosign verify-attestation --type cyclonedx \
-     --certificate-identity-regexp "^https://github.com/<owner>/<repo>/" \
-     --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
-     ghcr.io/<owner>/<repo>@sha256:<digest>
-   ```
-4. **Verify SLSA provenance** via the GitHub CLI:
-
-   ```bash
-   gh attestation verify oci://ghcr.io/<owner>/<repo>@sha256:<digest> \
-     --owner <owner>
-   ```
-
-When these commands succeed on CI, update the status matrix above from
-UNVERIFIED to VERIFIED and paste the run URL as evidence — consistent with the
-repository's evidence-first convention.
+Current head signing/attestation/runtime is **NOT VERIFIED** unless a generated source/digest-scoped record establishes it. Older Windows/tooling observations are historical. [EVIDENCE.md](../EVIDENCE.md) distinguishes actual hosted Docker build from unverified product-container runtime, publication and operations.
