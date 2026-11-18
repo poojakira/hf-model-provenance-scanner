@@ -1,0 +1,4 @@
+# ATT&CK integration compatibility, not a complete dependency lock.
+# drawsvg 2.5.0 raises NameError for SyncedAnimationConfig during import.
+# 2.4.2 is the version exercised by the isolated optional-integration checks.
+drawsvg==2.4.2

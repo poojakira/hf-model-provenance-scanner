@@ -71,6 +71,10 @@ This pass read all 36 original human documentation/text files plus requirements.
 
 ## Executed and unverified scope
 
+### Hosted build follow-up
+
+The original documentation-only head was `b392acc0dfe412c369500130c525e2618e4875e3`. Its hosted jobs exposed a drawsvg 2.5.0 import failure through the optional ATT&CK integration and a genuine poster-byte mismatch after unpinned renderer dependencies changed. The parent added `constraints-optional.txt` with the exercised drawsvg 2.4.2 version to CI/Production Gate and the optional-install instructions. Poster CI now pins Python 3.12/PyMuPDF 1.26.6 and uploads genuine generated artifacts with source/outcome/hashes. The strict PNG parity assertion, scanner rules, test assertions and security thresholds are preserved. These build/configuration changes extend the original documentation-author scope; they require fresh final-head checks and do not make the failed earlier jobs pass retroactively.
+
 Actual checks and failed attempts are retained out of tree with commands/exits/source observations. Documentation checks distinguish Bash/JSON syntax from actual benign CLI/local-API invocation; a synthetic input is statically inspected, never loaded/imported/executed. Current local links/anchors and tracked-file/config parsing are checked. External HTTP 200 establishes reachability only, not linked claim truth, external fragments or historical chronology.
 
 Poster outputs are real HTML→ChromiumPDF→hostPyMuPDF PNG artifacts. A build-only external wrapper supplies the exact trusted own generated HTML through normal Playwright set_content; no HOME, browser policy or product security control changes. Repeated PNGs compare byte-for-byte; PDF metadata may differ. This does not guarantee hosted Chrome/font parity; any hosted bot commit must be incorporated and the actual resulting head verified before promotion.

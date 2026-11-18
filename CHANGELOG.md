@@ -4,7 +4,12 @@
 - Separate the published 16ff implementation proof from later-head evidence and retain the independent closing-review blocker.
 - Remove nonexistent API/import/deployment guarantees, disabled dynamic-execution claims, unsafe/invented incident procedures and unqualified current metrics.
 - Label historical poster/fixture/research evidence, regenerate real documentation artifacts and record every tracked document's disposition.
-- Preserve legal/raw records, runtime/rules/tests/workflows/pins and active branches. Only poster presentation strings change outside Markdown.
+- Preserve legal/raw records, runtime rules/tests and active branches. Documentation rendering and CI build reproducibility are updated as described below.
+
+### Hosted verification follow-up
+
+- Pin the optional ATT&CK build constraint to drawsvg 2.4.2 after CI reproduced a drawsvg 2.5.0 import failure. Runtime scanner rules and security gates are unchanged.
+- Pin poster generation to Python 3.12 and PyMuPDF 1.26.6. Preserve genuine generated files and their source/hash manifest as CI artifacts while keeping strict committed-PNG parity.
 
 # Changelog
 

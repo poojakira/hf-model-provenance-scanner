@@ -2,6 +2,14 @@
 
 Run from a clean candidate checkout after the README install. These are required commands, not claimed results. Generated evidence belongs outside the source tree.
 
+For the optional ATT&CK integration, apply the reviewed compatibility constraint when resolving that extra:
+
+```sh
+PIP_CONSTRAINT="$PWD/constraints-optional.txt" .venv/bin/python -m pip install -e '.[attack]'
+```
+
+The constraint retains drawsvg 2.4.2 because CI reproduced an import-time `SyncedAnimationConfig` error with 2.5.0. It is not a complete transitive dependency lock. The primary local-inspector lock and unchanged security/coverage checks remain separate. The poster workflow pins Python 3.12/PyMuPDF 1.26.6, enforces exact PNG parity and preserves generated files plus actual source/render-outcome/hashes for diagnosis.
+
 ```sh
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest tests -q -p pytest_cov --cov=scanner --cov-report=xml:/tmp/hf-coverage.xml --cov-fail-under=75 --junitxml=/tmp/hf-junit.xml
 .venv/bin/ruff check . .github/scripts

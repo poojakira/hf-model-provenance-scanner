@@ -22,6 +22,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  PIP_CONSTRAINT: ${{ github.workspace }}/constraints-optional.txt
   PYTHON_VERSION: "3.12"
   RUFF_VERSION: "0.8.4"
   PYRIGHT_VERSION: "1.1.388"

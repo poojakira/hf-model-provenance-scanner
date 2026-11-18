@@ -11,6 +11,7 @@ permissions:
   contents: read
 
 env:
+  PIP_CONSTRAINT: ${{ github.workspace }}/constraints-optional.txt
   ATTACK_CORE_REF: "288b4059fe36f1c7a3519fc00fd0b0502971d447"
 
 concurrency:
