@@ -1,0 +1,412 @@
+running egg_info
+writing hf_scanner.egg-info/PKG-INFO
+writing dependency_links to hf_scanner.egg-info/dependency_links.txt
+writing entry points to hf_scanner.egg-info/entry_points.txt
+writing requirements to hf_scanner.egg-info/requires.txt
+writing top-level names to hf_scanner.egg-info/top_level.txt
+reading manifest file 'hf_scanner.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'hf_scanner.egg-info/SOURCES.txt'
+WARNING `project.license` as a TOML table is deprecated
+!!
+
+        ********************************************************************************
+        Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+
+        By 2027-Feb-18, you need to update your project and remove deprecated calls
+        or your builds will no longer be supported.
+
+        See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+        ********************************************************************************
+
+!!
+running sdist
+running egg_info
+writing hf_scanner.egg-info/PKG-INFO
+writing dependency_links to hf_scanner.egg-info/dependency_links.txt
+writing entry points to hf_scanner.egg-info/entry_points.txt
+writing requirements to hf_scanner.egg-info/requires.txt
+writing top-level names to hf_scanner.egg-info/top_level.txt
+reading manifest file 'hf_scanner.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'hf_scanner.egg-info/SOURCES.txt'
+running check
+creating hf_scanner-0.3.0
+creating hf_scanner-0.3.0/hf_scanner.egg-info
+creating hf_scanner-0.3.0/scanner
+creating hf_scanner-0.3.0/scanner/analyzer
+creating hf_scanner-0.3.0/scanner/attack_mapping
+creating hf_scanner-0.3.0/scanner/data
+creating hf_scanner-0.3.0/scanner/formatters
+creating hf_scanner-0.3.0/scanner/isolation
+creating hf_scanner-0.3.0/scanner/rules
+creating hf_scanner-0.3.0/scanner/utils
+creating hf_scanner-0.3.0/scanner/workbench
+creating hf_scanner-0.3.0/tests
+copying files to hf_scanner-0.3.0...
+copying LICENSE -> hf_scanner-0.3.0
+copying README.md -> hf_scanner-0.3.0
+copying pyproject.toml -> hf_scanner-0.3.0
+copying hf_scanner.egg-info/PKG-INFO -> hf_scanner-0.3.0/hf_scanner.egg-info
+copying hf_scanner.egg-info/SOURCES.txt -> hf_scanner-0.3.0/hf_scanner.egg-info
+copying hf_scanner.egg-info/dependency_links.txt -> hf_scanner-0.3.0/hf_scanner.egg-info
+copying hf_scanner.egg-info/entry_points.txt -> hf_scanner-0.3.0/hf_scanner.egg-info
+copying hf_scanner.egg-info/requires.txt -> hf_scanner-0.3.0/hf_scanner.egg-info
+copying hf_scanner.egg-info/top_level.txt -> hf_scanner-0.3.0/hf_scanner.egg-info
+copying scanner/__init__.py -> hf_scanner-0.3.0/scanner
+copying scanner/aibom_generator.py -> hf_scanner-0.3.0/scanner
+copying scanner/cli.py -> hf_scanner-0.3.0/scanner
+copying scanner/config.py -> hf_scanner-0.3.0/scanner
+copying scanner/models.py -> hf_scanner-0.3.0/scanner
+copying scanner/monitor.py -> hf_scanner-0.3.0/scanner
+copying scanner/monitor_cli.py -> hf_scanner-0.3.0/scanner
+copying scanner/provenance.py -> hf_scanner-0.3.0/scanner
+copying scanner/risk.py -> hf_scanner-0.3.0/scanner
+copying scanner/runtime_policy.py -> hf_scanner-0.3.0/scanner
+copying scanner/service.py -> hf_scanner-0.3.0/scanner
+copying scanner/analyzer/__init__.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/ast_visitor.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/config_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/dependency_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/gguf_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/ioc_feed.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/keras_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/obfuscation_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/onnx_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/org_checker.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/pickle_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/runtime_monitor.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/safetensors_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/sandbox_executor.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/shell_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/symbolic_resolver.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/taint_engine.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/temporal_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/weight_fingerprint.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/attack_mapping/__init__.py -> hf_scanner-0.3.0/scanner/attack_mapping
+copying scanner/attack_mapping/enricher.py -> hf_scanner-0.3.0/scanner/attack_mapping
+copying scanner/attack_mapping/reporter.py -> hf_scanner-0.3.0/scanner/attack_mapping
+copying scanner/data/iocs.json -> hf_scanner-0.3.0/scanner/data
+copying scanner/data/protected_orgs.json -> hf_scanner-0.3.0/scanner/data
+copying scanner/formatters/__init__.py -> hf_scanner-0.3.0/scanner/formatters
+copying scanner/formatters/html_formatter.py -> hf_scanner-0.3.0/scanner/formatters
+copying scanner/formatters/json_formatter.py -> hf_scanner-0.3.0/scanner/formatters
+copying scanner/formatters/sarif_formatter.py -> hf_scanner-0.3.0/scanner/formatters
+copying scanner/isolation/__init__.py -> hf_scanner-0.3.0/scanner/isolation
+copying scanner/isolation/executor.py -> hf_scanner-0.3.0/scanner/isolation
+copying scanner/rules/__init__.py -> hf_scanner-0.3.0/scanner/rules
+copying scanner/rules/definitions.py -> hf_scanner-0.3.0/scanner/rules
+copying scanner/utils/__init__.py -> hf_scanner-0.3.0/scanner/utils
+copying scanner/utils/entropy.py -> hf_scanner-0.3.0/scanner/utils
+copying scanner/utils/file_filter.py -> hf_scanner-0.3.0/scanner/utils
+copying scanner/utils/hf_api.py -> hf_scanner-0.3.0/scanner/utils
+copying scanner/utils/levenshtein.py -> hf_scanner-0.3.0/scanner/utils
+copying scanner/workbench/__init__.py -> hf_scanner-0.3.0/scanner/workbench
+copying scanner/workbench/app.js -> hf_scanner-0.3.0/scanner/workbench
+copying scanner/workbench/containment.py -> hf_scanner-0.3.0/scanner/workbench
+copying scanner/workbench/index.html -> hf_scanner-0.3.0/scanner/workbench
+copying scanner/workbench/server.py -> hf_scanner-0.3.0/scanner/workbench
+copying scanner/workbench/style.css -> hf_scanner-0.3.0/scanner/workbench
+copying scanner/workbench/worker.py -> hf_scanner-0.3.0/scanner/workbench
+copying tests/test_attack_mapping.py -> hf_scanner-0.3.0/tests
+copying tests/test_cli.py -> hf_scanner-0.3.0/tests
+copying tests/test_completeness_invariant.py -> hf_scanner-0.3.0/tests
+copying tests/test_dashboard_static.py -> hf_scanner-0.3.0/tests
+copying tests/test_deploy_protection.py -> hf_scanner-0.3.0/tests
+copying tests/test_executor.py -> hf_scanner-0.3.0/tests
+copying tests/test_gguf_scanner.py -> hf_scanner-0.3.0/tests
+copying tests/test_hf_discussion_url_guard.py -> hf_scanner-0.3.0/tests
+copying tests/test_integration_hf.py -> hf_scanner-0.3.0/tests
+copying tests/test_ioc_feed.py -> hf_scanner-0.3.0/tests
+copying tests/test_monitor.py -> hf_scanner-0.3.0/tests
+copying tests/test_obfuscation_scanner.py -> hf_scanner-0.3.0/tests
+copying tests/test_p0_security_regressions.py -> hf_scanner-0.3.0/tests
+copying tests/test_pickle_gadget_coverage.py -> hf_scanner-0.3.0/tests
+copying tests/test_pickle_scanner.py -> hf_scanner-0.3.0/tests
+copying tests/test_safetensors_scanner.py -> hf_scanner-0.3.0/tests
+copying tests/test_sandbox_executor.py -> hf_scanner-0.3.0/tests
+copying tests/test_security_rejects.py -> hf_scanner-0.3.0/tests
+copying tests/test_service.py -> hf_scanner-0.3.0/tests
+copying tests/test_service_security_hardening.py -> hf_scanner-0.3.0/tests
+copying tests/test_supply_chain_coverage.py -> hf_scanner-0.3.0/tests
+copying tests/test_temporal_scanner.py -> hf_scanner-0.3.0/tests
+copying tests/test_weight_fingerprint.py -> hf_scanner-0.3.0/tests
+copying tests/test_workbench.py -> hf_scanner-0.3.0/tests
+Writing hf_scanner-0.3.0/setup.cfg
+Creating tar archive
+removing 'hf_scanner-0.3.0' (and everything under it)
+WARNING `project.license` as a TOML table is deprecated
+!!
+
+        ********************************************************************************
+        Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+
+        By 2027-Feb-18, you need to update your project and remove deprecated calls
+        or your builds will no longer be supported.
+
+        See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+        ********************************************************************************
+
+!!
+running egg_info
+writing hf_scanner.egg-info/PKG-INFO
+writing dependency_links to hf_scanner.egg-info/dependency_links.txt
+writing entry points to hf_scanner.egg-info/entry_points.txt
+writing requirements to hf_scanner.egg-info/requires.txt
+writing top-level names to hf_scanner.egg-info/top_level.txt
+reading manifest file 'hf_scanner.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'hf_scanner.egg-info/SOURCES.txt'
+WARNING `project.license` as a TOML table is deprecated
+!!
+
+        ********************************************************************************
+        Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+
+        By 2027-Feb-18, you need to update your project and remove deprecated calls
+        or your builds will no longer be supported.
+
+        See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+        ********************************************************************************
+
+!!
+running bdist_wheel
+running build
+running build_py
+creating build/lib/scanner
+copying scanner/service.py -> build/lib/scanner
+copying scanner/monitor.py -> build/lib/scanner
+copying scanner/__init__.py -> build/lib/scanner
+copying scanner/provenance.py -> build/lib/scanner
+copying scanner/config.py -> build/lib/scanner
+copying scanner/monitor_cli.py -> build/lib/scanner
+copying scanner/aibom_generator.py -> build/lib/scanner
+copying scanner/models.py -> build/lib/scanner
+copying scanner/risk.py -> build/lib/scanner
+copying scanner/cli.py -> build/lib/scanner
+copying scanner/runtime_policy.py -> build/lib/scanner
+creating build/lib/scanner/isolation
+copying scanner/isolation/__init__.py -> build/lib/scanner/isolation
+copying scanner/isolation/executor.py -> build/lib/scanner/isolation
+creating build/lib/scanner/workbench
+copying scanner/workbench/__init__.py -> build/lib/scanner/workbench
+copying scanner/workbench/worker.py -> build/lib/scanner/workbench
+copying scanner/workbench/containment.py -> build/lib/scanner/workbench
+copying scanner/workbench/server.py -> build/lib/scanner/workbench
+creating build/lib/scanner/rules
+copying scanner/rules/__init__.py -> build/lib/scanner/rules
+copying scanner/rules/definitions.py -> build/lib/scanner/rules
+creating build/lib/scanner/attack_mapping
+copying scanner/attack_mapping/__init__.py -> build/lib/scanner/attack_mapping
+copying scanner/attack_mapping/enricher.py -> build/lib/scanner/attack_mapping
+copying scanner/attack_mapping/reporter.py -> build/lib/scanner/attack_mapping
+creating build/lib/scanner/formatters
+copying scanner/formatters/html_formatter.py -> build/lib/scanner/formatters
+copying scanner/formatters/sarif_formatter.py -> build/lib/scanner/formatters
+copying scanner/formatters/__init__.py -> build/lib/scanner/formatters
+copying scanner/formatters/json_formatter.py -> build/lib/scanner/formatters
+creating build/lib/scanner/utils
+copying scanner/utils/__init__.py -> build/lib/scanner/utils
+copying scanner/utils/levenshtein.py -> build/lib/scanner/utils
+copying scanner/utils/entropy.py -> build/lib/scanner/utils
+copying scanner/utils/hf_api.py -> build/lib/scanner/utils
+copying scanner/utils/file_filter.py -> build/lib/scanner/utils
+creating build/lib/scanner/analyzer
+copying scanner/analyzer/ioc_feed.py -> build/lib/scanner/analyzer
+copying scanner/analyzer/__init__.py -> build/lib/scanner/analyzer
+copying scanner/analyzer/sandbox_executor.py -> build/lib/scanner/analyzer
+copying scanner/analyzer/temporal_scanner.py -> build/lib/scanner/analyzer
+copying scanner/analyzer/onnx_scanner.py -> build/lib/scanner/analyzer
+copying scanner/analyzer/runtime_monitor.py -> build/lib/scanner/analyzer
+copying scanner/analyzer/taint_engine.py -> build/lib/scanner/analyzer
+copying scanner/analyzer/config_scanner.py -> build/lib/scanner/analyzer
+copying scanner/analyzer/ast_visitor.py -> build/lib/scanner/analyzer
+copying scanner/analyzer/shell_scanner.py -> build/lib/scanner/analyzer
+copying scanner/analyzer/gguf_scanner.py -> build/lib/scanner/analyzer
+copying scanner/analyzer/symbolic_resolver.py -> build/lib/scanner/analyzer
+copying scanner/analyzer/keras_scanner.py -> build/lib/scanner/analyzer
+copying scanner/analyzer/obfuscation_scanner.py -> build/lib/scanner/analyzer
+copying scanner/analyzer/weight_fingerprint.py -> build/lib/scanner/analyzer
+copying scanner/analyzer/dependency_scanner.py -> build/lib/scanner/analyzer
+copying scanner/analyzer/pickle_scanner.py -> build/lib/scanner/analyzer
+copying scanner/analyzer/safetensors_scanner.py -> build/lib/scanner/analyzer
+copying scanner/analyzer/org_checker.py -> build/lib/scanner/analyzer
+running egg_info
+writing hf_scanner.egg-info/PKG-INFO
+writing dependency_links to hf_scanner.egg-info/dependency_links.txt
+writing entry points to hf_scanner.egg-info/entry_points.txt
+writing requirements to hf_scanner.egg-info/requires.txt
+writing top-level names to hf_scanner.egg-info/top_level.txt
+reading manifest file 'hf_scanner.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'hf_scanner.egg-info/SOURCES.txt'
+creating build/lib/scanner/data
+copying scanner/data/iocs.json -> build/lib/scanner/data
+copying scanner/data/protected_orgs.json -> build/lib/scanner/data
+copying scanner/workbench/app.js -> build/lib/scanner/workbench
+copying scanner/workbench/index.html -> build/lib/scanner/workbench
+copying scanner/workbench/style.css -> build/lib/scanner/workbench
+installing to build/bdist.linux-x86_64/wheel
+running install
+running install_lib
+creating build/bdist.linux-x86_64/wheel
+creating build/bdist.linux-x86_64/wheel/scanner
+copying build/lib/scanner/service.py -> build/bdist.linux-x86_64/wheel/./scanner
+copying build/lib/scanner/monitor.py -> build/bdist.linux-x86_64/wheel/./scanner
+creating build/bdist.linux-x86_64/wheel/scanner/data
+copying build/lib/scanner/data/protected_orgs.json -> build/bdist.linux-x86_64/wheel/./scanner/data
+copying build/lib/scanner/data/iocs.json -> build/bdist.linux-x86_64/wheel/./scanner/data
+creating build/bdist.linux-x86_64/wheel/scanner/isolation
+copying build/lib/scanner/isolation/__init__.py -> build/bdist.linux-x86_64/wheel/./scanner/isolation
+copying build/lib/scanner/isolation/executor.py -> build/bdist.linux-x86_64/wheel/./scanner/isolation
+creating build/bdist.linux-x86_64/wheel/scanner/workbench
+copying build/lib/scanner/workbench/__init__.py -> build/bdist.linux-x86_64/wheel/./scanner/workbench
+copying build/lib/scanner/workbench/index.html -> build/bdist.linux-x86_64/wheel/./scanner/workbench
+copying build/lib/scanner/workbench/worker.py -> build/bdist.linux-x86_64/wheel/./scanner/workbench
+copying build/lib/scanner/workbench/containment.py -> build/bdist.linux-x86_64/wheel/./scanner/workbench
+copying build/lib/scanner/workbench/style.css -> build/bdist.linux-x86_64/wheel/./scanner/workbench
+copying build/lib/scanner/workbench/app.js -> build/bdist.linux-x86_64/wheel/./scanner/workbench
+copying build/lib/scanner/workbench/server.py -> build/bdist.linux-x86_64/wheel/./scanner/workbench
+copying build/lib/scanner/__init__.py -> build/bdist.linux-x86_64/wheel/./scanner
+copying build/lib/scanner/provenance.py -> build/bdist.linux-x86_64/wheel/./scanner
+creating build/bdist.linux-x86_64/wheel/scanner/rules
+copying build/lib/scanner/rules/__init__.py -> build/bdist.linux-x86_64/wheel/./scanner/rules
+copying build/lib/scanner/rules/definitions.py -> build/bdist.linux-x86_64/wheel/./scanner/rules
+creating build/bdist.linux-x86_64/wheel/scanner/attack_mapping
+copying build/lib/scanner/attack_mapping/__init__.py -> build/bdist.linux-x86_64/wheel/./scanner/attack_mapping
+copying build/lib/scanner/attack_mapping/enricher.py -> build/bdist.linux-x86_64/wheel/./scanner/attack_mapping
+copying build/lib/scanner/attack_mapping/reporter.py -> build/bdist.linux-x86_64/wheel/./scanner/attack_mapping
+creating build/bdist.linux-x86_64/wheel/scanner/formatters
+copying build/lib/scanner/formatters/html_formatter.py -> build/bdist.linux-x86_64/wheel/./scanner/formatters
+copying build/lib/scanner/formatters/sarif_formatter.py -> build/bdist.linux-x86_64/wheel/./scanner/formatters
+copying build/lib/scanner/formatters/__init__.py -> build/bdist.linux-x86_64/wheel/./scanner/formatters
+copying build/lib/scanner/formatters/json_formatter.py -> build/bdist.linux-x86_64/wheel/./scanner/formatters
+copying build/lib/scanner/config.py -> build/bdist.linux-x86_64/wheel/./scanner
+creating build/bdist.linux-x86_64/wheel/scanner/utils
+copying build/lib/scanner/utils/__init__.py -> build/bdist.linux-x86_64/wheel/./scanner/utils
+copying build/lib/scanner/utils/levenshtein.py -> build/bdist.linux-x86_64/wheel/./scanner/utils
+copying build/lib/scanner/utils/entropy.py -> build/bdist.linux-x86_64/wheel/./scanner/utils
+copying build/lib/scanner/utils/hf_api.py -> build/bdist.linux-x86_64/wheel/./scanner/utils
+copying build/lib/scanner/utils/file_filter.py -> build/bdist.linux-x86_64/wheel/./scanner/utils
+copying build/lib/scanner/monitor_cli.py -> build/bdist.linux-x86_64/wheel/./scanner
+copying build/lib/scanner/aibom_generator.py -> build/bdist.linux-x86_64/wheel/./scanner
+copying build/lib/scanner/models.py -> build/bdist.linux-x86_64/wheel/./scanner
+copying build/lib/scanner/risk.py -> build/bdist.linux-x86_64/wheel/./scanner
+copying build/lib/scanner/cli.py -> build/bdist.linux-x86_64/wheel/./scanner
+creating build/bdist.linux-x86_64/wheel/scanner/analyzer
+copying build/lib/scanner/analyzer/ioc_feed.py -> build/bdist.linux-x86_64/wheel/./scanner/analyzer
+copying build/lib/scanner/analyzer/__init__.py -> build/bdist.linux-x86_64/wheel/./scanner/analyzer
+copying build/lib/scanner/analyzer/sandbox_executor.py -> build/bdist.linux-x86_64/wheel/./scanner/analyzer
+copying build/lib/scanner/analyzer/temporal_scanner.py -> build/bdist.linux-x86_64/wheel/./scanner/analyzer
+copying build/lib/scanner/analyzer/onnx_scanner.py -> build/bdist.linux-x86_64/wheel/./scanner/analyzer
+copying build/lib/scanner/analyzer/runtime_monitor.py -> build/bdist.linux-x86_64/wheel/./scanner/analyzer
+copying build/lib/scanner/analyzer/taint_engine.py -> build/bdist.linux-x86_64/wheel/./scanner/analyzer
+copying build/lib/scanner/analyzer/config_scanner.py -> build/bdist.linux-x86_64/wheel/./scanner/analyzer
+copying build/lib/scanner/analyzer/ast_visitor.py -> build/bdist.linux-x86_64/wheel/./scanner/analyzer
+copying build/lib/scanner/analyzer/shell_scanner.py -> build/bdist.linux-x86_64/wheel/./scanner/analyzer
+copying build/lib/scanner/analyzer/gguf_scanner.py -> build/bdist.linux-x86_64/wheel/./scanner/analyzer
+copying build/lib/scanner/analyzer/symbolic_resolver.py -> build/bdist.linux-x86_64/wheel/./scanner/analyzer
+copying build/lib/scanner/analyzer/keras_scanner.py -> build/bdist.linux-x86_64/wheel/./scanner/analyzer
+copying build/lib/scanner/analyzer/obfuscation_scanner.py -> build/bdist.linux-x86_64/wheel/./scanner/analyzer
+copying build/lib/scanner/analyzer/weight_fingerprint.py -> build/bdist.linux-x86_64/wheel/./scanner/analyzer
+copying build/lib/scanner/analyzer/dependency_scanner.py -> build/bdist.linux-x86_64/wheel/./scanner/analyzer
+copying build/lib/scanner/analyzer/pickle_scanner.py -> build/bdist.linux-x86_64/wheel/./scanner/analyzer
+copying build/lib/scanner/analyzer/safetensors_scanner.py -> build/bdist.linux-x86_64/wheel/./scanner/analyzer
+copying build/lib/scanner/analyzer/org_checker.py -> build/bdist.linux-x86_64/wheel/./scanner/analyzer
+copying build/lib/scanner/runtime_policy.py -> build/bdist.linux-x86_64/wheel/./scanner
+running install_egg_info
+Copying hf_scanner.egg-info to build/bdist.linux-x86_64/wheel/./hf_scanner-0.3.0-py3.12.egg-info
+running install_scripts
+creating build/bdist.linux-x86_64/wheel/hf_scanner-0.3.0.dist-info/WHEEL
+creating '/workspace/work/evidence/hf-model-provenance-scanner/final/dist/.tmp-dpfcw2my/hf_scanner-0.3.0-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+adding 'hf_scanner-0.3.0.dist-info/licenses/LICENSE'
+adding 'scanner/__init__.py'
+adding 'scanner/aibom_generator.py'
+adding 'scanner/cli.py'
+adding 'scanner/config.py'
+adding 'scanner/models.py'
+adding 'scanner/monitor.py'
+adding 'scanner/monitor_cli.py'
+adding 'scanner/provenance.py'
+adding 'scanner/risk.py'
+adding 'scanner/runtime_policy.py'
+adding 'scanner/service.py'
+adding 'scanner/analyzer/__init__.py'
+adding 'scanner/analyzer/ast_visitor.py'
+adding 'scanner/analyzer/config_scanner.py'
+adding 'scanner/analyzer/dependency_scanner.py'
+adding 'scanner/analyzer/gguf_scanner.py'
+adding 'scanner/analyzer/ioc_feed.py'
+adding 'scanner/analyzer/keras_scanner.py'
+adding 'scanner/analyzer/obfuscation_scanner.py'
+adding 'scanner/analyzer/onnx_scanner.py'
+adding 'scanner/analyzer/org_checker.py'
+adding 'scanner/analyzer/pickle_scanner.py'
+adding 'scanner/analyzer/runtime_monitor.py'
+adding 'scanner/analyzer/safetensors_scanner.py'
+adding 'scanner/analyzer/sandbox_executor.py'
+adding 'scanner/analyzer/shell_scanner.py'
+adding 'scanner/analyzer/symbolic_resolver.py'
+adding 'scanner/analyzer/taint_engine.py'
+adding 'scanner/analyzer/temporal_scanner.py'
+adding 'scanner/analyzer/weight_fingerprint.py'
+adding 'scanner/attack_mapping/__init__.py'
+adding 'scanner/attack_mapping/enricher.py'
+adding 'scanner/attack_mapping/reporter.py'
+adding 'scanner/data/iocs.json'
+adding 'scanner/data/protected_orgs.json'
+adding 'scanner/formatters/__init__.py'
+adding 'scanner/formatters/html_formatter.py'
+adding 'scanner/formatters/json_formatter.py'
+adding 'scanner/formatters/sarif_formatter.py'
+adding 'scanner/isolation/__init__.py'
+adding 'scanner/isolation/executor.py'
+adding 'scanner/rules/__init__.py'
+adding 'scanner/rules/definitions.py'
+adding 'scanner/utils/__init__.py'
+adding 'scanner/utils/entropy.py'
+adding 'scanner/utils/file_filter.py'
+adding 'scanner/utils/hf_api.py'
+adding 'scanner/utils/levenshtein.py'
+adding 'scanner/workbench/__init__.py'
+adding 'scanner/workbench/app.js'
+adding 'scanner/workbench/containment.py'
+adding 'scanner/workbench/index.html'
+adding 'scanner/workbench/server.py'
+adding 'scanner/workbench/style.css'
+adding 'scanner/workbench/worker.py'
+adding 'hf_scanner-0.3.0.dist-info/METADATA'
+adding 'hf_scanner-0.3.0.dist-info/WHEEL'
+adding 'hf_scanner-0.3.0.dist-info/entry_points.txt'
+adding 'hf_scanner-0.3.0.dist-info/top_level.txt'
+adding 'hf_scanner-0.3.0.dist-info/RECORD'
+removing build/bdist.linux-x86_64/wheel
+WARNING `project.license` as a TOML table is deprecated
+!!
+
+        ********************************************************************************
+        Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+
+        By 2027-Feb-18, you need to update your project and remove deprecated calls
+        or your builds will no longer be supported.
+
+        See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+        ********************************************************************************
+
+!!
+Successfully built hf_scanner-0.3.0.tar.gz and hf_scanner-0.3.0-py3-none-any.whl
+* Creating isolated environment: venv+pip...
+* Installing packages in isolated environment:
+  - setuptools>=68
+* Getting build dependencies for sdist...
+* Building sdist...
+* Building wheel from sdist
+* Creating isolated environment: venv+pip...
+* Installing packages in isolated environment:
+  - setuptools>=68
+* Getting build dependencies for wheel...
+* Building wheel...
+warning: build_py: byte-compiling is disabled, skipping.
+
+warning: install_lib: byte-compiling is disabled, skipping.
+

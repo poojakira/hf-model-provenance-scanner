@@ -1,5 +1,9 @@
 {
   "artifacts": {
+    "ARCHIVE_STATUS.md": {
+      "bytes": 750,
+      "sha256": "50c20832cb70c7ccf3a42e7fa83bb6e49640ed2904daec379d772a2688c4a49b"
+    },
     "RELEASE_ASSESSMENT.md": {
       "bytes": 8451,
       "sha256": "9d1c364afd8b67e914861ff96b6e963d9d10cba9e9b9cc58a7b8dd2f565ffb59"
@@ -682,5 +686,14 @@
     "secret_triage": "One public pinned Git SHA, no live validation",
     "binary_browser": "PASS: actual SafeTensors file changes, identity under rename, report checksum"
   },
-  "assessment_generated_utc": "2026-11-17T23:16:19.036289+00:00"
+  "assessment_generated_utc": "2026-11-17T23:16:19.036289+00:00",
+  "archive_packaging_correction": {
+    "utc": "2026-11-18T04:15:49.910382+00:00",
+    "initial_archive_commit": "7627ad9d9ffb46b0ce8992acc82becb052375da8",
+    "initial_tag": "evidence/local-workbench-20261116",
+    "complete_tag": "evidence/local-workbench-20261116-complete",
+    "source_unchanged": true,
+    "cause": "Git ignore rules omitted some already-reviewed artifacts; caught by fresh public hash verification",
+    "resolution": "Explicitly stage all reviewed release-evidence files, retain original immutable tag, publish complete follow-up tag"
+  }
 }
