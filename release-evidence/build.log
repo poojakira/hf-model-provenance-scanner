@@ -1,0 +1,244 @@
+running egg_info
+writing hf_scanner.egg-info/PKG-INFO
+writing dependency_links to hf_scanner.egg-info/dependency_links.txt
+writing entry points to hf_scanner.egg-info/entry_points.txt
+writing requirements to hf_scanner.egg-info/requires.txt
+writing top-level names to hf_scanner.egg-info/top_level.txt
+reading manifest file 'hf_scanner.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'hf_scanner.egg-info/SOURCES.txt'
+WARNING `project.license` as a TOML table is deprecated
+!!
+
+        ********************************************************************************
+        Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+
+        By 2027-Feb-18, you need to update your project and remove deprecated calls
+        or your builds will no longer be supported.
+
+        See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+        ********************************************************************************
+
+!!
+running sdist
+running egg_info
+writing hf_scanner.egg-info/PKG-INFO
+writing dependency_links to hf_scanner.egg-info/dependency_links.txt
+writing entry points to hf_scanner.egg-info/entry_points.txt
+writing requirements to hf_scanner.egg-info/requires.txt
+writing top-level names to hf_scanner.egg-info/top_level.txt
+reading manifest file 'hf_scanner.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'hf_scanner.egg-info/SOURCES.txt'
+running check
+creating hf_scanner-0.3.0
+creating hf_scanner-0.3.0/hf_scanner.egg-info
+creating hf_scanner-0.3.0/scanner
+creating hf_scanner-0.3.0/scanner/analyzer
+creating hf_scanner-0.3.0/scanner/attack_mapping
+creating hf_scanner-0.3.0/scanner/data
+creating hf_scanner-0.3.0/scanner/formatters
+creating hf_scanner-0.3.0/scanner/isolation
+creating hf_scanner-0.3.0/scanner/rules
+creating hf_scanner-0.3.0/scanner/utils
+creating hf_scanner-0.3.0/scanner/workbench
+creating hf_scanner-0.3.0/tests
+copying files to hf_scanner-0.3.0...
+copying LICENSE -> hf_scanner-0.3.0
+copying README.md -> hf_scanner-0.3.0
+copying pyproject.toml -> hf_scanner-0.3.0
+copying hf_scanner.egg-info/PKG-INFO -> hf_scanner-0.3.0/hf_scanner.egg-info
+copying hf_scanner.egg-info/SOURCES.txt -> hf_scanner-0.3.0/hf_scanner.egg-info
+copying hf_scanner.egg-info/dependency_links.txt -> hf_scanner-0.3.0/hf_scanner.egg-info
+copying hf_scanner.egg-info/entry_points.txt -> hf_scanner-0.3.0/hf_scanner.egg-info
+copying hf_scanner.egg-info/requires.txt -> hf_scanner-0.3.0/hf_scanner.egg-info
+copying hf_scanner.egg-info/top_level.txt -> hf_scanner-0.3.0/hf_scanner.egg-info
+copying scanner/__init__.py -> hf_scanner-0.3.0/scanner
+copying scanner/aibom_generator.py -> hf_scanner-0.3.0/scanner
+copying scanner/cli.py -> hf_scanner-0.3.0/scanner
+copying scanner/config.py -> hf_scanner-0.3.0/scanner
+copying scanner/models.py -> hf_scanner-0.3.0/scanner
+copying scanner/monitor.py -> hf_scanner-0.3.0/scanner
+copying scanner/monitor_cli.py -> hf_scanner-0.3.0/scanner
+copying scanner/provenance.py -> hf_scanner-0.3.0/scanner
+copying scanner/risk.py -> hf_scanner-0.3.0/scanner
+copying scanner/runtime_policy.py -> hf_scanner-0.3.0/scanner
+copying scanner/service.py -> hf_scanner-0.3.0/scanner
+copying scanner/analyzer/__init__.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/ast_visitor.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/config_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/dependency_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/gguf_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/ioc_feed.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/keras_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/obfuscation_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/onnx_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/org_checker.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/pickle_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/runtime_monitor.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/safetensors_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/sandbox_executor.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/shell_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/symbolic_resolver.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/taint_engine.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/temporal_scanner.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/analyzer/weight_fingerprint.py -> hf_scanner-0.3.0/scanner/analyzer
+copying scanner/attack_mapping/__init__.py -> hf_scanner-0.3.0/scanner/attack_mapping
+copying scanner/attack_mapping/enricher.py -> hf_scanner-0.3.0/scanner/attack_mapping
+copying scanner/attack_mapping/reporter.py -> hf_scanner-0.3.0/scanner/attack_mapping
+copying scanner/data/iocs.json -> hf_scanner-0.3.0/scanner/data
+copying scanner/data/protected_orgs.json -> hf_scanner-0.3.0/scanner/data
+copying scanner/formatters/__init__.py -> hf_scanner-0.3.0/scanner/formatters
+copying scanner/formatters/html_formatter.py -> hf_scanner-0.3.0/scanner/formatters
+copying scanner/formatters/json_formatter.py -> hf_scanner-0.3.0/scanner/formatters
+copying scanner/formatters/sarif_formatter.py -> hf_scanner-0.3.0/scanner/formatters
+copying scanner/isolation/__init__.py -> hf_scanner-0.3.0/scanner/isolation
+copying scanner/isolation/executor.py -> hf_scanner-0.3.0/scanner/isolation
+copying scanner/rules/__init__.py -> hf_scanner-0.3.0/scanner/rules
+copying scanner/rules/definitions.py -> hf_scanner-0.3.0/scanner/rules
+copying scanner/utils/__init__.py -> hf_scanner-0.3.0/scanner/utils
+copying scanner/utils/entropy.py -> hf_scanner-0.3.0/scanner/utils
+copying scanner/utils/file_filter.py -> hf_scanner-0.3.0/scanner/utils
+copying scanner/utils/hf_api.py -> hf_scanner-0.3.0/scanner/utils
+copying scanner/utils/levenshtein.py -> hf_scanner-0.3.0/scanner/utils
+copying scanner/workbench/__init__.py -> hf_scanner-0.3.0/scanner/workbench
+copying scanner/workbench/app.js -> hf_scanner-0.3.0/scanner/workbench
+copying scanner/workbench/containment.py -> hf_scanner-0.3.0/scanner/workbench
+copying scanner/workbench/index.html -> hf_scanner-0.3.0/scanner/workbench
+copying scanner/workbench/server.py -> hf_scanner-0.3.0/scanner/workbench
+copying scanner/workbench/style.css -> hf_scanner-0.3.0/scanner/workbench
+copying scanner/workbench/worker.py -> hf_scanner-0.3.0/scanner/workbench
+copying tests/test_attack_mapping.py -> hf_scanner-0.3.0/tests
+copying tests/test_cli.py -> hf_scanner-0.3.0/tests
+copying tests/test_completeness_invariant.py -> hf_scanner-0.3.0/tests
+copying tests/test_dashboard_static.py -> hf_scanner-0.3.0/tests
+copying tests/test_deploy_protection.py -> hf_scanner-0.3.0/tests
+copying tests/test_executor.py -> hf_scanner-0.3.0/tests
+copying tests/test_gguf_scanner.py -> hf_scanner-0.3.0/tests
+copying tests/test_hf_discussion_url_guard.py -> hf_scanner-0.3.0/tests
+copying tests/test_integration_hf.py -> hf_scanner-0.3.0/tests
+copying tests/test_ioc_feed.py -> hf_scanner-0.3.0/tests
+copying tests/test_monitor.py -> hf_scanner-0.3.0/tests
+copying tests/test_obfuscation_scanner.py -> hf_scanner-0.3.0/tests
+copying tests/test_p0_security_regressions.py -> hf_scanner-0.3.0/tests
+copying tests/test_pickle_gadget_coverage.py -> hf_scanner-0.3.0/tests
+copying tests/test_pickle_scanner.py -> hf_scanner-0.3.0/tests
+copying tests/test_safetensors_scanner.py -> hf_scanner-0.3.0/tests
+copying tests/test_sandbox_executor.py -> hf_scanner-0.3.0/tests
+copying tests/test_security_rejects.py -> hf_scanner-0.3.0/tests
+copying tests/test_service.py -> hf_scanner-0.3.0/tests
+copying tests/test_service_security_hardening.py -> hf_scanner-0.3.0/tests
+copying tests/test_supply_chain_coverage.py -> hf_scanner-0.3.0/tests
+copying tests/test_temporal_scanner.py -> hf_scanner-0.3.0/tests
+copying tests/test_weight_fingerprint.py -> hf_scanner-0.3.0/tests
+copying tests/test_workbench.py -> hf_scanner-0.3.0/tests
+Writing hf_scanner-0.3.0/setup.cfg
+Creating tar archive
+removing 'hf_scanner-0.3.0' (and everything under it)
+WARNING `project.license` as a TOML table is deprecated
+!!
+
+        ********************************************************************************
+        Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+
+        By 2027-Feb-18, you need to update your project and remove deprecated calls
+        or your builds will no longer be supported.
+
+        See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+        ********************************************************************************
+
+!!
+
+Traceback (most recent call last):
+  File "/workspace/work/envs/hf/lib/python3.12/site-packages/build/__main__.py", line 230, in _handle_build_error
+    yield
+  File "/workspace/work/envs/hf/lib/python3.12/site-packages/build/__main__.py", line 627, in main
+    built = build(
+            ^^^^^^
+  File "/workspace/work/envs/hf/lib/python3.12/site-packages/build/__main__.py", line 345, in build_package_via_sdist
+    out = _build(
+          ^^^^^^^
+  File "/workspace/work/envs/hf/lib/python3.12/site-packages/build/__main__.py", line 214, in _build
+    with _bootstrap_build_env(
+         ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/workspace/work/envs/hf/lib/python3.12/site-packages/build/__main__.py", line 182, in _bootstrap_build_env
+    install(builder.build_system_requires, _fresh=True)
+  File "/workspace/work/envs/hf/lib/python3.12/site-packages/build/env.py", line 186, in install
+    self._env_backend.install_dependencies(requirements, constraints, _fresh=_fresh)
+  File "/workspace/work/envs/hf/lib/python3.12/site-packages/build/env.py", line 379, in install_dependencies
+    run_subprocess(cmd, env=_pip_env())
+  File "/workspace/work/envs/hf/lib/python3.12/site-packages/build/_ctx.py", line 78, in run_subprocess
+    subprocess.run(cmd, capture_output=True, check=True, cwd=cwd, env=env)  # noqa: S603
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/workspace/work/envs/hf/bin/python', '-m', 'pip', '--python', '/tmp/build-env-xigt5iro/bin/python', 'install', '--ignore-installed', '--use-pep517', '--no-warn-script-location', '--no-compile', '--no-input', '-r', '/tmp/build-requirements-_gasiawi.txt']' returned non-zero exit status 2.
+
+* Creating isolated environment: venv+pip...
+* Installing packages in isolated environment:
+  - setuptools>=68
+* Getting build dependencies for sdist...
+* Building sdist...
+* Building wheel from sdist
+* Creating isolated environment: venv+pip...
+* Installing packages in isolated environment:
+  - setuptools>=68
+> /workspace/work/envs/hf/bin/python -m pip --python /tmp/build-env-
+  xigt5iro/bin/python install --ignore-installed --use-pep517 --no-warn-
+  script-location --no-compile --no-input -r /tmp/build-requirements-
+  _gasiawi.txt
+< ERROR: Exception:
+< Traceback (most recent call last):
+<   File "/workspace/work/envs/hf/lib/python3.12/site-
+  packages/pip/_internal/cli/base_command.py", line 110, in _run_wrapper
+<     status = _inner_run()
+<              ^^^^^^^^^^^^
+<   File "/workspace/work/envs/hf/lib/python3.12/site-
+  packages/pip/_internal/cli/base_command.py", line 103, in _inner_run
+<     return self.run(options, args)
+<            ^^^^^^^^^^^^^^^^^^^^^^^
+<   File "/workspace/work/envs/hf/lib/python3.12/site-
+  packages/pip/_internal/cli/req_command.py", line 162, in wrapper
+<     return func(self, options, args)
+<            ^^^^^^^^^^^^^^^^^^^^^^^^^
+<   File "/workspace/work/envs/hf/lib/python3.12/site-
+  packages/pip/_internal/commands/install.py", line 617, in run
+<     build_tracker = self.enter_context(get_build_tracker())
+<                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<   File "/workspace/work/envs/hf/lib/python3.12/site-
+  packages/pip/_internal/cli/command_context.py", line 28, in enter_context
+<     return self._main_context.enter_context(context_provider)
+<            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<   File "/opt/codex/runtimes/codex-primary-
+  runtime/dependencies/python/lib/python3.12/contextlib.py", line 526, in
+  enter_context
+<     result = _enter(cm)
+<              ^^^^^^^^^^
+<   File "/opt/codex/runtimes/codex-primary-
+  runtime/dependencies/python/lib/python3.12/contextlib.py", line 137, in
+  __enter__
+<     return next(self.gen)
+<            ^^^^^^^^^^^^^^
+<   File "/workspace/work/envs/hf/lib/python3.12/site-
+  packages/pip/_internal/operations/build/build_tracker.py", line 47, in
+  get_build_tracker
+<     root = ctx.enter_context(TempDirectory(kind="build-tracker")).path
+<                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<   File "/workspace/work/envs/hf/lib/python3.12/site-
+  packages/pip/_internal/utils/temp_dir.py", line 137, in __init__
+<     path = self._create(kind)
+<            ^^^^^^^^^^^^^^^^^^
+<   File "/workspace/work/envs/hf/lib/python3.12/site-
+  packages/pip/_internal/utils/temp_dir.py", line 177, in _create
+<     path = os.path.realpath(tempfile.mkdtemp(prefix=f"pip-{kind}-"))
+<                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<   File "/opt/codex/runtimes/codex-primary-
+  runtime/dependencies/python/lib/python3.12/tempfile.py", line 384, in
+  mkdtemp
+<     _os.mkdir(file, 0o700)
+< OSError: [Errno 28] No space left on device: '/tmp/pip-build-tracker-
+  swpdp3dl'
+ERROR Command '['/workspace/work/envs/hf/bin/python', '-m', 'pip', '--python', '/tmp/build-env-xigt5iro/bin/python', 'install', '--ignore-installed', '--use-pep517', '--no-warn-script-location', '--no-compile', '--no-input', '-r', '/tmp/build-requirements-_gasiawi.txt']' returned non-zero exit status 2.

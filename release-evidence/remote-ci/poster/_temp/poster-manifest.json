@@ -1,0 +1,10 @@
+{
+  "source_commit": "2128d2d31614766b05762a76735908ba4bb34ac9",
+  "render_outcome": "success",
+  "python": "3.12.16",
+  "pymupdf": "1.26.6",
+  "artifacts": {
+    "poster/poster.png": "f33b077da4f17efcb1ccb80fd6b6939954199b9634c4b800b6835792605381c0",
+    "poster/poster_36x48.pdf": "ae046700618bd569edcf73ed07f9685743f3d6f214dea2a5d8e7805d48a8510a"
+  }
+}

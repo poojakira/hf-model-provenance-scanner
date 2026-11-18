@@ -1,0 +1,166 @@
+{
+  "utc": "2026-11-18T20:40:03.144879+00:00",
+  "scope": "Documentation checks, syntax versus actual benign CLI/API clearly separated; no independentsecurityclosure orfullsuiteclaim",
+  "checks": [
+    {
+      "document": "INTEGRATION.md",
+      "check": "Bash syntax only; not command execution",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "README.md",
+      "check": "Bash syntax only; not command execution",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "RUNBOOK.md",
+      "check": "Bash syntax only; not command execution",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "RUNBOOK.md",
+      "check": "Bash syntax only; not command execution",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "VERIFIED_METRICS.md",
+      "check": "Bash syntax only; not command execution",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "docs/API_VERSIONING.md",
+      "check": "JSON syntax",
+      "exit_code": 0
+    },
+    {
+      "document": "docs/API_VERSIONING.md",
+      "check": "JSON syntax",
+      "exit_code": 0
+    },
+    {
+      "document": "docs/PERFORMANCE_BASELINE.md",
+      "check": "Bash syntax only; not command execution",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "docs/TESTING.md",
+      "check": "Bash syntax only; not command execution",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "docs/TESTING.md",
+      "check": "Bash syntax only; not command execution",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "docs/TESTING.md",
+      "check": "Bash syntax only; not command execution",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "docs/internal/REPOSITORY_AUDIT.md",
+      "check": "Bash syntax only; not command execution",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "evidence/DETECTION_PROOF.md",
+      "check": "Bash syntax only; not command execution",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "evidence/INCIDENT_REPORT.md",
+      "check": "Bash syntax only; not command execution",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "poster/01_research_brief.md",
+      "check": "Bash syntax only; not command execution",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "poster/13_reproducibility.md",
+      "check": "Bash syntax only; not command execution",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "check": "cli-version",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "-m",
+        "scanner.cli",
+        "--version"
+      ],
+      "exit_code": 0
+    },
+    {
+      "check": "cli-help",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "-m",
+        "scanner.cli",
+        "--help"
+      ],
+      "exit_code": 0
+    },
+    {
+      "check": "Actual benign localCLI json",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "-m",
+        "scanner.cli",
+        "/tmp/hf-doc-example-864jezn5/synthetic.py",
+        "--mode",
+        "local",
+        "--no-network",
+        "--format",
+        "json",
+        "--fail-on",
+        "high",
+        "--enforce"
+      ],
+      "exit_code": 0,
+      "scope": "Real static scan of controlled source; no model execution/network; SARIF shape only, not officialschema certification"
+    },
+    {
+      "check": "Actual benign localCLI sarif",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "-m",
+        "scanner.cli",
+        "/tmp/hf-doc-example-864jezn5/synthetic.py",
+        "--mode",
+        "local",
+        "--no-network",
+        "--format",
+        "sarif",
+        "--fail-on",
+        "high",
+        "--enforce"
+      ],
+      "exit_code": 0,
+      "scope": "Real static scan of controlled source; no model execution/network; SARIF shape only, not officialschema certification"
+    },
+    {
+      "check": "Actual documented localAPI envelope through fresh loopback server + bounded staticworker",
+      "exit_code": 0,
+      "observed_status": "NO_PATTERN_FOUND",
+      "source_commit_observed": "2128d2d31614766b05762a76735908ba4bb34ac9",
+      "source_status_observed": "CLEAN",
+      "nonce_saved": false
+    }
+  ]
+}

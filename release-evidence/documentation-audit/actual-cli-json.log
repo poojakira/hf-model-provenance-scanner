@@ -1,0 +1,19 @@
+{
+  "scan_target": "/tmp/hf-doc-example-864jezn5/synthetic.py",
+  "scan_mode": "local",
+  "scanner_version": "0.3.0",
+  "findings": [],
+  "org_check": null,
+  "risk": {
+    "score": 0,
+    "level": "LOW",
+    "reasons": []
+  },
+  "files_scanned": 1,
+  "files_skipped": 0,
+  "completeness": "COMPLETE",
+  "skipped_files_detail": [],
+  "artifact_revision": null,
+  "scan_duration_seconds": 0.0056514739990234375,
+  "error": null
+}

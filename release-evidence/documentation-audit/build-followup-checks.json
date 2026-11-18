@@ -1,0 +1,24 @@
+{
+  "command": [
+    "/workspace/work/security-tools/bin/pip-audit",
+    "-r",
+    "constraints-optional.txt",
+    "--no-deps",
+    "--disable-pip",
+    "--cache-dir",
+    "/workspace/work/cache/hf-audit",
+    "--format",
+    "json",
+    "--output",
+    "/workspace/work/doc-reconciliation/hf-model-provenance-scanner/drawsvg-constraint-audit.json"
+  ],
+  "utc_start": "2026-11-18T20:18:25.516539+00:00",
+  "utc_end": "2026-11-18T20:18:26.178554+00:00",
+  "exit_code": 0,
+  "scope": "Knownoptionalcompatibilitypinonly; fullinstalled/lockeddependencygatesremainrequired",
+  "recovered_first_attempt": {
+    "exit_code": 1,
+    "reason": "Defaultpip-auditcache wasread-only; explicit task-ownedcacheusedonrerun; noHOMEchange",
+    "first_attempt_time": "notseparatelyinstrumented"
+  }
+}

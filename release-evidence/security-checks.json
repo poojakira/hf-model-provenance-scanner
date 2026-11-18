@@ -1,0 +1,48 @@
+{
+  "source_commit": "2128d2d31614766b05762a76735908ba4bb34ac9",
+  "runs": [
+    {
+      "name": "candidate-type-validation",
+      "command": [
+        "/workspace/work/tooling/venv/bin/python",
+        "/workspace/work/validate_inventory.py",
+        "/workspace/work/candidates/hf-model-provenance-scanner",
+        "/workspace/work/evidence/hf-model-provenance-scanner/docs-reconciliation/candidate-type-validation.json"
+      ],
+      "utc_start": "2026-11-18T20:40:03.310040+00:00",
+      "utc_end": "2026-11-18T20:40:03.544596+00:00",
+      "exit_code": 0,
+      "log": "candidate-type-validation.log"
+    },
+    {
+      "name": "secrets-scan",
+      "command": [
+        "/workspace/work/security-tools/bin/detect-secrets",
+        "scan",
+        "--no-verify",
+        "."
+      ],
+      "utc_start": "2026-11-18T20:40:03.544616+00:00",
+      "utc_end": "2026-11-18T20:40:06.254446+00:00",
+      "exit_code": 0,
+      "log": "secrets-scan.json"
+    },
+    {
+      "name": "bandit",
+      "command": [
+        "/workspace/work/security-tools/bin/bandit",
+        "-r",
+        "scanner",
+        "-ll",
+        "-f",
+        "json",
+        "-o",
+        "/workspace/work/evidence/hf-model-provenance-scanner/docs-reconciliation/bandit.json"
+      ],
+      "utc_start": "2026-11-18T20:40:06.254543+00:00",
+      "utc_end": "2026-11-18T20:40:06.943511+00:00",
+      "exit_code": 0,
+      "log": "bandit.log"
+    }
+  ]
+}

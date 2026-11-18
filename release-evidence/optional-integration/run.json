@@ -1,0 +1,88 @@
+{
+  "source_commit": "2128d2d31614766b05762a76735908ba4bb34ac9",
+  "utc_start": "2026-11-18T20:23:54.913753+00:00",
+  "utc_end": "2026-11-18T20:24:48.571426+00:00",
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--network",
+    "none",
+    "--cap-drop",
+    "ALL",
+    "--security-opt",
+    "no-new-privileges",
+    "--pids-limit",
+    "64",
+    "--memory",
+    "1536m",
+    "--cpus",
+    "2",
+    "--read-only",
+    "--tmpfs",
+    "/tmp:rw,nosuid,nodev,size=96m",
+    "--tmpfs",
+    "/home/verifier:rw,nosuid,nodev,uid=1000,gid=1000,mode=0700,size=64m",
+    "--mount",
+    "type=bind,src=/workspace/work/envs/hf-type/lib/python3.12/site-packages,dst=/opt/type,readonly",
+    "--mount",
+    "type=bind,src=/workspace/work/envs/hf/lib/python3.12/site-packages,dst=/opt/deps,readonly",
+    "--mount",
+    "type=bind,src=/workspace/work/candidates/hf-model-provenance-scanner,dst=/app,readonly",
+    "--mount",
+    "type=bind,src=/workspace/work/references/attack-v19.2,dst=/attack-data,readonly",
+    "--mount",
+    "type=bind,src=/workspace/work/evidence/hf-model-provenance-scanner/docs-reconciliation/optional-integration,dst=/evidence",
+    "-e",
+    "PYTHONPATH=/app:/opt/type:/opt/deps",
+    "-e",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "-e",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+    "-e",
+    "ATTACK_DATA_DIR=/attack-data",
+    "sha256:5fdc90be02864ceb9c58f1083247dc31460f109468b8409c34526c59a55a9741",
+    "python",
+    "-c",
+    "import pathlib,sys,pytest; print(\"container_home\",pathlib.Path.home(),flush=True); sys.exit(pytest.main([\"-p\",\"no:cacheprovider\",\"tests/test_attack_mapping.py\",\"tests/test_supply_chain_coverage.py::test_navigator_reporter_deduplicates_and_prefers_subtechnique\",\"-q\",\"--junitxml=/evidence/junit.xml\"]))"
+  ],
+  "exit_code": 0,
+  "image_id": "sha256:5fdc90be02864ceb9c58f1083247dc31460f109468b8409c34526c59a55a9741",
+  "base_image": "python@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b",
+  "dockerfile": "FROM python@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b\nRUN groupadd --gid 1000 verifier && useradd --uid 1000 --gid 1000 --create-home verifier\nUSER verifier\nWORKDIR /app\n",
+  "dockerfile_sha256": "b98d4aba27289d498dd7172b4e869b5f28df69f4c5f62b0b9467da8365729f54",
+  "core_package": {
+    "url": "https://github.com/poojakira/attack-v19-core.git",
+    "vcs_info": {
+      "commit_id": "76cf874cd6d8a012c20a76efc06b44907663751d",
+      "requested_revision": "76cf874cd6d8a012c20a76efc06b44907663751d",
+      "vcs": "git"
+    }
+  },
+  "data": {
+    "utc": "2026-11-17T22:00:40.181304+00:00",
+    "source": "Expected digests from attack-v19-core76cf874 pinned download.py",
+    "files": [
+      {
+        "name": "enterprise-attack.json",
+        "sha256": "dc1639caa5501d720e280cf1cbd8fbe009884a0c9b3e6e9ed9d0c25166c3d8f4",
+        "bytes": 53835637,
+        "url": "https://raw.githubusercontent.com/mitre-attack/attack-stix-data/v19.2/enterprise-attack/enterprise-attack.json"
+      },
+      {
+        "name": "mobile-attack.json",
+        "sha256": "acfa5ca2d93484476f79bf38590e2b55bb675fc0ce85e76bffa0af2c82dada64",
+        "bytes": 5750325,
+        "url": "https://raw.githubusercontent.com/mitre-attack/attack-stix-data/v19.2/mobile-attack/mobile-attack.json"
+      },
+      {
+        "name": "ics-attack.json",
+        "sha256": "08b83d2cea6b6d6752468ef0e62e2ab2a53c9443ef72c439ecccb07ab9e89da9",
+        "bytes": 4057891,
+        "url": "https://raw.githubusercontent.com/mitre-attack/attack-stix-data/v19.2/ics-attack/ics-attack.json"
+      }
+    ]
+  },
+  "home_policy": "Host HOME unchanged; container user default HOME unchanged, with writable ephemeral tmpfs cache. No dependency patch. No network at runtime.",
+  "scope": "Only these optional mapping/reporter checks; no product container or public deployment validation inferred."
+}

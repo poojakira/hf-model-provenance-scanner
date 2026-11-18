@@ -1,0 +1,45 @@
+[main]	INFO	profile include tests: None
+[main]	INFO	profile exclude tests: None
+[main]	INFO	cli include tests: None
+[main]	INFO	cli exclude tests: None
+[manager]	WARNING	Test in comment: controlled is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: command is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: execution is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: with is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: fail is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: closed is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: gate is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: resolved is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: verifier is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: executable is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: with is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: fixed is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: argv is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: only is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: resolved is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: verifier is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: and is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: fixed is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: argv is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: shape is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: sandbox is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: policy is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: config is not a test name or id, ignoring
+[tester]	WARNING	nosec encountered (B108), but no failed test on file scanner/runtime_policy.py:12
+[tester]	WARNING	nosec encountered (B108), but no failed test on file scanner/runtime_policy.py:13
+[tester]	WARNING	nosec encountered (B108), but no failed test on file scanner/runtime_policy.py:14
+[tester]	WARNING	nosec encountered (B108), but no failed test on file scanner/runtime_policy.py:18
+[tester]	WARNING	nosec encountered (B108), but no failed test on file scanner/runtime_policy.py:12
+[tester]	WARNING	nosec encountered (B108), but no failed test on file scanner/runtime_policy.py:13
+[tester]	WARNING	nosec encountered (B108), but no failed test on file scanner/runtime_policy.py:19
+[tester]	WARNING	nosec encountered (B108), but no failed test on file scanner/runtime_policy.py:29
+[tester]	WARNING	nosec encountered (B108), but no failed test on file scanner/runtime_policy.py:33
+[tester]	WARNING	nosec encountered (B108), but no failed test on file scanner/runtime_policy.py:38
+[tester]	WARNING	nosec encountered (B108), but no failed test on file scanner/runtime_policy.py:49
+[tester]	WARNING	nosec encountered (B108), but no failed test on file scanner/runtime_policy.py:52
+[tester]	WARNING	nosec encountered (B108), but no failed test on file scanner/runtime_policy.py:55
+[tester]	WARNING	nosec encountered (B108), but no failed test on file scanner/runtime_policy.py:34
+[tester]	WARNING	nosec encountered (B108), but no failed test on file scanner/runtime_policy.py:35
+[tester]	WARNING	nosec encountered (B108), but no failed test on file scanner/runtime_policy.py:36
+[tester]	WARNING	nosec encountered (B108), but no failed test on file scanner/runtime_policy.py:35
+[json]	INFO	JSON output written to file: /workspace/work/evidence/hf-model-provenance-scanner/docs-reconciliation/bandit.json

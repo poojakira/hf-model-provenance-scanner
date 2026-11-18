@@ -1,0 +1,41 @@
+{
+  "utc": "2026-11-18T19:56:29.028520+00:00",
+  "source_status": "pre-freeze DIRTY; no finalcandidateexecutionclaim",
+  "method": "Project HTML generation through external POSTER_BROWSER wrapper with exact trusted own HTML supplied to Playwright set_content, actual ChromiumPDF and hostPyMuPDF rasterization",
+  "PyMuPDF": "1.26.6",
+  "python": "Python 3.12.14",
+  "chromium": "Chromium 156.0.8078.79 built on Debian GNU/Linux 13 (trixie)",
+  "pdf_pages": 1,
+  "pdf_size_points": [
+    2592,
+    3456
+  ],
+  "png_dimensions": [
+    1800,
+    2400
+  ],
+  "first": {
+    "poster/poster.png": {
+      "sha256": "f33b077da4f17efcb1ccb80fd6b6939954199b9634c4b800b6835792605381c0",
+      "bytes": 482010
+    },
+    "poster/poster_36x48.pdf": {
+      "sha256": "c55e5a84e1c43378b6307b25ed1cf141e42ec4f01e54e1e1ffe7685ede61b6fa",
+      "bytes": 738883
+    }
+  },
+  "second": {
+    "poster/poster.png": {
+      "sha256": "f33b077da4f17efcb1ccb80fd6b6939954199b9634c4b800b6835792605381c0",
+      "bytes": 482010
+    },
+    "poster/poster_36x48.pdf": {
+      "sha256": "64040ce8b472586303700acabac447782ced725d3443d10da06c334b2acfb80d",
+      "bytes": 738883
+    }
+  },
+  "png_identical": true,
+  "pdf_bytes_identical": false,
+  "visual_review": "Historical source/date/260passed1skip6subtests75.67percent and populated evidence panel visible; no overflow/cropped critical sections",
+  "boundary": "No HOME/browserpolicy/productcontrol change or external upload; exact hosted fonts/Chromeparity remains separate; PDFmetadata varies"
+}

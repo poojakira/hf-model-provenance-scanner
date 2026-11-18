@@ -1,0 +1,107 @@
+{
+  "utc": "2026-11-18T19:57:22.400318+00:00",
+  "results": [
+    {
+      "url": "https://github.com/poojakira",
+      "status": 200,
+      "final_url": "https://github.com/poojakira",
+      "scope": "HTTP reachability only; content/externalfragment/historicalclaim not independently verified"
+    },
+    {
+      "url": "https://github.com/poojakira/aws-agent-identity-guard/actions/runs/38462296804",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/aws-agent-identity-guard/actions/runs/38462296804",
+      "scope": "HTTP reachability only; content/externalfragment/historicalclaim not independently verified"
+    },
+    {
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/37163168715",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/37163168715",
+      "scope": "HTTP reachability only; content/externalfragment/historicalclaim not independently verified"
+    },
+    {
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38002138828",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38002138828",
+      "scope": "HTTP reachability only; content/externalfragment/historicalclaim not independently verified"
+    },
+    {
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074",
+      "scope": "HTTP reachability only; content/externalfragment/historicalclaim not independently verified"
+    },
+    {
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38487400153",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38487400153",
+      "scope": "HTTP reachability only; content/externalfragment/historicalclaim not independently verified"
+    },
+    {
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38498005353",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38498005353",
+      "scope": "HTTP reachability only; content/externalfragment/historicalclaim not independently verified"
+    },
+    {
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/blob/f151c25cea44b6b3225bbf50a2fbabe95c60b94a/release-evidence/independent-review-status.json",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/hf-model-provenance-scanner/blob/f151c25cea44b6b3225bbf50a2fbabe95c60b94a/release-evidence/independent-review-status.json",
+      "scope": "HTTP reachability only; content/externalfragment/historicalclaim not independently verified"
+    },
+    {
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/commit/2f937ba51f31c678e43a064e95d6939e3feb9226",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/hf-model-provenance-scanner/commit/2f937ba51f31c678e43a064e95d6939e3feb9226",
+      "scope": "HTTP reachability only; content/externalfragment/historicalclaim not independently verified"
+    },
+    {
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/commit/7099591d86f5e82d787d8934c52eb4e2b24f6918",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/hf-model-provenance-scanner/commit/7099591d86f5e82d787d8934c52eb4e2b24f6918",
+      "scope": "HTTP reachability only; content/externalfragment/historicalclaim not independently verified"
+    },
+    {
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/commit/a57fba57e4ff422faeb32dcbfd03c37843dc2111",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/hf-model-provenance-scanner/commit/a57fba57e4ff422faeb32dcbfd03c37843dc2111",
+      "scope": "HTTP reachability only; content/externalfragment/historicalclaim not independently verified"
+    },
+    {
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/commit/c7e2d4e3d9af75d9d9ba5d286e7c4d9f3a12da92",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/hf-model-provenance-scanner/commit/c7e2d4e3d9af75d9d9ba5d286e7c4d9f3a12da92",
+      "scope": "HTTP reachability only; content/externalfragment/historicalclaim not independently verified"
+    },
+    {
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/commit/f766debbb12caf163caf09155e07120da4a96947",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/hf-model-provenance-scanner/commit/f766debbb12caf163caf09155e07120da4a96947",
+      "scope": "HTTP reachability only; content/externalfragment/historicalclaim not independently verified"
+    },
+    {
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/pull/103",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/hf-model-provenance-scanner/pull/103",
+      "scope": "HTTP reachability only; content/externalfragment/historicalclaim not independently verified"
+    },
+    {
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/tree/f151c25cea44b6b3225bbf50a2fbabe95c60b94a/release-evidence",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/hf-model-provenance-scanner/tree/f151c25cea44b6b3225bbf50a2fbabe95c60b94a/release-evidence",
+      "scope": "HTTP reachability only; content/externalfragment/historicalclaim not independently verified"
+    },
+    {
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803",
+      "scope": "HTTP reachability only; content/externalfragment/historicalclaim not independently verified"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/f151c25cea44b6b3225bbf50a2fbabe95c60b94a/release-evidence/browser/desktop.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/f151c25cea44b6b3225bbf50a2fbabe95c60b94a/release-evidence/browser/desktop.png",
+      "scope": "HTTP reachability only; content/externalfragment/historicalclaim not independently verified"
+    }
+  ]
+}

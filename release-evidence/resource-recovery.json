@@ -1,0 +1,43 @@
+{
+  "source": "2128d2d31614766b05762a76735908ba4bb34ac9",
+  "initial_failed_attempts": [
+    {
+      "name": "build",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "-m",
+        "build",
+        "--outdir",
+        "/workspace/work/evidence/hf-model-provenance-scanner/docs-reconciliation/dist"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-18T20:24:37.555540+00:00",
+      "utc_end": "2026-11-18T20:24:41.046426+00:00",
+      "exit_code": 1,
+      "log": "build.log"
+    },
+    {
+      "name": "locked_dependency_audit",
+      "command": [
+        "/workspace/work/security-tools/bin/pip-audit",
+        "-r",
+        "requirements-local.lock",
+        "--cache-dir",
+        "/workspace/work/cache/hf-audit",
+        "--format",
+        "json",
+        "--output",
+        "/workspace/work/evidence/hf-model-provenance-scanner/docs-reconciliation/locked-pip-audit.json"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-18T20:24:42.232366+00:00",
+      "utc_end": "2026-11-18T20:24:42.684230+00:00",
+      "exit_code": 1,
+      "log": "locked_dependency_audit.log"
+    }
+  ],
+  "third_party_dependency_versions_unchanged": true,
+  "app_metadata_note": "Setuptoolsbuildrefreshededitable0.3.0distributionmetadatafromhf-scanner==0.3.0toitsactualGit2128source; codeandversionunchanged. Bothsnapshotsretained. Initialraw-snapshotidentityassertioncaughtthisdistinction; no passingproductcheckwasfabricated.",
+  "final_checks_passed": true,
+  "utc": "2026-11-18T20:33:44.227929+00:00"
+}

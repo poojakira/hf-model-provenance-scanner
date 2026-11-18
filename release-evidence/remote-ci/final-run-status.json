@@ -1,0 +1,57 @@
+{
+  "source_commit": "2128d2d31614766b05762a76735908ba4bb34ac9",
+  "checked_utc": "2026-11-18T20:39:11.818Z",
+  "all_observed_executions_successful": true,
+  "runs": [
+    {
+      "id": 44389741909,
+      "name": "Security Hygiene",
+      "path": ".github/workflows/security-hygiene.yml",
+      "event": "pull_request",
+      "head_sha": "2128d2d31614766b05762a76735908ba4bb34ac9",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44389741909"
+    },
+    {
+      "id": 44389742586,
+      "name": "Documentation Integrity",
+      "path": ".github/workflows/production-policy.yml",
+      "event": "pull_request",
+      "head_sha": "2128d2d31614766b05762a76735908ba4bb34ac9",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44389742586"
+    },
+    {
+      "id": 44389741871,
+      "name": "Poster Artifact Parity",
+      "path": ".github/workflows/poster-artifact-parity.yml",
+      "event": "pull_request",
+      "head_sha": "2128d2d31614766b05762a76735908ba4bb34ac9",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44389741871"
+    },
+    {
+      "id": 44389741915,
+      "name": "Production Gate",
+      "path": ".github/workflows/production-gate.yml",
+      "event": "pull_request",
+      "head_sha": "2128d2d31614766b05762a76735908ba4bb34ac9",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44389741915"
+    },
+    {
+      "id": 44389741903,
+      "name": "CI",
+      "path": ".github/workflows/ci.yml",
+      "event": "pull_request",
+      "head_sha": "2128d2d31614766b05762a76735908ba4bb34ac9",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44389741903"
+    }
+  ]
+}

@@ -1,0 +1,267 @@
+{
+  "reviewed_base": "16ff6f87f2f8f2832624d736c57c16e8809c1e5b",
+  "utc": "2026-11-18T19:55:29.830873+00:00",
+  "human_document_count": 36,
+  "additional_dependency_text_count": 1,
+  "documents": [
+    {
+      "path": ".github/format-trigger.txt",
+      "read_completely": true,
+      "changed": false,
+      "disposition": "Preserved dependency/trigger text; read, not a passing runtime claim",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "ATTACKER_AND_USER_RUNBOOK.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "GETTING_STARTED.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "INCIDENT_RUNBOOK.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "INTEGRATION.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "LIMITATIONS.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "PRODUCTION.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "PRODUCT_VALIDATION.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "PROVENANCE.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Historical/source-bounded context; corrected current/fixture/incident inference where present",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "README.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "RESEARCH_ASSESSMENT.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "RESUME_EVIDENCE.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Historical/source-bounded context; corrected current/fixture/incident inference where present",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "RUNBOOK.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "SECURITY.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "SECURITY_AUDIT.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Historical/source-bounded context; corrected current/fixture/incident inference where present",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "SECURITY_AUDIT_2026-09-30.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Historical/source-bounded context; corrected current/fixture/incident inference where present",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "SECURITY_REVIEW_2026-09-30.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Historical/source-bounded context; corrected current/fixture/incident inference where present",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "VERIFIED_METRICS.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "docs/API_VERSIONING.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "docs/EVIDENCE.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "docs/INSPECTOR.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "docs/PERFORMANCE_BASELINE.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Historical/source-bounded context; corrected current/fixture/incident inference where present",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "docs/RECRUITER_EVIDENCE_AUDIT_2026-10-09.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Historical/source-bounded context; corrected current/fixture/incident inference where present",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "docs/TESTING.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "docs/internal/REPOSITORY_AUDIT.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Historical/source-bounded context; corrected current/fixture/incident inference where present",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "docs/license-history/LICENSE-BEFORE-2026-10-13.txt",
+      "read_completely": true,
+      "changed": false,
+      "disposition": "Preserved legal text byte-for-byte; read for historical attribution, not reinterpreted",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "docs/supply-chain/SIGNING.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "evidence/DETECTION_PROOF.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Historical/source-bounded context; corrected current/fixture/incident inference where present",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "evidence/INCIDENT_REPORT.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Historical/source-bounded context; corrected current/fixture/incident inference where present",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "poster/01_research_brief.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Historical cited source/metrics retained; current-head/independent-closure boundary explicit",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "poster/02_claim_ledger.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Historical cited source/metrics retained; current-head/independent-closure boundary explicit",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "poster/03_verified_metrics.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Historical cited source/metrics retained; current-head/independent-closure boundary explicit",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "poster/13_reproducibility.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Historical cited source/metrics retained; current-head/independent-closure boundary explicit",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "requirements.txt",
+      "read_completely": true,
+      "changed": false,
+      "disposition": "Preserved dependency/trigger text; read, not a passing runtime claim",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    },
+    {
+      "path": "scanner/isolation/README.md",
+      "read_completely": true,
+      "changed": true,
+      "disposition": "Current guide/reference reconciled with actual source and explicit scope",
+      "boundary": "Semantic/source cross-check is not execution of every cloud/deployment/research example; specific checks/prerequisite limits are separate"
+    }
+  ]
+}

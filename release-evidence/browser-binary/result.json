@@ -1,0 +1,17 @@
+{
+  "source_commit": "2128d2d31614766b05762a76735908ba4bb34ac9",
+  "utc_start": "2026-11-18T20:23:56.371246+00:00",
+  "utc_end": "2026-11-18T20:24:02.357733+00:00",
+  "browser": "156.0.8078.79",
+  "checks": [
+    "actual two valid binary SafeTensors uploads",
+    "canonical tensor fingerprint and exact file hashes",
+    "changed weights/metadata/structures compare unequal",
+    "actual downloaded bundle checksum",
+    "rerun identical bytes under different filenames compares equal",
+    "no uncaught page errors"
+  ],
+  "result": "PASS",
+  "fixture_scope": "Operator-created synthetic valid binary-format fixtures, not trained models or field detection measurements",
+  "page_errors": []
+}

@@ -1,0 +1,2402 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "hf-scanner",
+          "version": "0.3.0",
+          "informationUri": "https://github.com/hf-scanner",
+          "rules": [
+            {
+              "id": "HFS-001",
+              "name": "powershell-subprocess",
+              "shortDescription": {
+                "text": "High-risk execution/deserialization callable, execution from __init__.py, or command referencing powershell, cmd.exe, or pwsh"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-001",
+              "properties": {
+                "tags": [
+                  "loader",
+                  "execution"
+                ],
+                "cwe": "CWE-78"
+              }
+            },
+            {
+              "id": "HFS-002",
+              "name": "ssl-verification-disabled",
+              "shortDescription": {
+                "text": "verify=False, ssl._create_unverified_context, check_hostname=False, or CERT_NONE TLS policy"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-002",
+              "properties": {
+                "tags": [
+                  "network",
+                  "ssl"
+                ],
+                "cwe": "CWE-295"
+              }
+            },
+            {
+              "id": "HFS-003",
+              "name": "base64-decoded-payload-executes",
+              "shortDescription": {
+                "text": "base64 string decoded and result passed to exec, eval, subprocess, or os.system"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-003",
+              "properties": {
+                "tags": [
+                  "obfuscation",
+                  "execution"
+                ],
+                "cwe": "CWE-94"
+              }
+            },
+            {
+              "id": "HFS-004",
+              "name": "paste-service-c2",
+              "shortDescription": {
+                "text": "network call to known paste/dead-drop or attacker infrastructure domains"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-004",
+              "properties": {
+                "tags": [
+                  "network",
+                  "c2"
+                ],
+                "cwe": "CWE-506"
+              }
+            },
+            {
+              "id": "HFS-005",
+              "name": "dynamic-powershell-in-shell",
+              "shortDescription": {
+                "text": ".bat or .ps1 file containing powershell + -EncodedCommand or -enc"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-005",
+              "properties": {
+                "tags": [
+                  "loader",
+                  "shell"
+                ],
+                "cwe": "CWE-78"
+              }
+            },
+            {
+              "id": "HFS-006",
+              "name": "amsi-etw-disable",
+              "shortDescription": {
+                "text": "AMSI, ETW, or process-mitigation bypass strings present in model code"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-006",
+              "properties": {
+                "tags": [
+                  "evasion"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-010",
+              "name": "high-entropy-string",
+              "shortDescription": {
+                "text": "String literal with Shannon entropy >= 5.7 AND length >= 40 chars, not in allowlist"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-010",
+              "properties": {
+                "tags": [
+                  "obfuscation"
+                ],
+                "cwe": "CWE-506"
+              }
+            },
+            {
+              "id": "HFS-011",
+              "name": "dynamic-import-construction",
+              "shortDescription": {
+                "text": "Attribute or module name built via string concatenation"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-011",
+              "properties": {
+                "tags": [
+                  "obfuscation"
+                ],
+                "cwe": "CWE-94"
+              }
+            },
+            {
+              "id": "HFS-012",
+              "name": "silent-exception-swallow",
+              "shortDescription": {
+                "text": "except: or except Exception: pass wrapping suspicious loader behavior"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-012",
+              "properties": {
+                "tags": [
+                  "evasion"
+                ],
+                "cwe": "CWE-390"
+              }
+            },
+            {
+              "id": "HFS-013",
+              "name": "zone-identifier-removal",
+              "shortDescription": {
+                "text": "Zone.Identifier string in any file (Windows ADS removal)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-013",
+              "properties": {
+                "tags": [
+                  "evasion"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-014",
+              "name": "hidden-window-execution",
+              "shortDescription": {
+                "text": "CREATE_NO_WINDOW, WindowStyle Hidden, creationflags=0x08000000, or SW_HIDE in Python or shell"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-014",
+              "properties": {
+                "tags": [
+                  "evasion"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-015",
+              "name": "defender-exclusion-add",
+              "shortDescription": {
+                "text": "Windows Defender exclusion or preference manipulation in model code"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-015",
+              "properties": {
+                "tags": [
+                  "evasion"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-016",
+              "name": "scheduled-task-persistence",
+              "shortDescription": {
+                "text": "Scheduled task or startup persistence command in model code"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-016",
+              "properties": {
+                "tags": [
+                  "persistence",
+                  "evasion"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-020",
+              "name": "typosquat-levenshtein",
+              "shortDescription": {
+                "text": "Org name has Levenshtein distance <= 2 from a protected org"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-020",
+              "properties": {
+                "tags": [
+                  "typosquat"
+                ],
+                "cwe": "CWE-451"
+              }
+            },
+            {
+              "id": "HFS-021",
+              "name": "model-card-verbatim-copy",
+              "shortDescription": {
+                "text": "Cosine similarity of model card tokens >= 0.90 vs protected org card"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-021",
+              "properties": {
+                "tags": [
+                  "typosquat"
+                ],
+                "cwe": "CWE-451"
+              }
+            },
+            {
+              "id": "HFS-022",
+              "name": "new-org-high-velocity",
+              "shortDescription": {
+                "text": "Org age < 72 hours AND download count > 10,000"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-022",
+              "properties": {
+                "tags": [
+                  "anomaly"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-023",
+              "name": "suspicious-network-in-loader",
+              "shortDescription": {
+                "text": "Network call inside loader, setup, install, or startup model code"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-023",
+              "properties": {
+                "tags": [
+                  "network"
+                ],
+                "cwe": "CWE-506"
+              }
+            },
+            {
+              "id": "HFS-024",
+              "name": "outbound-call-in-config",
+              "shortDescription": {
+                "text": "config.json or tokenizer_config.json contains a URL in a non-standard field"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-024",
+              "properties": {
+                "tags": [
+                  "network"
+                ],
+                "cwe": "CWE-506"
+              }
+            },
+            {
+              "id": "HFS-025",
+              "name": "suspicious-loader-entrypoint",
+              "shortDescription": {
+                "text": "Repository contains executable loader/startup files that require manual review"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-025",
+              "properties": {
+                "tags": [
+                  "loader",
+                  "review"
+                ],
+                "cwe": "CWE-506"
+              }
+            },
+            {
+              "id": "HFS-030",
+              "name": "unpinned-model-reference",
+              "shortDescription": {
+                "text": "from_pretrained('org/model') without revision= pointing to a full 40-char SHA"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-030",
+              "properties": {
+                "tags": [
+                  "best-practice"
+                ]
+              }
+            },
+            {
+              "id": "HFS-031",
+              "name": "trust-remote-code-enabled",
+              "shortDescription": {
+                "text": "trust_remote_code=True present in calling code or config"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-031",
+              "properties": {
+                "tags": [
+                  "best-practice"
+                ]
+              }
+            },
+            {
+              "id": "HFS-032",
+              "name": "unsigned-model",
+              "shortDescription": {
+                "text": "Remote scan: model has no obvious Sigstore/GPG signature artifact"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-032",
+              "properties": {
+                "tags": [
+                  "best-practice",
+                  "signature"
+                ]
+              }
+            },
+            {
+              "id": "HFS-033",
+              "name": "missing-ai-bom",
+              "shortDescription": {
+                "text": "Remote scan: repository has no obvious CycloneDX SBOM/AIBOM inventory artifact"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-033",
+              "properties": {
+                "tags": [
+                  "provenance",
+                  "sbom"
+                ]
+              }
+            },
+            {
+              "id": "HFS-034",
+              "name": "unapproved-publisher",
+              "shortDescription": {
+                "text": "Publisher is not in the configured approved publisher allowlist"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-034",
+              "properties": {
+                "tags": [
+                  "vendor",
+                  "policy"
+                ],
+                "cwe": "CWE-345"
+              }
+            },
+            {
+              "id": "HFS-035",
+              "name": "missing-provenance-attestation",
+              "shortDescription": {
+                "text": "Remote scan: repository has no obvious SLSA/in-toto provenance attestation"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-035",
+              "properties": {
+                "tags": [
+                  "provenance",
+                  "attestation"
+                ]
+              }
+            },
+            {
+              "id": "HFS-036",
+              "name": "sbom-hash-mismatch",
+              "shortDescription": {
+                "text": "SBOM/AIBOM hash does not match the scanned artifact"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-036",
+              "properties": {
+                "tags": [
+                  "provenance",
+                  "sbom",
+                  "integrity"
+                ],
+                "cwe": "CWE-345"
+              }
+            },
+            {
+              "id": "HFS-037",
+              "name": "sbom-unverified-artifact",
+              "shortDescription": {
+                "text": "SBOM/AIBOM is present but does not cover a scanned artifact"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-037",
+              "properties": {
+                "tags": [
+                  "provenance",
+                  "sbom"
+                ]
+              }
+            },
+            {
+              "id": "HFS-038",
+              "name": "signature-verification-failed",
+              "shortDescription": {
+                "text": "Detached signature artifact could not be verified"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-038",
+              "properties": {
+                "tags": [
+                  "provenance",
+                  "signature"
+                ],
+                "cwe": "CWE-347"
+              }
+            },
+            {
+              "id": "HFS-039",
+              "name": "signature-verifier-unavailable",
+              "shortDescription": {
+                "text": "Signature artifact exists but no supported verifier tool is available locally"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-039",
+              "properties": {
+                "tags": [
+                  "provenance",
+                  "signature"
+                ]
+              }
+            },
+            {
+              "id": "HFS-040",
+              "name": "known-ioc-domain",
+              "shortDescription": {
+                "text": "Known suspicious IOC domain or dead-drop service referenced"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-040",
+              "properties": {
+                "tags": [
+                  "ioc",
+                  "network"
+                ],
+                "cwe": "CWE-506"
+              }
+            },
+            {
+              "id": "HFS-041",
+              "name": "dangerous-dependency",
+              "shortDescription": {
+                "text": "Dependency is commonly abused in malware, credential theft, or unsafe packaging"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-041",
+              "properties": {
+                "tags": [
+                  "dependency"
+                ],
+                "cwe": "CWE-506"
+              }
+            },
+            {
+              "id": "HFS-042",
+              "name": "vulnerable-dependency-version",
+              "shortDescription": {
+                "text": "Dependency version is below the scanner's conservative minimum safe baseline"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-042",
+              "properties": {
+                "tags": [
+                  "dependency",
+                  "cve"
+                ],
+                "cwe": "CWE-1104"
+              }
+            },
+            {
+              "id": "HFS-043",
+              "name": "unpinned-dependency",
+              "shortDescription": {
+                "text": "Dependency is not pinned to an exact version"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-043",
+              "properties": {
+                "tags": [
+                  "dependency",
+                  "reproducibility"
+                ]
+              }
+            },
+            {
+              "id": "HFS-044",
+              "name": "unsafe-container-directive",
+              "shortDescription": {
+                "text": "Dockerfile contains unsafe root, privileged, curl-pipe-shell, or unpinned base-image behavior"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-044",
+              "properties": {
+                "tags": [
+                  "container",
+                  "supply-chain"
+                ],
+                "cwe": "CWE-250"
+              }
+            },
+            {
+              "id": "HFS-050",
+              "name": "pickle-dangerous-callable",
+              "shortDescription": {
+                "text": "Pickle file contains opcode invoking dangerous callable (os.system, subprocess, exec, eval, etc.)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-050",
+              "properties": {
+                "tags": [
+                  "pickle",
+                  "deserialization",
+                  "execution"
+                ],
+                "cwe": "CWE-502"
+              }
+            },
+            {
+              "id": "HFS-051",
+              "name": "pickle-suspicious-callable",
+              "shortDescription": {
+                "text": "Pickle file contains suspicious callable or obfuscated opcode pattern"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-051",
+              "properties": {
+                "tags": [
+                  "pickle",
+                  "deserialization"
+                ],
+                "cwe": "CWE-502"
+              }
+            },
+            {
+              "id": "HFS-052",
+              "name": "pickle-bypass-technique",
+              "shortDescription": {
+                "text": "Pickle file uses known PickleScan bypass technique (corrupted pickle, __reduce_ex__, etc.)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-052",
+              "properties": {
+                "tags": [
+                  "pickle",
+                  "evasion",
+                  "bypass"
+                ],
+                "cwe": "CWE-502"
+              }
+            },
+            {
+              "id": "HFS-053",
+              "name": "safetensors-metadata-injection",
+              "shortDescription": {
+                "text": "SafeTensors metadata contains suspicious content (URLs, scripts, encoded payloads)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-053",
+              "properties": {
+                "tags": [
+                  "safetensors",
+                  "injection"
+                ],
+                "cwe": "CWE-94"
+              }
+            },
+            {
+              "id": "HFS-054",
+              "name": "safetensors-oversized-header",
+              "shortDescription": {
+                "text": "SafeTensors header or metadata is abnormally large, potentially hiding payloads"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-054",
+              "properties": {
+                "tags": [
+                  "safetensors",
+                  "anomaly"
+                ],
+                "cwe": "CWE-400"
+              }
+            },
+            {
+              "id": "HFS-055",
+              "name": "safetensors-malformed",
+              "shortDescription": {
+                "text": "SafeTensors file has invalid structure (bad header size, corrupt JSON, truncated data)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-055",
+              "properties": {
+                "tags": [
+                  "safetensors",
+                  "integrity"
+                ],
+                "cwe": "CWE-20"
+              }
+            },
+            {
+              "id": "HFS-056",
+              "name": "gguf-metadata-suspicious",
+              "shortDescription": {
+                "text": "GGUF metadata key-value contains suspicious content (URLs, scripts, shell commands)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-056",
+              "properties": {
+                "tags": [
+                  "gguf",
+                  "injection"
+                ],
+                "cwe": "CWE-94"
+              }
+            },
+            {
+              "id": "HFS-057",
+              "name": "gguf-metadata-oversized",
+              "shortDescription": {
+                "text": "GGUF metadata entry or count is abnormally large, indicating possible abuse"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-057",
+              "properties": {
+                "tags": [
+                  "gguf",
+                  "anomaly"
+                ],
+                "cwe": "CWE-400"
+              }
+            },
+            {
+              "id": "HFS-058",
+              "name": "gguf-malformed",
+              "shortDescription": {
+                "text": "GGUF file has invalid magic, unsupported version, or corrupted header"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-058",
+              "properties": {
+                "tags": [
+                  "gguf",
+                  "integrity"
+                ],
+                "cwe": "CWE-20"
+              }
+            },
+            {
+              "id": "HFS-060",
+              "name": "weight-fingerprint-mismatch",
+              "shortDescription": {
+                "text": "Model weight tensor hash does not match expected fingerprint (possible weight poisoning)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-060",
+              "properties": {
+                "tags": [
+                  "integrity",
+                  "weights",
+                  "poisoning"
+                ],
+                "cwe": "CWE-345"
+              }
+            },
+            {
+              "id": "HFS-061",
+              "name": "temporal-new-critical-finding",
+              "shortDescription": {
+                "text": "New critical/high security finding appeared since the last trusted baseline scan"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-061",
+              "properties": {
+                "tags": [
+                  "temporal",
+                  "rug-pull"
+                ],
+                "cwe": "CWE-506"
+              }
+            },
+            {
+              "id": "HFS-062",
+              "name": "temporal-risk-escalation",
+              "shortDescription": {
+                "text": "Risk score escalated significantly or security artifacts removed since baseline"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-062",
+              "properties": {
+                "tags": [
+                  "temporal",
+                  "regression"
+                ],
+                "cwe": "CWE-345"
+              }
+            },
+            {
+              "id": "HFS-063",
+              "name": "temporal-file-hash-changed",
+              "shortDescription": {
+                "text": "File content changed since baseline (hash mismatch) without corresponding security review"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-063",
+              "properties": {
+                "tags": [
+                  "temporal",
+                  "drift"
+                ],
+                "cwe": "CWE-345"
+              }
+            },
+            {
+              "id": "HFS-064",
+              "name": "unicode-confusable-or-bidi",
+              "shortDescription": {
+                "text": "Source contains Unicode confusable characters (homoglyphs) or bidirectional override characters"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-064",
+              "properties": {
+                "tags": [
+                  "obfuscation",
+                  "unicode"
+                ],
+                "cwe": "CWE-1007"
+              }
+            },
+            {
+              "id": "HFS-065",
+              "name": "zero-width-characters",
+              "shortDescription": {
+                "text": "Source contains zero-width or invisible Unicode characters that may hide content"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-065",
+              "properties": {
+                "tags": [
+                  "obfuscation",
+                  "unicode"
+                ],
+                "cwe": "CWE-1007"
+              }
+            },
+            {
+              "id": "HFS-066",
+              "name": "unicode-escape-payload",
+              "shortDescription": {
+                "text": "Long Unicode escape sequence detected that may encode hidden commands or URLs"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-066",
+              "properties": {
+                "tags": [
+                  "obfuscation",
+                  "encoding"
+                ],
+                "cwe": "CWE-116"
+              }
+            },
+            {
+              "id": "HFS-067",
+              "name": "polyglot-file",
+              "shortDescription": {
+                "text": "File is valid as multiple formats simultaneously (polyglot), enabling parser confusion attacks"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-067",
+              "properties": {
+                "tags": [
+                  "obfuscation",
+                  "polyglot"
+                ],
+                "cwe": "CWE-436"
+              }
+            },
+            {
+              "id": "HFS-070",
+              "name": "taint-flow-to-sink",
+              "shortDescription": {
+                "text": "Taint analysis: data from untrusted source flows to execution sink (exec, eval, system)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-070",
+              "properties": {
+                "tags": [
+                  "taint",
+                  "dataflow"
+                ],
+                "cwe": "CWE-94"
+              }
+            },
+            {
+              "id": "HFS-071",
+              "name": "symbolic-resolve-dangerous",
+              "shortDescription": {
+                "text": "Symbolically resolved obfuscated string contains dangerous content"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-071",
+              "properties": {
+                "tags": [
+                  "obfuscation",
+                  "symbolic"
+                ],
+                "cwe": "CWE-506"
+              }
+            },
+            {
+              "id": "HFS-072",
+              "name": "sandbox-dangerous-operation",
+              "shortDescription": {
+                "text": "Sandbox execution detected dangerous operation (exec/eval/import of blocked module)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-072",
+              "properties": {
+                "tags": [
+                  "sandbox",
+                  "dynamic"
+                ],
+                "cwe": "CWE-94"
+              }
+            },
+            {
+              "id": "HFS-073",
+              "name": "onnx-custom-operator",
+              "shortDescription": {
+                "text": "ONNX model uses custom/non-standard operator that may load native code"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-073",
+              "properties": {
+                "tags": [
+                  "onnx",
+                  "custom-op"
+                ],
+                "cwe": "CWE-94"
+              }
+            },
+            {
+              "id": "HFS-074",
+              "name": "onnx-suspicious-content",
+              "shortDescription": {
+                "text": "ONNX model contains suspicious strings (URLs, shell commands)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-074",
+              "properties": {
+                "tags": [
+                  "onnx",
+                  "injection"
+                ],
+                "cwe": "CWE-506"
+              }
+            },
+            {
+              "id": "HFS-075",
+              "name": "onnx-malformed-or-oversized",
+              "shortDescription": {
+                "text": "ONNX model has structural anomalies"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-075",
+              "properties": {
+                "tags": [
+                  "onnx",
+                  "integrity"
+                ],
+                "cwe": "CWE-400"
+              }
+            },
+            {
+              "id": "HFS-076",
+              "name": "keras-unsafe-layer",
+              "shortDescription": {
+                "text": "Keras model contains Lambda layer or embedded executable code"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-076",
+              "properties": {
+                "tags": [
+                  "keras",
+                  "lambda"
+                ],
+                "cwe": "CWE-94"
+              }
+            },
+            {
+              "id": "HFS-095",
+              "name": "raw-network-primitive",
+              "shortDescription": {
+                "text": "Direct socket / DNS-resolution primitive (socket.socket, getaddrinfo, create_connection, raw socket) in model code \u2014 a common data-exfiltration vector"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-095",
+              "properties": {
+                "tags": [
+                  "network",
+                  "exfiltration"
+                ],
+                "cwe": "CWE-506"
+              }
+            },
+            {
+              "id": "HFS-096",
+              "name": "pickle-scan-indeterminate",
+              "shortDescription": {
+                "text": "Pickle stream could not be fully analyzed (truncated, corrupt, or unknown opcode). Scan is INDETERMINATE - unanalyzed code-execution paths may remain. Do NOT treat as clean."
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-096",
+              "properties": {
+                "tags": [
+                  "pickle",
+                  "integrity",
+                  "indeterminate"
+                ],
+                "cwe": "CWE-502"
+              }
+            },
+            {
+              "id": "HFS-097",
+              "name": "card-comparison-unavailable",
+              "shortDescription": {
+                "text": "Model card similarity requires the protected org's card to be downloadable."
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-097",
+              "properties": {
+                "tags": [
+                  "internal"
+                ]
+              }
+            },
+            {
+              "id": "HFS-098",
+              "name": "oversized-file-skipped",
+              "shortDescription": {
+                "text": "File exceeded size limits and was skipped."
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-098",
+              "properties": {
+                "tags": [
+                  "internal"
+                ]
+              }
+            },
+            {
+              "id": "HFS-099",
+              "name": "unparseable-python",
+              "shortDescription": {
+                "text": "File could not be parsed as valid Python."
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-099",
+              "properties": {
+                "tags": [
+                  "internal"
+                ]
+              }
+            },
+            {
+              "id": "HFS-100",
+              "name": "runtime-process-injection",
+              "shortDescription": {
+                "text": "Process attempts code injection (WriteProcessMemory, CreateRemoteThread, ptrace) at model load time"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-100",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "injection",
+                  "evasion"
+                ],
+                "cwe": "CWE-119"
+              }
+            },
+            {
+              "id": "HFS-101",
+              "name": "runtime-dll-hijack",
+              "shortDescription": {
+                "text": "Model loading triggers DLL search-order hijacking or side-loading attempt"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-101",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "dll-hijack",
+                  "supply-chain"
+                ],
+                "cwe": "CWE-427"
+              }
+            },
+            {
+              "id": "HFS-102",
+              "name": "runtime-container-escape",
+              "shortDescription": {
+                "text": "Runtime behavior indicates container escape attempt (access to /proc, /sys, host PID namespace, cgroup manipulation)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-102",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "container",
+                  "escape"
+                ],
+                "cwe": "CWE-250"
+              }
+            },
+            {
+              "id": "HFS-103",
+              "name": "runtime-gpu-driver-exploit",
+              "shortDescription": {
+                "text": "Model triggers GPU driver ioctl sequences known to exploit vulnerabilities (e.g., CVE-2023-XXXX, CVE-2024-XXXX)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-103",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "gpu",
+                  "hardware"
+                ],
+                "cwe": "CWE-119"
+              }
+            },
+            {
+              "id": "HFS-104",
+              "name": "runtime-egress-exfiltration",
+              "shortDescription": {
+                "text": "Model attempts outbound connections to non-allowlisted IPs/domains during inference"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-104",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "network",
+                  "exfiltration"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-105",
+              "name": "runtime-side-channel-timing",
+              "shortDescription": {
+                "text": "Inference timing patterns correlate with secret data (cache-timing, branch-prediction side channels)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-105",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "side-channel",
+                  "leakage"
+                ],
+                "cwe": "CWE-208"
+              }
+            },
+            {
+              "id": "HFS-106",
+              "name": "runtime-memory-dump",
+              "shortDescription": {
+                "text": "Process attempts memory introspection (ReadProcessMemory, /proc/pid/mem, core dump trigger)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-106",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "memory",
+                  "introspection"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-107",
+              "name": "runtime-privilege-escalation",
+              "shortDescription": {
+                "text": "Model code attempts setuid, sudo, capability manipulation, or kernel module loading"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-107",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "privilege",
+                  "escalation"
+                ],
+                "cwe": "CWE-269"
+              }
+            },
+            {
+              "id": "HFS-108",
+              "name": "runtime-anti-debug-evasion",
+              "shortDescription": {
+                "text": "Active anti-debug/anti-VM checks at runtime (IsDebuggerPresent, CPUID hypervisor check, timing checks)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-108",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "anti-analysis",
+                  "evasion"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-109",
+              "name": "runtime-self-modifying-code",
+              "shortDescription": {
+                "text": "Code modifies its own executable memory pages at runtime (mprotect RWX, JIT spraying)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-109",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "self-modifying",
+                  "jit"
+                ],
+                "cwe": "CWE-250"
+              }
+            },
+            {
+              "id": "HFS-110",
+              "name": "runtime-rope-chain",
+              "shortDescription": {
+                "text": "Return-oriented programming (ROP) or jump-oriented programming (JOP) chain detected in execution trace"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-110",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "rop",
+                  "exploitation"
+                ],
+                "cwe": "CWE-119"
+              }
+            },
+            {
+              "id": "HFS-111",
+              "name": "runtime-cryptominer",
+              "shortDescription": {
+                "text": "High sustained CPU/GPU usage with crypto-hashing patterns during idle inference"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-111",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "cryptominer",
+                  "abuse"
+                ],
+                "cwe": "CWE-650"
+              }
+            },
+            {
+              "id": "HFS-112",
+              "name": "runtime-firmware-access",
+              "shortDescription": {
+                "text": "Attempt to access firmware interfaces (ACPI, SMBIOS, UEFI variables) from model process"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-112",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "firmware",
+                  "hardware"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-113",
+              "name": "runtime-syscall-anomaly",
+              "shortDescription": {
+                "text": "Syscall sequence deviates from learned baseline (ML-based behavioral anomaly)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-113",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "behavioral",
+                  "anomaly"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-114",
+              "name": "runtime-supply-chain-webhook",
+              "shortDescription": {
+                "text": "Model triggers CI/CD webhook or supply-chain callback at load time (GitHub Actions, GitLab CI, ArgoCD)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-114",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "supply-chain",
+                  "webhook"
+                ],
+                "cwe": "CWE-506"
+              }
+            },
+            {
+              "id": "HFS-115",
+              "name": "runtime-model-extraction",
+              "shortDescription": {
+                "text": "Query patterns indicate model extraction attack (boundary probing, gradient estimation, membership inference)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-115",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "model-extraction",
+                  "privacy"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-116",
+              "name": "runtime-adversarial-input",
+              "shortDescription": {
+                "text": "Input contains adversarial perturbation (high-frequency noise, imperceptible to human, targeted misclassification)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-116",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "adversarial",
+                  "evasion"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-117",
+              "name": "runtime-data-poisoning-trigger",
+              "shortDescription": {
+                "text": "Input matches known backdoor trigger pattern (patched pixel, specific token sequence) for data-poisoned model"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-117",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "backdoor",
+                  "poisoning"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-118",
+              "name": "runtime-gradient-leakage",
+              "shortDescription": {
+                "text": "Model exposes gradients or logits enabling gradient-based attacks (FGSM, PGD, DeepFool)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-118",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "gradient",
+                  "extraction"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-119",
+              "name": "runtime-speculative-execution",
+              "shortDescription": {
+                "text": "CPU speculative execution side-channel patterns detected (Spectre/Meltdown class)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-119",
+              "properties": {
+                "tags": [
+                  "runtime",
+                  "speculative",
+                  "side-channel"
+                ],
+                "cwe": "CWE-208"
+              }
+            },
+            {
+              "id": "HFS-120",
+              "name": "dependency-confusion-attack",
+              "shortDescription": {
+                "text": "Internal package name claimed on public index (PyPI/npm) with higher version"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-120",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "dependency-confusion"
+                ],
+                "cwe": "CWE-451"
+              }
+            },
+            {
+              "id": "HFS-121",
+              "name": "typosquat-ml-package",
+              "shortDescription": {
+                "text": "ML library name typo-squats popular package (e.g., 'torchvison', 'tensforflow', 'huggingfce')"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-121",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "typosquat"
+                ],
+                "cwe": "CWE-451"
+              }
+            },
+            {
+              "id": "HFS-122",
+              "name": "compromised-build-pipeline",
+              "shortDescription": {
+                "text": "Evidence of CI/CD compromise: unsigned commits, unexpected workflow changes, secret leakage in logs"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-122",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "ci-cd",
+                  "slsa"
+                ],
+                "cwe": "CWE-345"
+              }
+            },
+            {
+              "id": "HFS-123",
+              "name": "model-registry-poisoning",
+              "shortDescription": {
+                "text": "Malicious model uploaded to registry with same name/version as legitimate model (tag mutation)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-123",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "registry",
+                  "poisoning"
+                ],
+                "cwe": "CWE-345"
+              }
+            },
+            {
+              "id": "HFS-124",
+              "name": "dataset-poisoning-indicator",
+              "shortDescription": {
+                "text": "Training data contains known trigger patterns or label-flip anomalies"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-124",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "dataset",
+                  "poisoning"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-125",
+              "name": "mlops-artifact-tampering",
+              "shortDescription": {
+                "text": "MLflow/Weights&Biases/Neptune artifact hash mismatch or unauthorized modification"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-125",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "mlops",
+                  "integrity"
+                ],
+                "cwe": "CWE-345"
+              }
+            },
+            {
+              "id": "HFS-126",
+              "name": "feature-store-injection",
+              "shortDescription": {
+                "text": "Feature store contains malicious feature definitions that alter model behavior at inference"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-126",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "feature-store",
+                  "injection"
+                ],
+                "cwe": "CWE-20"
+              }
+            },
+            {
+              "id": "HFS-127",
+              "name": "pipeline-secret-leakage",
+              "shortDescription": {
+                "text": "Secrets (API keys, tokens, credentials) embedded in model artifacts, configs, or training scripts"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-127",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "secrets",
+                  "leakage"
+                ],
+                "cwe": "CWE-798"
+              }
+            },
+            {
+              "id": "HFS-128",
+              "name": "unverified-base-model",
+              "shortDescription": {
+                "text": "Fine-tuned model does not declare or verify base model provenance (no fingerprint match)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-128",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "base-model",
+                  "provenance"
+                ],
+                "cwe": "CWE-345"
+              }
+            },
+            {
+              "id": "HFS-129",
+              "name": "license-violation-copyleft",
+              "shortDescription": {
+                "text": "Model incorporates copyleft-licensed code (GPL/AGPL) without compliance"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-129",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "license",
+                  "compliance"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-130",
+              "name": "supply-chain-slsa-level",
+              "shortDescription": {
+                "text": "Build does not meet SLSA Level 2+ (no provenance, no hermetic build, no reproducible build)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-130",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "slsa",
+                  "provenance"
+                ]
+              }
+            },
+            {
+              "id": "HFS-131",
+              "name": "compromised-huggingface-token",
+              "shortDescription": {
+                "text": "Hugging Face token with write access found in model repo or CI logs"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-131",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "hf-token",
+                  "credential"
+                ],
+                "cwe": "CWE-798"
+              }
+            },
+            {
+              "id": "HFS-132",
+              "name": "model-card-injection",
+              "shortDescription": {
+                "text": "Model card contains hidden HTML/JS, iframes, or redirects to phishing/malware sites"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-132",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "model-card",
+                  "xss"
+                ],
+                "cwe": "CWE-79"
+              }
+            },
+            {
+              "id": "HFS-133",
+              "name": "ml-framework-version-skew",
+              "shortDescription": {
+                "text": "Model trained with framework version with known CVEs (e.g., PyTorch < 2.0.1, TF < 2.12.0)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-133",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "framework",
+                  "cve"
+                ],
+                "cwe": "CWE-1104"
+              }
+            },
+            {
+              "id": "HFS-134",
+              "name": "hardware-trojan-indicator",
+              "shortDescription": {
+                "text": "Weight tensor contains patterns matching known hardware trojan triggers (specific bit patterns in LSB)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-134",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "hardware",
+                  "trojan"
+                ],
+                "cwe": "CWE-345"
+              }
+            },
+            {
+              "id": "HFS-135",
+              "name": "onnx-runtime-exploit",
+              "shortDescription": {
+                "text": "ONNX model targets known ONNX Runtime vulnerabilities (CVE-2023-XXXX, CVE-2024-XXXX)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-135",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "onnx",
+                  "runtime"
+                ],
+                "cwe": "CWE-119"
+              }
+            },
+            {
+              "id": "HFS-136",
+              "name": "tensorrt-plan-exploit",
+              "shortDescription": {
+                "text": "TensorRT engine plan file contains exploit for TRT parser/deserializer"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-136",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "tensorrt",
+                  "deserialization"
+                ],
+                "cwe": "CWE-119"
+              }
+            },
+            {
+              "id": "HFS-137",
+              "name": "coreml-escape",
+              "shortDescription": {
+                "text": "CoreML model uses custom layers or metadata to escape sandbox on iOS/macOS"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-137",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "coreml",
+                  "sandbox"
+                ],
+                "cwe": "CWE-250"
+              }
+            },
+            {
+              "id": "HFS-138",
+              "name": "tflite-delegate-hijack",
+              "shortDescription": {
+                "text": "TFLite model specifies external delegate that loads untrusted native library"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-138",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "tflite",
+                  "delegate"
+                ],
+                "cwe": "CWE-427"
+              }
+            },
+            {
+              "id": "HFS-139",
+              "name": "mlir-dialect-exploit",
+              "shortDescription": {
+                "text": "MLIR bytecode uses unstable/experimental dialect with known parser bugs"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-139",
+              "properties": {
+                "tags": [
+                  "supply-chain",
+                  "mlir",
+                  "compiler"
+                ],
+                "cwe": "CWE-20"
+              }
+            },
+            {
+              "id": "HFS-140",
+              "name": "unknown-pickle-opcode",
+              "shortDescription": {
+                "text": "Pickle stream contains undefined/reserved opcode (potential zero-day deserialization)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-140",
+              "properties": {
+                "tags": [
+                  "pickle",
+                  "zero-day",
+                  "unknown"
+                ],
+                "cwe": "CWE-502"
+              }
+            },
+            {
+              "id": "HFS-141",
+              "name": "entropy-anomaly-weights",
+              "shortDescription": {
+                "text": "Weight tensor entropy significantly deviates from expected distribution (possible steganography)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-141",
+              "properties": {
+                "tags": [
+                  "weights",
+                  "steganography",
+                  "anomaly"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-142",
+              "name": "activation-function-abuse",
+              "shortDescription": {
+                "text": "Custom activation function or Lambda layer implements non-standard computation (crypto, encoding)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-142",
+              "properties": {
+                "tags": [
+                  "architecture",
+                  "custom-op",
+                  "abuse"
+                ],
+                "cwe": "CWE-94"
+              }
+            },
+            {
+              "id": "HFS-143",
+              "name": "gradient-masking-detection",
+              "shortDescription": {
+                "text": "Model exhibits gradient masking (shattered gradients, zero gradients) indicating adversarial robustness evasion"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-143",
+              "properties": {
+                "tags": [
+                  "adversarial",
+                  "gradient-masking",
+                  "robustness"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-144",
+              "name": "federated-learning-poisoning",
+              "shortDescription": {
+                "text": "Federated learning update contains model poisoning (backdoor, targeted degradation)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-144",
+              "properties": {
+                "tags": [
+                  "federated",
+                  "poisoning",
+                  "aggregation"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-145",
+              "name": "model-inversion-leakage",
+              "shortDescription": {
+                "text": "Model enables membership inference or attribute inference attacks (high confidence on training data)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-145",
+              "properties": {
+                "tags": [
+                  "privacy",
+                  "inversion",
+                  "membership"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-146",
+              "name": "quantization-backdoor",
+              "shortDescription": {
+                "text": "Quantized model (INT8, INT4) behaves differently from FP32 on specific inputs (quantization-aware backdoor)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-146",
+              "properties": {
+                "tags": [
+                  "quantization",
+                  "backdoor",
+                  "deployment"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-147",
+              "name": "distillation-extraction",
+              "shortDescription": {
+                "text": "API usage patterns indicate model distillation/extraction (high query volume, systematic coverage)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-147",
+              "properties": {
+                "tags": [
+                  "extraction",
+                  "distillation",
+                  "api-abuse"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-148",
+              "name": "prompt-injection-runtime",
+              "shortDescription": {
+                "text": "LLM input contains prompt injection (ignore previous instructions, system prompt leak, tool misuse)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-148",
+              "properties": {
+                "tags": [
+                  "llm",
+                  "prompt-injection",
+                  "runtime"
+                ],
+                "cwe": "CWE-74"
+              }
+            },
+            {
+              "id": "HFS-149",
+              "name": "jailbreak-pattern",
+              "shortDescription": {
+                "text": "Input matches known jailbreak templates (DAN, roleplay, encoding, continuation)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-149",
+              "properties": {
+                "tags": [
+                  "llm",
+                  "jailbreak",
+                  "bypass"
+                ],
+                "cwe": "CWE-74"
+              }
+            },
+            {
+              "id": "HFS-150",
+              "name": "rag-poisoning",
+              "shortDescription": {
+                "text": "RAG retrieval returns injected documents with malicious instructions or exfiltration commands"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-150",
+              "properties": {
+                "tags": [
+                  "rag",
+                  "poisoning",
+                  "retrieval"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-151",
+              "name": "tool-use-hijack",
+              "shortDescription": {
+                "text": "LLM tool/function calling invoked with malicious parameters (command injection, path traversal)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-151",
+              "properties": {
+                "tags": [
+                  "llm",
+                  "tools",
+                  "injection"
+                ],
+                "cwe": "CWE-78"
+              }
+            },
+            {
+              "id": "HFS-152",
+              "name": "multimodal-hidden-payload",
+              "shortDescription": {
+                "text": "Image/audio/video input contains steganographic payload for model (QR codes, LSB, spectral)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-152",
+              "properties": {
+                "tags": [
+                  "multimodal",
+                  "steganography",
+                  "hidden"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-153",
+              "name": "constitutional-ai-bypass",
+              "shortDescription": {
+                "text": "Output shows evidence of constitutional AI / RLHF bypass (harmful content despite alignment)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-153",
+              "properties": {
+                "tags": [
+                  "alignment",
+                  "bypass",
+                  "safety"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-154",
+              "name": "watermark-removal",
+              "shortDescription": {
+                "text": "Model outputs lack expected watermark (KGW, UniWatermark) indicating stripping or distillation"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-154",
+              "properties": {
+                "tags": [
+                  "watermark",
+                  "integrity",
+                  "distillation"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-155",
+              "name": "speculative-decoding-hijack",
+              "shortDescription": {
+                "text": "Speculative decoding draft model produces malicious tokens accepted by target model"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-155",
+              "properties": {
+                "tags": [
+                  "speculative-decoding",
+                  "draft-model",
+                  "hijack"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-156",
+              "name": "kv-cache-poisoning",
+              "shortDescription": {
+                "text": "KV cache contains injected key-value pairs from previous malicious context (cache sharing attack)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-156",
+              "properties": {
+                "tags": [
+                  "kv-cache",
+                  "context",
+                  "poisoning"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-157",
+              "name": "prefix-tuning-injection",
+              "shortDescription": {
+                "text": "Soft prompt / prefix tuning parameters contain malicious embeddings"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-157",
+              "properties": {
+                "tags": [
+                  "prefix-tuning",
+                  "soft-prompt",
+                  "injection"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-158",
+              "name": "lora-adapter-malicious",
+              "shortDescription": {
+                "text": "LoRA adapter weights contain backdoor or alter model behavior on trigger"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-158",
+              "properties": {
+                "tags": [
+                  "lora",
+                  "adapter",
+                  "backdoor"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-159",
+              "name": "rlhf-reward-hacking",
+              "shortDescription": {
+                "text": "Model exploits reward model (repetition, verbosity, sycophancy) rather than true alignment"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-159",
+              "properties": {
+                "tags": [
+                  "rlhf",
+                  "reward-hacking",
+                  "alignment"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-160",
+              "name": "rowhammer-weight-flip",
+              "shortDescription": {
+                "text": "Weight bit-flip pattern consistent with Rowhammer attack on DRAM (targeted bit flips in weights)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-160",
+              "properties": {
+                "tags": [
+                  "hardware",
+                  "rowhammer",
+                  "weights"
+                ],
+                "cwe": "CWE-1209"
+              }
+            },
+            {
+              "id": "HFS-161",
+              "name": "gpu-side-channel-leak",
+              "shortDescription": {
+                "text": "GPU cache/timing side channel leaks model architecture or weights (Flush+Reload, Prime+Probe)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-161",
+              "properties": {
+                "tags": [
+                  "hardware",
+                  "gpu",
+                  "side-channel"
+                ],
+                "cwe": "CWE-208"
+              }
+            },
+            {
+              "id": "HFS-162",
+              "name": "tpu-glitch-attack",
+              "shortDescription": {
+                "text": "Voltage/clock glitching detected on TPU/ASIC during inference (fault injection)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-162",
+              "properties": {
+                "tags": [
+                  "hardware",
+                  "tpu",
+                  "glitching",
+                  "fault-injection"
+                ],
+                "cwe": "CWE-1382"
+              }
+            },
+            {
+              "id": "HFS-163",
+              "name": "secure-enclave-bypass",
+              "shortDescription": {
+                "text": "Attempt to escape SGX/SEV/TrustZone/TXE enclave during model inference"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-163",
+              "properties": {
+                "tags": [
+                  "hardware",
+                  "tee",
+                  "enclave",
+                  "escape"
+                ],
+                "cwe": "CWE-250"
+              }
+            },
+            {
+              "id": "HFS-164",
+              "name": "firmware-rootkit-persistence",
+              "shortDescription": {
+                "text": "UEFI/BIOS/BMC firmware modified to inject code at model load time"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-164",
+              "properties": {
+                "tags": [
+                  "hardware",
+                  "firmware",
+                  "rootkit",
+                  "persistence"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-165",
+              "name": "supply-chain-interposer",
+              "shortDescription": {
+                "text": "Hardware interposer / PCIe device injecting malicious DMA during model transfer"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-165",
+              "properties": {
+                "tags": [
+                  "hardware",
+                  "dma",
+                  "interposer",
+                  "pci"
+                ],
+                "cwe": "CWE-119"
+              }
+            },
+            {
+              "id": "HFS-166",
+              "name": "power-analysis-leakage",
+              "shortDescription": {
+                "text": "Power consumption correlates with secret weights/keys during inference (DPA/CPA)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-166",
+              "properties": {
+                "tags": [
+                  "hardware",
+                  "power-analysis",
+                  "dpa",
+                  "side-channel"
+                ],
+                "cwe": "CWE-208"
+              }
+            },
+            {
+              "id": "HFS-167",
+              "name": "electromagnetic-emanation",
+              "shortDescription": {
+                "text": "EM emanation leaks model architecture or data (Van Eck phreaking, near-field probe)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-167",
+              "properties": {
+                "tags": [
+                  "hardware",
+                  "em",
+                  "emanation",
+                  "side-channel"
+                ],
+                "cwe": "CWE-208"
+              }
+            },
+            {
+              "id": "HFS-168",
+              "name": "acoustic-side-channel",
+              "shortDescription": {
+                "text": "Acoustic emissions from GPU/coil whine correlate with computation (keyboard, model layers)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-168",
+              "properties": {
+                "tags": [
+                  "hardware",
+                  "acoustic",
+                  "side-channel"
+                ],
+                "cwe": "CWE-208"
+              }
+            },
+            {
+              "id": "HFS-169",
+              "name": "thermal-side-channel",
+              "shortDescription": {
+                "text": "Thermal imaging reveals computation patterns (active layers, data-dependent branches)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-169",
+              "properties": {
+                "tags": [
+                  "hardware",
+                  "thermal",
+                  "side-channel"
+                ],
+                "cwe": "CWE-208"
+              }
+            },
+            {
+              "id": "HFS-170",
+              "name": "quantum-readout-risk",
+              "shortDescription": {
+                "text": "Model weights vulnerable to future quantum readout (Grover's on symmetric, Shor on RSA-signed artifacts)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-170",
+              "properties": {
+                "tags": [
+                  "hardware",
+                  "quantum",
+                  "future-proof"
+                ],
+                "cwe": "CWE-347"
+              }
+            },
+            {
+              "id": "HFS-171",
+              "name": "eu-ai-act-high-risk",
+              "shortDescription": {
+                "text": "Model classified as High-Risk under EU AI Act but lacks conformity assessment"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-171",
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "high-risk"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-172",
+              "name": "nist-ai-rmf-gap",
+              "shortDescription": {
+                "text": "Model governance does not meet NIST AI RMF 1.0 (Map, Measure, Manage, Govern)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-172",
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "nist",
+                  "ai-rmf"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-173",
+              "name": "gdpr-art22-automated-decision",
+              "shortDescription": {
+                "text": "Model makes solely automated decisions with legal effect without Art. 22 safeguards"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-173",
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "gdpr",
+                  "automated-decision"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-174",
+              "name": "hipaa-phi-in-model",
+              "shortDescription": {
+                "text": "Model weights or activations contain reconstructible PHI (membership inference on health data)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-174",
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "hipaa",
+                  "phi",
+                  "privacy"
+                ],
+                "cwe": "CWE-200"
+              }
+            },
+            {
+              "id": "HFS-175",
+              "name": "export-control-violation",
+              "shortDescription": {
+                "text": "Model or weights subject to EAR/ITAR export controls (dual-use, encryption, military)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-175",
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "export-control",
+                  "ear",
+                  "itar"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-176",
+              "name": "copyright-infringement-training",
+              "shortDescription": {
+                "text": "Training data contains copyrighted works without license (books, code, art) \ufffd pending litigation risk"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-176",
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "copyright",
+                  "training-data"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-177",
+              "name": "bias-discrimination-protected",
+              "shortDescription": {
+                "text": "Model exhibits statistically significant disparity on protected attributes (race, gender, age)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-177",
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "bias",
+                  "fairness",
+                  "discrimination"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-178",
+              "name": "environmental-impact-excessive",
+              "shortDescription": {
+                "text": "Training/inference carbon footprint exceeds organizational threshold (no green compute)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-178",
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "environmental",
+                  "carbon",
+                  "green-ai"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-179",
+              "name": "insurance-cover-gap",
+              "shortDescription": {
+                "text": "AI liability insurance excludes this model class (generative, autonomous, medical)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-179",
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "insurance",
+                  "liability"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-180",
+              "name": "audit-trail-incomplete",
+              "shortDescription": {
+                "text": "Model lifecycle lacks immutable audit trail (training, eval, deployment, incidents)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-180",
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "audit",
+                  "governance"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-181",
+              "name": "incident-response-unprepared",
+              "shortDescription": {
+                "text": "No documented AI incident response plan for model compromise, extraction, or misuse"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-181",
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "incident-response",
+                  "preparedness"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-182",
+              "name": "vendor-lockin-risk",
+              "shortDescription": {
+                "text": "Model depends on proprietary format/runtime with no export path (vendor lock-in)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-182",
+              "properties": {
+                "tags": [
+                  "governance",
+                  "vendor-lockin",
+                  "portability"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-183",
+              "name": "technical-debt-model",
+              "shortDescription": {
+                "text": "Model has known unfixed vulnerabilities, deprecated deps, or unmaintained codebase"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-183",
+              "properties": {
+                "tags": [
+                  "governance",
+                  "technical-debt",
+                  "maintenance"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-184",
+              "name": "shadow-ml-detection",
+              "shortDescription": {
+                "text": "Unauthorized model deployment detected (shadow ML \ufffd bypasses MLOps governance)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-184",
+              "properties": {
+                "tags": [
+                  "governance",
+                  "shadow-ml",
+                  "unauthorized"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-185",
+              "name": "model-drift-undetected",
+              "shortDescription": {
+                "text": "Data/concept drift detected but no retraining trigger or alert configured"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-185",
+              "properties": {
+                "tags": [
+                  "governance",
+                  "drift",
+                  "monitoring"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-186",
+              "name": "explainability-absent",
+              "shortDescription": {
+                "text": "High-stakes model lacks explainability (SHAP, LIME, counterfactual) for regulatory compliance"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-186",
+              "properties": {
+                "tags": [
+                  "governance",
+                  "explainability",
+                  "xai"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-187",
+              "name": "red-team-gap",
+              "shortDescription": {
+                "text": "No adversarial red-teaming conducted in past 12 months for production models"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-187",
+              "properties": {
+                "tags": [
+                  "governance",
+                  "red-team",
+                  "testing"
+                ],
+                "cwe": "CWE-693"
+              }
+            },
+            {
+              "id": "HFS-188",
+              "name": "supply-chain-sbom-incomplete",
+              "shortDescription": {
+                "text": "SBOM missing transitive dependencies, ML-specific components (datasets, prompts, adapters)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-188",
+              "properties": {
+                "tags": [
+                  "governance",
+                  "sbom",
+                  "aibom",
+                  "completeness"
+                ],
+                "cwe": "CWE-345"
+              }
+            },
+            {
+              "id": "HFS-189",
+              "name": "attestation-verification-failed",
+              "shortDescription": {
+                "text": "in-toto/SLSA attestation verification failed (layout violation, key compromise, expired)"
+              },
+              "helpUri": "https://github.com/hf-scanner/rules#HFS-189",
+              "properties": {
+                "tags": [
+                  "governance",
+                  "attestation",
+                  "slsa",
+                  "verification"
+                ],
+                "cwe": "CWE-345"
+              }
+            }
+          ]
+        }
+      },
+      "results": [],
+      "invocations": [
+        {
+          "executionSuccessful": true,
+          "properties": {
+            "scanTarget": "/tmp/hf-doc-example-864jezn5/synthetic.py",
+            "scanMode": "local",
+            "filesScanned": 1,
+            "filesSkipped": 0,
+            "scanDurationSeconds": 0.005155324935913086,
+            "riskScore": 0,
+            "riskLevel": "LOW"
+          }
+        }
+      ]
+    }
+  ]
+}

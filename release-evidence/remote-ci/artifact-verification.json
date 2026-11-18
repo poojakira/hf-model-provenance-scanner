@@ -1,0 +1,38 @@
+{
+  "source_commit": "2128d2d31614766b05762a76735908ba4bb34ac9",
+  "run_id": 44389741903,
+  "artifact_id": 14467228821,
+  "zip_sha256": "ecfb74f9105249a8827252f0d23076086b83bf00580f4169bf8ad878efc48045",
+  "embedded_hashes_verified": 14,
+  "actual_source_clean": true,
+  "tests": {
+    "errors": 0,
+    "failures": 0,
+    "passed": 312,
+    "skipped": 3,
+    "tests": 315
+  },
+  "native_subtests": {
+    "failed": 0,
+    "passed": 6,
+    "skipped": 0
+  },
+  "coverage": 76.13270611537509,
+  "poster": {
+    "run_id": 44389741871,
+    "artifact_id": 14467213779,
+    "zip_sha256": "5b85797062dd1a4c2248d5b58cf6f2984ebd0bcc70555d491f81ebe1c20ff858",
+    "manifest": {
+      "source_commit": "2128d2d31614766b05762a76735908ba4bb34ac9",
+      "render_outcome": "success",
+      "python": "3.12.16",
+      "pymupdf": "1.26.6",
+      "artifacts": {
+        "poster/poster.png": "f33b077da4f17efcb1ccb80fd6b6939954199b9634c4b800b6835792605381c0",
+        "poster/poster_36x48.pdf": "ae046700618bd569edcf73ed07f9685743f3d6f214dea2a5d8e7805d48a8510a"
+      }
+    },
+    "png_matches_candidate": true
+  },
+  "utc": "2026-11-18T20:41:00.794954+00:00"
+}
