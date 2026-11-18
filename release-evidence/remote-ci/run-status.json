@@ -1,0 +1,637 @@
+{
+  "source_commit": "16ff6f87f2f8f2832624d736c57c16e8809c1e5b",
+  "retrieved_utc": "2026-11-17T22:54:34.279Z",
+  "runs": [
+    {
+      "id": 44193923865,
+      "name": "Documentation Integrity",
+      "head_sha": "16ff6f87f2f8f2832624d736c57c16e8809c1e5b",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-17T22:50:34Z",
+      "updated_at": "2026-11-17T22:50:44Z",
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44193923865"
+    },
+    {
+      "id": 44193923823,
+      "name": "Security Hygiene",
+      "head_sha": "16ff6f87f2f8f2832624d736c57c16e8809c1e5b",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-17T22:50:34Z",
+      "updated_at": "2026-11-17T22:50:53Z",
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44193923823"
+    },
+    {
+      "id": 44193923969,
+      "name": "Poster Artifact Parity",
+      "head_sha": "16ff6f87f2f8f2832624d736c57c16e8809c1e5b",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-17T22:50:34Z",
+      "updated_at": "2026-11-17T22:51:03Z",
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44193923969"
+    },
+    {
+      "id": 44193924084,
+      "name": "Production Gate",
+      "head_sha": "16ff6f87f2f8f2832624d736c57c16e8809c1e5b",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-17T22:50:34Z",
+      "updated_at": "2026-11-17T22:52:18Z",
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44193924084"
+    },
+    {
+      "id": 44193923975,
+      "name": "CI",
+      "head_sha": "16ff6f87f2f8f2832624d736c57c16e8809c1e5b",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-17T22:50:34Z",
+      "updated_at": "2026-11-17T22:53:25Z",
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44193923975"
+    }
+  ],
+  "jobs": [
+    {
+      "id": 134430208819,
+      "name": "Lint & Format",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T22:50:37Z",
+      "completed_at": "2026-11-17T22:50:45Z",
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44193923975/job/134430208819",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install Ruff",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Ruff Linter",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Ruff Formatter Check",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 134430209204,
+      "name": "Local Inspector Offline Acceptance",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T22:50:36Z",
+      "completed_at": "2026-11-17T22:51:43Z",
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44193923975/job/134430209204",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install exact local dependencies and browser tooling",
+          "conclusion": "success"
+        },
+        {
+          "name": "Actual isolated worker, API and documentation regressions",
+          "conclusion": "success"
+        },
+        {
+          "name": "Actual browser upload, compare and export",
+          "conclusion": "success"
+        },
+        {
+          "name": "Generate exact-source evidence outside checkout",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 134430305717,
+      "name": "Reject Unsafe Dynamic Execution",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T22:50:47Z",
+      "completed_at": "2026-11-17T22:50:59Z",
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44193923975/job/134430305717",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run python -m pip install -e \".[dev,service]\"",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run python -m pytest tests/test_sandbox_executor.py -q",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 134430305748,
+      "name": "Type Check (Pyright)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T22:50:48Z",
+      "completed_at": "2026-11-17T22:51:46Z",
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44193923975/job/134430305748",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout attack-v19-core (optional)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Pyright",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout attack-v19-core (optional)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 134430305753,
+      "name": "Security Audit",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T22:50:47Z",
+      "completed_at": "2026-11-17T22:51:20Z",
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44193923975/job/134430305753",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install security tools",
+          "conclusion": "success"
+        },
+        {
+          "name": "Bandit SAST (fail on HIGH/MEDIUM)",
+          "conclusion": "success"
+        },
+        {
+          "name": "pip-audit (fail on known vulns)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Generate CycloneDX SBOM",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload SBOM artifact",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload Bandit report",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 134430305761,
+      "name": "Unit Tests (Python 3.11)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T22:50:47Z",
+      "completed_at": "2026-11-17T22:52:33Z",
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44193923975/job/134430305761",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout attack-v19-core (optional)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python 3.11",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run tests with coverage",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload coverage report",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify test collection",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python 3.11",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout attack-v19-core (optional)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 134430305789,
+      "name": "CodeQL Analysis (python)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T22:50:47Z",
+      "completed_at": "2026-11-17T22:51:33Z",
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44193923975/job/134430305789",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Initialize CodeQL",
+          "conclusion": "success"
+        },
+        {
+          "name": "Perform CodeQL Analysis",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Perform CodeQL Analysis",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Initialize CodeQL",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 134430305827,
+      "name": "Unit Tests (Python 3.12)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T22:50:47Z",
+      "completed_at": "2026-11-17T22:52:45Z",
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44193923975/job/134430305827",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout attack-v19-core (optional)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python 3.12",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run tests with coverage",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload coverage report",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify test collection",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python 3.12",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout attack-v19-core (optional)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 134430305872,
+      "name": "Unit Tests (Python 3.10)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T22:50:47Z",
+      "completed_at": "2026-11-17T22:52:35Z",
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44193923975/job/134430305872",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout attack-v19-core (optional)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python 3.10",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run tests with coverage",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload coverage report",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify test collection",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python 3.10",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout attack-v19-core (optional)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 134430305918,
+      "name": "Filesystem Scan (Trivy)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T22:50:48Z",
+      "completed_at": "2026-11-17T22:51:22Z",
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44193923975/job/134430305918",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Scan repository filesystem (HIGH/CRITICAL gate)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Summarize filesystem scan findings",
+          "conclusion": "success"
+        },
+        {
+          "name": "Preserve filesystem scan report",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload Trivy results to GitHub Security",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Upload Trivy results to GitHub Security",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Scan repository filesystem (HIGH/CRITICAL gate)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 134431375737,
+      "name": "Docker Build",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T22:52:47Z",
+      "completed_at": "2026-11-17T22:53:24Z",
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44193923975/job/134431375737",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Docker Buildx",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build Docker image (no push)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Build Docker image (no push)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Docker Buildx",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 134431734708,
+      "name": "Release to PyPI",
+      "status": "completed",
+      "conclusion": "skipped",
+      "started_at": "2026-11-17T22:53:25Z",
+      "completed_at": "2026-11-17T22:53:24Z",
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44193923975/job/134431734708",
+      "steps": []
+    }
+  ]
+}

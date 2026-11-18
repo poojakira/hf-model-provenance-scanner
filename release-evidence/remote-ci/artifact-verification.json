@@ -1,0 +1,22 @@
+{
+  "source_commit": "16ff6f87f2f8f2832624d736c57c16e8809c1e5b",
+  "run_id": 44193923975,
+  "artifact_id": 14378052175,
+  "zip_sha256": "c2f5a0d7fc7017e09acd7ff3ff295b2167016a5f207ed9d545c9109b27439606",
+  "artifact_hashes_matched": 14,
+  "health_nonce_absent": true,
+  "tests": {
+    "errors": 0,
+    "failures": 0,
+    "passed": 312,
+    "skipped": 3,
+    "tests": 315
+  },
+  "subtests": {
+    "failed": 0,
+    "passed": 6,
+    "skipped": 0
+  },
+  "coverage": 76.13270611537509,
+  "verified_utc": "2026-11-17T22:52:45.693342+00:00"
+}

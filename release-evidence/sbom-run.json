@@ -1,0 +1,18 @@
+{
+  "source_commit": "16ff6f87f2f8f2832624d736c57c16e8809c1e5b",
+  "command": [
+    "/workspace/work/security-tools/bin/pip-audit",
+    "--path",
+    "/workspace/work/envs/hf/lib/python3.12/site-packages",
+    "--cache-dir",
+    "/workspace/work/cache/hf-audit",
+    "--format",
+    "cyclonedx-json",
+    "--output",
+    "/workspace/work/evidence/hf-model-provenance-scanner/final/test-environment-sbom.json"
+  ],
+  "utc_start": "2026-11-17T22:53:49.498932+00:00",
+  "utc_end": "2026-11-17T22:53:53.357473+00:00",
+  "exit_code": 0,
+  "scope": "Primary installed test environment, not an OS/container/model SBOM"
+}

@@ -1,0 +1,9 @@
+{
+  "source_commit": "16ff6f87f2f8f2832624d736c57c16e8809c1e5b",
+  "preliminary_harness_issues": [
+    "A hidden preformatted JSON element required textContent rather than visible innerText",
+    "The replacement fixture was changed to a newly selected filename because selecting the same path did not emit the intended selection event"
+  ],
+  "resolution": "Harness corrected; no product source changed and no required assertion removed. Final actual result is in result.json.",
+  "scope": "Explicit selection and rerun; not a claim of continuous filesystem monitoring"
+}

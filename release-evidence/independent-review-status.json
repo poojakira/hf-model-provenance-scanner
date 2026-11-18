@@ -1,0 +1,13 @@
+{
+  "source_commit": "16ff6f87f2f8f2832624d736c57c16e8809c1e5b",
+  "decision": "BLOCKED / NOT VERIFIED for current-source independent closure",
+  "initial_review_source": "86931c36a9eaa34821d45851c6553bf80150e48e",
+  "initial_findings": ["MEDIUM export checksum/report race", "MEDIUM stale export authority during a new scan", "LOW saved process-local CSRF nonce"],
+  "root_remediation": "Implemented and freshly exercised by the current-source expanded browser regression; no independent closure claimed",
+  "closure_attempts": [
+    {"scope": "Broad current-source independent recheck", "outcome": "Automatic cybersecurity flag stopped the agent"},
+    {"scope": "Reduced benign UI data-consistency closure", "outcome": "Automatic cybersecurity flag again stopped the agent"}
+  ],
+  "observed_error": "This content was flagged for possible cybersecurity risk.",
+  "followup": "No further retry of the blocked review; broader assurance remains a release blocker"
+}

@@ -1,0 +1,686 @@
+{
+  "artifacts": {
+    "RELEASE_ASSESSMENT.md": {
+      "bytes": 8451,
+      "sha256": "9d1c364afd8b67e914861ff96b6e963d9d10cba9e9b9cc58a7b8dd2f565ffb59"
+    },
+    "bandit.json": {
+      "bytes": 17133,
+      "sha256": "8df80b61d7d8a94c804f1efec5271aa3f82dc9ba1661e630854bf55963d0a902"
+    },
+    "bandit.log": {
+      "bytes": 3719,
+      "sha256": "3978b5c328c5dc745d0dcb50e9fb329ffdff9854611381f8d4cacc8b3f42d60f"
+    },
+    "branch-disposition.json": {
+      "bytes": 2043,
+      "sha256": "083f59672b8f13ad5294feb325bf41661bba5e7322b7921384be65b9cd6d32fa"
+    },
+    "browser/browser.json": {
+      "bytes": 6056,
+      "sha256": "b4bc843d7cac78e25e5741671f7582d814c16c51fbe531e8fc7f15b0853de20b"
+    },
+    "browser/changed-download.json": {
+      "bytes": 16193,
+      "sha256": "ec8c87983f4a9201277e22f1bd7f838140c3fa0eb3f0653e58c29b7d0edaced3"
+    },
+    "browser/desktop-results.png": {
+      "bytes": 243606,
+      "sha256": "aeda4593640a52ed2cfcc80914508b5c4c5f3e9e0a444aa00b2ce7e15a4af341"
+    },
+    "browser/desktop.png": {
+      "bytes": 130726,
+      "sha256": "35acadc07990e995e1f087c87d3d14db23692edcc7cd72780d237ffda59066f6"
+    },
+    "browser/download.json": {
+      "bytes": 16948,
+      "sha256": "1b71d35b23f79f113014f934b552105d3ddec363ee9873f6b48171ba2fb95162"
+    },
+    "browser/health.json": {
+      "bytes": 5800,
+      "sha256": "2592690d0d3abf51bd59511f9abaea3ec3855cd68fa159dc05b90edbc505fb4a"
+    },
+    "browser/mobile.png": {
+      "bytes": 229548,
+      "sha256": "6f96d8f51ca60399d3a3f6483afcae4243bd39f33473ef85ef8bbfb1b9c3ff9c"
+    },
+    "browser/server.log": {
+      "bytes": 54,
+      "sha256": "89055cf5c04b0788703796cb9198ffc17b34bcced9c85b7e91e6ca32e553e4cd"
+    },
+    "browser-binary/binary-compare.png": {
+      "bytes": 242005,
+      "sha256": "4d0787e02cf420e24697f0a17c7088d5b00cec65aacde41b6d996874a0533a7a"
+    },
+    "browser-binary/changed-weights-report.json": {
+      "bytes": 17051,
+      "sha256": "fdab5f29fad33049d0abc992b25ef5bd30eac39e75f0a472828be556a3aba828"
+    },
+    "browser-binary/harness-notes.json": {
+      "bytes": 573,
+      "sha256": "dccc3440abe704a43b6b593733e581235ddd0c319541586fadd527e87631066d"
+    },
+    "browser-binary/identical-renamed-report.json": {
+      "bytes": 10716,
+      "sha256": "d791989264910a891512f8eaf4e9ffd78ce119ee4f189e6305a0dbe0394e7310"
+    },
+    "browser-binary/result.json": {
+      "bytes": 831,
+      "sha256": "9c2027d4d36b5b8383128d4a8c1b0b5c8782c55c5dd13e07efe12b96826607df"
+    },
+    "browser.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build.log": {
+      "bytes": 24763,
+      "sha256": "ee152cd1fd8ce3cd2b40882deeabd9b1b4d8d86e94df632e090f36ef85e11945"
+    },
+    "candidate-type-validation.json": {
+      "bytes": 52404,
+      "sha256": "c40a6dd4e9c5b7f8e07c31dc1cb8ee58a4556631dadc345d43bfa91cc7dda2fe"
+    },
+    "candidate-type-validation.log": {
+      "bytes": 127,
+      "sha256": "a2d91900550c8150a10d5af7005ecb5cd7b95539aab66fedff8a889a970fb9f7"
+    },
+    "coverage-data": {
+      "bytes": 69632,
+      "sha256": "a5a316a0e207793078594b35703346c37799928c3c8a98098d83edd5f6dce86b"
+    },
+    "coverage.json": {
+      "bytes": 216261,
+      "sha256": "c8c84f62d5d2c2b8e1ab47253feec33e32ca9ddcdd3c4e043f6c08a3ffe85eac"
+    },
+    "dependencies.log": {
+      "bytes": 1844,
+      "sha256": "f7a0e4f1f4f8c204f4e65337cd40938b5725fe8e59c656bc45bf301d3769bd6f"
+    },
+    "dist/hf_scanner-0.3.0-py3-none-any.whl": {
+      "bytes": 138317,
+      "sha256": "b109c01b20b3c4e7eaa5f2234c100cc2c1dc9f9644205ee8e21edb2fa7b419c9"
+    },
+    "dist/hf_scanner-0.3.0.tar.gz": {
+      "bytes": 159852,
+      "sha256": "c721c0ec393948e029105559dd75df7cb29e6a4d8986a6abedeb2b2b5c233db7"
+    },
+    "docs.log": {
+      "bytes": 127,
+      "sha256": "4f4dc6ca0b22e53a6218f5b59402f6120035533f49a4a4c48cad6ec8ce2abe19"
+    },
+    "environment-pip-audit.json": {
+      "bytes": 6069,
+      "sha256": "3ca1670e97337876bf3d64273fa06e16b1368e95885d65e433e499d82d578227"
+    },
+    "environment_dependency_audit.log": {
+      "bytes": 31,
+      "sha256": "15950a68a7ed99c59779717acefdceb3f69cfd31bde67d2c954f2a3cea4d7955"
+    },
+    "format.log": {
+      "bytes": 27,
+      "sha256": "dc4926f0ff1eb5146bdfae4320e66a9d47be58d65873d37a310b72e70efe1043"
+    },
+    "independent-review-status.json": {
+      "bytes": 966,
+      "sha256": "d54656a08f5dc017933bd32a0be90e70eb470f7add7b4b11dc192e2299eec91e"
+    },
+    "installed-wheel-report.json": {
+      "bytes": 9060,
+      "sha256": "f8b3d4d9bb3747283b3ee0bd48b58bced4cde30c89f86bb66360f72c9436be8a"
+    },
+    "installed-wheel-smoke.json": {
+      "bytes": 8315,
+      "sha256": "90c35a8562ee009f6f806906b07f3eec912241bacb5cbfe087d1286b5c22822b"
+    },
+    "installer_syntax.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "javascript_syntax.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "junit.xml": {
+      "bytes": 42347,
+      "sha256": "b5d45ab8d5561c2e6e4654d00dd63132442eeaa1217a9821a5c5c9800c4696bc"
+    },
+    "lint.log": {
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "locked-pip-audit.json": {
+      "bytes": 1948,
+      "sha256": "98207f3b56cdb30a58562cd43017e41c1718ca6dc2a55506aaa621cbff9b0704"
+    },
+    "locked_dependency_audit.log": {
+      "bytes": 31,
+      "sha256": "15950a68a7ed99c59779717acefdceb3f69cfd31bde67d2c954f2a3cea4d7955"
+    },
+    "optional-integration/junit.xml": {
+      "bytes": 866,
+      "sha256": "2cd21c98f695e7ba7cd93ff618c7c8206534571a403491a12b5c2d77591e97d4"
+    },
+    "optional-integration/run.json": {
+      "bytes": 3857,
+      "sha256": "6c3442ac569bdd7f42b579323ee5d14f60d1561e9a65a210d031126dc639dba4"
+    },
+    "optional-integration/tests.log": {
+      "bytes": 129,
+      "sha256": "b358440868cecb8d0cef549dc202baeaf389d7724f08aaffe82d33117cfe42aa"
+    },
+    "product-matrix.json": {
+      "bytes": 1398,
+      "sha256": "75ee82b2cf5405399d5b8e99be268fd800c0c99fdcc6e55fb52e50fcacb22af1"
+    },
+    "python310-junit.xml": {
+      "bytes": 9531,
+      "sha256": "499ce243e8432de69c032450b78c8a78bc2434de385e9df850546bb3936a07c4"
+    },
+    "python310.log": {
+      "bytes": 99,
+      "sha256": "20313ded5c0bc9bf163153da3a452998a0ab8191f8f846f21418dc049c476e57"
+    },
+    "regression.log": {
+      "bytes": 4615,
+      "sha256": "20860c7610e4569544561dfa32a8891845d59c5b92d3138c30a1d9e64a2067f4"
+    },
+    "remote-ci/artifact-verification.json": {
+      "bytes": 536,
+      "sha256": "03ce58343e5fa1a98620840bf705e50cb99c31402951eb0aabb9f4fdbcb37430"
+    },
+    "remote-ci/ci-manifest.json": {
+      "bytes": 5238,
+      "sha256": "498b5ca4d414902eb59ae28c422a00e8cfb6487bc990601c1dbbfc33ce225a33"
+    },
+    "remote-ci/offline-acceptance-artifact.zip": {
+      "bytes": 948815,
+      "sha256": "c2f5a0d7fc7017e09acd7ff3ff295b2167016a5f207ed9d545c9109b27439606"
+    },
+    "remote-ci/run-status.json": {
+      "bytes": 18121,
+      "sha256": "9b9101bc6203f407094b334396319f42b275d0217415bba7ca3137a41f76a65a"
+    },
+    "run-log.json": {
+      "bytes": 7865,
+      "sha256": "223f8511284cbc4ac7637bcbe5a1af8e8a1fe452acb4acd6703ffe01eab17d3a"
+    },
+    "sbom-run.json": {
+      "bytes": 614,
+      "sha256": "5b76c558b84bbe98fc35725b4a4b36d9948591a20545b9cc44e02f24e726fc37"
+    },
+    "sbom.log": {
+      "bytes": 295,
+      "sha256": "048ad3c7763fa426656e0b0b871c2b1232840a0720bfdc227c238aa0be0e54dd"
+    },
+    "secrets-scan.json": {
+      "bytes": 5080,
+      "sha256": "124375a82504935ade6b0621abc73a3ca6b4b9b4a344bcd2c3cbab91a28ae996"
+    },
+    "secrets-triage.json": {
+      "bytes": 681,
+      "sha256": "5e57d3535807b432354d05a90bdfa7de59afa9e640dbe5a7b91552ea9d29edf6"
+    },
+    "security-checks.json": {
+      "bytes": 1400,
+      "sha256": "c4d3400f923793e579448a616c4b1284a6e496f974310668e8513e0d6261eeb4"
+    },
+    "support/benign_binary_browser.py": {
+      "bytes": 4462,
+      "sha256": "890d8b1117c892ad039e69471822420caa91642e9ee30566aee038039843a838"
+    },
+    "test-environment-sbom.json": {
+      "bytes": 18270,
+      "sha256": "7fd03962486e3852322a74763932e6699004bc7313886f23000858538d9699dd"
+    },
+    "tracked_validation.log": {
+      "bytes": 127,
+      "sha256": "a2d91900550c8150a10d5af7005ecb5cd7b95539aab66fedff8a889a970fb9f7"
+    },
+    "typecheck.log": {
+      "bytes": 38,
+      "sha256": "1d044deee37a17d52f4dd31d7de6ebd21c68eb5d08e8b3b0822f58940a3392bb"
+    },
+    "workflow_lint.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "branch": "codex/local-workbench-20261116",
+  "commands_source": ".github/workflows/ci.yml local-inspector job and its actual run logs",
+  "coverage": {
+    "covered_lines": 3073,
+    "excluded_lines": 12,
+    "missing_lines": 966,
+    "num_statements": 4039,
+    "percent_covered": 76.08318890814559,
+    "percent_covered_display": "76",
+    "percent_statements_covered": 76.08318890814559,
+    "percent_statements_covered_display": "76"
+  },
+  "coverage_gate": 75,
+  "decision": "PARTIAL",
+  "dependencies": {
+    "Markdown": "3.11.3",
+    "PyYAML": "6.0.3",
+    "Pygments": "2.21.0",
+    "annotated-doc": "0.0.6",
+    "annotated-types": "0.8.0",
+    "antlr4-python3-runtime": "4.13.2",
+    "anyio": "4.16.0",
+    "arrow": "1.4.0",
+    "attrs": "26.1.0",
+    "build": "1.5.0",
+    "cachebox": "5.2.3",
+    "certifi": "2026.10.23",
+    "charset-normalizer": "3.5.2",
+    "click": "8.5.1",
+    "colorama": "0.4.6",
+    "colour": "0.1.5",
+    "coverage": "7.17.3",
+    "cpe": "1.3.1",
+    "cybox": "2.1.0.21",
+    "deepdiff": "9.1.0",
+    "defusedxml": "0.7.1",
+    "drawsvg": "2.4.2",
+    "et_xmlfile": "2.0.0",
+    "fastapi": "0.163.2",
+    "fqdn": "1.6.0",
+    "greenlet": "3.5.3",
+    "h11": "0.16.0",
+    "hf-scanner": "0.2.0",
+    "httpcore": "1.0.9",
+    "httptools": "0.9.0",
+    "httpx": "0.28.1",
+    "idna": "3.20",
+    "iniconfig": "2.3.1",
+    "isoduration": "20.11.0",
+    "jsonpointer": "3.12",
+    "jsonschema": "4.26.0",
+    "jsonschema-specifications": "2025.9.1",
+    "lark": "1.3.1",
+    "loguru": "0.8.0",
+    "lxml": "6.1.3",
+    "maec": "4.1.0.17",
+    "markdown-it-py": "4.3.0",
+    "mdurl": "0.1.2",
+    "mitreattack-python": "3.0.3",
+    "mixbox": "1.0.5",
+    "netaddr": "1.3.0",
+    "networkx": "3.3",
+    "numpy": "2.5.5",
+    "openpyxl": "3.1.5",
+    "opentelemetry-api": "1.45.2",
+    "ordered-set": "4.1.0",
+    "orderly-set": "5.5.0",
+    "packaging": "26.3",
+    "pandas": "2.2.2",
+    "pillow": "13.0.0",
+    "pip": "26.3",
+    "platformdirs": "4.14.7",
+    "playwright": "1.65.2",
+    "pluggy": "1.7.0",
+    "pluralizer": "2.0.0",
+    "pooch": "1.9.0",
+    "psutil": "7.2.2",
+    "pycountry": "26.2.16",
+    "pydantic": "2.14.1",
+    "pydantic_core": "2.50.1",
+    "pyee": "13.0.1",
+    "pyproject_hooks": "1.3.3",
+    "pytest": "9.2.0",
+    "pytest-cov": "7.1.0",
+    "python-dateutil": "4.0.0",
+    "python-dotenv": "1.2.4",
+    "pytz": "2026.6",
+    "referencing": "0.37.0",
+    "requests": "2.34.2",
+    "rfc3339-validator": "0.1.4",
+    "rfc3986-validator": "0.1.1",
+    "rfc3987-syntax": "1.1.0",
+    "rich": "15.0.0",
+    "rpds-py": "2026.9.1",
+    "ruff": "0.8.4",
+    "shellingham": "1.5.4",
+    "simplejson": "4.3.0",
+    "six": "1.17.0",
+    "starlette": "1.10.0",
+    "stix": "1.2.0.11",
+    "stix2": "3.0.1",
+    "stix2-elevator": "4.1.7",
+    "stix2-patterns": "2.1.2",
+    "stix2-validator": "3.3.2",
+    "stixmarx": "1.0.8",
+    "tabulate": "0.10.0",
+    "taxii2-client": "2.3.0",
+    "tqdm": "4.70.1",
+    "typer": "0.29.1",
+    "typing-inspection": "0.4.5",
+    "typing_extensions": "4.16.0",
+    "tzdata": "2026.6",
+    "uri-template": "1.3.0",
+    "urllib3": "2.8.0",
+    "uvicorn": "0.54.0",
+    "uvloop": "0.23.0",
+    "watchfiles": "1.3.0",
+    "weakrefmethod": "1.0.3",
+    "webcolors": "25.10.0",
+    "websockets": "17.4",
+    "xlsxwriter": "3.3.1"
+  },
+  "generated_utc": "2026-11-17T22:45:17.645972+00:00",
+  "job_status": "success",
+  "junit_suite_counts": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 3,
+    "tests": 321
+  },
+  "lock_sha256": {
+    "requirements-browser.lock": "8ccc7fa8e66cd2d25a1391da20bbdc7e6ff08ec6fa90fe83064b39a8d9071249",
+    "requirements-local.lock": "0d44355dcd9d58e2ef634de4a4b1f8d11af89fa8058b66b7e90233e276780b94"
+  },
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "python": "3.12.14",
+  "repository": "poojakira/hf-model-provenance-scanner",
+  "run_id": "local",
+  "run_started_utc": "2026-11-17T22:44:22.762686+00:00",
+  "scope": "Local static inspector evidence; artifact results do not establish production approval or historical claim validity",
+  "skips": [
+    {
+      "class": "",
+      "name": "tests.test_attack_mapping",
+      "reason": "collection skipped"
+    },
+    {
+      "class": "tests.test_executor",
+      "name": "test_windows_rlimits_cleanly_skipped",
+      "reason": "Windows-only skip behavior"
+    },
+    {
+      "class": "tests.test_supply_chain_coverage",
+      "name": "test_navigator_reporter_deduplicates_and_prefers_subtechnique",
+      "reason": "could not import 'attack_v19_core': No module named 'attack_v19_core'"
+    }
+  ],
+  "source_commit": "16ff6f87f2f8f2832624d736c57c16e8809c1e5b",
+  "source_state": "CLEAN",
+  "source_state_before": "CLEAN",
+  "subtests": {
+    "failed": 0,
+    "passed": 6,
+    "skipped": 0
+  },
+  "test_count_units": "Individual JUnit testcase outcomes; suite totals can additionally count native subtests",
+  "tests": {
+    "errors": 0,
+    "failures": 0,
+    "passed": 312,
+    "skipped": 3,
+    "tests": 315
+  },
+  "utc_start": "2026-11-17T22:44:22.762686+00:00",
+  "utc_end": "2026-11-17T22:45:17.707414+00:00",
+  "clean_before": true,
+  "clean_after": true,
+  "runs": [
+    {
+      "name": "dependencies",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "-m",
+        "pip",
+        "freeze",
+        "--all"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-17T22:44:22.762838+00:00",
+      "utc_end": "2026-11-17T22:44:23.038759+00:00",
+      "exit_code": 0,
+      "log": "dependencies.log"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "/workspace/work/envs/hf/bin/ruff",
+        "check",
+        ".",
+        ".github/scripts"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-17T22:44:23.038979+00:00",
+      "utc_end": "2026-11-17T22:44:23.054580+00:00",
+      "exit_code": 0,
+      "log": "lint.log"
+    },
+    {
+      "name": "format",
+      "command": [
+        "/workspace/work/envs/hf/bin/ruff",
+        "format",
+        "--check",
+        ".",
+        ".github/scripts"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-17T22:44:23.054877+00:00",
+      "utc_end": "2026-11-17T22:44:23.064346+00:00",
+      "exit_code": 0,
+      "log": "format.log"
+    },
+    {
+      "name": "workflow_lint",
+      "command": [
+        "/workspace/work/tooling/actionlint/actionlint",
+        "-oneline"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-17T22:44:23.064503+00:00",
+      "utc_end": "2026-11-17T22:44:23.070261+00:00",
+      "exit_code": 0,
+      "log": "workflow_lint.log"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "/workspace/work/security-tools/bin/pyright",
+        "--pythonpath",
+        "/workspace/work/envs/hf-type/bin/python",
+        "scanner"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-17T22:44:23.070412+00:00",
+      "utc_end": "2026-11-17T22:44:34.296239+00:00",
+      "exit_code": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "name": "regression",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "-m",
+        "pytest",
+        "tests",
+        "-q",
+        "-p",
+        "pytest_cov",
+        "--cov=scanner",
+        "--cov-report=json:/workspace/work/evidence/hf-model-provenance-scanner/final/coverage.json",
+        "--cov-report=term",
+        "--cov-fail-under=75",
+        "--junitxml=/workspace/work/evidence/hf-model-provenance-scanner/final/junit.xml"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-17T22:44:34.296478+00:00",
+      "utc_end": "2026-11-17T22:44:48.101481+00:00",
+      "exit_code": 0,
+      "log": "regression.log"
+    },
+    {
+      "name": "python310",
+      "command": [
+        "/workspace/work/envs/hf310/bin/python",
+        "-m",
+        "pytest",
+        "tests/test_workbench.py",
+        "-q",
+        "--junitxml=/workspace/work/evidence/hf-model-provenance-scanner/final/python310-junit.xml"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-17T22:44:48.101820+00:00",
+      "utc_end": "2026-11-17T22:44:56.969024+00:00",
+      "exit_code": 0,
+      "log": "python310.log"
+    },
+    {
+      "name": "browser",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "scripts/workbench_e2e.py",
+        "--evidence",
+        "/workspace/work/evidence/hf-model-provenance-scanner/final/browser"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-17T22:44:56.969347+00:00",
+      "utc_end": "2026-11-17T22:45:05.486597+00:00",
+      "exit_code": 0,
+      "log": "browser.log"
+    },
+    {
+      "name": "build",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "-m",
+        "build",
+        "--outdir",
+        "/workspace/work/evidence/hf-model-provenance-scanner/final/dist"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-17T22:45:05.487011+00:00",
+      "utc_end": "2026-11-17T22:45:08.347655+00:00",
+      "exit_code": 0,
+      "log": "build.log"
+    },
+    {
+      "name": "docs",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "scripts/check_inspector_docs.py"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-17T22:45:08.348026+00:00",
+      "utc_end": "2026-11-17T22:45:08.427124+00:00",
+      "exit_code": 0,
+      "log": "docs.log"
+    },
+    {
+      "name": "javascript_syntax",
+      "command": [
+        "node",
+        "--check",
+        "scanner/workbench/app.js"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-17T22:45:08.427390+00:00",
+      "utc_end": "2026-11-17T22:45:08.453360+00:00",
+      "exit_code": 0,
+      "log": "javascript_syntax.log"
+    },
+    {
+      "name": "installer_syntax",
+      "command": [
+        "bash",
+        "-n",
+        "install.sh"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-17T22:45:08.453667+00:00",
+      "utc_end": "2026-11-17T22:45:08.457173+00:00",
+      "exit_code": 0,
+      "log": "installer_syntax.log"
+    },
+    {
+      "name": "bandit",
+      "command": [
+        "/workspace/work/security-tools/bin/bandit",
+        "-r",
+        "scanner",
+        "-ll",
+        "-f",
+        "json",
+        "-o",
+        "/workspace/work/evidence/hf-model-provenance-scanner/final/bandit.json"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-17T22:45:08.457436+00:00",
+      "utc_end": "2026-11-17T22:45:09.077955+00:00",
+      "exit_code": 0,
+      "log": "bandit.log"
+    },
+    {
+      "name": "locked_dependency_audit",
+      "command": [
+        "/workspace/work/security-tools/bin/pip-audit",
+        "-r",
+        "requirements-local.lock",
+        "--cache-dir",
+        "/workspace/work/cache/hf-audit",
+        "--format",
+        "json",
+        "--output",
+        "/workspace/work/evidence/hf-model-provenance-scanner/final/locked-pip-audit.json"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-17T22:45:09.078433+00:00",
+      "utc_end": "2026-11-17T22:45:16.275682+00:00",
+      "exit_code": 0,
+      "log": "locked_dependency_audit.log"
+    },
+    {
+      "name": "environment_dependency_audit",
+      "command": [
+        "/workspace/work/security-tools/bin/pip-audit",
+        "--path",
+        "/workspace/work/envs/hf/lib/python3.12/site-packages",
+        "--cache-dir",
+        "/workspace/work/cache/hf-audit",
+        "--format",
+        "json",
+        "--output",
+        "/workspace/work/evidence/hf-model-provenance-scanner/final/environment-pip-audit.json"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-17T22:45:16.276019+00:00",
+      "utc_end": "2026-11-17T22:45:17.369507+00:00",
+      "exit_code": 0,
+      "log": "environment_dependency_audit.log"
+    },
+    {
+      "name": "tracked_validation",
+      "command": [
+        "/workspace/work/tooling/venv/bin/python",
+        "/workspace/work/validate_inventory.py",
+        "/workspace/work/candidates/hf-model-provenance-scanner",
+        "/workspace/work/evidence/hf-model-provenance-scanner/final/candidate-type-validation.json"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-17T22:45:17.369929+00:00",
+      "utc_end": "2026-11-17T22:45:17.563278+00:00",
+      "exit_code": 0,
+      "log": "tracked_validation.log"
+    }
+  ],
+  "checks_passed": true,
+  "node": "v24.22.1",
+  "chromium": "Chromium 156.0.8078.79 built on Debian GNU/Linux 13 (trixie)",
+  "independent_review": "BLOCKED: follow-up current-source independent review stopped twice by automatic cybersecurity flag. Initial older-source review found export/stale-authority defects; root corrected them and executed new browser regressions, but independent closure is not claimed.",
+  "remote_ci": "All5 exact-head workflows succeeded; see remote-ci/run-status.json. Release-to-PyPI intentionally skipped.",
+  "tooling_note": "Primary Linux Python3.12 environment; Python3.10 focused suite separate; actual optional package API supplied to type checker. Optional runtime mapping tested separately in isolated container, not inferred from typing.",
+  "supplemental_checks": {
+    "python310_passed": 57,
+    "optional_mapping_reporter_passed": 5,
+    "installed_wheel_smoke": "PASS; source UNKNOWN under unrelated Git",
+    "secret_triage": "One public pinned Git SHA, no live validation",
+    "binary_browser": "PASS: actual SafeTensors file changes, identity under rename, report checksum"
+  },
+  "assessment_generated_utc": "2026-11-17T23:16:19.036289+00:00"
+}

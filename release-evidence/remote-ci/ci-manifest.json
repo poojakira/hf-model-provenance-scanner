@@ -1,0 +1,167 @@
+{
+  "artifacts": {
+    "browser/browser.json": {
+      "bytes": 6055,
+      "sha256": "29e373b1dcd71cc9a8b1e370d7475c44165cdb65463d7f2ed3968c6a0faf3cdc"
+    },
+    "browser/changed-download.json": {
+      "bytes": 16193,
+      "sha256": "95a36c36b724c13335e2cf45daf3311ca4a2a92f1541c6048650036de2c59e8e"
+    },
+    "browser/desktop-results.png": {
+      "bytes": 259551,
+      "sha256": "57a8b683c7821b7dd0b8a1c8def5a7c8a073028919566b4bb552cdc8faee5fb3"
+    },
+    "browser/desktop.png": {
+      "bytes": 140442,
+      "sha256": "a98994d1f7bc5bf5d3a479cdf8ad363d5565eed6ec63c0c42c47de1c75be9827"
+    },
+    "browser/download.json": {
+      "bytes": 16948,
+      "sha256": "a60d22b71ebd7a28acd8ae002528eb5535efd04fb5a8d632d4c822c2215ad65d"
+    },
+    "browser/health.json": {
+      "bytes": 5800,
+      "sha256": "2592690d0d3abf51bd59511f9abaea3ec3855cd68fa159dc05b90edbc505fb4a"
+    },
+    "browser/mobile.png": {
+      "bytes": 248603,
+      "sha256": "fefc3d9505b0f63118d2274319937a9d54eedb9fcf9d86354af6156f875eba5b"
+    },
+    "browser/server.log": {
+      "bytes": 54,
+      "sha256": "89055cf5c04b0788703796cb9198ffc17b34bcced9c85b7e91e6ca32e553e4cd"
+    },
+    "coverage-data": {
+      "bytes": 69632,
+      "sha256": "650a052d6b3ff45279612e9602d5530171ac7afae8e9a4be0a589a65b7ccfb37"
+    },
+    "coverage.json": {
+      "bytes": 216263,
+      "sha256": "afbf09132021991781bd650739506c22b23cfa5e93fd507f9ae3146ef3322313"
+    },
+    "dist/hf_scanner-0.3.0-py3-none-any.whl": {
+      "bytes": 138317,
+      "sha256": "0652fd179458edff8180d0c5fe9a49d62b466d64d714d50864ff41c7bc743044"
+    },
+    "dist/hf_scanner-0.3.0.tar.gz": {
+      "bytes": 159609,
+      "sha256": "628b02076fce8ea2fafd658f33b258b5004f02bebcba6c37cb656ccccb761ec5"
+    },
+    "junit.xml": {
+      "bytes": 42405,
+      "sha256": "1c4d0071b472abbb78bf9ba8d3c8dc9c542e2ea262e0e926cd4ced36169e0964"
+    },
+    "regression.log": {
+      "bytes": 1300,
+      "sha256": "159d07a596e08f7084fa4ab4cbff11b166f379bf2de448bd5b9b3f9d802f0372"
+    }
+  },
+  "branch": "",
+  "commands_source": ".github/workflows/ci.yml local-inspector job and its actual run logs",
+  "coverage": {
+    "covered_lines": 3075,
+    "excluded_lines": 12,
+    "missing_lines": 964,
+    "num_statements": 4039,
+    "percent_covered": 76.13270611537509,
+    "percent_covered_display": "76",
+    "percent_statements_covered": 76.13270611537509,
+    "percent_statements_covered_display": "76"
+  },
+  "coverage_gate": 75,
+  "decision": "PARTIAL",
+  "dependencies": {
+    "PyYAML": "6.0.3",
+    "Pygments": "2.21.0",
+    "annotated-doc": "0.0.6",
+    "annotated-types": "0.8.0",
+    "anyio": "4.16.0",
+    "build": "1.5.0",
+    "certifi": "2026.10.23",
+    "click": "8.5.1",
+    "coverage": "7.17.3",
+    "defusedxml": "0.7.1",
+    "fastapi": "0.163.2",
+    "greenlet": "3.5.3",
+    "h11": "0.16.0",
+    "hf-scanner": "0.3.0",
+    "httpcore": "1.0.9",
+    "httptools": "0.9.0",
+    "httpx": "0.28.1",
+    "idna": "3.20",
+    "iniconfig": "2.3.1",
+    "opentelemetry-api": "1.45.2",
+    "packaging": "26.3",
+    "pip": "26.3",
+    "playwright": "1.65.2",
+    "pluggy": "1.7.0",
+    "psutil": "7.2.2",
+    "pydantic": "2.14.3",
+    "pydantic_core": "2.50.4",
+    "pyee": "13.0.1",
+    "pyproject_hooks": "1.3.3",
+    "pytest": "9.2.0",
+    "pytest-cov": "7.1.0",
+    "python-dotenv": "1.2.4",
+    "ruff": "0.8.4",
+    "starlette": "1.10.0",
+    "typing-inspection": "0.4.5",
+    "typing_extensions": "4.16.0",
+    "uvicorn": "0.54.0",
+    "uvloop": "0.23.0",
+    "watchfiles": "1.3.0",
+    "websockets": "17.4"
+  },
+  "generated_utc": "2026-11-17T22:51:40.896875+00:00",
+  "job_status": "success",
+  "junit_suite_counts": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 3,
+    "tests": 321
+  },
+  "lock_sha256": {
+    "requirements-browser.lock": "8ccc7fa8e66cd2d25a1391da20bbdc7e6ff08ec6fa90fe83064b39a8d9071249",
+    "requirements-local.lock": "0d44355dcd9d58e2ef634de4a4b1f8d11af89fa8058b66b7e90233e276780b94"
+  },
+  "platform": "Linux-7.0.0-1019-azure-x86_64-with-glibc2.43",
+  "python": "3.12.16",
+  "repository": "poojakira/hf-model-provenance-scanner",
+  "run_id": "44193923975",
+  "run_started_utc": "2026-11-17T22:50:40.247974+00:00",
+  "scope": "Local static inspector evidence; artifact results do not establish production approval or historical claim validity",
+  "skips": [
+    {
+      "class": "",
+      "name": "tests.test_attack_mapping",
+      "reason": "collection skipped"
+    },
+    {
+      "class": "tests.test_executor",
+      "name": "test_windows_rlimits_cleanly_skipped",
+      "reason": "Windows-only skip behavior"
+    },
+    {
+      "class": "tests.test_supply_chain_coverage",
+      "name": "test_navigator_reporter_deduplicates_and_prefers_subtechnique",
+      "reason": "could not import 'attack_v19_core': No module named 'attack_v19_core'"
+    }
+  ],
+  "source_commit": "16ff6f87f2f8f2832624d736c57c16e8809c1e5b",
+  "source_state": "CLEAN",
+  "source_state_before": "CLEAN",
+  "subtests": {
+    "failed": 0,
+    "passed": 6,
+    "skipped": 0
+  },
+  "test_count_units": "Individual JUnit testcase outcomes; suite totals can additionally count native subtests",
+  "tests": {
+    "errors": 0,
+    "failures": 0,
+    "passed": 312,
+    "skipped": 3,
+    "tests": 315
+  }
+}

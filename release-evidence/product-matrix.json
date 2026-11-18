@@ -1,0 +1,12 @@
+{
+  "source_commit": "16ff6f87f2f8f2832624d736c57c16e8809c1e5b",
+  "capabilities": [
+    {"feature": "Real browser file inspection/comparison/export", "status": "OBSERVED", "code": "scanner/workbench", "evidence": ["browser/browser.json", "browser-binary/result.json"]},
+    {"feature": "Existing static engines and fingerprints", "status": "TESTED", "code": "scanner/cli.py, scanner/analyzer, scanner/workbench/worker.py", "evidence": ["junit.xml", "regression.log"]},
+    {"feature": "Bounded fail-closed worker and HTTP", "status": "TESTED", "code": "scanner/workbench/containment.py, scanner/workbench/server.py", "evidence": ["python310-junit.xml", "junit.xml"]},
+    {"feature": "Installed package and truthful source provenance", "status": "OBSERVED", "code": "scanner/workbench/server.py", "evidence": ["installed-wheel-smoke.json"]},
+    {"feature": "Optional ATT&CK mapping", "status": "TESTED in separately recorded isolated environment", "code": "scanner/attack_mapping", "evidence": ["optional-integration/run.json", "optional-integration/junit.xml"]},
+    {"feature": "Final independent closure", "status": "BLOCKED", "evidence": ["independent-review-status.json"]},
+    {"feature": "Model safety, authenticated provenance, full GGUF payload validation, public hosting and production approval", "status": "NOT VERIFIED / NOT IMPLEMENTED", "evidence": ["RELEASE_ASSESSMENT.md"]}
+  ]
+}
