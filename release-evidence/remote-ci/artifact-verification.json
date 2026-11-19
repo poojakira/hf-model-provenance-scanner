@@ -1,0 +1,45 @@
+{
+  "artifact_id": 14483699817,
+  "name": "local-inspector-ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+  "bytes": 949357,
+  "digest": "sha256:b9b02fc2fcd27a5ae89a4b7208ee80790fe6ae89af18fe7bc6e6689333911b65",
+  "workflow_run": {
+    "id": 44428485778,
+    "repository_id": 1296924027,
+    "head_repository_id": 1296924027,
+    "head_branch": "codex/local-workbench-20261116",
+    "head_sha": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a"
+  },
+  "source_commit": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+  "checked_utc": "2026-11-19T00:44:02.705986+00:00",
+  "downloaded_zip_sha256": "b9b02fc2fcd27a5ae89a4b7208ee80790fe6ae89af18fe7bc6e6689333911b65",
+  "zip_bytes": 949357,
+  "zip_entries": 15,
+  "all_embedded_artifact_hashes_match": true,
+  "verified_embedded_files": [
+    "browser/browser.json",
+    "browser/changed-download.json",
+    "browser/desktop-results.png",
+    "browser/desktop.png",
+    "browser/download.json",
+    "browser/health.json",
+    "browser/mobile.png",
+    "browser/server.log",
+    "coverage-data",
+    "coverage.json",
+    "dist/hf_scanner-0.3.0-py3-none-any.whl",
+    "dist/hf_scanner-0.3.0.tar.gz",
+    "junit.xml",
+    "regression.log"
+  ],
+  "junit_counts": {
+    "individual_cases": 320,
+    "passed": 317,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 3
+  },
+  "manifest": "hosted-manifest.json",
+  "junit": "hosted-junit.xml",
+  "scope": "Authenticated GitHub artifact download, published ZIP checksum and every embedded artifact hash verified. Source attestation uses embedded manifest, not artifact name. Raw session health token/binary ZIP not republished."
+}

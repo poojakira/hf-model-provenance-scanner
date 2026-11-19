@@ -1,0 +1,250 @@
+{
+  "source_commit": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+  "runs": [
+    {
+      "name": "dependencies",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "-m",
+        "pip",
+        "freeze",
+        "--all"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:19:15.249676+00:00",
+      "utc_end": "2026-11-19T00:19:16.152597+00:00",
+      "exit_code": 0,
+      "log": "dependencies.log"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "/workspace/work/envs/hf/bin/ruff",
+        "check",
+        ".",
+        ".github/scripts"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:19:16.152965+00:00",
+      "utc_end": "2026-11-19T00:19:16.168210+00:00",
+      "exit_code": 0,
+      "log": "lint.log"
+    },
+    {
+      "name": "format",
+      "command": [
+        "/workspace/work/envs/hf/bin/ruff",
+        "format",
+        "--check",
+        ".",
+        ".github/scripts"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:19:16.168630+00:00",
+      "utc_end": "2026-11-19T00:19:16.177694+00:00",
+      "exit_code": 0,
+      "log": "format.log"
+    },
+    {
+      "name": "workflow_lint",
+      "command": [
+        "/workspace/work/tooling/actionlint/actionlint",
+        "-oneline"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:19:16.178122+00:00",
+      "utc_end": "2026-11-19T00:19:16.191138+00:00",
+      "exit_code": 0,
+      "log": "workflow_lint.log"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "/workspace/work/security-tools/bin/pyright",
+        "--pythonpath",
+        "/workspace/work/envs/hf-type/bin/python",
+        "scanner"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:19:16.191479+00:00",
+      "utc_end": "2026-11-19T00:19:31.151162+00:00",
+      "exit_code": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "name": "regression",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "-m",
+        "pytest",
+        "tests",
+        "-q",
+        "-p",
+        "pytest_cov",
+        "--cov=scanner",
+        "--cov-report=json:/workspace/work/evidence/hf-model-provenance-scanner/selected-branches/coverage.json",
+        "--cov-report=term",
+        "--cov-fail-under=75",
+        "--junitxml=/workspace/work/evidence/hf-model-provenance-scanner/selected-branches/junit.xml"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:19:31.151354+00:00",
+      "utc_end": "2026-11-19T00:20:16.553837+00:00",
+      "exit_code": 0,
+      "log": "regression.log"
+    },
+    {
+      "name": "python310",
+      "command": [
+        "/workspace/work/envs/hf310/bin/python",
+        "-m",
+        "pytest",
+        "tests/test_workbench.py",
+        "-q",
+        "--junitxml=/workspace/work/evidence/hf-model-provenance-scanner/selected-branches/python310-junit.xml"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:20:16.554110+00:00",
+      "utc_end": "2026-11-19T00:20:47.331342+00:00",
+      "exit_code": 0,
+      "log": "python310.log"
+    },
+    {
+      "name": "browser",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "scripts/workbench_e2e.py",
+        "--evidence",
+        "/workspace/work/evidence/hf-model-provenance-scanner/selected-branches/browser"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:20:47.331683+00:00",
+      "utc_end": "2026-11-19T00:20:56.037381+00:00",
+      "exit_code": 0,
+      "log": "browser.log"
+    },
+    {
+      "name": "build",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "-m",
+        "build",
+        "--outdir",
+        "/workspace/work/evidence/hf-model-provenance-scanner/selected-branches/dist"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:20:56.037636+00:00",
+      "utc_end": "2026-11-19T00:21:01.488525+00:00",
+      "exit_code": 0,
+      "log": "build.log"
+    },
+    {
+      "name": "docs",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "scripts/check_inspector_docs.py"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:21:01.488811+00:00",
+      "utc_end": "2026-11-19T00:21:01.636660+00:00",
+      "exit_code": 0,
+      "log": "docs.log"
+    },
+    {
+      "name": "javascript_syntax",
+      "command": [
+        "node",
+        "--check",
+        "scanner/workbench/app.js"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:21:01.636916+00:00",
+      "utc_end": "2026-11-19T00:21:01.663436+00:00",
+      "exit_code": 0,
+      "log": "javascript_syntax.log"
+    },
+    {
+      "name": "installer_syntax",
+      "command": [
+        "bash",
+        "-n",
+        "install.sh"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:21:01.663743+00:00",
+      "utc_end": "2026-11-19T00:21:01.665725+00:00",
+      "exit_code": 0,
+      "log": "installer_syntax.log"
+    },
+    {
+      "name": "bandit",
+      "command": [
+        "/workspace/work/security-tools/bin/bandit",
+        "-r",
+        "scanner",
+        "-ll",
+        "-f",
+        "json",
+        "-o",
+        "/workspace/work/evidence/hf-model-provenance-scanner/selected-branches/bandit.json"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:21:01.665927+00:00",
+      "utc_end": "2026-11-19T00:21:02.986658+00:00",
+      "exit_code": 0,
+      "log": "bandit.log"
+    },
+    {
+      "name": "locked_dependency_audit",
+      "command": [
+        "/workspace/work/security-tools/bin/pip-audit",
+        "-r",
+        "requirements-local.lock",
+        "--cache-dir",
+        "/workspace/work/cache/hf-audit",
+        "--format",
+        "json",
+        "--output",
+        "/workspace/work/evidence/hf-model-provenance-scanner/selected-branches/locked-pip-audit.json"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:21:02.986922+00:00",
+      "utc_end": "2026-11-19T00:21:16.176729+00:00",
+      "exit_code": 0,
+      "log": "locked_dependency_audit.log"
+    },
+    {
+      "name": "environment_dependency_audit",
+      "command": [
+        "/workspace/work/security-tools/bin/pip-audit",
+        "--path",
+        "/workspace/work/envs/hf/lib/python3.12/site-packages",
+        "--cache-dir",
+        "/workspace/work/cache/hf-audit",
+        "--format",
+        "json",
+        "--output",
+        "/workspace/work/evidence/hf-model-provenance-scanner/selected-branches/environment-pip-audit.json"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:21:16.177125+00:00",
+      "utc_end": "2026-11-19T00:21:18.736496+00:00",
+      "exit_code": 0,
+      "log": "environment_dependency_audit.log"
+    },
+    {
+      "name": "tracked_validation",
+      "command": [
+        "/workspace/work/tooling/venv/bin/python",
+        "/workspace/work/validate_inventory.py",
+        "/workspace/work/candidates/hf-model-provenance-scanner",
+        "/workspace/work/evidence/hf-model-provenance-scanner/selected-branches/candidate-type-validation.json"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:21:18.737078+00:00",
+      "utc_end": "2026-11-19T00:21:19.081648+00:00",
+      "exit_code": 0,
+      "log": "tracked_validation.log"
+    }
+  ]
+}

@@ -1,0 +1,172 @@
+{
+  "schema_version": "1",
+  "run_id": "25f25871-0706-4bbd-9983-35b99eff08b9",
+  "started_utc": "2026-11-19T00:36:04.787896+00:00",
+  "finished_utc": "2026-11-19T00:36:04.884075+00:00",
+  "source": {
+    "app": "AI Model Trust Inspector",
+    "version": "0.3.0",
+    "local_api_version": "1",
+    "remote_admission_api": "separate existing 1.0.0 service",
+    "commit": "UNKNOWN",
+    "source_state": "UNKNOWN",
+    "rule_sources": {
+      "__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "aibom_generator.py": "fa3dd34fb0911b8235551577c3eb4aae7eb53cc6c6b78f371b35c2e14df5102e",
+      "analyzer/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "analyzer/ast_visitor.py": "5a35b4040b43fcea28a4dc2b46bf949302419adb54c55228f606ebbaa29e58cf",
+      "analyzer/config_scanner.py": "177306558d873064243d143df0232f4880c309e531ed14127cb26ae058940a73",
+      "analyzer/dependency_scanner.py": "6ab017bd929142f0a72f0548624e9ff134fedc588b3df9cca800d02fede09b1f",
+      "analyzer/gguf_scanner.py": "592814345ef88df8ac25d66f3f8528bc49d93ba9a315b2edba0d27b45ed07741",
+      "analyzer/ioc_feed.py": "398b579e2701d5a633480f003ca803c30ca1085d25b0aa6290dba6567fc713f6",
+      "analyzer/keras_scanner.py": "9f2ed3cbb9688792c876b2b26f06d4070079571999078c5454c459ffe4426b33",
+      "analyzer/obfuscation_scanner.py": "4a0e622f72efb76aab5019d487721d02b17af95d73d8bc14a9e87885e4a2fc30",
+      "analyzer/onnx_scanner.py": "a9319f9aa1665f0f2fc51e12b4000e33970b984b63c85db727408649e9907e29",
+      "analyzer/org_checker.py": "d4c225c09ed1cce882937ae3137e673b85390fdfc3d78bcd57c8e4579d29bfc8",
+      "analyzer/pickle_scanner.py": "940f421326599086220ab44e0c1aaba8db1d2b4c8d6992838d4792a620228841",
+      "analyzer/runtime_monitor.py": "15022405baf1dcbb22fd48437b4f5992e0b8c0016879e9b0cbbb805109b016ed",
+      "analyzer/safetensors_scanner.py": "9d6d3d2e7604e8c34023c1085ef94a389bb4f5c66961c3374cbb253c29b96ad3",
+      "analyzer/sandbox_executor.py": "1dd8146c34ed83ed7b6538fd9a8f306249761d5766f4bc07f4acd7251b8ae01a",
+      "analyzer/shell_scanner.py": "22eba0c48555e84937e62dd026c10af4b019ebed721b0845e45035f640e2a148",
+      "analyzer/symbolic_resolver.py": "f919d6a0a93bbaf9d7e7583e506aa21bf2001eaeabdb48703f688eb5e43aa36e",
+      "analyzer/taint_engine.py": "114f90c899531d64ca5cd608a54c84ebbf8984cc874a3906467d93b875bbe075",
+      "analyzer/temporal_scanner.py": "da760ddf30f2280bde598891e6f16db07277dcf485f21ec1caf264741f87e765",
+      "analyzer/weight_fingerprint.py": "ab7545beafc80da2564d4c8c655ae5240dc261454b5819f6d39805a097b64cbc",
+      "attack_mapping/__init__.py": "4b0fc9c4e82353be319eefcded249658faad06eb8e33fb8c430499f37fb16448",
+      "attack_mapping/enricher.py": "218287b9dae3a8d958cd747fcf964dafd83c2a5a8ae1270368335f8abcab0896",
+      "attack_mapping/reporter.py": "e7431bf6b63b749f239532e70a923e0245367a8c9c10b3303676eabb36e2a02f",
+      "cli.py": "395511739d036e186be65e289f7d3f826c316184de8f45ea219fd385f949c8f9",
+      "config.py": "024f875d92b038ecee162f1723886b3f8bfb248979328673f07ffd32dd0aeae8",
+      "data/iocs.json": "5d1cb6df561f7ad393db0bc88b2a442aa027e34ac509a3c919a9b58652972060",
+      "data/protected_orgs.json": "ede31e8e4ec03e965bb72a00ce410b67218c185f400f3dd75b5a17a1962bb68c",
+      "formatters/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "formatters/html_formatter.py": "b6e9d56636c191559f36e4d14b924aacd4bad7f70eeb05f510c8fdbfa68cc5fa",
+      "formatters/json_formatter.py": "b067fb1a08c430b33f2a51a174bb938db5a2dd41befbcc79af772d3934c4bed8",
+      "formatters/sarif_formatter.py": "5d3b1d336fe7600bbdb5ebaf58dc307a52f787f4afd1caa7a98586f57e5482ae",
+      "isolation/__init__.py": "8a082a7600e9cf66b5d6a05f556ae69a72c2dbe814e093595806ed5e08bb2a6b",
+      "isolation/executor.py": "6036751668e1ad23e1985e4412f3ba02f7f1f07c75b99e41012c58cc0550fcf2",
+      "models.py": "732ef3dd7f2f70ca1e124961581767c9b21794c90220f3cc7650c51549db8c4e",
+      "monitor.py": "8ecb8fda4abb190c406515534deb2b1d106d030b9c603e21dda8fec034d083e0",
+      "monitor_cli.py": "7007f4cf183de05960752c2d9693156def7bcf580ac66c4d64197c5fa504aeb9",
+      "provenance.py": "4ef36dbef6f5c7f39c8ce71886e622bf540b8d06829f1bfb8b902af996ac717d",
+      "risk.py": "33fe469c4d53289b21a5c11b94fbfc4a6869391ea8229a5b46d5c4ad216f66d6",
+      "rules/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rules/definitions.py": "7e3ae272a90e6c812a5d80d49723e149e1c8cae8e6adc5275348ef8a930314ec",
+      "runtime_policy.py": "68cf45c5a6f2aefbcacfbdb938d356a2e285504cf90730676bec31f09a3f8bd7",
+      "service.py": "0f780d998c91cbac5967158bc3ffe380199ee81b9cfccc057258b861f991de37",
+      "utils/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "utils/entropy.py": "850e397c215bb62d1183954e5865a1d9318a8b6ec57114341f7f8d6abe6b8780",
+      "utils/file_filter.py": "04cd034da37fc07bedfdcb5fbd74f93d19a7d6a907c132d4b04a3c0afb3179e1",
+      "utils/hf_api.py": "db477c5bb04a57e11fb55e1ee3d11000433879f4f10ccdf42201da79024ed382",
+      "utils/levenshtein.py": "6f6118f90130d2f9c94c9c2b958d441b409043735c86cc9361a40586cc58d086",
+      "workbench/__init__.py": "d73ed6c6cd8f8cff1571ba188d9996d30a4105ce4c9eadcf0379ba7716ce22ae",
+      "workbench/containment.py": "5baefb985cd48a8f4038c869a4c823873c7d7a1b94c67ac26f6b24a9aee8dd9b",
+      "workbench/server.py": "20163e9cc85ffedf87e03bbcde52b8fa5bc2f378ab21b555e89a4a057f47a6b5",
+      "workbench/worker.py": "d86a2da19f3658edf0993af0a9dbafc411daa8d583c7f794895d8e3829e3d433"
+    },
+    "rule_set_sha256": "d7576f81d89954e52bb68366d886969602583fad5dcd3f4001d2cf42c3dab173"
+  },
+  "limits": {
+    "files": 2,
+    "file_bytes": 4194304,
+    "request_bytes": 12582912,
+    "wall_seconds": 8,
+    "cpu_seconds": 4,
+    "memory_bytes": 402653184,
+    "concurrency": 1,
+    "structure_items": 4096,
+    "response_bytes": 4194304
+  },
+  "config_sha256": "6c0c42566e34034f877e80ad02d512d8e20958f8affcbf33a3108e294965a6ed",
+  "input_manifest": [
+    {
+      "name": "operator-synthetic.py",
+      "size": 51,
+      "sha256": "717a8752a3a627c8e540befa14a4a6a0a7b2a2f7886663541ae4586845d1152f"
+    }
+  ],
+  "input_manifest_sha256": "387e7eef429e3327b8bdd01eb5649831a55261f9729a0d99b4042ab761ca6f70",
+  "request_sha256": "b38c0f1a2c5247a08db9133756bdd973ba4816324d6b8ccf3ee14fa37b1915d0",
+  "assessment": "STATIC_INSPECTION_ONLY",
+  "comparison": null,
+  "result": {
+    "containment": "Linux seccomp syscall allowlist + no_new_privs + RLIMIT",
+    "files": [
+      {
+        "name": "operator-synthetic.py",
+        "size": 51,
+        "sha256": "717a8752a3a627c8e540befa14a4a6a0a7b2a2f7886663541ae4586845d1152f",
+        "status": "CONCERNS",
+        "format": "python-source",
+        "structures": {
+          "nodes": [
+            {
+              "type": "Module",
+              "line": null
+            },
+            {
+              "type": "Import",
+              "line": 1
+            },
+            {
+              "type": "Expr",
+              "line": 2
+            },
+            {
+              "type": "alias",
+              "line": 1
+            },
+            {
+              "type": "Call",
+              "line": 2
+            },
+            {
+              "type": "Attribute",
+              "line": 2
+            },
+            {
+              "type": "Constant",
+              "line": 2
+            },
+            {
+              "type": "Name",
+              "line": 2
+            },
+            {
+              "type": "Load",
+              "line": null
+            },
+            {
+              "type": "Load",
+              "line": null
+            }
+          ],
+          "source_sha256": "717a8752a3a627c8e540befa14a4a6a0a7b2a2f7886663541ae4586845d1152f"
+        },
+        "structure_sha256": "e2fac94fa20f81fa49ca56362276f2a0156a70233d2885193a21c43816d303a8",
+        "findings": [
+          {
+            "rule_id": "HFS-001",
+            "severity": "critical",
+            "file_path": "operator-synthetic.py",
+            "line_number": 2,
+            "column": 0,
+            "message": "High-risk execution/deserialization callable, execution from __init__.py, or command referencing powershell, cmd.exe, or pwsh",
+            "evidence": "os.system echo SYNTHETIC_NOT_EXECUTED",
+            "remediation": "Remove the subprocess call. Models should not invoke shell commands.",
+            "cwe": "CWE-78",
+            "decoded_layer": 0
+          }
+        ]
+      }
+    ]
+  },
+  "limitations": [
+    "No model execution, deserialization, extraction or downloads.",
+    "No trusted publisher/signature or training lineage supplied; origin UNKNOWN.",
+    "No patterns found does not prove safety or absence of backdoors.",
+    "GGUF tensor payload/quantization validation and semantic behavior are NOT VERIFIED.",
+    "Linux syscall containment is not a VM/container; kernel vulnerabilities remain outside scope.",
+    "Inputs live only in bounded process memory; no disk retention. Memory is not cryptographically erased."
+  ]
+}

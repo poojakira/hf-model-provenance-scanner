@@ -1,0 +1,10 @@
+Resolved source: ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a
+Guided dependencies installed. Full-app and hosted-runtime verification are separate.
+Actual file bytes equal: True; static structures equal: True
+Run source: {'commit': 'ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a', 'state': 'CLEAN'}
+Evidence SHA-256: f70b3f73865c48fc79148eaf7a419c101081d8d2949ebf14671c055685078847
+<IPython.core.display.JSON object>
+identical → Actual file bytes equal: True; static structures equal: True
+changed → Actual file bytes equal: False; static structures equal: False
+metadata → Actual file bytes equal: False; static structures equal: False
+<IPython.core.display.JSON object>

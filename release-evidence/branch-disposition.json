@@ -1,0 +1,131 @@
+{
+  "repository": "hf-model-provenance-scanner",
+  "source_commit": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+  "checked_utc": "2026-11-19T00:47:14.737145+00:00",
+  "source_clean": true,
+  "remote_heads": {
+    "codex/local-workbench-20261116": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+    "main": "f4fe1da87755da3ed97f7f0faf09c17e40f545e9"
+  },
+  "remote_branch_count": 2,
+  "main_unchanged": true,
+  "retired_branch_count": 5,
+  "recovery_tags_reverified": [
+    {
+      "branch": "dependabot/github_actions/actions/setup-python-7.1.0",
+      "sha": "6e52d20aa40e85d1eb916549fef5390857fb6b53",
+      "archive_tag": "archive/selected-20261118/dependabot/github_actions/actions/setup-python-7.1.0",
+      "unique_commits_against_retained_heads": 1,
+      "disposition": "Preserve tag and verified private bundle; retire branch without merging its unreviewed changes",
+      "restore_command": "git push origin 6e52d20aa40e85d1eb916549fef5390857fb6b53:refs/heads/dependabot/github_actions/actions/setup-python-7.1.0",
+      "remote_tag_verified": true
+    },
+    {
+      "branch": "dependabot/github_actions/docker/login-action-4.8.0",
+      "sha": "628f7aec82a05ecc634a14aefdcb73b59a64244e",
+      "archive_tag": "archive/selected-20261118/dependabot/github_actions/docker/login-action-4.8.0",
+      "unique_commits_against_retained_heads": 1,
+      "disposition": "Preserve tag and verified private bundle; retire branch without merging its unreviewed changes",
+      "restore_command": "git push origin 628f7aec82a05ecc634a14aefdcb73b59a64244e:refs/heads/dependabot/github_actions/docker/login-action-4.8.0",
+      "remote_tag_verified": true
+    },
+    {
+      "branch": "dependabot/github_actions/github/codeql-action/analyze-4.39.3",
+      "sha": "82eaf883dfe598d97750fdd2acdb090795ecc7a0",
+      "archive_tag": "archive/selected-20261118/dependabot/github_actions/github/codeql-action/analyze-4.39.3",
+      "unique_commits_against_retained_heads": 1,
+      "disposition": "Preserve tag and verified private bundle; retire branch without merging its unreviewed changes",
+      "restore_command": "git push origin 82eaf883dfe598d97750fdd2acdb090795ecc7a0:refs/heads/dependabot/github_actions/github/codeql-action/analyze-4.39.3",
+      "remote_tag_verified": true
+    },
+    {
+      "branch": "dependabot/github_actions/github/codeql-action/upload-sarif-4.39.3",
+      "sha": "b6cc8ec099c35aebe80c3219536f4577f224d3f4",
+      "archive_tag": "archive/selected-20261118/dependabot/github_actions/github/codeql-action/upload-sarif-4.39.3",
+      "unique_commits_against_retained_heads": 1,
+      "disposition": "Preserve tag and verified private bundle; retire branch without merging its unreviewed changes",
+      "restore_command": "git push origin b6cc8ec099c35aebe80c3219536f4577f224d3f4:refs/heads/dependabot/github_actions/github/codeql-action/upload-sarif-4.39.3",
+      "remote_tag_verified": true
+    },
+    {
+      "branch": "dependabot/github_actions/sigstore/cosign-installer-4.1.3",
+      "sha": "409d74500438842fb8e6f8813cab424db2e9c552",
+      "archive_tag": "archive/selected-20261118/dependabot/github_actions/sigstore/cosign-installer-4.1.3",
+      "unique_commits_against_retained_heads": 1,
+      "disposition": "Preserve tag and verified private bundle; retire branch without merging its unreviewed changes",
+      "restore_command": "git push origin 409d74500438842fb8e6f8813cab424db2e9c552:refs/heads/dependabot/github_actions/sigstore/cosign-installer-4.1.3",
+      "remote_tag_verified": true
+    }
+  ],
+  "retired_prs_final": [
+    {
+      "number": 102,
+      "state": "closed",
+      "merged_at": null,
+      "head": "dependabot/github_actions/actions/setup-python-7.1.0",
+      "head_sha": "6e52d20aa40e85d1eb916549fef5390857fb6b53",
+      "draft": false,
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/pull/102"
+    },
+    {
+      "number": 101,
+      "state": "closed",
+      "merged_at": null,
+      "head": "dependabot/github_actions/sigstore/cosign-installer-4.1.3",
+      "head_sha": "409d74500438842fb8e6f8813cab424db2e9c552",
+      "draft": false,
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/pull/101"
+    },
+    {
+      "number": 100,
+      "state": "closed",
+      "merged_at": null,
+      "head": "dependabot/github_actions/docker/login-action-4.8.0",
+      "head_sha": "628f7aec82a05ecc634a14aefdcb73b59a64244e",
+      "draft": false,
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/pull/100"
+    },
+    {
+      "number": 99,
+      "state": "closed",
+      "merged_at": null,
+      "head": "dependabot/github_actions/github/codeql-action/upload-sarif-4.39.3",
+      "head_sha": "b6cc8ec099c35aebe80c3219536f4577f224d3f4",
+      "draft": false,
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/pull/99"
+    },
+    {
+      "number": 98,
+      "state": "closed",
+      "merged_at": null,
+      "head": "dependabot/github_actions/github/codeql-action/analyze-4.39.3",
+      "head_sha": "82eaf883dfe598d97750fdd2acdb090795ecc7a0",
+      "draft": false,
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/pull/98"
+    }
+  ],
+  "open_prs": [
+    {
+      "number": 103,
+      "state": "open",
+      "merged_at": null,
+      "head": "codex/local-workbench-20261116",
+      "head_sha": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+      "draft": true,
+      "html_url": "https://github.com/poojakira/hf-model-provenance-scanner/pull/103"
+    }
+  ],
+  "private_bundle_verified_before_deletion": true,
+  "private_bundle_publication": "EXCLUDED; private recovery bytes retained",
+  "historical_deployment_refs": [
+    {
+      "id": 6042720064,
+      "ref": "v1.0.0",
+      "sha": "d93ffd66b8ec0877768770bbc7368bd58c05d71a",
+      "environment": "testpypi",
+      "disposition": "Original tag retained if present; missing historical deployment ref preserved by explicit non-release recovery tag; no retired branch dependency",
+      "recovery_tag": "archive/deployments/6042720064-20261118"
+    }
+  ],
+  "policy": "Exactly two branches at recorded time; automation can create future branches. Unique work preserved by tags, not silently merged."
+}

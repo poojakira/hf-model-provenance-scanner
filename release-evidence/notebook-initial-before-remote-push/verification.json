@@ -1,0 +1,15 @@
+{
+  "repository": "hf-model-provenance-scanner",
+  "source_commit": "2128d2d31614766b05762a76735908ba4bb34ac9",
+  "expected_candidate": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+  "utc_start": "2026-11-19T00:22:03.952265+00:00",
+  "utc_end": "2026-11-19T00:22:08.929311+00:00",
+  "result": "FAIL",
+  "error": "CalledProcessError: Command '['/workspace/work/selected-branches/notebook-temp/synthetic-demo-environment-jbnudbmq/bin/python', '-m', 'pip', 'install', '--disable-pip-version-check', '--no-cache-dir', '-r', '/workspace/work/selected-branches/notebook-temp/hf-model-provenance-scanner-2_8wuvpw/demo/requirements-notebook.txt']' returned non-zero exit status 1.",
+  "environment": "Actual committed notebook setup/scenario/comparison cells executed on local LinuxCPython3.12, GitHubpubliccheckout and fresh isolated minimalvenv",
+  "colab_hosted_kernel": "NOT VERIFIED; no Google sign-in or remote hosted execution claimed",
+  "source_notebook_sha256": "76f74dffc7807cadfa63030d2ee5c62f9e21a83e9fb15d6ffa0280a3d842a645",
+  "all_result_checksums_verified": false,
+  "no_external_resources": "No server/tunnel/Drive/GPU/paidAPI/cloudresource/APIkey; only publicGitHub/PyPI downloads",
+  "scenario_summaries": []
+}

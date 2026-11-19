@@ -1,0 +1,14 @@
+{
+  "source_commit": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+  "current_browser_proof": "viewer-checks.json",
+  "render_and_author_handoff": "Retain original timestamps/source observations; parent accuracy/readability edits are included in the frozen current source and current browser/XML validation. Handoff is not a new independent current-source security closure.",
+  "viewer_hosting": "Locally tested static viewer; GitHub Pages API returned403, no Pages deployment.",
+  "diagram_files": {
+    "overview.svg": "4573f4ccd92e9709bc16481b540cc0d89a8f84fd2613a064e4348c881e67eee4",
+    "guided-notebook.svg": "d924f84336dc202baedb2b53758b048c68f0ea95fe90fe28bf232b880dc0c9d9",
+    "fingerprints.svg": "f26e6574c9b0e352526a7b7bd496a14d179c3dd5525967f248574e584bbe8543",
+    "failure-cleanup.svg": "01b1a2ca267862becf70cbc6088eb4531fd165c26b7bb7c9c3e91f9073351a80",
+    "components.svg": "306634f67a454573718347c32ae3782ce2511dd4bc922f9095086e654bf1e3c6",
+    "sequence.svg": "7b6b65babc4d25301fe499724a448db7404e7972e79e6a047635680924ec3101"
+  }
+}

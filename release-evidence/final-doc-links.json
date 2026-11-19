@@ -1,0 +1,167 @@
+{
+  "repository": "/workspace/work/candidates/hf-model-provenance-scanner",
+  "source_commit": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+  "source_status": "",
+  "utc": "2026-11-19T00:38:49.048497+00:00",
+  "documents_parsed": 38,
+  "local_targets_checked": 120,
+  "errors": [],
+  "external_targets_not_verified": [
+    {
+      "document": "PROVENANCE.md",
+      "url": "https://github.com/poojakira",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "PROVENANCE.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/commit/a57fba57e4ff422faeb32dcbfd03c37843dc2111",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "PROVENANCE.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/commit/f766debbb12caf163caf09155e07120da4a96947",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "PROVENANCE.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/commit/c7e2d4e3d9af75d9d9ba5d286e7c4d9f3a12da92",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "PROVENANCE.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/commit/7099591d86f5e82d787d8934c52eb4e2b24f6918",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "README.md",
+      "url": "https://colab.research.google.com/github/poojakira/hf-model-provenance-scanner/blob/codex/local-workbench-20261116/notebooks/try_product.ipynb",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "README.md",
+      "url": "https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/f151c25cea44b6b3225bbf50a2fbabe95c60b94a/release-evidence/browser/desktop.png",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "README.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/tree/evidence/selected-branches-20261118/release-evidence/RELEASE_ASSESSMENT.md",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "README.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/tree/evidence/selected-branches-20261118/release-evidence/manifest.json",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "README.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/tree/evidence/docs-reconciliation-20261118/release-evidence",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "README.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/pull/103",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "README.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/tree/evidence/selected-branches-20261118/release-evidence/branch-cleanup.json",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "RESUME_EVIDENCE.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "RESUME_EVIDENCE.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/commit/2f937ba51f31c678e43a064e95d6939e3feb9226",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "RESUME_EVIDENCE.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38002138828",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "VERIFIED_METRICS.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38487400153",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "VERIFIED_METRICS.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "VERIFIED_METRICS.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38002138828",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/BRANCHES.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/tree/evidence/selected-branches-20261118/release-evidence/branch-cleanup.json",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/EVIDENCE.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/tree/evidence/selected-branches-20261118/release-evidence",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/EVIDENCE.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/tree/f151c25cea44b6b3225bbf50a2fbabe95c60b94a/release-evidence",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/EVIDENCE.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/blob/f151c25cea44b6b3225bbf50a2fbabe95c60b94a/release-evidence/independent-review-status.json",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/EVIDENCE.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/pull/103",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/RECRUITER_EVIDENCE_AUDIT_2026-10-09.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/RECRUITER_EVIDENCE_AUDIT_2026-10-09.md",
+      "url": "https://github.com/poojakira/aws-agent-identity-guard/actions/runs/38462296804",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/RECRUITER_EVIDENCE_AUDIT_2026-10-09.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/TRY_IT.md",
+      "url": "https://colab.research.google.com/github/poojakira/hf-model-provenance-scanner/blob/codex/local-workbench-20261116/notebooks/try_product.ipynb",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/TRY_IT.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/tree/evidence/selected-branches-20261118/release-evidence/RELEASE_ASSESSMENT.md",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/TRY_IT.md",
+      "url": "https://research.google.com/colaboratory/faq.html",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "poster/13_reproducibility.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38498005353",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "poster/13_reproducibility.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/37163168715",
+      "reason": "External target not validated by local-file/anchor check"
+    }
+  ],
+  "scope": "CommonMark links/images and block HTML href/src, local existence and Markdown heading/HTML ids. No claim of external URL/image semantics or perfect GitHub/MDX/RST parser equivalence."
+}

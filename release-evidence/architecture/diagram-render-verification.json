@@ -1,0 +1,43 @@
+{
+  "utc": "2026-11-19T00:05:44.895665+00:00",
+  "renderer": "mermaid11.12.2;headlessChromium;strictsecurity;pureSVGtext",
+  "mermaid_js_sha256": "d0830a6c05546e9edb8fe20a8f545f3e0dc7c4c3134d584bad9c13a99d7a71e0",
+  "diagrams": [
+    {
+      "diagram": 1,
+      "path": "docs/architecture/components.svg",
+      "svg_sha256": "306634f67a454573718347c32ae3782ce2511dd4bc922f9095086e654bf1e3c6",
+      "bytes": 36237,
+      "parsed_and_rendered": true
+    },
+    {
+      "diagram": 2,
+      "path": "docs/architecture/sequence.svg",
+      "svg_sha256": "7b6b65babc4d25301fe499724a448db7404e7972e79e6a047635680924ec3101",
+      "bytes": 32522,
+      "parsed_and_rendered": true
+    },
+    {
+      "diagram": 3,
+      "path": "docs/architecture/fingerprints.svg",
+      "svg_sha256": "f26e6574c9b0e352526a7b7bd496a14d179c3dd5525967f248574e584bbe8543",
+      "bytes": 21082,
+      "parsed_and_rendered": true
+    },
+    {
+      "diagram": 4,
+      "path": "docs/architecture/failure-cleanup.svg",
+      "svg_sha256": "01b1a2ca267862becf70cbc6088eb4531fd165c26b7bb7c9c3e91f9073351a80",
+      "bytes": 43165,
+      "parsed_and_rendered": true
+    },
+    {
+      "diagram": 5,
+      "path": "docs/architecture/guided-notebook.svg",
+      "svg_sha256": "d924f84336dc202baedb2b53758b048c68f0ea95fe90fe28bf232b880dc0c9d9",
+      "bytes": 15062,
+      "parsed_and_rendered": true
+    }
+  ],
+  "standalone_svg": "Root width/height set to actual viewBox pixels for readable full-size opening; README uses separate22pxoverview; HTMLvieweraddszoom/pan"
+}

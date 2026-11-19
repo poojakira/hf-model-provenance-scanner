@@ -1,0 +1,29 @@
+{
+  "task": "HF source-mapped architecture documentation only",
+  "inspected_base_commit": "2128d2d31614766b05762a76735908ba4bb34ac9",
+  "files": {
+    "docs/ARCHITECTURE.md": "772cb4eafe190121740c1d3c6f770825c8f420a7d394dcfdde2e2ef53953790a",
+    "docs/INSPECTOR.md": "a3913679c013a000634eb28b1628dccea91141c37b0c575591496dff03ad00ed"
+  },
+  "changes": [
+    "Added five detailed Mermaid diagrams covering components/trust boundaries, normal request/worker sequence, hashes/comparison, failure/cleanup and separate guided notebook",
+    "Mapped exact source symbols and actual request/file/format/containment limits, report authority, privacy and missing trust controls",
+    "Corrected inspector wording for Origin allowlist, request-thread saturation and absence of full runtime hashing; linked architecture reference"
+  ],
+  "checks": {
+    "relative_links_resolve": 17,
+    "mermaid_fences_balanced": true,
+    "mermaid_blocks": 5,
+    "diagram_semicolons_absent": true,
+    "mapped_python_symbols_present": 29,
+    "git_diff_check_inspector": "PASS"
+  },
+  "execution_scope": "Source inspection, AST symbol existence and documentation checks only; no app launch, engine execution, security closing review, commit or push performed",
+  "pending": [
+    "Parent real Mermaid renderer validation",
+    "Commit-specific final release verification after all current changes freeze",
+    "Full Colab-hosted execution remains NOT VERIFIED",
+    "Independent closing security review remains BLOCKED; no retry attempted"
+  ],
+  "concurrent_changes": "Parent owns demo/notebook/tests and README/CHANGELOG/EVIDENCE changes; this task touched only docs/ARCHITECTURE.md and docs/INSPECTOR.md"
+}

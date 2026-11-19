@@ -1,0 +1,96 @@
+{
+  "source_commit": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+  "utc": "2026-11-19T00:45:31.138759+00:00",
+  "all_public_source_bytes_match": true,
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "6c5167dc216d1cbc4eb52ef9db8388d7aaf32de06d6be0d746672e535c4e4807",
+      "bytes": 9126
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "sha256": "772cb4eafe190121740c1d3c6f770825c8f420a7d394dcfdde2e2ef53953790a",
+      "bytes": 21962
+    },
+    {
+      "path": "docs/TRY_IT.md",
+      "sha256": "b109c4b03db893cc5f187dc78e7bf42f5d54782a41bb58d3caa59a5a5507333f",
+      "bytes": 3887
+    },
+    {
+      "path": "docs/BRANCHES.md",
+      "sha256": "ab5468b024bbca0dbb2590c13614708fe90b0d959d09453b2e00b7d6e1744f36",
+      "bytes": 2245
+    },
+    {
+      "path": "docs/index.html",
+      "sha256": "0bb9df00eea141ff7dc6fe536b93a92e37de61874411eab3d0cd95652fad6124",
+      "bytes": 2692
+    },
+    {
+      "path": "docs/architecture/viewer.js",
+      "sha256": "3ac1d29547f5b38a21e53495630aab6d68c1d4875d83dbc2ad96c747f486cea8",
+      "bytes": 1639
+    },
+    {
+      "path": "docs/architecture/viewer.css",
+      "sha256": "28b4607a62109231a7f203d5cdc377378a10166d3aa5ed13185485710fba144d",
+      "bytes": 1083
+    },
+    {
+      "path": "notebooks/try_product.ipynb",
+      "sha256": "76f74dffc7807cadfa63030d2ee5c62f9e21a83e9fb15d6ffa0280a3d842a645",
+      "bytes": 6679
+    },
+    {
+      "path": "demo/adapter.py",
+      "sha256": "25352acb6be092e8a96ef072f0e21206232cd5c10fcf8f803c7650d87aa31bb9",
+      "bytes": 2622
+    },
+    {
+      "path": "demo/notebook_runner.py",
+      "sha256": "dade8e6060648fb768909912eb2a0a7209934f1458833cbdaddb8eebcabc21b0",
+      "bytes": 2606
+    },
+    {
+      "path": "docs/architecture/overview.svg",
+      "sha256": "4573f4ccd92e9709bc16481b540cc0d89a8f84fd2613a064e4348c881e67eee4",
+      "bytes": 13220
+    },
+    {
+      "path": "docs/architecture/guided-notebook.svg",
+      "sha256": "d924f84336dc202baedb2b53758b048c68f0ea95fe90fe28bf232b880dc0c9d9",
+      "bytes": 15062
+    },
+    {
+      "path": "docs/architecture/fingerprints.svg",
+      "sha256": "f26e6574c9b0e352526a7b7bd496a14d179c3dd5525967f248574e584bbe8543",
+      "bytes": 21082
+    },
+    {
+      "path": "docs/architecture/failure-cleanup.svg",
+      "sha256": "01b1a2ca267862becf70cbc6088eb4531fd165c26b7bb7c9c3e91f9073351a80",
+      "bytes": 43165
+    },
+    {
+      "path": "docs/architecture/components.svg",
+      "sha256": "306634f67a454573718347c32ae3782ce2511dd4bc922f9095086e654bf1e3c6",
+      "bytes": 36237
+    },
+    {
+      "path": "docs/architecture/sequence.svg",
+      "sha256": "7b6b65babc4d25301fe499724a448db7404e7972e79e6a047635680924ec3101",
+      "bytes": 32522
+    }
+  ],
+  "colab_url": "https://colab.research.google.com/github/poojakira/hf-model-provenance-scanner/blob/codex/local-workbench-20261116/notebooks/try_product.ipynb",
+  "colab_public_page": {
+    "http_status": 200,
+    "resolved_url": "https://colab.research.google.com/github/poojakira/hf-model-provenance-scanner/blob/codex/local-workbench-20261116/notebooks/try_product.ipynb",
+    "response_bytes": 99942,
+    "scope": "Public page response only; no Google account/kernel execution"
+  },
+  "hosted_colab_kernel": "NOT VERIFIED; actual notebook cells executed locally, recorded separately",
+  "public_full_application": "NOT DEPLOYED; static Pages permission403, no site URL asserted"
+}

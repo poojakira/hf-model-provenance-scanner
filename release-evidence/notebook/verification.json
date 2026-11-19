@@ -1,0 +1,28 @@
+{
+  "repository": "hf-model-provenance-scanner",
+  "source_commit": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+  "expected_candidate": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+  "utc_start": "2026-11-19T00:23:50.758136+00:00",
+  "utc_end": "2026-11-19T00:23:56.329824+00:00",
+  "result": "PASS",
+  "error": null,
+  "environment": "Actual committed notebook setup/scenario/comparison cells executed on local LinuxCPython3.12, GitHubpubliccheckout and fresh isolated minimalvenv",
+  "colab_hosted_kernel": "NOT VERIFIED; no Google sign-in or remote hosted execution claimed",
+  "source_notebook_sha256": "76f74dffc7807cadfa63030d2ee5c62f9e21a83e9fb15d6ffa0280a3d842a645",
+  "all_result_checksums_verified": true,
+  "no_external_resources": "No server/tunnel/Drive/GPU/paidAPI/cloudresource/APIkey; only publicGitHub/PyPI downloads",
+  "scenario_summaries": [
+    {
+      "scenario": "identical",
+      "summary": "Actual file bytes equal: True; static structures equal: True"
+    },
+    {
+      "scenario": "changed",
+      "summary": "Actual file bytes equal: False; static structures equal: False"
+    },
+    {
+      "scenario": "metadata",
+      "summary": "Actual file bytes equal: False; static structures equal: False"
+    }
+  ]
+}

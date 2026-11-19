@@ -1,0 +1,733 @@
+{
+  "repository": "poojakira/hf-model-provenance-scanner",
+  "source_commit": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+  "branch": "codex/local-workbench-20261116",
+  "clean_before": true,
+  "clean_after": true,
+  "version": "0.3.0",
+  "generated_utc": "2026-11-19T00:50:25.131226+00:00",
+  "decision": "PARTIAL",
+  "run_id": "selected-branches-ab26ad5cd6fe",
+  "tests": {
+    "tests": 320,
+    "passed": 317,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 3
+  },
+  "native_subtests": {
+    "failed": 0,
+    "passed": 6,
+    "skipped": 0
+  },
+  "separate_python310": {
+    "individual_cases": 57,
+    "passed": 57,
+    "failed": 0,
+    "skipped": 0
+  },
+  "coverage": {
+    "covered_lines": 3073,
+    "excluded_lines": 12,
+    "missing_lines": 966,
+    "num_statements": 4039,
+    "percent_covered": 76.08318890814559,
+    "percent_covered_display": "76",
+    "percent_statements_covered": 76.08318890814559,
+    "percent_statements_covered_display": "76"
+  },
+  "unchanged_coverage_gate": 75,
+  "runs": [
+    {
+      "name": "dependencies",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "-m",
+        "pip",
+        "freeze",
+        "--all"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:19:15.249676+00:00",
+      "utc_end": "2026-11-19T00:19:16.152597+00:00",
+      "exit_code": 0,
+      "log": "dependencies.log"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "/workspace/work/envs/hf/bin/ruff",
+        "check",
+        ".",
+        ".github/scripts"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:19:16.152965+00:00",
+      "utc_end": "2026-11-19T00:19:16.168210+00:00",
+      "exit_code": 0,
+      "log": "lint.log"
+    },
+    {
+      "name": "format",
+      "command": [
+        "/workspace/work/envs/hf/bin/ruff",
+        "format",
+        "--check",
+        ".",
+        ".github/scripts"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:19:16.168630+00:00",
+      "utc_end": "2026-11-19T00:19:16.177694+00:00",
+      "exit_code": 0,
+      "log": "format.log"
+    },
+    {
+      "name": "workflow_lint",
+      "command": [
+        "/workspace/work/tooling/actionlint/actionlint",
+        "-oneline"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:19:16.178122+00:00",
+      "utc_end": "2026-11-19T00:19:16.191138+00:00",
+      "exit_code": 0,
+      "log": "workflow_lint.log"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "/workspace/work/security-tools/bin/pyright",
+        "--pythonpath",
+        "/workspace/work/envs/hf-type/bin/python",
+        "scanner"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:19:16.191479+00:00",
+      "utc_end": "2026-11-19T00:19:31.151162+00:00",
+      "exit_code": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "name": "regression",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "-m",
+        "pytest",
+        "tests",
+        "-q",
+        "-p",
+        "pytest_cov",
+        "--cov=scanner",
+        "--cov-report=json:/workspace/work/evidence/hf-model-provenance-scanner/selected-branches/coverage.json",
+        "--cov-report=term",
+        "--cov-fail-under=75",
+        "--junitxml=/workspace/work/evidence/hf-model-provenance-scanner/selected-branches/junit.xml"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:19:31.151354+00:00",
+      "utc_end": "2026-11-19T00:20:16.553837+00:00",
+      "exit_code": 0,
+      "log": "regression.log"
+    },
+    {
+      "name": "python310",
+      "command": [
+        "/workspace/work/envs/hf310/bin/python",
+        "-m",
+        "pytest",
+        "tests/test_workbench.py",
+        "-q",
+        "--junitxml=/workspace/work/evidence/hf-model-provenance-scanner/selected-branches/python310-junit.xml"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:20:16.554110+00:00",
+      "utc_end": "2026-11-19T00:20:47.331342+00:00",
+      "exit_code": 0,
+      "log": "python310.log"
+    },
+    {
+      "name": "browser",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "scripts/workbench_e2e.py",
+        "--evidence",
+        "/workspace/work/evidence/hf-model-provenance-scanner/selected-branches/browser"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:20:47.331683+00:00",
+      "utc_end": "2026-11-19T00:20:56.037381+00:00",
+      "exit_code": 0,
+      "log": "browser.log"
+    },
+    {
+      "name": "build",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "-m",
+        "build",
+        "--outdir",
+        "/workspace/work/evidence/hf-model-provenance-scanner/selected-branches/dist"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:20:56.037636+00:00",
+      "utc_end": "2026-11-19T00:21:01.488525+00:00",
+      "exit_code": 0,
+      "log": "build.log"
+    },
+    {
+      "name": "docs",
+      "command": [
+        "/workspace/work/envs/hf/bin/python",
+        "scripts/check_inspector_docs.py"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:21:01.488811+00:00",
+      "utc_end": "2026-11-19T00:21:01.636660+00:00",
+      "exit_code": 0,
+      "log": "docs.log"
+    },
+    {
+      "name": "javascript_syntax",
+      "command": [
+        "node",
+        "--check",
+        "scanner/workbench/app.js"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:21:01.636916+00:00",
+      "utc_end": "2026-11-19T00:21:01.663436+00:00",
+      "exit_code": 0,
+      "log": "javascript_syntax.log"
+    },
+    {
+      "name": "installer_syntax",
+      "command": [
+        "bash",
+        "-n",
+        "install.sh"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:21:01.663743+00:00",
+      "utc_end": "2026-11-19T00:21:01.665725+00:00",
+      "exit_code": 0,
+      "log": "installer_syntax.log"
+    },
+    {
+      "name": "bandit",
+      "command": [
+        "/workspace/work/security-tools/bin/bandit",
+        "-r",
+        "scanner",
+        "-ll",
+        "-f",
+        "json",
+        "-o",
+        "/workspace/work/evidence/hf-model-provenance-scanner/selected-branches/bandit.json"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:21:01.665927+00:00",
+      "utc_end": "2026-11-19T00:21:02.986658+00:00",
+      "exit_code": 0,
+      "log": "bandit.log"
+    },
+    {
+      "name": "locked_dependency_audit",
+      "command": [
+        "/workspace/work/security-tools/bin/pip-audit",
+        "-r",
+        "requirements-local.lock",
+        "--cache-dir",
+        "/workspace/work/cache/hf-audit",
+        "--format",
+        "json",
+        "--output",
+        "/workspace/work/evidence/hf-model-provenance-scanner/selected-branches/locked-pip-audit.json"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:21:02.986922+00:00",
+      "utc_end": "2026-11-19T00:21:16.176729+00:00",
+      "exit_code": 0,
+      "log": "locked_dependency_audit.log"
+    },
+    {
+      "name": "environment_dependency_audit",
+      "command": [
+        "/workspace/work/security-tools/bin/pip-audit",
+        "--path",
+        "/workspace/work/envs/hf/lib/python3.12/site-packages",
+        "--cache-dir",
+        "/workspace/work/cache/hf-audit",
+        "--format",
+        "json",
+        "--output",
+        "/workspace/work/evidence/hf-model-provenance-scanner/selected-branches/environment-pip-audit.json"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:21:16.177125+00:00",
+      "utc_end": "2026-11-19T00:21:18.736496+00:00",
+      "exit_code": 0,
+      "log": "environment_dependency_audit.log"
+    },
+    {
+      "name": "tracked_validation",
+      "command": [
+        "/workspace/work/tooling/venv/bin/python",
+        "/workspace/work/validate_inventory.py",
+        "/workspace/work/candidates/hf-model-provenance-scanner",
+        "/workspace/work/evidence/hf-model-provenance-scanner/selected-branches/candidate-type-validation.json"
+      ],
+      "cwd": "/workspace/work/candidates/hf-model-provenance-scanner",
+      "utc_start": "2026-11-19T00:21:18.737078+00:00",
+      "utc_end": "2026-11-19T00:21:19.081648+00:00",
+      "exit_code": 0,
+      "log": "tracked_validation.log"
+    }
+  ],
+  "host_environment": {
+    "os": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "python": "3.12.14",
+    "node": "v24.22.1",
+    "chromium": "Chromium 156.0.8078.79 built on Debian GNU/Linux 13 (trixie)"
+  },
+  "dependency_file_sha256": {
+    "requirements.txt": "d9a090ecf0d1a3507a810be588624f31f2cc04bb6414b4e3d62055458e270ddb",
+    "pyproject.toml": "35f1ba36f037a7e5705812f76cf40cadd9439cc97ed3fd689e7356e21dfb38f1",
+    "demo/requirements-notebook.txt": "e3bb99c6796d2edea5b9005d0ee33a51a999ea9e9eb513dd8771181a21f7ec37"
+  },
+  "scope": "Actual fresh required local runs plus separately scoped notebook/minimal-venv and hosted acceptance proof. Existing main verification dependency caches reused; not a universal clean-build/release/security certification.",
+  "hosted_runs": {
+    "source_commit": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+    "checked_utc": "2026-11-19T00:41:58.235Z",
+    "runs": [
+      {
+        "id": 44428485681,
+        "name": "Security Hygiene",
+        "path": ".github/workflows/security-hygiene.yml",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+        "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44428485681"
+      },
+      {
+        "id": 44428485660,
+        "name": "Documentation Integrity",
+        "path": ".github/workflows/production-policy.yml",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+        "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44428485660"
+      },
+      {
+        "id": 44428485746,
+        "name": "Poster Artifact Parity",
+        "path": ".github/workflows/poster-artifact-parity.yml",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+        "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44428485746"
+      },
+      {
+        "id": 44428485805,
+        "name": "Production Gate",
+        "path": ".github/workflows/production-gate.yml",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+        "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44428485805"
+      },
+      {
+        "id": 44428485778,
+        "name": "CI",
+        "path": ".github/workflows/ci.yml",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+        "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/44428485778"
+      }
+    ]
+  },
+  "notebook": {
+    "repository": "hf-model-provenance-scanner",
+    "source_commit": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+    "expected_candidate": "ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a",
+    "utc_start": "2026-11-19T00:23:50.758136+00:00",
+    "utc_end": "2026-11-19T00:23:56.329824+00:00",
+    "result": "PASS",
+    "error": null,
+    "environment": "Actual committed notebook setup/scenario/comparison cells executed on local LinuxCPython3.12, GitHubpubliccheckout and fresh isolated minimalvenv",
+    "colab_hosted_kernel": "NOT VERIFIED; no Google sign-in or remote hosted execution claimed",
+    "source_notebook_sha256": "76f74dffc7807cadfa63030d2ee5c62f9e21a83e9fb15d6ffa0280a3d842a645",
+    "all_result_checksums_verified": true,
+    "no_external_resources": "No server/tunnel/Drive/GPU/paidAPI/cloudresource/APIkey; only publicGitHub/PyPI downloads",
+    "scenario_summaries": [
+      {
+        "scenario": "identical",
+        "summary": "Actual file bytes equal: True; static structures equal: True"
+      },
+      {
+        "scenario": "changed",
+        "summary": "Actual file bytes equal: False; static structures equal: False"
+      },
+      {
+        "scenario": "metadata",
+        "summary": "Actual file bytes equal: False; static structures equal: False"
+      }
+    ]
+  },
+  "branch_summary": {
+    "remote_count": 2,
+    "retired": 5,
+    "main": "f4fe1da87755da3ed97f7f0faf09c17e40f545e9"
+  },
+  "file_audit": {
+    "tracked": 216,
+    "source": "final-file-audit.json"
+  },
+  "independent_current_source_closure": "BLOCKED",
+  "remaining_gates": [
+    "Independent closing security review remains BLOCKED; no current independent PASS is claimed.",
+    "Publisher identity, training lineage, behavioral safety, semantic model equivalence and absence of backdoors cannot be established by these static checks.",
+    "Large production artifacts, archive extraction, complete GGUF payload/quantization validation and exhaustive fuzz/mutation assurance remain unsupported or NOT VERIFIED.",
+    "Authenticated public hosting, complete environment locks and deployment-specific privacy/operations/recovery approval are NOT VERIFIED."
+  ],
+  "artifacts": {
+    "RELEASE_ASSESSMENT.md": {
+      "bytes": 7661,
+      "sha256": "a2b7c108301303e26b747a0d31f2d88ef316ffe9c0b518795360958935125389"
+    },
+    "architecture/ARCHITECTURE.md": {
+      "bytes": 21962,
+      "sha256": "772cb4eafe190121740c1d3c6f770825c8f420a7d394dcfdde2e2ef53953790a"
+    },
+    "architecture/BRANCHES.md": {
+      "bytes": 2245,
+      "sha256": "ab5468b024bbca0dbb2590c13614708fe90b0d959d09453b2e00b7d6e1744f36"
+    },
+    "architecture/TRY_IT.md": {
+      "bytes": 3887,
+      "sha256": "b109c4b03db893cc5f187dc78e7bf42f5d54782a41bb58d3caa59a5a5507333f"
+    },
+    "architecture/architecture-handoff.json": {
+      "bytes": 1688,
+      "sha256": "0128e545662ed76a37aea58376d45e7cc6ebef847445c2009210b24fc22bd979"
+    },
+    "architecture/diagram-render-verification.json": {
+      "bytes": 1539,
+      "sha256": "cb0c119aba1aa2c509ebb58932d1d9571dde80bef89053390b8050cdaf7c877a"
+    },
+    "architecture/source-scope.json": {
+      "bytes": 1052,
+      "sha256": "9bee23805f7828e27448ee12f1663bff7873dd17a7cebd76e8023967d8c7fb6b"
+    },
+    "architecture/viewer-checks.json": {
+      "bytes": 461,
+      "sha256": "36512ba8e977b0385391365eff8aaa59e2a395e58d8d6bb677fdd9a867a6cda7"
+    },
+    "architecture/viewer-desktop.png": {
+      "bytes": 133251,
+      "sha256": "6bd48ab847bc2328aab91bc343f4d77105d7a97823051cfba1d92cedc745523d"
+    },
+    "architecture/viewer-mobile.png": {
+      "bytes": 120954,
+      "sha256": "3c52ee86ad15f8da26c3290ab3b9534e2aba8bc4e52ad38ecf088c9390cb6fc3"
+    },
+    "bandit.json": {
+      "bytes": 17133,
+      "sha256": "a7c674aa695f4c93667f94f24a29ba4b2332fe66f61744a01ed51323a0bcd30b"
+    },
+    "bandit.log": {
+      "bytes": 3731,
+      "sha256": "93c454d8801df3c68f94136eaa9b03c705cf42bb85b6fd733b94e3b47acef768"
+    },
+    "branch-disposition.json": {
+      "bytes": 6222,
+      "sha256": "aa4ffd8879746a03b866fce355d45fd098a43a0a426bad711c28489831f2647e"
+    },
+    "browser/browser.json": {
+      "bytes": 6056,
+      "sha256": "62760a49d49249d08a4cd2073e36ac30abc0b182974168a982a01653007a68b9"
+    },
+    "browser/changed-download.json": {
+      "bytes": 16193,
+      "sha256": "0f79baf1200c69fd8ba34d960d3f354c25a8bcf42092428af95e718b605e91c5"
+    },
+    "browser/desktop-results.png": {
+      "bytes": 243896,
+      "sha256": "7131ef329a6874e809bc27adaa71638c4430313a9de0ae7d5949265242549917"
+    },
+    "browser/desktop.png": {
+      "bytes": 131018,
+      "sha256": "ccc61af4d821f60bfc90584d1c5e2607a972108c8814e34c3d3afb0f086becca"
+    },
+    "browser/download.json": {
+      "bytes": 16948,
+      "sha256": "7e0e1dbcaee53f95753159e398ed2cc22e8d6107f252ae3cb03dbc38a1289157"
+    },
+    "browser/health.json": {
+      "bytes": 5800,
+      "sha256": "4086dbe4f0ce561289a8c279e5b3e07af368a3a536b572d22bfcb3a8f13eb6a0"
+    },
+    "browser/mobile.png": {
+      "bytes": 230345,
+      "sha256": "ca1ad87e16f80b01d3276bbff15eef928f43dcc7eaba8d332c174e2ec461f907"
+    },
+    "browser/server.log": {
+      "bytes": 54,
+      "sha256": "89055cf5c04b0788703796cb9198ffc17b34bcced9c85b7e91e6ca32e553e4cd"
+    },
+    "browser-binary/binary-compare.png": {
+      "bytes": 242601,
+      "sha256": "c2592c914371242fde254b67d3f12fbf501cd999854876585abdecce4b7798e7"
+    },
+    "browser-binary/changed-weights-report.json": {
+      "bytes": 17051,
+      "sha256": "283a5fe91cdee571f38766147eba7de012b118f8c5203ee27c6cc8ff4a9a5da5"
+    },
+    "browser-binary/identical-renamed-report.json": {
+      "bytes": 10716,
+      "sha256": "aee2b8e22e6d653a466c39a71951b7724847273d844ccf9e1c5c263583f35f89"
+    },
+    "browser-binary/result.json": {
+      "bytes": 695,
+      "sha256": "19759d3c31f92bb720ac2b4178b9ab831f1cf5b5f70b94650c5cc2a5f5a92f55"
+    },
+    "browser.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build.log": {
+      "bytes": 24837,
+      "sha256": "569dab50c6ef952f3ee791671c15dee834c20c2623ac21f68b59107302f2c5b4"
+    },
+    "candidate-type-validation.json": {
+      "bytes": 74428,
+      "sha256": "642f4c4ee1fd0b1adacbc8ddd08d8e3eef8123477b525719a283c08e607d2824"
+    },
+    "cost-and-access-audit.json": {
+      "bytes": 1337,
+      "sha256": "3ee7f6143b4c228c39db2f865bc6824d6249742873c4435bbcd4e837f38127d7"
+    },
+    "coverage-data": {
+      "bytes": 69632,
+      "sha256": "aaba1cf42cb5366ac76c158f2368bc62abd9b42058be373b345336b391432928"
+    },
+    "coverage.json": {
+      "bytes": 216261,
+      "sha256": "1f2b0918466b8b6815f28950911ebdcfac446ad1af4daa3a4a7a18797dd48275"
+    },
+    "current-secret-scan.json": {
+      "bytes": 548,
+      "sha256": "bb6b339fca284bf5800bfb3e66a7a61ea3c881018bceb77cf3beebdec902ec4a"
+    },
+    "demo-bandit.json": {
+      "bytes": 1377,
+      "sha256": "e410b09e55d9f91c945a70015539de208249a5c94d4a11557a5642d0afcc80f0"
+    },
+    "dependencies.log": {
+      "bytes": 1844,
+      "sha256": "f7a0e4f1f4f8c204f4e65337cd40938b5725fe8e59c656bc45bf301d3769bd6f"
+    },
+    "dist/hf_scanner-0.3.0-py3-none-any.whl": {
+      "bytes": 138317,
+      "sha256": "5ab0f9dd57addf7136446a7f0ea30e629e7056766803bf9de1d6adbcdbb25b6a"
+    },
+    "dist/hf_scanner-0.3.0.tar.gz": {
+      "bytes": 162220,
+      "sha256": "896ef9a57605740e875d61040a822afc240b9e50c04003e1c5841bcac17f97d3"
+    },
+    "docs.log": {
+      "bytes": 127,
+      "sha256": "4f4dc6ca0b22e53a6218f5b59402f6120035533f49a4a4c48cad6ec8ce2abe19"
+    },
+    "environment-pip-audit.json": {
+      "bytes": 6069,
+      "sha256": "3ca1670e97337876bf3d64273fa06e16b1368e95885d65e433e499d82d578227"
+    },
+    "environment_dependency_audit.log": {
+      "bytes": 31,
+      "sha256": "15950a68a7ed99c59779717acefdceb3f69cfd31bde67d2c954f2a3cea4d7955"
+    },
+    "executed-test-inventory.json": {
+      "bytes": 60561,
+      "sha256": "ec9baefe21ae9269d1a0820e0c0b90ecd6469d5078da42493c4e4eb2548b349e"
+    },
+    "final-audit-0.log": {
+      "bytes": 127,
+      "sha256": "b7cfb861667de4def12af5000b5dbca9042290686c9d02ddd20f080d292ef53b"
+    },
+    "final-audit-1.log": {
+      "bytes": 440,
+      "sha256": "d54517d414482bd9cdf4c315fa6337905237b69a782670ad133df82e6e41a374"
+    },
+    "final-audit-2.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "final-audit-3.log": {
+      "bytes": 281,
+      "sha256": "1658755f37d664c89c4dc9a3eed32c676ba91283ac494b76c0cd82e29b0596dc"
+    },
+    "final-doc-links.json": {
+      "bytes": 8136,
+      "sha256": "519fa9e5bc5f88b8d01184f824576bee1a4c3b455ec0af5ace2c8ddfc599ace6"
+    },
+    "final-file-audit.json": {
+      "bytes": 25188,
+      "sha256": "1bcf426cccb477b80ed5d1b7bd44961fcd2f23655a76170400d021d9f1873e1d"
+    },
+    "final-file-inventory.json": {
+      "bytes": 74428,
+      "sha256": "642f4c4ee1fd0b1adacbc8ddd08d8e3eef8123477b525719a283c08e607d2824"
+    },
+    "format.log": {
+      "bytes": 28,
+      "sha256": "0630d17f291436f92891b883c95ef30e42b7761e2fb6a2926cfb8e4eb8edb3e8"
+    },
+    "installed-wheel-report.json": {
+      "bytes": 9060,
+      "sha256": "ec32a43b6f3b68f7f19dcae1b1320f885cfbb519815b0f313e7cc39a77271957"
+    },
+    "installed-wheel-smoke.json": {
+      "bytes": 8339,
+      "sha256": "dbed68ace65981e58514af11876ff410738bbaf310b8059a899f13ca5b6e2cd5"
+    },
+    "installer_syntax.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "javascript_syntax.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "junit.xml": {
+      "bytes": 42879,
+      "sha256": "5c1397cb653590be64996b64436d0ea59f5e7a99d907eba8d6fbc0fe3d38cd82"
+    },
+    "lint.log": {
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "locked-pip-audit.json": {
+      "bytes": 1948,
+      "sha256": "98207f3b56cdb30a58562cd43017e41c1718ca6dc2a55506aaa621cbff9b0704"
+    },
+    "locked_dependency_audit.log": {
+      "bytes": 31,
+      "sha256": "15950a68a7ed99c59779717acefdceb3f69cfd31bde67d2c954f2a3cea4d7955"
+    },
+    "notebook/actual-engine-results.json": {
+      "bytes": 49415,
+      "sha256": "d648ff1fbd3e02e38a58db12d8d08d6ed532c1b45f68c5909e3e8043cbf1df29"
+    },
+    "notebook/execution.log": {
+      "bytes": 669,
+      "sha256": "a63954448f6c98a2bc3082909decfe141f2565afc21e9b2bbe1ed84aa94970d0"
+    },
+    "notebook/minimal-environment.txt": {
+      "bytes": 26,
+      "sha256": "47df3ff10c7cf0e9b4012845fec873c9551907dc199d267e10f4087e6fb8fe72"
+    },
+    "notebook/verification.json": {
+      "bytes": 1239,
+      "sha256": "1ae3ee564c23489b66659ffea677a7d94bbbfcb3b8028cade5d69e09427b6624"
+    },
+    "notebook-initial-before-remote-push/execution-error.txt": {
+      "bytes": 944,
+      "sha256": "b874ee09c9a5084b3585e47bf48b439b87d3c81f20249e3651f68ae9db9235cc"
+    },
+    "notebook-initial-before-remote-push/execution.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "notebook-initial-before-remote-push/verification.json": {
+      "bytes": 1222,
+      "sha256": "b48291d3ef5cfac5c54b336620fb00dd534bc0ac3b8c553f2e23f89b31289435"
+    },
+    "optional-integration/junit.xml": {
+      "bytes": 865,
+      "sha256": "d24bfeaf1215f61e444a7b6534f47e9e16d08a935fb1229d2663ee974d012e32"
+    },
+    "optional-integration/run.json": {
+      "bytes": 3869,
+      "sha256": "6fe3bd78f9e778af7c697b3f48cd5cc324cb5340ff33e8f87f974c652e77a3c8"
+    },
+    "optional-integration/tests.log": {
+      "bytes": 129,
+      "sha256": "de51fe6a018060f335054baa5526b8ac06b34eed6b500dec1aa70363c68b7e49"
+    },
+    "pages-configuration.json": {
+      "bytes": 261,
+      "sha256": "fc88186a90ffbac7effd1af84cdf7a64398446d7dd696f771262bd39bbf25366"
+    },
+    "primary-run-manifest.json": {
+      "bytes": 18488,
+      "sha256": "8796a44a03c2a3a1c355735dffff8db397387a1faf403ff9fb9fcb4966f20885"
+    },
+    "product-matrix.json": {
+      "bytes": 3595,
+      "sha256": "0d81b8794b3af232861f44255c333d0178f1359c15c663ce9bd0484bb5c4495a"
+    },
+    "public-source-verification.json": {
+      "bytes": 3414,
+      "sha256": "c65cdabb0696226de637fbbf0f481d0d196da812f823d50af40c75e9168dcde0"
+    },
+    "python310-junit.xml": {
+      "bytes": 9532,
+      "sha256": "078cbbf1b4414f9f801335b5362269aeecef063dd05eba2c2a1fab3f154d27ae"
+    },
+    "python310.log": {
+      "bytes": 100,
+      "sha256": "5872cdc45ee5a05eb26b51cb4841da934fcc33240ad202aae92e505fd98c3eb9"
+    },
+    "regression.log": {
+      "bytes": 4627,
+      "sha256": "8dd84a7337a3840aecdf3ca4431230df019eea923b8728ac7da143d1e2e45bf8"
+    },
+    "remote-ci/artifact-verification.json": {
+      "bytes": 1604,
+      "sha256": "c974471053f4cce57225a92eca7339f014a1ddf78a1bbab1553af10426891c9c"
+    },
+    "remote-ci/hosted-junit.xml": {
+      "bytes": 42937,
+      "sha256": "cb758ae251749789739cb2c317fa71edf8f46a4797ad63242b1ce7b51422e11d"
+    },
+    "remote-ci/hosted-manifest.json": {
+      "bytes": 5238,
+      "sha256": "7a1388aa3ceb77122d51f824e830653b60a5454e6d143289c92bedae552356e2"
+    },
+    "remote-ci/status.json": {
+      "bytes": 2007,
+      "sha256": "a3787cee7f3c0865554d4893c3e58cda85172e11dd6797e2408cb08939b1a7e6"
+    },
+    "run-log.json": {
+      "bytes": 7973,
+      "sha256": "8f6ed97ab4b79e65f33d0bfc184858df91c12b421d1dc61fe0d88ca3f7a5978d"
+    },
+    "secret-history-triage.json": {
+      "bytes": 1018,
+      "sha256": "dcc7f32d97b091f75c92fa651c708bc0d4f177b93906ef9e00f15f1985e15d04"
+    },
+    "secret-tool-verification.json": {
+      "bytes": 273,
+      "sha256": "b0510fdb80f61f7eb2204f3172ead51f70c64c74aacd2a8458f30414404c3caa"
+    },
+    "tracked_validation.log": {
+      "bytes": 127,
+      "sha256": "b7cfb861667de4def12af5000b5dbca9042290686c9d02ddd20f080d292ef53b"
+    },
+    "typecheck.log": {
+      "bytes": 38,
+      "sha256": "1d044deee37a17d52f4dd31d7de6ebd21c68eb5d08e8b3b0822f58940a3392bb"
+    },
+    "workflow_lint.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}
