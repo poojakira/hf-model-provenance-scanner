@@ -4,6 +4,20 @@ Inspect and compare actual local model artifacts without loading a model. An ML 
 
 **Release decision: PARTIAL.** The supported local workflow functions. A static result does not establish a trusted publisher, training lineage, behavioral safety or absence of backdoors. Independent closing security review remains **BLOCKED**; no current independent PASS is claimed. [Evidence and release limits](docs/EVIDENCE.md) identify exactly what was tested.
 
+## Try the real engine in your browser
+
+[**Open the free Colab notebook**](https://colab.research.google.com/github/poojakira/hf-model-provenance-scanner/blob/codex/local-workbench-20261116/notebooks/try_product.ipynb) · [Inspect the notebook source](notebooks/try_product.ipynb) · [Detailed architecture diagrams](docs/ARCHITECTURE.md)
+
+Sign in with a Google account, select the **free CPU runtime**, and run the setup and scenario cells. Change the scenario and run again to inspect freshly computed evidence and hashes. This is an inline, guided synthetic-data demonstration of the actual repository engine, **not a publicly hosted copy of the full web application**. No API key, paid plan, GPU, Drive mount, tunnel or cloud-resource creation is used by the notebook. Free Colab availability/limits are outside this repository's control.
+
+The setup resolves the reviewed branch to one exact SHA, checks it out and installs only minimal demo dependencies in a separate temporary environment. It starts no web server. [Testing access and limitations](docs/TRY_IT.md) distinguishes locally executed notebook checks from Colab-hosted runtime verification. Use the full local UI below for its broader supported input and workflow.
+
+## Architecture
+
+![Detailed components, trust boundaries and actual engine path](docs/architecture/components.svg)
+
+See the [detailed architecture and execution sequences](docs/ARCHITECTURE.md) for exact code symbols, controls, limits, errors, cleanup, evidence and the separate guided notebook scope.
+
 ## Start locally
 
 Prerequisites: Linux, Python 3.10 or newer, pip, `libseccomp.so.2`, and a browser. Initial installation may download pinned packages. No provider credentials, model account or paid service is required. From the reviewed checkout:
@@ -37,7 +51,11 @@ GGUF tensor payload layout/quantization is **NOT VERIFIED**. The Linux worker in
 
 ![Actual inspector browser from implementation source 16ff6f8](https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/f151c25cea44b6b3225bbf50a2fbabe95c60b94a/release-evidence/browser/desktop.png)
 
-This screenshot and published results attest to implementation source **`16ff6f87f2f8f2832624d736c57c16e8809c1e5b`**, not a later documentation commit. That run recorded **312 passed, 3 skipped, 6 passing native subtests, 76.08318890814559% statement coverage** at the unchanged 75% gate. All five associated hosted workflows passed; Docker build is distinct from product-container runtime. Independent closing review was blocked. Later-head proof must be freshly generated; [docs/EVIDENCE.md](docs/EVIDENCE.md) and [PR #103](https://github.com/poojakira/hf-model-provenance-scanner/pull/103) record actual source/publication status.
+## Current verification and source
+
+Read the [generated assessment and exact commands](https://github.com/poojakira/hf-model-provenance-scanner/tree/evidence/selected-branches-20261118/release-evidence/RELEASE_ASSESSMENT.md) and [source manifest](https://github.com/poojakira/hf-model-provenance-scanner/tree/evidence/selected-branches-20261118/release-evidence/manifest.json). The manifest records the checked-out SHA, clean state, actual regression/browser outcomes, skips, dependency scope and artifact hashes. Compare its `source_commit` with the checkout you are using. A passing earlier commit does not attest to a later commit.
+
+The previous published documentation candidate was `2128d2d31614766b05762a76735908ba4bb34ac9`; its [immutable evidence](https://github.com/poojakira/hf-model-provenance-scanner/tree/evidence/docs-reconciliation-20261118/release-evidence) remains historical. The newer architecture/notebook changes require their own generated evidence. [PR #103](https://github.com/poojakira/hf-model-provenance-scanner/pull/103) records the current source, publication and remaining blockers. **Release remains PARTIAL.**
 
 ## Distinct interfaces and documentation
 
@@ -56,3 +74,9 @@ The local API schema is **1**. The separate authenticated remote admission API i
 | Contribution terms and changes | [Contributing](CONTRIBUTING.md), [changelog](CHANGELOG.md) |
 
 Historical reports retain their cited source/date. Curated fixtures are not field accuracy or a population false-positive estimate. No default merge, public deployment or software release is implied by this documentation pass.
+
+## Selected branches and recovery
+
+Only `main` and `codex/local-workbench-20261116` remain as remote branches. This cleanup retired 5 additional branches after preserving their exact tips in `archive/selected-20261118/*` annotated recovery tags and a verified private Git bundle. Unmerged/dependency changes were **not merged or certified** by retiring their branches. Existing release/deployment source references are preserved separately. Main was not rewritten or merged.
+
+See [branch policy and restore procedure](docs/BRANCHES.md) and the generated [branch-cleanup evidence](https://github.com/poojakira/hf-model-provenance-scanner/tree/evidence/selected-branches-20261118/release-evidence/branch-cleanup.json). Bots or collaborators may create later branches; the published report records the actual verification time rather than promising permanent branch counts.

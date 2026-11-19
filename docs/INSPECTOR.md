@@ -8,6 +8,8 @@ Acceptance requires the actual engine on user-supplied bytes, bounded inputs and
 
 ## Architecture and decisions
 
+The detailed [architecture reference](ARCHITECTURE.md) maps components, trust boundaries, request/worker/export sequences and the separate guided notebook to actual source symbols.
+
 ```mermaid
 flowchart LR
     U[Local browser: 1–2 authorized files] -->|bounded same-origin JSON / token| H[Loopback HTTP server]
@@ -21,7 +23,7 @@ flowchart LR
     U --> D[Explicit user download]
 ```
 
-**Frontend/backend:** stdlib HTTP server and packaged HTML/CSS/JavaScript keep the local product independent of remote FastAPI admission. Bind is hardcoded `127.0.0.1`; there is no public-host flag. Host validation rejects DNS-rebinding hostnames. POST requires exact local Origin plus an unpredictable per-process token; CORS is not enabled. Eight connections and one inspection are admitted at once, with a five-second upload deadline.
+**Frontend/backend:** stdlib HTTP server and packaged HTML/CSS/JavaScript keep the local product independent of remote FastAPI admission. Bind is hardcoded `127.0.0.1`; there is no public-host flag. Host validation rejects DNS-rebinding hostnames. POST separately allows the corresponding exact `127.0.0.1` and `localhost` HTTP Origin values plus an unpredictable per-process token; CORS is not enabled. Eight request threads and one inspection are admitted at once, with a five-second upload deadline.
 
 **Worker lifecycle:** a fixed Python module runs in a fresh process group, with a scrubbed environment and no shell. Trusted modules load before hostile input is read. A Linux libseccomp default-deny syscall allowlist then blocks filesystem opens, networking, exec and child creation. Failure to install containment produces UNKNOWN; no fallback to unrestricted parsing occurs. CPU is limited to four seconds, address space to 384 MiB and parent wall time to eight seconds. Parent reads stdout ≤4 MiB and stderr ≤64 KiB while writing input; overflow/deadline kills and reaps the group. The worker also caps serialization. Kernel isolation is not a VM/container. Bubblewrap/user namespaces were unavailable in the development environment; no container sandbox claim is made.
 
@@ -41,7 +43,7 @@ GGUF: v2/v3, ≤4096 metadata entries/tensors, strings ≤1 MiB, bounded non-nes
 
 Python: strict UTF-8, no NUL, parseable AST ≤4096 nodes. Source is parsed and analyzed, never imported/executed. AST comparison includes a source hash; no behavioral equivalence claim is made.
 
-Malformed, unsupported, excessive, crashed or timed-out input returns UNKNOWN. There is no green safety score. Rule/source/runtime/config hashes and timestamps qualify every inspection. Installed wheels outside Git report commit/source state UNKNOWN; Git provenance is not invented.
+Malformed, unsupported, excessive, crashed or timed-out input returns UNKNOWN. There is no green safety score. Rule/source, input and limits-configuration hashes and timestamps qualify every inspection; they do not measure every dependency or runtime setting. Installed wheels outside Git report commit/source state UNKNOWN; Git provenance is not invented.
 
 ## Browser user guide
 
@@ -51,7 +53,7 @@ Malformed, unsupported, excessive, crashed or timed-out input returns UNKNOWN. T
 4. Replace a file and rerun. Changing a selection invalidates old output. Delayed file reads or responses cannot overwrite a newer selection.
 5. Download the JSON bundle. It contains `report` and a `manifest.report_sha256` computed over UTF-8 `JSON.stringify(report,null,2)`, without a trailing newline. The checksum detects accidental modification; it is not a digital signature or trusted third-party attestation. Starting a scan removes prior export authority. Changing a selection/review while a download hash is pending cancels that obsolete download.
 
-The synthetic button processes actual synthetic source bytes with the same worker. It is labeled synthetic and cannot be mistaken for field validation. On a size/filename error, rename/reduce the file and retry. On UNKNOWN inspect the error; an invalid header is not a clean result. On worker unavailable, verify Linux/libseccomp prerequisites and restart. Do not enable unrestricted fallback. A busy response is HTTP 429; retry after the current request completes.
+The synthetic button processes actual synthetic source bytes with the same worker. It is labeled synthetic and cannot be mistaken for field validation. On a size/filename error, rename/reduce the file and retry. On UNKNOWN inspect the error; an invalid header is not a clean result. On worker unavailable, verify Linux/libseccomp prerequisites and restart. Do not enable unrestricted fallback. An occupied inspection slot returns HTTP 429; retry after the current request completes. Saturating the eight-request-thread gate closes the connection instead.
 
 ## Local API contract (schema version 1)
 

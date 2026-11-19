@@ -1,3 +1,11 @@
+# Current evidence pointer
+
+The architecture/notebook/selected-branch pass uses the generated immutable non-release archive [evidence/selected-branches-20261118](https://github.com/poojakira/hf-model-provenance-scanner/tree/evidence/selected-branches-20261118/release-evidence). Its manifest is the source of truth for the actual candidate SHA, clean state, fresh test/browser/security outcomes, local notebook checks, remote limitations and artifact hashes. No fixed prior SHA in this guide attests to a later commit.
+
+Only `main` and `codex/local-workbench-20261116` remain as remote branches at the cleanup's recorded verification time. Read [current branch policy](BRANCHES.md), [detailed architecture](ARCHITECTURE.md), and [browser testing access](TRY_IT.md). The records below retain their original source/date and may describe more branches before this owner-requested reduction. No software release, main merge or public full-app hosting occurred.
+
+---
+
 # Exact-source evidence and release limits
 
 **Release decision: PARTIAL.** The independent closing security review remains **BLOCKED**, not passing. Documentation reconciliation is distinct from that review. Any later source, including documentation changes, needs its own fresh complete regression/browser/build/security proof before results are called current.
