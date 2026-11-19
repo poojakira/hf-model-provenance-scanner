@@ -25,3 +25,7 @@ python -I demo/notebook_runner.py SCENARIO
 ```
 
 Replace `SCENARIO` with one exact identifier listed in the notebook's dropdown/adapter specification. The runner rejects unknown identifiers and loads only this checkout's fixed engine code. On Linux the HF inspection path additionally requires working `libseccomp.so.2`. Compare the resulting source SHA and CLEAN/DIRTY state; do not relabel dirty or UNKNOWN provenance as clean.
+
+## Architecture viewer publication
+
+`docs/index.html` provides a static zoom/pan architecture viewer with larger overview text and links to the inline notebook. Its local browser checks are recorded separately. GitHub Pages configuration was attempted through the existing integration and returned `HTTP 403: Resource not accessible by integration`; no hosted Pages URL is claimed. The owner can enable Pages from the retained candidate branch and `/docs` using normal repository settings, without creating an API key or another branch.
