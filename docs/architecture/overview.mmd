@@ -1,0 +1,12 @@
+flowchart TB
+    N0["1. Local browser / selected bytes"]
+    N1["2. Loopback origin + token + size boundary"]
+    N2["3. Fresh bounded Linux worker"]
+    N3["4. Seal syscall policy; parse supported structures"]
+    N4["5. Canonical static rules + actual fingerprints"]
+    N5["6. Comparison + UNKNOWNs + checksummed export"]
+    N0 --> N1
+    N1 --> N2
+    N2 --> N3
+    N3 --> N4
+    N4 --> N5

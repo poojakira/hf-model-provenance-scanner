@@ -1,60 +1,11 @@
 > **READ [LICENSE](LICENSE) BEFORE COPYING OR CHANGING ANYTHING.** This is an owner-maintained, proprietary repository. **Unsolicited code/documentation contributions are not accepted.** The development instructions below apply **only to people who have received prior written authorization** from Pooja Kiran. Public viewing/forking under GitHub's Terms, applicable law, third-party rights, and prior valid licenses remain unaffected. Any accepted external work requires an agreed written copyright license or assignment; a PR alone does not transfer ownership. For permission contact poojakiranbhardwaj@gmail.com.
 
-# Contributing to hf-model-provenance-scanner
+# Authorized development
 
-Only specifically invited contributors may propose changes under prior written terms. Technical guidance follows.
+Technical contribution guidance applies only under the prior written authorization above. Read [LICENSE](LICENSE) and [SECURITY.md](SECURITY.md); a public repository or submitted PR does not itself transfer rights.
 
-## How to Contribute
+Use [README setup](README.md#start-locally) and [TESTING.md](docs/TESTING.md) for the supported environment. Keep the local worker, CLI, remote admission and optional integrations distinct. Do not silently add URL/executable targets, public hosting, unrestricted execution or a security fallback to the local inspector. Preserve tests, thresholds, warning policy, auth and fail-closed UNKNOWN semantics.
 
-### 1. Fork and Clone the Repository
+After source/docs freeze, execute complete applicable regression/browser/static/security/build/documentation gates and generate out-of-tree commit-scoped evidence. Label skips, native subtests, other environments, incomplete checks and unavailable prerequisites separately. New docs do not inherit an older green result. Update actual user/API/error/lifecycle guidance in the same series; preserve raw legal/historical evidence with explicit scope.
 
-First, fork the repository to your GitHub account and then clone it locally:
-
-```bash
-git clone https://github.com/your-username/hf-model-provenance-scanner.git
-cd hf-model-provenance-scanner
-```
-
-### 2. Create a New Branch
-
-Create a new branch for your feature or bug fix:
-
-```bash
-git checkout -b feature/your-feature-name
-```
-
-### 3. Set up your Development Environment
-
-This project uses `pip` for dependency management. Install the development dependencies:
-
-```bash
-pip install -e ".[dev]"
-```
-
-### 4. Make Your Changes
-
-- Ensure your code adheres to the existing style and conventions.
-- Write clear, concise commit messages.
-- Add unit tests for new features or bug fixes.
-
-### 5. Run Tests
-
-Before submitting a pull request, ensure all tests pass:
-
-```bash
-pytest
-```
-
-### 6. Update Documentation
-
-If your changes affect the functionality or usage, please update the relevant documentation (e.g., `README.md`).
-
-### 7. Submit a Pull Request
-
-Push your changes to your forked repository and open a pull request to the `main` branch of the original repository. Please provide a clear description of your changes and why they are necessary.
-
-## Contribution Conduct
-
-Use respectful, technical communication. Security reports should follow the repository's incident/security guidance rather than public threads when disclosure could increase risk.
-
-Thank you for contributing!
+Keep a short-lived reviewed source branch, retain active/unique work and archive safe recovery points before any authorized cleanup. Default merge, cloud changes, signing/publication, external telemetry and notifications have their own gates; do not execute them just to validate an example. Report security issues privately. Independent security closure is currently blocked as recorded in [EVIDENCE.md](docs/EVIDENCE.md); do not relabel engineering checks or a documentation review as its PASS.

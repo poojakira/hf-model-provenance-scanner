@@ -11,6 +11,7 @@ permissions:
   contents: read
 
 env:
+  PIP_CONSTRAINT: ${{ github.workspace }}/constraints-optional.txt
   ATTACK_CORE_REF: "288b4059fe36f1c7a3519fc00fd0b0502971d447"
 
 concurrency:
@@ -25,6 +26,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Checkout attack-v19-core
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:

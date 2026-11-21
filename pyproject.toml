@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hf-scanner"
-version = "0.2.0"
+version = "0.3.0"
 description = "ML supply chain provenance scanner for Hugging Face repositories"
 requires-python = ">=3.10"
 license = {file = "LICENSE"}
@@ -14,6 +14,7 @@ dependencies = [
 
 [project.scripts]
 hf-scanner = "scanner.cli:main"
+hf-inspector = "scanner.workbench.server:main"
 
 [project.optional-dependencies]
 service = [
@@ -36,6 +37,7 @@ include = ["scanner*"]
 
 [tool.setuptools.package-data]
 "scanner.data" = ["*.json"]
+"scanner.workbench" = ["*.html", "*.js", "*.css"]
 
 [tool.ruff]
 line-length = 100

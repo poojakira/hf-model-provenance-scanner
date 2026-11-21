@@ -206,7 +206,7 @@ class HFApiClient:
         self._cache_lock = threading.Lock()
 
     def _headers(self) -> dict:
-        headers = {"User-Agent": "hf-scanner/0.2.0"}
+        headers = {"User-Agent": "hf-scanner/0.3.0"}
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
         return headers

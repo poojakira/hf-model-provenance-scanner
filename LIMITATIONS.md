@@ -1,129 +1,25 @@
-# Capabilities & Limitations (v0.2.0 — Current)
+# Capabilities and known limitations
 
-## Fixture Evidence Only
+**Release status: PARTIAL.** Software 0.3.0 supports actual local static inspection, not a certificate of safety or authenticated model provenance. [The inspector guide](docs/INSPECTOR.md) is the authoritative local-format/containment contract; the separate CLI has different formats, limits and optional network behavior.
 
-The values below are fixture-suite results, not real-world detection-rate or false-positive-rate claims. They must not be quoted without the exact commit, command, fixture hash, environment, and raw result artifact.
-
-Regenerate locally with:
-`python tests/redteam/simulate_attacks.py` and `python tests/redteam/extended_attacks.py`
-(guarded in CI by `tests/redteam/test_detection_counts.py`).
-
-| Suite | Attacks | Detected | False Positives |
-|---|---|---|---|
-| Core incident-reproduction fixtures | 12 | 12/12 | N/A for malicious-only core set |
-| Extended malicious variants (env gating, decorators, generators, DNS exfil) | 18 | 18/18 | 0 actionable findings across 4 separate benign samples |
-| Large-scale committed fixtures (multi-MB files, 300+ line code) | 3 | 3/3 | N/A for malicious-only set |
-| Historical real-model smoke checks | — | See committed reports if reproducing | Not a broad benign-model benchmark |
-
-**How "detected" and "false positive" are counted:** only *actionable*
-(non-INFO) findings count. INFO-level capability notices are excluded from both the detection and
-false-positive tallies. Dynamic execution is disabled; fixture results now
-reflect the static analysis paths only.
-
-## Fail-Loud on Unanalyzable Streams
-
-A truncated or corrupt pickle, or one containing an unknown opcode, is reported
-as `HFS-096` and drives the scan `completeness` to `INDETERMINATE` — it is
-**never** silently reported as clean. INDETERMINATE elevates risk to at least
-HIGH, and `--enforce` turns it into a non-zero exit code. This closes the
-classic "malware executes before deserialization completes" bypass, where a
-truncated payload could otherwise slip through as a zero-finding scan.
-
-## What Each Engine Catches
-
-### Engine 1: AST Pattern Matching
-| Catches | Misses |
-|---|---|
-| exec/eval/subprocess calls | Deeply nested decorator chains |
-| SSL bypass (verify=False) | Meta-programming via type() |
-| base64 decode + execute | Reflection-heavy code |
-| getattr on dangerous modules | — |
-| ctypes FFI usage | — |
-| codecs.decode(rot_13) | — |
-| __import__ with dynamic arg | — |
-| compile() + exec() | — |
-| raw socket / DNS primitives (socket.socket, getaddrinfo, create_connection) in any file → HFS-095 | — |
-
-### Engine 2: Taint Tracking
-| Catches | Misses |
-|---|---|
-| Variable indirection (x = os; x.system) | Cross-file taint (imports from other modules) |
-| Container lookups (__builtins__["exec"]) | Complex OOP inheritance chains |
-| Decode function output → exec | Closure-captured variables from outer scope |
-| __import__ return value propagation | — |
-| lambda + map + exec patterns | — |
-
-### Engine 3: Symbolic String Resolver
-| Catches | Misses |
-|---|---|
-| chr(111)+chr(115) → "os" | Runtime-computed values (API responses) |
-| ''.join([chr(x) for x in [...]]) | Dictionary lookups as encoders |
-| bytes([...]).decode() | Custom codec implementations |
-| Reversed string construction | — |
-
-### Engine 4: Sandbox Execution (Multi-Environment)
-| Catches | Misses |
-|---|---|
-| ANY exec/eval/compile call at runtime | Code requiring specific Python packages to init |
-| ANY blocked module import (os, subprocess, socket...) | Payloads that take >30s to reach |
-| Environmental gating (platform checks, CI detection) | Attacks gated on specific hardware (GPU checks) |
-| Decorator/generator/metaclass execution flows | — |
-| DNS exfiltration attempts | — |
-
-**Environment configurations tested per file:**
-1. Minimal (default)
-2. Windows-like (OS=Windows_NT, SYSTEMROOT, COMSPEC)
-3. CI-like (CI=true, GITHUB_ACTIONS=true)
-
-### Engine 5: Binary Format Parsers
-| Format | What's Caught |
-|---|---|
-| Pickle (.pkl/.pt/.pth/.bin/.ckpt) | All REDUCE/BUILD/GLOBAL/STACK_GLOBAL calling dangerous functions. All 7 PickleScan bypasses. |
-| SafeTensors (.safetensors) | Metadata injection (URLs, scripts), oversized headers, malformed structure |
-| GGUF (.gguf) | Metadata shell injection, encoded commands, invalid format |
-| ONNX (.onnx) | Custom operators (native code loading), suspicious strings |
-| Keras (.h5/.keras) | Lambda layers (arbitrary code execution), custom_objects |
-
-## Real Model Testing Boundaries
-
-| Model | Size | Tensors | Scan Time | Findings | Result |
-|---|---|---|---|---|---|
-| GPT-2 metadata/tokenizer path | 2.4MB configs + tokenizer | 147 | Historical local result | 0 | Fixture/local result only |
-| Llama-3-8B structure simulation | 4 shards | 288 | Historical local result | 0 | Simulation, not full model scan |
-| Malicious PyTorch fixture | 2.9MB | — | Historical local result | 1 CRITICAL | Fixture/local result only |
-| Malicious SafeTensors fixture | 1.9MB, 60 tensors | 60 | Historical local result | 2 HIGH | Fixture/local result only |
-
-## Known Limitations (Cannot Fix — Fundamental)
-
-| Limitation | Reason | Workaround |
+| Area | Implemented scope | Unimplemented or unverified property |
 |---|---|---|
-| Pure social engineering | No scanner can stop humans voluntarily running commands | Use runtime sandbox policy |
-| Neural backdoors in weights | Requires inference-time behavioral testing | Different tool class needed |
-| Attacks gated on specific GPU/hardware | Sandbox can't emulate all hardware configs | Accept as residual risk |
-| Cross-file taint (malicious import from another package) | Would require whole-program analysis | Scan all files in repo together |
-| Payloads that take >30s to initialize | Sandbox timeout (configurable via `HF_SCANNER_SANDBOX_TIMEOUT`) | Increase timeout for thorough scans |
+| Local browser | One/two files, 1 byte–4 MiB each, findings/structures/hashes/comparison/export | Large production artifacts, public/multi-user hosting and persistent history |
+| Formats | Raw pickle opcodes, SafeTensors supported descriptors/data hashes, GGUF metadata/descriptors, Python AST | ZIP/compressed/archive extraction; ONNX/Keras in the UI; full GGUF payload/quantization and newer unsupported dtypes |
+| Static signals | Existing AST/pattern/taint-style/string rules and binary analyzers | Complete dynamic resolution, cross-file semantic proof, universal malware detection or backdoor absence |
+| Comparison | Bytes, metadata and serialized structure evidence | Behavioral/semantic equivalence, publisher identity or training lineage |
+| Local worker | Linux fail-closed seccomp allowlist, no_new_privs, CPU/address-space/time/pipe/concurrency bounds | VM/kernel-vulnerability protection, adversarial OS-user isolation, universal exhaustion protection |
+| CLI | Static local/remote scan, completeness, reports, fingerprint/baseline/provenance utilities | Automatically using the local worker; complete artifact-format validation or trusted-signature policy |
+| Remote admission | API-key/allowlist checks and per-process body/rate/concurrency/time controls | Tenant identities/policies, shared multi-worker quotas and hard termination of a timed-out scan thread |
+| Output | Source/config/input hashes, evidence and report checksum | Signed attestation, externally anchored ledger, cryptographic memory erasure or automatically safe sharing |
+| Runtime/executor | Optional monitor/executor code and illustrative profiles | An enabled `--sandbox`, implemented daemon-mode protection or verified arbitrary-code execution isolation |
 
-## What This Tool IS
+`NO_PATTERN_FOUND`, CLI risk LOW and COMPLETE coverage do not mean safe. Unsupported, crashed, timed-out or incomplete inspector work is UNKNOWN. Static rules may miss attacks and flag benign content. The conservative workbench rejects legitimate files outside its bounded subset rather than silently widening execution authority.
 
-- A defensive static + dynamic analysis scanner
-- A provenance and identity verification engine
-- A CI/CD signal that can block deployments when wired into a policy gate
-- An evidence helper for SBOM/provenance-oriented review workflows
+## Evidence boundaries
 
-## What This Tool IS NOT
+The published implementation-source run at 16ff6f8 recorded 312 passing individual tests, 3 skips and 6 additional passing native subtests. Those counts belong to that source and are not later-head evidence. Independent current-source closing security review remains BLOCKED by the review service; engineering regressions do not supply an independent PASS. See [EVIDENCE.md](docs/EVIDENCE.md).
 
-- Not a neural network behavior analyzer
-- Not a replacement for human security review
-- Not a network monitoring tool
-- Not a guarantee against all future novel attacks
-- Not effective unless deployed in the user's workflow
-- Not a compliance certification tool
-- Not proof that an artifact is benign
+Historical 33/33 **curated** fixtures and zero actionable findings on four curated benign samples are repository regressions. They do not measure population recall/false-positive rate, compare third-party products or prove historical attacks would have been prevented. The old dynamic-execution tables/performance claims are not current capabilities. `--sandbox` remains disabled.
 
-
-## Dynamic Execution Boundary
-
-Dynamic execution is disabled. `--sandbox` returns a nonzero error rather
-than running untrusted code in a regular subprocess or a runsc convenience
-mode with host filesystem visibility. Static scanning cannot guarantee that
-an artifact is safe to load or execute.
+Independent closing review, broader representative datasets, exhaustive fuzz/mutation coverage, clean-machine/container runtime, complete historical external-fact verification and deployment-specific privacy/operations/recovery acceptance remain separate gates. No field accuracy, uptime, incident reduction, customer deployment or certification is asserted.

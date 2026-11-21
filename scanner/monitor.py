@@ -97,7 +97,7 @@ def fetch_newest(cfg: MonitorConfig) -> list[str]:
     blip returns an empty list rather than throwing; the caller just tries again
     next tick."""
     url = f"{HF_API}?sort=createdAt&direction=-1&limit={cfg.page_size}"
-    headers = {"User-Agent": "hf-scanner-monitor/0.2.0"}
+    headers = {"User-Agent": "hf-scanner-monitor/0.3.0"}
     if cfg.token:
         headers["Authorization"] = f"Bearer {cfg.token}"
     req = urllib.request.Request(url, headers=headers)

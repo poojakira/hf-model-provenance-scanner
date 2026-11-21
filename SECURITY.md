@@ -1,35 +1,21 @@
-# Security Policy
+# Security reporting and boundaries
 
-## Scope
+Software0.3.0 is a **PARTIAL** candidate. No production-support, response/fix deadline, certification or vulnerability-free claim is made. Report suspected vulnerabilities privately through the repository owner's GitHub security/contact channel where available. Include affected source/version, prerequisites, minimal synthetic reproduction, expected/observed boundary and redacted logs. Never post private models, credentials, process tokens or executable payloads publicly.
 
-Pre-load static scanning, parsing, CLI/API behavior, CI integrations, and model-artifact handling are in scope. Dynamic execution is disabled. Third-party model hubs and external scanners are out of scope.
+## Actual trust boundaries
 
-This is an open-source production-oriented security system. Security claims remain limited to behavior demonstrated by the repository, its CI, and committed evidence; production orientation does not imply third-party certification or a deployment history that is not evidenced here.
+The Linux local inspector uses bounded input, exact loopback Host/Origin/process-token checks, inert rendering and a fresh syscall-contained static worker. It never imports/unpickles/executes uploaded files. Its origin token does not authenticate another OS user; local processes/extensions and the host remain trusted. Containment is not a VM or proof against kernel/CPython/library flaws. Report checksums are not signatures or tamper-proof audit anchors.
 
-## Reporting a vulnerability
+CLI, remote admission, webhook and portable executor are distinct surfaces. The local worker is not automatically wrapped around every CLI/remote operation. The remote service retains API-key/allowlist checks; a keyless local browser is not authorization to weaken them. The portable executor's acknowledgment flag and illustrative kernel profiles do not establish arbitrary-code isolation. `--sandbox` remains disabled.
 
-Please do not publish exploit details in a public issue before the maintainer has had a reasonable opportunity to review them.
+## Source-scoped autopsy
 
-Send a concise report to the maintainer contact listed on https://github.com/poojakira with:
-- affected version/commit;
-- reproduction steps;
-- impact and preconditions;
-- suggested mitigation, if known.
+Implementation work corrected destructive installer target handling/CRLF/Python-version drift, installed-wheel Git attribution, bounded worker/pipes and structural parsing, stale file/response/export races, and nonce persistence in saved health evidence. Actual negative/regression results are source-scoped in [EVIDENCE.md](docs/EVIDENCE.md). Independent review at an earlier source identified two export races and nonce hygiene; engineering regression confirmed the corrections at 16ff. Independent closing review remains **BLOCKED** by the review service, not VERIFIED. This documentation pass supplies no new independent security closure.
 
-## Supported versions
+The old filename-sensitive hash concern is not an unresolved defect: structure fingerprinting excludes the display path and the identical-renamed-bytes comparison passed. No-result/UNKNOWN/no-pattern statuses must remain distinct. Heuristic rules can miss malicious content and flag benign files; broad safety/provenance conclusions require other evidence.
 
-Only the current default branch is actively maintained unless a release explicitly states otherwise.
+## Credentials, privacy and recovery
 
-## Disclosure
+Use synthetic data for evaluation and operator-approved inputs in a trusted environment. Keep tokens, passwords, private keys and populated environment files out of source/logs/exports. Optional network paths need approved narrow runtime credentials and destinations. Reports can disclose artifact content, paths and metadata; review before sharing. If a credential is exposed, revoke/rotate at its provider first, then preserve evidence and remediate source/history/artifact exposure. Deleting a file or rewriting history does not revoke it. No live credential probing is needed to classify a scanner heuristic.
 
-After a fix is available, a public issue or advisory may document the affected scope, remediation, and any claim changes required by the finding.
-
-<!-- credential-response:start -->
-## Credential and secret handling
-
-- Real API keys, tokens, passwords, private keys, cloud credentials, and populated environment files must never be committed.
-- Local users must create their own `.env` from the repository's safe template when environment variables are needed, and must supply **their own** credentials. CI/CD credentials belong in GitHub repository/environment secrets or an external secret manager, not in source or workflow YAML.
-- If a real credential is exposed, treat it as compromised even if the commit is quickly deleted. **Revoke or rotate the credential at its provider first.** Then remove it from the current tree, reachable Git history, logs/artifacts, examples, screenshots, and documentation as applicable.
-- Rewriting Git history or deleting a file does **not** revoke a credential. Provider-side rotation/revocation is required.
-- Placeholder/test credentials must be clearly marked and must not be valid for real services.
-<!-- credential-response:end -->
+Backend input memory is reclaimed, not cryptographically erased; explicit downloads and source files persist under operator control. There is no local report database or secure-erasure promise. Follow [operations](RUNBOOK.md), [limitations](LIMITATIONS.md) and [incident-response template](INCIDENT_RUNBOOK.md); deployment-specific review and remaining acceptance gates stay explicit.

@@ -1,3 +1,5 @@
+> **Historical/source-bounded record.** The dated observations, metrics, chronology and third-party assertions below retain their original scope. They are not verification of a later inspector/documentation head or production approval. Original external/private sources and field claims were not independently revalidated in this pass. See [current evidence status](docs/EVIDENCE.md).
+
 # Project History and Repository Provenance
 
 ## Timeline distinction

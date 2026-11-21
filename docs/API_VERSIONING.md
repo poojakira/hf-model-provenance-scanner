@@ -1,276 +1,61 @@
-# API Versioning Policy
+# API and version reference
 
-## Overview
+Software/engine version is **0.3.0**, local inspector schema version is **1**, and separate remote admission API metadata declares **1.0.0**. They identify different contracts. This pre-1.0 project does not establish immutable Python imports, a multi-release deprecation/backport schedule or future schema guarantees merely by listing them.
 
-The HuggingFace Model Provenance Scanner maintains strict versioning guarantees for its public interfaces. This document defines what is considered stable, how breaking changes are managed, and what consumers can depend on.
+## Local inspector API 1
 
-We follow [Semantic Versioning 2.0.0](https://semver.org/):
-- **MAJOR** (X.0.0): Breaking changes to stable APIs
-- **MINOR** (0.X.0): New features, new rules, backward-compatible changes
-- **PATCH** (0.0.X): Bug fixes, rule accuracy improvements, documentation
+Implementation: `scanner/workbench/server.py`, `worker.py` and `app.js`. Only the trusted local browser is supported; there is no public bind, URL/path/command target or remote-model download endpoint.
 
----
+| Method | Path | Contract |
+|---|---|---|
+| GET | `/`, `/app.js`, `/style.css` | Packaged browser assets |
+| GET | `/api/health` | Version/source/rule hashes/limits and process-local CSRF token; do not persist token or call readiness a containment proof |
+| POST | `/api/inspect` | Exact local Origin/Host and X-Inspector-Token, JSON Content-Type, declared length, no Transfer-Encoding; bounded base64 file envelope |
 
-## 1. CLI Interface Stability
-
-### Stable (Will Not Break Without Major Version Bump)
-
-The following CLI behaviors are guaranteed stable:
-
-| Feature | Guarantee |
-|---------|-----------|
-| `hf-scanner <path>` | Always accepts a positional path/target argument |
-| `--format json` | JSON output schema is versioned (see §3) |
-| `--format sarif` | SARIF 2.1.0 compliant output |
-| `--format text` | Human-readable output (format may change cosmetically) |
-| `--no-network` | Fully offline operation |
-| `--version` | Print version and exit |
-| `--help` | Print usage and exit |
-| Exit code 0 | No findings at or above severity threshold |
-| Exit code 1 | Findings detected at or above severity threshold |
-| Exit code 2 | Scanner error (invalid input, configuration error) |
-
-### Unstable / Experimental
-
-Features prefixed with `--experimental-` or documented as "unstable" may change in any release. Current experimental features:
-
-- `--experimental-deep-scan` — Recursive archive inspection
-- `--experimental-heuristic` — ML-based anomaly detection
-
-### Deprecation Process
-
-1. Feature marked deprecated in release notes and `--help` output
-2. Deprecation warning printed to stderr for at least 2 minor versions
-3. Feature removed in next major version
-
----
-
-## 2. Rule ID Stability
-
-### Rule ID Format
-
-All rules follow the format `HFS-XXX` where XXX is a zero-padded integer:
-
-```
-HFS-001  Pickle GLOBAL opcode with os module
-HFS-002  Pickle GLOBAL opcode with subprocess module
-...
-HFS-189  (highest assigned ID; 153 rules defined, IDs are sparse up to HFS-189)
-```
-
-### Guarantees
-
-| Guarantee | Description |
-|-----------|-------------|
-| **IDs are never reused** | Once `HFS-042` is assigned, that ID permanently refers to that specific detection, even if the rule is deprecated or removed. |
-| **IDs are never reassigned** | A retired rule's ID becomes permanently reserved. |
-| **Monotonically increasing** | New rules always get the next available integer. |
-| **Stable severity** | A rule's severity level does not change without a MINOR version bump and CHANGELOG entry. |
-| **Stable description** | The `id` + `name` fields are immutable once published. The `description` may be clarified. |
-
-### Rule Lifecycle
-
-```
-DRAFT ──▶ ACTIVE ──▶ DEPRECATED ──▶ RETIRED
-                         │
-                         ▼
-                    (still fires, warning emitted)
-```
-
-- **DRAFT**: In development, not in any release
-- **ACTIVE**: Included in scanner, fully supported
-- **DEPRECATED**: Still fires but marked for future removal; downstream should stop depending on it
-- **RETIRED**: No longer fires; ID permanently reserved
-
-### Suppression Stability
-
-If a user suppresses `HFS-042` in their configuration:
-- That suppression continues to work across all versions
-- If the rule is retired, the suppression becomes a no-op (no error)
-
----
-
-## 3. SARIF Output Schema Versioning
-
-### Schema Version
-
-The scanner outputs SARIF 2.1.0 compliant JSON. The output includes a version field:
+The body accepts only a files array with one/two objects, each containing only ASCII basename name and base64 data. Each decoded file is 1 byte–4 MiB; envelope limit is 12 MiB. The source parses supported structures, not filenames alone. A synthetic raw-pickle NONE/STOP example is:
 
 ```json
-{
-  "$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json",
-  "version": "2.1.0",
-  "runs": [...]
-}
+{"files":[{"name":"synthetic.pkl","data":"gAROLg=="}]}
 ```
 
-### Custom Properties
+Success delivers the report schema, run/UTC/source/configuration/input hashes, limits, input manifest, result files/comparison and limitations. Each input includes name/size/SHA-256; parsed files add structure evidence/hash/findings, and unknown files add an error. Worker failure can produce an empty result.files with result.error while the input manifest still records selected hashes. Comparison fields may be null when inspection fails. HTTP200 is report delivery, not successful security validation. See [the user/format contract](INSPECTOR.md).
 
-Scanner-specific extensions use the `properties` bag as per SARIF spec:
+| HTTP status | Meaning |
+|---|---|
+| 400 | Malformed JSON/envelope/filename/base64 |
+| 403 | Host/origin/process-token boundary rejected |
+| 404 | Unknown route |
+| 408 | Upload deadline |
+| 413 | Invalid/absent/excessive length |
+| 415 | Unsupported content type/transfer encoding |
+| 429 | Existing scan or connection capacity occupied |
+
+Other methods are unsupported. Download bundles contain report and a manifest.report_sha256 over UTF-8 JSON.stringify(report,null,2), without trailing newline. This checksum is not a signature or independent attestation. File edits/new scans cancel obsolete pending outputs; the temporary token stays in memory. Installed wheels report Git source UNKNOWN unless in their exact tracked source root.
+
+## CLI reports and status
+
+`hf-scanner` and `python -m scanner.cli` invoke `scanner.cli.main`. Current argparse supports local/remote/both modes, revision, severity, json/sarif/text/html, output/config, no-network, token, verbose/quiet, baseline/save-baseline, binary limits, AIBOM/runtime-policy and protect options. Use `--help` for exact flags. `--experimental-deep-scan` and `--experimental-heuristic` are not implemented. `--sandbox` is explicitly rejected. Parsed protect-daemon does not create a daemon implementation.
+
+Native JSON actually uses scan_target, scan_mode, scanner_version, findings, org_check, risk, files_scanned/files_skipped, completeness, skipped_files_detail, artifact_revision, scan_duration_seconds and error. Findings use rule_id, severity, file_path, line_number, column, message, evidence, remediation, cwe and decoded_layer. The old invented schema_version/target/summary schema is not this formatter's output. Reports include variable run duration and supplied paths; byte-identical whole-report output is not promised.
+
+SARIF formatter emits version 2.1.0 with tool.driver.name hf-scanner, tool version, rule records, results, locations and scanner properties. An emitted format identifier is not by itself official-schema validation or proof findings are security-correct. The local inspector downloads its own JSON bundle, not SARIF. The current Rule objects live in scanner/rules/definitions.py with additional rule IDs produced by helpers; a sparse ID range is not a contiguous count or future stability guarantee. Do not assume a rule is active merely because its ID exists in a registry.
+
+Exit 0 means configured severity did not fail; enforce mode also rejects incomplete/indeterminate/unknown. Exit 1 covers threshold/enforce failure; 2 covers runtime/argument errors; 3 covers certain invalid local targets. COMPLETE refers to selected static scope, not safe execution. See [operations](../RUNBOOK.md#interpret-completeness-and-exit-status).
+
+## Remote admission API 1.0.0
+
+Install the service extra in a reviewed environment and launch `uvicorn scanner.service:app` on an operator-chosen reviewed local/ingress configuration. The FastAPI application declares 1.0.0. Routes `/health` and `/ready` are public probes; POST `/scan` requires a 32+ character configured API_KEY matched through X-API-Key. There is one shared trust domain, no user/tenant identity or tenant-specific policy store. When using HF_TOKEN, SCAN_ALLOWED_REPOS must explicitly authorize repository IDs; a configured allowlist restricts public requests too.
+
+Request model fields are repo_id (3–256 characters), revision (1–200, default main), and fail_on (default high). Target/revision/severity validation adds semantic restrictions. Example shape only, not a performed remote request:
 
 ```json
-{
-  "results": [{
-    "ruleId": "HFS-042",
-    "level": "error",
-    "message": { "text": "..." },
-    "properties": {
-      "hf-scanner-version": "1.5.0",
-      "confidence": 0.95,
-      "opcode": "GLOBAL",
-      "dangerous_import": "os.system"
-    }
-  }]
-}
+{"repo_id":"authorized-org/authorized-model","revision":"main","fail_on":"high"}
 ```
 
-### Compatibility Guarantees
+Response fields are scan_id, decision, exit_code, duration_ms, artifact_revision, completeness, risk, findings and sanitized error. A code 0/COMPLETE result maps to ALLOW, code 1 to BLOCK, other combinations to ERROR. The caller must enforce the result before loading a model. Authentication/allowlist failures return 401/403, configured rate excess 429, saturation 503, timeout 504 and unexpected scanner failure 500; request validation can return 422 and body/framing limits 400/413. Health is liveness; ready checks configured key length and reports process settings, not HF connectivity/worker isolation.
 
-| Field | Stability |
-|-------|-----------|
-| `$schema` | Changes only with SARIF spec updates |
-| `version` | Always `"2.1.0"` until SARIF 2.2 adoption |
-| `runs[].tool.driver.name` | Always `"hf-scanner"` |
-| `runs[].tool.driver.version` | Scanner version string |
-| `runs[].results[].ruleId` | Matches `HFS-XXX` rule ID |
-| `runs[].results[].level` | One of: `error`, `warning`, `note` |
-| `properties.*` | May add new properties in MINOR versions; never removes existing ones |
+SCAN_MAX_REQUEST_BYTES defaults to 16,384; SCAN_RATE_LIMIT_RPM to 60; MAX_CONCURRENT_SCANS to 4; SCAN_TIMEOUT_SECONDS to 120. Actual ASGI bytes are bounded before request parsing. Limits are per process. Timed-out threaded work retains its slot until completion; timeout does not terminate the underlying thread. Scanner stdout capture is serialized. Credentials/allowlists/ingress/TLS and shared-worker limits require environment-specific review. These controls are distinct from the local inspector's fresh seccomp-sealed child.
 
-### JSON Output Schema (`--format json`)
+## Compatibility and unavailable APIs
 
-The native JSON format is versioned independently:
-
-```json
-{
-  "schema_version": "1.0",
-  "scanner_version": "1.5.0",
-  "scan_timestamp": "2026-08-27T12:00:00Z",
-  "target": "/path/to/model",
-  "findings": [
-    {
-      "rule_id": "HFS-042",
-      "severity": "CRITICAL",
-      "file": "model.pkl",
-      "offset": 128,
-      "description": "...",
-      "details": {}
-    }
-  ],
-  "summary": {
-    "total_files": 5,
-    "files_scanned": 5,
-    "findings_count": 1,
-    "max_severity": "CRITICAL"
-  }
-}
-```
-
-**Schema version history:**
-
-| Version | Changes |
-|---------|---------|
-| `1.0` | Initial stable schema |
-| `1.1` | Added `summary.scan_duration_ms` field (backward compatible) |
-
-**Guarantees:**
-- `schema_version` bumps MINOR for additive changes (new fields)
-- `schema_version` bumps MAJOR for breaking changes (removed/renamed fields)
-- Breaking JSON schema changes require a scanner MAJOR version bump
-- Consumers should ignore unknown fields for forward compatibility
-
----
-
-## 4. Python API Compatibility
-
-### Public API Surface
-
-> Note: The package is named `scanner`. The current supported interface is the
-> CLI (`python -m scanner.cli <TARGET> -m local`, or `hf-scanner`). A stable
-> importable Python API is aspirational and not yet exported from the package;
-> import paths below describe the intended future surface under the `scanner`
-> namespace.
-
-The following Python imports are the intended public and stable surface:
-
-```python
-from scanner import scan_file, scan_directory, Scanner
-from scanner.rules import load_rules, RuleSet
-from scanner.findings import Finding, Severity
-from scanner.formats import to_sarif, to_json
-```
-
-### Stability Tiers
-
-| Tier | Import Path | Guarantee |
-|------|-------------|-----------|
-| **Stable** | `scanner.*` (top-level) | SemVer: breaking changes only in MAJOR |
-| **Public** | `scanner.rules.*`, `scanner.findings.*`, `scanner.formats.*` | SemVer: breaking changes only in MAJOR |
-| **Internal** | `scanner._internal.*`, `scanner.core._*` | May change in any release |
-| **Plugins** | `scanner.plugins.*` | Stable interface, plugin implementations may vary |
-
-### Type Annotations
-
-Public API functions include complete type annotations. Type changes follow these rules:
-
-- **Widening** a parameter type (accepting more) = MINOR
-- **Narrowing** a parameter type (accepting less) = MAJOR
-- **Widening** a return type = MAJOR (caller may not handle new variants)
-- **Narrowing** a return type (returning less) = MINOR
-
-### Deprecation in Python API
-
-```python
-import warnings
-
-
-def old_function():
-    warnings.warn(
-        "old_function() is deprecated since v1.4.0, use new_function() instead. "
-        "It will be removed in v2.0.0.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return new_function()
-```
-
-- Deprecated functions remain for at least 2 minor versions
-- Removed only in major versions
-- Always include migration guidance in the warning message
-
-### Minimum Python Version
-
-- Current minimum: Python 3.10
-- Python version support follows [NEP 29](https://numpy.org/neps/nep-0029-deprecation_policy.html) (support versions released in the last 42 months)
-- Dropping a Python version is a MINOR version change (documented in CHANGELOG)
-
----
-
-## 5. Versioning Summary Matrix
-
-| Interface | Breaking Change = | Additive Change = | Bug Fix = |
-|-----------|-------------------|-------------------|-----------|
-| CLI flags & exit codes | MAJOR | MINOR | PATCH |
-| Rule IDs (HFS-xxx) | Never broken (IDs permanent) | MINOR (new rules) | PATCH (accuracy fix) |
-| SARIF output | MAJOR | MINOR | PATCH |
-| JSON output schema | MAJOR | MINOR (schema_version bump) | PATCH |
-| Python public API | MAJOR | MINOR | PATCH |
-| Python internal API | Any | Any | Any |
-| Rule severity levels | MINOR | MINOR | — |
-
----
-
-## 6. Version Support Policy
-
-| Version | Status | Support Until |
-|---------|--------|--------------|
-| 0.2.0 (current, 0.x) | Active | Until 1.0 + 6 months |
-| < 0.2.0 | Legacy | Unsupported |
-
-- Only the latest MINOR release receives PATCH updates
-- Security fixes may be backported to previous MINOR on request
-- No LTS version is currently designated. Any future LTS policy must be documented in a released version before consumers rely on it.
-
----
-
-*Last updated: 2026-08-27*
-*Owner: Core maintainers*
+There is no supported top-level `from scanner import scan_file, Scanner` facade, plugin stability contract or universal no-backward-breakage guarantee. Internal functions/classes are source entry points subject to change. Pin reviewed versions/commits, validate emitted reports and update consumer compatibility tests for changes. Proposal-style old API examples do not establish implemented behavior, official-schema validation or a maintenance commitment.

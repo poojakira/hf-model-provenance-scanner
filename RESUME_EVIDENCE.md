@@ -1,10 +1,12 @@
+> **Historical portfolio record.** Candidate-supplied employment/development/resume chronology is not independently established by test counts. Earlier metrics remain source-scoped; no current-head or field-efficacy claim is supplied here. See [the current source ledger](VERIFIED_METRICS.md) and [evidence](docs/EVIDENCE.md).
+
 # Resume Evidence
 
 This file distinguishes quantitative claims in the currently tracked portfolio resume, older locally recorded test runs, and separate committed fixture reports.
 
-## Current portfolio resume snapshot (audited 2026-10-11)
+## Historical portfolio snapshot (audited 2026-10-11)
 
-The current portfolio resume uses the 260-pass/75.67%-coverage evidence; the fixture results listed here are supporting project evidence and are not all separately printed on the one-page resume:
+The portfolio record at that audit used the 260-pass/75.67%-coverage evidence; the fixture results listed here are supporting project evidence and are not all separately printed on the one-page resume:
 
 - **260 passing tests, 1 skipped, 6 additional pytest subtests passed**
 - **75.67% statement coverage**
@@ -53,13 +55,12 @@ This is deliberately narrow. It is **not** a claim of a universal 0% false-posit
 
 ## Repository state and evidence history
 
-The repository's earlier `VERIFIED_METRICS.md` record previously reported 241 passed at its cited commit (historical). The current verified result is **260 passed, 1 skipped, 6 subtests and 75.67% statement coverage** (October 13, 2026 CI run [38462464074](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074), commit `4304853a`). The separately archived 195-pass Windows run remains historical evidence only.
+The repository's earlier `VERIFIED_METRICS.md` record previously reported 241 passed at its cited commit (historical). The cited historical result was **260 passed, 1 skipped, 6 subtests and 75.67% statement coverage** (October 13, 2026 CI run [38462464074](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074), commit `4304853a`). The separately archived 195-pass Windows run remains historical evidence only.
 
-The currently tracked portfolio resume source uses 260 passing tests and 1 skipped, consistent with the October 9, 2026 hosted CI result. Historical claims and fixture results remain scoped to their specific commits and samples.
+The portfolio source described by that record used 260 passing tests and 1 skipped, consistent with the October 9, 2026 hosted CI result. Historical claims and fixture results remain scoped to their specific commits and samples.
 
-## Current hosted verification reference
+## Historical hosted verification reference
 
 - Main commit: [`2f937ba51f31c678e43a064e95d6939e3feb9226`](https://github.com/poojakira/hf-model-provenance-scanner/commit/2f937ba51f31c678e43a064e95d6939e3feb9226)
 - [GitHub Actions CI run 38002138828](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38002138828), Python 3.12 job: **260 passed, 1 skipped, 6 subtests passed, 75.67% coverage**.
 - These results are hosted test evidence, not a real-world detection rate or deployment claim.
-

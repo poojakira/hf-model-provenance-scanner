@@ -19,7 +19,7 @@ RULES: dict[str, Rule] = {
         "HFS-001",
         "powershell-subprocess",
         Severity.CRITICAL,
-        "subprocess or shell execution whose args contain powershell, cmd.exe, or pwsh",
+        "High-risk execution/deserialization callable, execution from __init__.py, or command referencing powershell, cmd.exe, or pwsh",
         "Remove the subprocess call. Models should not invoke shell commands.",
         "CWE-78",
         ["loader", "execution"],

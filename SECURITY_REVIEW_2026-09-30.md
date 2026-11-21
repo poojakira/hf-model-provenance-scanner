@@ -1,3 +1,5 @@
+> **Historical/source-bounded record.** The dated observations, metrics, chronology and third-party assertions below retain their original scope. They are not verification of a later inspector/documentation head or production approval. Original external/private sources and field claims were not independently revalidated in this pass. See [current evidence status](docs/EVIDENCE.md).
+
 # Security review, 2026-09-30
 
 Reviewed checkout: `4de4ded268bf7f9b032f2040aaf92b4e97e8ed02`.

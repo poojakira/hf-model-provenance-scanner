@@ -1,53 +1,9 @@
-# Attacker and User Runbook
+# Authorized local validation guide
 
-This file gives two safe execution paths: normal scanner usage and adversarial regression usage. Attacker commands are `[TEST-ONLY]`; they scan local fixtures and must not be used against systems you do not own or have permission to test.
+This is defensive repository validation on controlled synthetic fixtures, not permission to target an external service or execute untrusted model code. The current independent security closure is BLOCKED; this guide does not restart or replace it.
 
-## User Run
-Create an isolated PowerShell environment before running repository commands:
+Use the Linux inspector setup and complete commands in [TESTING.md](docs/TESTING.md). Its browser acceptance invokes actual static engines and worker boundaries. For focused development, existing `tests/test_workbench.py`, `tests/test_pickle_scanner.py`, `tests/test_gguf_scanner.py`, `tests/test_safetensors_scanner.py` and `tests/test_security_rejects.py` describe real assertions. Selected tests are not the full regression or proof of all formats/platforms.
 
-```powershell
-py -3.12 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
-```
+Keep tests and artifacts scoped to the exact candidate SHA, environment, actual inputs/configuration and executed commands. Preserve failing/incomplete outcomes, separate skipped cases and native subtests, and inspect downloaded report checksums. Do not run a model, enable `--sandbox`, broaden syscall permissions or remove negative assertions to obtain a green result.
 
-Install the scanner locally:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
-```
-
-Scan the current repository as a local target without failing on intentionally committed security fixtures:
-
-```powershell
-.\.venv\Scripts\python.exe -m scanner.cli . --mode local --fail-on never
-```
-
-Run the scanner unit tests:
-
-```powershell
-.\.venv\Scripts\python.exe -m pytest tests/test_pickle_scanner.py -q
-```
-
-## Attacker Run [TEST-ONLY]
-
-Run the renamed-pickle and pickle-analysis bypass regression suite:
-
-```powershell
-.\.venv\Scripts\python.exe -m pytest tests/test_pickle_scanner.py -q
-```
-
-Run additional binary/model format security tests:
-
-```powershell
-.\.venv\Scripts\python.exe -m pytest tests/test_gguf_scanner.py tests/test_safetensors_scanner.py tests/test_security_rejects.py -q
-```
-
-## Pass Condition
-
-All selected tests exit `0`; renamed pickle payloads and Python source gadgets must be detected by content, not trusted by extension.
-
-## Honest Limit
-
-These commands prove local static-scanner regressions only. They do not prove full Hugging Face Hub-scale malware coverage, sandbox safety, or commercial supply-chain parity.
-
-
+The old portable executor and kernel-profile examples have [separate limitations](scanner/isolation/README.md); they are not the local worker or an approved arbitrary-code sandbox. No live remote target, paid service, new provider key, security-policy change or credential validation is needed for the documented local workflow.
