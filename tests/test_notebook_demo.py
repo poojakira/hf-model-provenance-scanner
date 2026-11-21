@@ -45,10 +45,8 @@ def test_isolated_runner_uses_own_source(tmp_path):
     )
     value = json.loads(result.stdout)
     assert value["report"]["mode"] == "GUIDED_SYNTHETIC_ONLY"
-    assert (
-        value["report"]["source"]["commit"]
-        == subprocess.check_output(
-            [shutil.which("git"), "rev-parse", "HEAD"], cwd=ROOT, text=True
-        ).strip()
-    )
+    expected_commit = subprocess.check_output(
+        [shutil.which("git"), "rev-parse", "HEAD"], cwd=ROOT, text=True
+    ).strip()
+    assert value["report"]["source"]["commit"] == expected_commit
     assert len(value["report_sha256"]) == 64

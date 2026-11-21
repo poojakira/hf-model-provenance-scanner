@@ -15,14 +15,10 @@ SPEC = {
         {"id": "metadata", "label": "Same weight bytes · changed metadata"},
     ],
     "limitations": [
-        "The notebook generates tiny synthetic SafeTensors fixtures; no "
-        "arbitrary upload or model execution.",
-        "The actual local sealed worker inspects bytes; failure or "
-        "unavailable containment remains UNKNOWN.",
-        "Fingerprints and static structures do not prove model safety, "
-        "publisher identity or semantic equivalence.",
-        "Full local inspector independent security closure remains BLOCKED; "
-        "this demo does not close it.",
+        "The notebook generates tiny synthetic SafeTensors fixtures; no arbitrary upload or model execution.",
+        "The actual local sealed worker inspects bytes; failure or unavailable containment remains UNKNOWN.",
+        "Fingerprints and static structures do not prove model safety, publisher identity or semantic equivalence.",
+        "Full local inspector independent security closure remains BLOCKED; this demo does not close it.",
     ],
     "repository": "https://github.com/poojakira/hf-model-provenance-scanner/tree/codex/local-workbench-20261116",
 }

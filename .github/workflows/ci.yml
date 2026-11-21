@@ -254,18 +254,21 @@ jobs:
           retention-days: 30
 
       - name: Verify test collection
+        shell: bash
         run: |
           if [ -d "attack-v19-core" ]; then
-            count=$(PYTHONPATH=.:attack-v19-core python -m pytest tests/ --collect-only -q 2>/dev/null | tail -1 | grep -oP '\d+(?= tests)')
-          else
-            count=$(python -m pytest tests/ --collect-only -q 2>/dev/null | tail -1 | grep -oP '\d+(?= tests)')
+            export PYTHONPATH=.:attack-v19-core
           fi
-          count=${count:-0}
-          if [ "$count" -lt 10 ]; then
+          collection=$(python -m pytest tests/ --collect-only -q) || {
+            printf '%s\n' "$collection"
+            exit 1
+          }
+          printf '%s\n' "$collection"
+          count=$(grep -oE '^[0-9]+ tests? collected' <<< "$collection" | tail -1 | cut -d ' ' -f 1)
+          if (( count < 10 )); then
             echo "Expected at least 10 tests collected, got $count"
             exit 1
           fi
-          echo "Collected $count tests"
 
   codeql:
     name: CodeQL Analysis

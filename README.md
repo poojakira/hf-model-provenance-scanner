@@ -51,11 +51,11 @@ GGUF tensor payload layout/quantization is **NOT VERIFIED**. The Linux worker in
 
 ![Actual inspector browser from implementation source 16ff6f8](https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/f151c25cea44b6b3225bbf50a2fbabe95c60b94a/release-evidence/browser/desktop.png)
 
-## Current verification and source
+## Verification and release scope
 
-Read the [generated assessment and exact commands](https://github.com/poojakira/hf-model-provenance-scanner/tree/evidence/selected-branches-20261118/release-evidence/RELEASE_ASSESSMENT.md) and [source manifest](https://github.com/poojakira/hf-model-provenance-scanner/tree/evidence/selected-branches-20261118/release-evidence/manifest.json). The manifest records the checked-out SHA, clean state, actual regression/browser outcomes, skips, dependency scope and artifact hashes. Compare its `source_commit` with the checkout you are using. A passing earlier commit does not attest to a later commit.
+**LOCAL ONLY, historical snapshot.** The archived suite at `ab26ad5cd6fe28ae1b0986e20da46be9ebb2f27a` recorded 317 passed, 0 failed, 3 skipped, 76.08% statement coverage, and 6 separately counted passing subtests. The archive was generated on November 19, 2026 UTC and lists the exact commands, tooling, test window, skips and artifact hashes. Use its source SHA when citing the results. [Manifest](https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/ed25d66b72e374f86e2975930b0ed83b9acf3c09/release-evidence/manifest.json) · [Assessment](https://github.com/poojakira/hf-model-provenance-scanner/blob/ed25d66b72e374f86e2975930b0ed83b9acf3c09/release-evidence/RELEASE_ASSESSMENT.md)
 
-The previous published documentation candidate was `2128d2d31614766b05762a76735908ba4bb34ac9`; its [immutable evidence](https://github.com/poojakira/hf-model-provenance-scanner/tree/evidence/docs-reconciliation-20261118/release-evidence) remains historical. The newer architecture/notebook changes require their own generated evidence. [PR #103](https://github.com/poojakira/hf-model-provenance-scanner/pull/103) records the current source, publication and remaining blockers. **Release remains PARTIAL.**
+The candidate inspects supported artifact bytes in a bounded worker. Unknown or incomplete results require review. Publisher identity, lineage, behavioral safety and independent security closure remain unverified. [Draft review](https://github.com/poojakira/hf-model-provenance-scanner/pull/103)
 
 ## Distinct interfaces and documentation
 

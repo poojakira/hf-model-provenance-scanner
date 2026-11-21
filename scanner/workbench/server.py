@@ -152,6 +152,7 @@ def _capture(process: subprocess.Popen, payload: bytes, timeout: float) -> tuple
         try:
             os.killpg(process.pid, signal.SIGKILL)
         except ProcessLookupError:
+            # The worker exited before the timeout cleanup reached it.
             pass
         process.wait(timeout=2)
         raise
@@ -412,6 +413,7 @@ def main():
         try:
             server.serve_forever()
         except KeyboardInterrupt:
+            # Let the server context close the local listener on operator shutdown.
             pass
 
 

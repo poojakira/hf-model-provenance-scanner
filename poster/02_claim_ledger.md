@@ -1,4 +1,4 @@
-> **Historical poster snapshot: October 14, 2026.** Source09aaa224776b8de0e53315a63c260eb3229bf9ac/run 38498005353. These are not later inspector/documentation-head results; independent current security closure remains BLOCKED. [Current evidence](../docs/EVIDENCE.md).
+> **Historical research poster, October 14, 2026 UTC.** Its measurements apply to source `09aaa224776b8de0e53315a63c260eb3229bf9ac` and the [associated GitHub Actions run](https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38498005353). See the [later candidate manifest](https://raw.githubusercontent.com/poojakira/hf-model-provenance-scanner/ed25d66b72e374f86e2975930b0ed83b9acf3c09/release-evidence/manifest.json) for separately scoped local verification.
 
 # Claim Ledger - Poster 03
 
@@ -15,3 +15,7 @@
 | 7 | General neural-weight backdoor detection | UNSUPPORTED | Outside established repository capability. |
 
 Do not convert fixture evidence into a real-world detection-rate claim.
+
+## Interpretation
+
+Curated benign and adversarial fixtures exercise configured static patterns and supported parsers. Their results establish regression behavior for that input set. Broader detection and false-positive rates require a representative evaluation.
