@@ -476,3 +476,16 @@ def test_local_scan_does_not_read_linked_artifacts(tmp_path, capsys):
     report = json.loads(capsys.readouterr().out)
     assert report["files_scanned"] == 1
     assert report["files_skipped"] == 1
+
+
+def test_local_reader_portable_path_checks(tmp_path, monkeypatch):
+    import os
+
+    from scanner.utils.file_filter import read_regular_file
+
+    monkeypatch.setattr(os, "supports_dir_fd", set())
+    source = tmp_path / "source.py"
+    source.write_bytes(b"value = 1")
+    assert read_regular_file(str(tmp_path), str(source), 9) == b"value = 1"
+    with pytest.raises(ValueError, match="scan byte limit"):
+        read_regular_file(str(tmp_path), str(source), 8)

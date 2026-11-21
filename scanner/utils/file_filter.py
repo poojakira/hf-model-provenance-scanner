@@ -7,6 +7,15 @@ from pathlib import Path
 
 SKIP_DIRS = {"__pycache__", ".git"}
 
+# Windows marks junctions and other reparse points with this attribute.
+_WINDOWS_REPARSE_POINT = 0x400
+
+
+def _linked(entry: os.stat_result) -> bool:
+    return stat.S_ISLNK(entry.st_mode) or bool(
+        getattr(entry, "st_file_attributes", 0) & _WINDOWS_REPARSE_POINT
+    )
+
 
 def walk_files(root: str, max_size_kb: int = 512) -> Generator[tuple[str, bool], None, None]:
     """Walk directory tree yielding (file_path, is_oversized) tuples.
@@ -54,17 +63,12 @@ def read_regular_file(root: str, path: str, limit: int) -> bytes:
     else:
         # Platforms without directory descriptors still reject links and
         # compare the opened file identity before parsing any bytes.
-        candidate = root_path
-        for part in ("", *relative.parts):
-            candidate /= part
-            entry = candidate.lstat()
-            if (
-                stat.S_ISLNK(entry.st_mode)
-                or getattr(entry, "st_file_attributes", 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT
-            ):
-                raise ValueError("Linked files or directories are not inspected")
-        if not stat.S_ISREG(entry.st_mode):
-            raise ValueError("Expected a regular file")
+        if any(_linked((root_path / part).lstat()) for part in reversed(relative.parents)):
+            raise ValueError("Linked files or directories are not inspected")
+        candidate = root_path / relative
+        entry = candidate.lstat()
+        if _linked(entry) or not stat.S_ISREG(entry.st_mode):
+            raise ValueError("Expected an unlinked regular file")
         fd = os.open(candidate, flags)
         try:
             if not os.path.samestat(entry, os.fstat(fd)):
