@@ -265,3 +265,21 @@ def test_navigator_reporter_deduplicates_and_prefers_subtechnique():
     assert payload["domain"] == "enterprise-attack"
     assert [x["techniqueID"] for x in payload["techniques"]] == ["T1000", "T2000.001"]
     assert payload["techniques"][0]["score"] == 80
+
+
+def test_signature_verifier_rejects_uninspected_artifact_bytes(tmp_path, monkeypatch):
+    import hashlib
+
+    artifact = tmp_path / "weights.bin"
+    signature = tmp_path / "weights.bin.sig"
+    artifact.write_bytes(b"changed")
+    signature.write_bytes(b"signature")
+    expected = {str(signature): (hashlib.sha256(b"signature").hexdigest(), 9)}
+    monkeypatch.setattr("scanner.provenance._find_verifier", lambda: "/usr/bin/cosign")
+
+    def should_not_run(*_args, **_kwargs):
+        pytest.fail("verifier must receive only the inspected byte snapshots")
+
+    monkeypatch.setattr("scanner.provenance.subprocess.run", should_not_run)
+    findings = verify_local_signatures(str(tmp_path), expected_hashes=expected)
+    assert _rule_ids(findings) == {"HFS-038"}

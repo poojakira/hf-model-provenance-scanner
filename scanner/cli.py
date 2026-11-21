@@ -41,7 +41,7 @@ from scanner.provenance import (
 from scanner.risk import compute_risk
 from scanner.rules.definitions import INDETERMINATE_RULE_IDS, get_rule
 from scanner.runtime_policy import format_runtime_policy
-from scanner.utils.file_filter import walk_files
+from scanner.utils.file_filter import read_regular_file, walk_files
 from scanner.utils.hf_api import HFApiClient
 
 SCANNER_VERSION = "0.3.0"
@@ -205,26 +205,24 @@ def scan_local(
     sboms: dict[str, bytes] = {}
     file_hashes: dict[str, tuple[str, int]] = {}
 
+    if os.path.islink(target):
+        result.files_skipped += 1
+        result.findings.append(
+            make_finding("HFS-098", file_path=target, evidence="Linked scan target")
+        )
+        return artifacts, sboms, file_hashes
+
     if os.path.isdir(target):
-        files_to_scan = walk_files(target, max_size_kb=max_size_kb)
-    elif os.path.exists(target):
-        size = os.path.getsize(target)
-        files_to_scan = [(target, size > max_size_kb * 1024)]
+        root = target
+        candidates = (path for path, _ in walk_files(target, max_size_kb=max_size_kb))
+    elif os.path.lexists(target):
+        root = os.path.dirname(os.path.abspath(target))
+        candidates = iter((target,))
     else:
-        files_to_scan = []
+        candidates = iter(())
+        root = target
 
-    # Also find binary model files (larger size limit)
-    binary_files: list[str] = []
-    if os.path.isdir(target):
-        for root, _, filenames in os.walk(target):
-            for fname in filenames:
-                fpath = os.path.join(root, fname)
-                if _is_binary_model(fpath):
-                    binary_files.append(fpath)
-    elif os.path.exists(target) and _is_binary_model(target):
-        binary_files.append(target)
-
-    for file_path, is_oversized in files_to_scan:
+    for file_path in candidates:
         base = os.path.basename(file_path).lower()
         if base in HIGH_RISK_NAMES:
             result.findings.append(
@@ -232,28 +230,28 @@ def scan_local(
                     "HFS-025", file_path=file_path, evidence="Executable model entrypoint present"
                 )
             )
-        # Skip binary models here (handled separately below)
-        if _is_binary_model(file_path):
-            continue
-        if is_oversized:
+        binary = _is_binary_model(file_path)
+        limit = max_binary_bytes if binary else max_size_kb * 1024
+        try:
+            data = read_regular_file(root, file_path, limit)
+        except (OSError, ValueError):
             result.files_skipped += 1
             result.findings.append(
                 make_finding(
-                    "HFS-098", file_path=file_path, evidence="size exceeds scanner.max_file_size_kb"
+                    "HFS-098",
+                    file_path=file_path,
+                    evidence="Unreadable, linked, non-regular, or over the configured size limit",
                 )
             )
             continue
-        try:
-            with open(file_path, "rb") as f:
-                data = f.read()
-        except OSError as exc:
-            result.files_skipped += 1
-            result.findings.append(make_finding("HFS-098", file_path=file_path, evidence=str(exc)))
-            continue
 
-        # Track file hash for temporal analysis
         file_hashes[file_path] = (hashlib.sha256(data).hexdigest(), len(data))
-
+        if binary:
+            result.files_scanned += 1
+            result.findings.extend(analyze_binary_file(file_path, data))
+            _, fp_findings = fingerprint_file(file_path, data)
+            result.findings.extend(fp_findings)
+            continue
         if is_sbom_file(file_path):
             sboms[file_path] = data
             continue
@@ -269,37 +267,6 @@ def scan_local(
         if source_findings or should_scan_remote_file(file_path):
             artifacts[file_path] = data
         result.findings.extend(source_findings)
-
-    # Scan binary model files with dedicated analyzers
-    for file_path in binary_files:
-        try:
-            size = os.path.getsize(file_path)
-            if size > max_binary_bytes:
-                result.files_skipped += 1
-                result.findings.append(
-                    make_finding(
-                        "HFS-098",
-                        file_path=file_path,
-                        evidence=f"Binary model {size // (1024 * 1024)}MB exceeds "
-                        f"{max_binary_mb}MB limit",
-                    )
-                )
-                continue
-            with open(file_path, "rb") as f:
-                data = f.read()
-        except OSError as exc:
-            result.files_skipped += 1
-            result.findings.append(make_finding("HFS-098", file_path=file_path, evidence=str(exc)))
-            continue
-
-        file_hashes[file_path] = (hashlib.sha256(data).hexdigest(), len(data))
-        result.files_scanned += 1
-        binary_findings = analyze_binary_file(file_path, data)
-        result.findings.extend(binary_findings)
-
-        # Generate weight fingerprint (stored in result metadata)
-        fp, fp_findings = fingerprint_file(file_path, data)
-        result.findings.extend(fp_findings)
 
     return artifacts, sboms, file_hashes
 
@@ -541,7 +508,13 @@ def main(argv=None):
             artifacts.update(local_artifacts)
             sboms.update(local_sboms)
             all_file_hashes.update(local_hashes)
-            result.findings.extend(verify_local_signatures(args.target))
+            result.findings.extend(
+                verify_local_signatures(
+                    args.target,
+                    expected_hashes=local_hashes,
+                    max_artifact_bytes=args.max_binary_mb * 1024 * 1024,
+                )
+            )
 
         result.findings.extend(verify_sbom_artifacts(sboms, artifacts))
 

@@ -452,3 +452,27 @@ class TestCompletenessEnum:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+
+def test_local_scan_does_not_read_linked_artifacts(tmp_path, capsys):
+    import json
+
+    from scanner.cli import main
+
+    outside = tmp_path / "outside.py"
+    outside.write_text("print('synthetic fixture')\n")
+    scan = tmp_path / "artifact"
+    scan.mkdir()
+    (scan / "ordinary.py").write_text("value = 1\n")
+    link = scan / "linked.py"
+    try:
+        link.symlink_to(outside)
+    except OSError:
+        import pytest
+
+        pytest.skip("symlink fixture requires symlink support")
+
+    main([str(scan), "--mode", "local", "--format", "json"])
+    report = json.loads(capsys.readouterr().out)
+    assert report["files_scanned"] == 1
+    assert report["files_skipped"] == 1

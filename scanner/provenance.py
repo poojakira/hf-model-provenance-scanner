@@ -5,9 +5,12 @@ import json
 import os
 import shutil
 import subprocess  # nosec B404 - resolved verifier executable with fixed argv only
+import tempfile
+from pathlib import Path
 
 from scanner.models import Finding
 from scanner.rules.definitions import get_rule
+from scanner.utils.file_filter import read_regular_file
 
 SIGNATURE_EXTENSIONS = (".sig", ".asc", ".minisig", ".cosign", ".bundle")
 SBOM_MARKERS = ("sbom", "aibom", "bom.json", "cyclonedx", "cdx")
@@ -39,21 +42,29 @@ def _find_verifier() -> str | None:
     return None
 
 
-def verify_local_signatures(root: str) -> list:
+def verify_local_signatures(
+    root: str,
+    *,
+    expected_hashes: dict[str, tuple[str, int]] | None = None,
+    max_artifact_bytes: int = 100 * 1024 * 1024,
+) -> list:
     """Attempt to verify detached signatures found in a local directory.
 
     Returns findings for failures or unavailable verifiers.
     """
     findings: list[Finding] = []
-    if not os.path.isdir(root):
+    if os.path.islink(root) or not os.path.isdir(root):
         return findings
 
-    sig_files: list[str] = []
-    for dirpath, _, filenames in os.walk(root):
-        for fname in filenames:
-            fpath = os.path.join(dirpath, fname)
-            if is_signature_file(fpath):
-                sig_files.append(fpath)
+    if expected_hashes is not None:
+        sig_files = [path for path in expected_hashes if is_signature_file(path)]
+    else:
+        sig_files = [
+            os.path.join(dirpath, name)
+            for dirpath, _, filenames in os.walk(root)
+            for name in filenames
+            if is_signature_file(os.path.join(dirpath, name))
+        ]
 
     if not sig_files:
         return findings
@@ -87,20 +98,36 @@ def verify_local_signatures(root: str) -> list:
                 artifact_path = sf[: -len(ext)]
                 break
 
-        if not os.path.exists(artifact_path):
+        if not os.path.lexists(artifact_path):
             continue
 
         try:
-            if verifier_name == "cosign":
-                cmd = [verifier, "verify-blob", "--signature", sf, artifact_path]
-            elif verifier_name == "gpg":
-                cmd = [verifier, "--verify", sf, artifact_path]
-            else:
-                cmd = [verifier, "-Vm", artifact_path, "-x", sf]
+            signature = read_regular_file(root, sf, 1024 * 1024)
+            artifact = read_regular_file(root, artifact_path, max_artifact_bytes)
+            if expected_hashes is not None and (
+                expected_hashes.get(sf) != (sha256_bytes(signature), len(signature))
+                or expected_hashes.get(artifact_path) != (sha256_bytes(artifact), len(artifact))
+            ):
+                raise ValueError("Signature input changed or was not inspected during the scan")
+            # The verifier reads the same bounded byte snapshots that were
+            # inspected, without resolving any path in the untrusted tree.
+            with tempfile.TemporaryDirectory(prefix="hf-static-signature-") as directory:
+                signature_file = Path(directory, Path(sf).name)
+                artifact_file = Path(directory, Path(artifact_path).name)
+                signature_file.write_bytes(signature)
+                if artifact_file != signature_file:
+                    artifact_file.write_bytes(artifact)
+                sig, model = str(signature_file), str(artifact_file)
+                if verifier_name == "cosign":
+                    cmd = [verifier, "verify-blob", "--signature", sig, model]
+                elif verifier_name == "gpg":
+                    cmd = [verifier, "--verify", sig, model]
+                else:
+                    cmd = [verifier, "-Vm", model, "-x", sig]
 
-            result = subprocess.run(  # nosec B603 - resolved verifier and fixed argv shape
-                cmd, capture_output=True, timeout=30
-            )
+                result = subprocess.run(  # nosec B603 - resolved verifier and fixed argv shape
+                    cmd, capture_output=True, timeout=30
+                )
             if result.returncode != 0:
                 rule = get_rule("HFS-038")
                 findings.append(
@@ -116,7 +143,7 @@ def verify_local_signatures(root: str) -> list:
                         rule.cwe,
                     )
                 )
-        except (subprocess.TimeoutExpired, OSError) as exc:
+        except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
             rule = get_rule("HFS-038")
             findings.append(
                 Finding(
